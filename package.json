@@ -18,6 +18,12 @@
   },
   "homepage": "https://github.com/DreamTeam24/hetsysteem#readme",
   "dependencies": {
-    "express": "^4.21.2"
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "hbs": "^4.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.13.0"
   }
 }
