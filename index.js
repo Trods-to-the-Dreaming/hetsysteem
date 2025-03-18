@@ -82,7 +82,6 @@ app.post("/auth/register", (req, res) => {
   });
 });
 
-
 // Authentication login POST
 app.post("/auth/login", (req, res) => {
   const { name, password } = req.body;
@@ -113,7 +112,6 @@ app.post("/auth/login", (req, res) => {
     });
   });
 });
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
