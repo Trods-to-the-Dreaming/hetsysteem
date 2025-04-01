@@ -1,0 +1,55 @@
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+	<div class="container-fluid">
+		<a class="navbar-brand mt-0 mb-0 ml-0 mr-2 p-0" href="/"><img src="/favicon.png" width="36" height="36"></a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="mynavbar">
+			<ul class="navbar-nav me-auto">
+				<li class="nav-item">
+					<a class="nav-link" href="/rules">Spelregels</a>
+				</li>
+			</ul>
+			
+			{{#if authenticated}}
+				<!-- Expanded navbar -->
+				<div class="dropdown d-none d-sm-block">
+					<a class="nav-link" href="#" role="button" id="accountDropdown" data-bs-toggle="dropdown">
+						<i class="bi bi-person-circle navbar-account-icon"></i>
+					</a>
+					<ul class="dropdown-menu dropdown-menu-end">
+						<li><a class="dropdown-item" href="/auth/account">Account</a></li>
+						<li class="nav-item"><hr class="dropdown-divider"></li>
+						<li>
+							<form method="POST" action="/auth/logout">
+								<button type="submit" class="dropdown-item btn w-100 text-start">
+									Afmelden
+								</button>
+							</form>
+						</li>
+					</ul>
+				</div>
+				<!-- Collapsed navbar -->
+				<ul class="navbar-nav d-sm-none">
+					<li class="nav-item"><a class="nav-link" href="/auth/account">Account</a></li>
+					<li class="nav-item">
+						<form method="POST" action="/auth/logout">
+							<button type="submit" class="nav-link btn w-100 text-start">
+								Afmelden
+							</button>
+						</form>
+					</li>
+				</ul>
+			{{else}}
+				<!-- Expanded navbar -->
+				<div class="dropdown d-none d-sm-block">
+					<a class="btn btn-outline-light" href="/auth/login">Aanmelden</a>
+				</div>
+				<!-- Collapsed navbar -->
+				<ul class="navbar-nav d-sm-none">
+					<li class="nav-item"><a class="nav-link" href="/auth/login">Aanmelden</a></li>     
+				</ul>
+			{{/if}}
+		</div>
+	</div>
+</nav>
