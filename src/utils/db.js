@@ -2,7 +2,7 @@ const dotenv = require("dotenv");
 const mysql = require("mysql2");
 const path = require("path");
 
-dotenv.config({ path: path.join(__dirname, "../.env")});
+dotenv.config({ path: path.join(__dirname, "../../.env")});
 
 const MSG_CONNECTION_SUCCESS = "Verbonden met MySQL als ID ";
 const MSG_CONNECTION_FAILED = "Verbinden met databank mislukt: ";

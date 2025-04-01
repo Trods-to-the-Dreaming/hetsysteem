@@ -2,10 +2,10 @@
   "name": "hetsysteem",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "index.js",
   "scripts": {
     "build": "npm ci",
-    "serve": "node app.js"
+    "serve": "node index.js"
   },
   "repository": {
     "type": "git",

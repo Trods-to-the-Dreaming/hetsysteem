@@ -30,12 +30,12 @@ app.engine("hbs",
 		},
 		extname: "hbs",
 		defaultLayout: "main",
-		layoutsDir: path.join(__dirname, "views/layouts"),
-		partialsDir: path.join(__dirname, "views/partials")
+		layoutsDir: path.join(__dirname, "src/views/layouts"),
+		partialsDir: path.join(__dirname, "src/views/partials")
 	})
 );
 app.set("view engine", "hbs");
-app.set("views", path.join(__dirname, "views"));
+app.set("views", path.join(__dirname, "src/views"));
 
 // Express Session
 app.use(
@@ -43,7 +43,7 @@ app.use(
 		secret: "secret-key",
 		resave: false,
 		saveUninitialized: true,
-		cookie: { secure: false } // set to false on localhost
+		cookie: { secure: true } // set to false on localhost
 	})
 );
 
@@ -51,7 +51,7 @@ app.use(
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // Public directory
-const publicDir = path.join(__dirname, "../public");
+const publicDir = path.join(__dirname, "public");
 app.use(express.static(publicDir));
 
 // Local variables for the navigation bar
@@ -66,7 +66,7 @@ app.use((req, res, next) => {
 });
 
 // Routers
-const routersPath = path.join(__dirname, "routes");
+const routersPath = path.join(__dirname, "src/routes");
 fs.readdirSync(routersPath).forEach((file) => {
 	if (file.endsWith(".js")) {
 		const routerModule = require(path.join(routersPath, file));
