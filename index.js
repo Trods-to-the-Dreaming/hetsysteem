@@ -43,7 +43,7 @@ app.use(
 		secret: "secret-key", // CHANGE !
 		resave: false,
 		saveUninitialized: true,
-		cookie: { secure: false } // CHANGE ?
+		cookie: { secure: true } // CHANGE ?
 	})
 );
 
