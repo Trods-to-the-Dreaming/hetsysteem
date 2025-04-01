@@ -40,10 +40,10 @@ app.set("views", path.join(__dirname, "src/views"));
 // Express Session
 app.use(
 	session({
-		secret: "secret-key",
+		secret: "secret-key", // CHANGE !
 		resave: false,
 		saveUninitialized: true,
-		cookie: { secure: true } // set to false on localhost
+		cookie: { secure: false } // CHANGE ?
 	})
 );
 
