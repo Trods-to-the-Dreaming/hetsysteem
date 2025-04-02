@@ -1,5 +1,6 @@
 //--- 3rd party modules ---//
 const express = require("express");
+const dotenv = require("dotenv");
 const exphbs = require("express-handlebars");
 const session = require("express-session");
 const bodyParser = require("body-parser");
@@ -9,6 +10,9 @@ const fs = require("fs");
 
 //--- Error messages ---//
 const MSG_SERVER_STARTED = "Server gestart via poort ";
+
+// --- Environmental variables ---//
+dotenv.config({ path: path.join(__dirname, ".env")});
 
 //--- Initialize server ---//
 const app = express();
@@ -38,12 +42,13 @@ app.set("view engine", "hbs");
 app.set("views", path.join(__dirname, "src/views"));
 
 // Express Session
+app.set("trust proxy", 1);
 app.use(
 	session({
-		secret: "secret-key", // CHANGE !
+		secret: process.env.SESSION_SECRET,
 		resave: false,
 		saveUninitialized: true,
-		cookie: { secure: true } // CHANGE ?
+		cookie: { secure: process.env.NODE_ENV === "production" }
 	})
 );
 

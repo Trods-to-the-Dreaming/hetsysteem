@@ -1,25 +1,29 @@
-const dotenv = require("dotenv");
+//const dotenv = require("dotenv");
 const mysql = require("mysql2");
 const path = require("path");
 
-dotenv.config({ path: path.join(__dirname, "../../.env")});
+//dotenv.config({ path: path.join(__dirname, "../../.env")});
 
-const MSG_CONNECTION_SUCCESS = "Verbonden met MySQL als ID ";
-const MSG_CONNECTION_FAILED = "Verbinden met databank mislukt: ";
+const MSG_CONNECTION_SUCCESS = "MySQL pool is gecreëerd.";
+const MSG_CONNECTION_FAILED = "Creëren van MySQL pool mislukt: ";
 
-const db = mysql.createConnection({
-	host: process.env.DB_HOST,
-	user: process.env.DB_USER,
-	password: process.env.DB_PASSWORD,
-	database: process.env.DB_NAME,
+const pool = mysql.createPool({
+    connectionLimit: 20,
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    waitForConnections: true,  // Queue requests if pool is full
+    queueLimit: 0  // No limit on waiting requests
 });
 
-db.connect((err) => {
-	if (err) {
-		console.error(MSG_CONNECTION_FAILED + err.stack);
-		return;
-	}
-	console.log(MSG_CONNECTION_SUCCESS + db.threadId);
+pool.getConnection((err, connection) => {
+    if (err) {
+        console.error(MSG_CONNECTION_FAILED + err.stack);
+        return;
+    }
+    console.log(MSG_CONNECTION_SUCCESS);
+    connection.release(); // Release initial test connection
 });
 
-module.exports = db;
+module.exports = pool;
