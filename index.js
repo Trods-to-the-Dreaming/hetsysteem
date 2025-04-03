@@ -54,7 +54,7 @@ const sessionStore = new MySQLStore({
 app.set('trust proxy', 1);
 app.use(
 	session({
-		key: 'session_cookie_name',
+		name: 'session_cookie_name',
 		secret: process.env.SESSION_SECRET,
 		store: sessionStore,
 		resave: false,
