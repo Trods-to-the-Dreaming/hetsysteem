@@ -1,5 +1,5 @@
 function requireAuth(req, res, next) {
-	if (req.session) {// && req.session.username) {
+	if (req.session && req.session.username) {
         res.locals.authenticated = true;
 		next(); // User is authenticated, continue to the requested page
     } else {
