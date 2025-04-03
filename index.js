@@ -3,9 +3,9 @@ const express = require("express");
 const dotenv = require("dotenv");
 const exphbs = require("express-handlebars");
 const session = require("express-session");
+const MySQLStore = require('express-mysql-session')(session);
 const bodyParser = require("body-parser");
 const path = require("path");
-//const jwt = require("jsonwebtoken");
 const fs = require("fs");
 
 //--- Error messages ---//
@@ -41,13 +41,23 @@ app.engine("hbs",
 app.set("view engine", "hbs");
 app.set("views", path.join(__dirname, "src/views"));
 
+// Express MySQL Session
+const sessionStore = new MySQLStore({
+	host: process.env.DB_HOST,
+	port: 3306,
+	user: process.env.DB_USER,
+	password: process.env.DB_PASSWORD,
+	database: process.env.DB_NAME
+});
+
 // Express Session
-app.set("trust proxy", 1);
 app.use(
 	session({
+		key: 'session_cookie_name',
 		secret: process.env.SESSION_SECRET,
+		store: sessionStore,
 		resave: false,
-		saveUninitialized: true,
+		saveUninitialized: false,
 		cookie: { secure: process.env.NODE_ENV === "production" }
 	})
 );
