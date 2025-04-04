@@ -159,4 +159,4 @@ fs.readdirSync(routersPath).forEach((file) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(MSG_SERVER_STARTED + PORT);
-});*/
+});
