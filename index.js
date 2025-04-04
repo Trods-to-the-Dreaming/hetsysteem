@@ -12,7 +12,7 @@ app.use(cookieSession({
   name: 'session',
   keys: ['your_secret_key'],
   maxAge: 24 * 60 * 60 * 1000, // 24 hours
-  secure: true,      // Ensures the cookie is only sent over HTTPS
+  secure: false,      // Ensures the cookie is only sent over HTTPS
   httpOnly: true,    // Prevents client-side JavaScript from accessing the cookie
   sameSite: 'strict' // Helps protect against CSRF attacks
 }));
@@ -32,7 +32,8 @@ app.post('/login', (req, res) => {
   const { username } = req.body;
   if (username) {
     req.session.username = username;
-    res.send(`Welcome, ${username}!`);
+    //res.send(`Welcome, ${username}!`);
+	res.redirect('/dashboard');
   } else {
     res.status(400).send('Username is required.');
   }
