@@ -1,4 +1,39 @@
 const express = require('express');
+const cookieSession = require('cookie-session');
+
+const app = express();
+
+app.use(cookieSession({
+  name: 'session',
+  keys: ['your_secret_key'],
+  maxAge: 24 * 60 * 60 * 1000, // 24 hours
+  secure: true, // Ensures the cookie is only sent over HTTPS
+  httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
+  sameSite: 'strict', // Helps protect against CSRF attacks
+}));
+
+app.post('/login', (req, res) => {
+  // Authenticate user
+  req.session.username = req.body.username;
+  res.send('Logged in');
+});
+
+app.get('/dashboard', (req, res) => {
+  if (req.session.username) {
+    // Retrieve user preferences from the server using req.session.username
+    res.send(`Welcome, ${req.session.username}`);
+  } else {
+    res.status(401).send('Unauthorized');
+  }
+});
+
+app.listen(3000, () => {
+  console.log('Server running on port 3000');
+});
+
+
+
+/*const express = require('express');
 const session = require('express-session');
 const MySQLStore = require("express-mysql-session")(session);
 
@@ -54,7 +89,7 @@ app.listen(PORT, () => {
 
 
 
-/*//--- 3rd party modules ---//
+//--- 3rd party modules ---//
 const express = require("express");
 const dotenv = require("dotenv");
 const exphbs = require("express-handlebars");
