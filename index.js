@@ -28,7 +28,7 @@ const sessionStore = new MySQLStore({
 });
 
 // Express Session
-//app.set("trust proxy");
+app.set("trust proxy");
 app.use(
 	session({
 		name: 'session_cookie_name',
