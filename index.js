@@ -17,8 +17,6 @@ dotenv.config({ path: path.join(__dirname, ".env")});
 //--- Initialize server ---//
 const app = express();
 
-app.set("trust proxy");
-
 //--- Middlewares ---//
 // Express MySQL Session
 const sessionStore = new MySQLStore({
@@ -30,13 +28,15 @@ const sessionStore = new MySQLStore({
 });
 
 // Express Session
+app.set("trust proxy");
 app.use(
 	session({
 		name: 'session_cookie_name',
+		proxy: process.env.NODE_ENV === "production",
 		secret: process.env.SESSION_SECRET,
 		store: sessionStore,
-		resave: true,
-		saveUninitialized: true,
+		resave: false,
+		saveUninitialized: false,
 		cookie: { 
 			secure: process.env.NODE_ENV === "production"
 		}
