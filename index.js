@@ -61,7 +61,8 @@ app.use(
 		saveUninitialized: false,
 		cookie: { 
 			secure: process.env.NODE_ENV === "production",
-			sameSite: 'lax'
+			sameSite: 'lax',
+			maxAge: 60000
 		}
 	})
 );

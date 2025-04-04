@@ -40,6 +40,7 @@ const AuthController = {
 				if (match) {
 					req.session.username = user.username;
 					//return res.redirect("/game/menu");
+					//console.log(req.session.session_id);
 					req.session.save((err) => {
 						if (err) {
 							console.log(err);
