@@ -3,7 +3,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const exphbs = require("express-handlebars");
 const session = require("express-session");
-const MySQLStore = require('express-mysql-session')(session);
+const MySQLStore = require("express-mysql-session")(session);
 const bodyParser = require("body-parser");
 const path = require("path");
 const fs = require("fs");
@@ -17,6 +17,8 @@ dotenv.config({ path: path.join(__dirname, ".env")});
 //--- Initialize server ---//
 const app = express();
 
+app.set("trust proxy");
+
 //--- Middlewares ---//
 // Express MySQL Session
 const sessionStore = new MySQLStore({
@@ -28,16 +30,15 @@ const sessionStore = new MySQLStore({
 });
 
 // Express Session
-app.set('trust proxy', 1);
 app.use(
 	session({
 		name: 'session_cookie_name',
 		secret: process.env.SESSION_SECRET,
 		store: sessionStore,
-		resave: false,
-		saveUninitialized: false,
+		resave: true,
+		saveUninitialized: true,
 		cookie: { 
-			secure: false //process.env.NODE_ENV === "production"
+			secure: process.env.NODE_ENV === "production"
 		}
 	})
 );
