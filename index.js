@@ -1,23 +1,36 @@
 const express = require('express');
 const session = require('express-session');
+const MySQLStore = require("express-mysql-session")(session);
 
 const app = express();
 
 // Trust the first proxy in case the app is behind one (e.g., on Combell)
 app.set('trust proxy', 1);
 
-// Configure express-session middleware with secure cookies
-app.use(session({
-  name: 'sessionId',
-  secret: 'your_secret_key', // Replace with your own secret key
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: true, // Cookie is only sent over HTTPS
-    httpOnly: true, // Cookie is not accessible via JavaScript
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
-  }
-}));
+const sessionStore = new MySQLStore({
+	host: process.env.DB_HOST,
+	port: 3306,
+	user: process.env.DB_USER,
+	password: process.env.DB_PASSWORD,
+	database: process.env.DB_NAME
+});
+
+app.use(
+	session({
+		name: 'session_cookie_name',
+		proxy: true,//process.env.NODE_ENV === "production",
+		secret: process.env.SESSION_SECRET,
+		store: sessionStore,
+		resave: false,
+		saveUninitialized: false,
+		cookie: { 
+			secure: true,//process.env.NODE_ENV === "production"
+			httpOnly: true, // Cookie is not accessible via JavaScript
+			sameSite: strict,
+			maxAge: 24 * 60 * 60 * 1000 // 24 hours
+		}
+	})
+);
 
 // Middleware to track page views
 app.use((req, res, next) => {
