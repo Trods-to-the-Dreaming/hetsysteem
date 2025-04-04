@@ -58,7 +58,6 @@ app.listen(3000, () => {
 
 
 
-
 //--- 3rd party modules ---//
 const express = require("express");
 const dotenv = require("dotenv");
@@ -84,25 +83,25 @@ app.use(express.urlencoded({extended: 'true'}));
 app.use(express.json());
 
 // Express Session
-/*app.use(
-	session({
-		name: 'session',
-		secret: process.env.SESSION_SECRET,
-		resave: false,
-		saveUninitialized: false,
-		cookie: { 
-			secure: process.env.NODE_ENV === "production",
-			httpOnly: true,
-			sameSite: 'strict',
-			maxAge: 24 * 60 * 60 * 1000 // 24 hours
-		}
-	})
-);*/
+//app.use(
+//	session({
+//		name: 'session',
+//		secret: process.env.SESSION_SECRET,
+//		resave: false,
+//		saveUninitialized: false,
+//		cookie: { 
+//			secure: process.env.NODE_ENV === "production",
+//			httpOnly: true,
+//			sameSite: 'strict',
+//			maxAge: 24 * 60 * 60 * 1000 // 24 hours
+//		}
+//	})
+//);
 
 // Cookie Session
 app.use(cookieSession({
   name: 'session',
-  keys: [process.env.SESSION_SECRET],
+  keys: ['your_secret_key'], //[process.env.SESSION_SECRET],
   maxAge: 24 * 60 * 60 * 1000, // 24 hours
   secure: process.env.NODE_ENV === "production",
   httpOnly: true,
@@ -160,4 +159,4 @@ fs.readdirSync(routersPath).forEach((file) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(MSG_SERVER_STARTED + PORT);
-});
+});*/
