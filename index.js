@@ -1,15 +1,17 @@
 const express = require('express');
-const cookieSession = require('cookie-session');
+const session = require('express-session');
 
 const app = express();
 
 // Trust the first proxy in case the app is behind one (e.g., on Combell)
 app.set('trust proxy', 1);
 
-// Configure cookie-session middleware with secure cookies
-app.use(cookieSession({
-  name: 'session',
-  keys: ['your_secret_key'], // Replace with your own secret key(s)
+// Configure express-session middleware with secure cookies
+app.use(session({
+  name: 'sessionId',
+  secret: 'your_secret_key', // Replace with your own secret key
+  resave: false,
+  saveUninitialized: false,
   cookie: {
     secure: true, // Cookie is only sent over HTTPS
     httpOnly: true, // Cookie is not accessible via JavaScript
@@ -19,7 +21,10 @@ app.use(cookieSession({
 
 // Middleware to track page views
 app.use((req, res, next) => {
-  req.session.views = (req.session.views || 0) + 1;
+  if (!req.session.views) {
+    req.session.views = 0;
+  }
+  req.session.views++;
   next();
 });
 
@@ -33,6 +38,7 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
 
 
 /*//--- 3rd party modules ---//
