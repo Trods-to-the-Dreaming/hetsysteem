@@ -63,7 +63,7 @@ app.listen(3000, () => {
 const express = require("express");
 const dotenv = require("dotenv");
 const exphbs = require("express-handlebars");
-const session = require("express-session");
+//const session = require("express-session");
 const cookieSession = require('cookie-session');
 const bodyParser = require("body-parser");
 const path = require("path");
@@ -84,7 +84,7 @@ app.use(express.urlencoded({extended: 'true'}));
 app.use(express.json());
 
 // Express Session
-app.use(
+/*app.use(
 	session({
 		name: 'session',
 		secret: process.env.SESSION_SECRET,
@@ -97,7 +97,17 @@ app.use(
 			maxAge: 24 * 60 * 60 * 1000 // 24 hours
 		}
 	})
-);
+);*/
+
+// Cookie Session
+app.use(cookieSession({
+  name: 'session',
+  keys: [process.env.SESSION_SECRET],
+  maxAge: 24 * 60 * 60 * 1000, // 24 hours
+  secure: process.env.NODE_ENV === "production",
+  httpOnly: true,
+  sameSite: 'strict'
+}));
 
 // Express Handlebars
 app.engine("hbs",
@@ -127,7 +137,6 @@ app.use(express.static(publicDir));
 
 // Local variables for the navigation bar
 app.use((req, res, next) => {
-    //res.locals.sessionID = req.sessionID;
 	if (req.session && req.session.username) {
 		res.locals.authenticated = true;
 		res.locals.username = req.session.username;
