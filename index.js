@@ -1,4 +1,35 @@
-//--- 3rd party modules ---//
+const express = require('express');
+const session = require('express-session');
+
+const app = express();
+
+app.use(session({
+  secret: 'your_secret_key', // A secret key used to sign the session ID cookie
+  resave: false, // Forces the session to be saved back to the session store
+  saveUninitialized: false, // Forces a session that is "uninitialized" to be saved to the store
+  cookie: {
+    maxAge: 3600000, // Sets the cookie expiration time in milliseconds (1 hour here)
+    httpOnly: true, // Reduces client-side script control over the cookie
+    secure: true, // Ensures cookies are only sent over HTTPS
+  }
+}));
+
+app.get('/', (req, res) => {
+  if (req.session.views) {
+    req.session.views++;
+    res.send(`Number of views: ${req.session.views}`);
+  } else {
+    req.session.views = 1;
+    res.send('Welcome to this page for the first time!');
+  }
+});
+
+const server = app.listen(3000, () => {
+  console.log('Server running on port 3000...');
+});
+
+
+/*//--- 3rd party modules ---//
 const express = require("express");
 const dotenv = require("dotenv");
 const exphbs = require("express-handlebars");
@@ -99,4 +130,4 @@ fs.readdirSync(routersPath).forEach((file) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(MSG_SERVER_STARTED + PORT);
-});
+});*/
