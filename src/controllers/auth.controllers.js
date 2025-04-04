@@ -46,8 +46,9 @@ const AuthController = {
 					//		console.log(err);
 					//		return res.send(MSG_UNEXPECTED_ERROR);
 					//	}
-						res.redirect("/game/menu");
+					//	res.redirect("/game/menu");
 					//});
+					res.redirect("/auth/account");
 				} else {
 					return res.render("auth/login", { login_error: MSG_INVALID_LOGIN });
 				}
@@ -100,9 +101,21 @@ const AuthController = {
 	},
 	
 	//--- Show account page ---//
+	//showAccount: (req, res) => {
+	//	res.render("auth/account");
+	//},
 	showAccount: (req, res) => {
-		res.render("auth/account");
+		if (req.session && req.session.username) {
+			res.locals.authenticated = true;
+			res.render("auth/account");
+		} else {
+			res.locals.authenticated = false;
+			res.redirect("/auth/login"); // Redirect to login if not authenticated
+		}
 	},
+	
+	
+	
 	
 	/*//--- Show change password page ---//
 	showChangePassword: (req, res) => {
