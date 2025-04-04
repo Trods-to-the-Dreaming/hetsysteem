@@ -1,3 +1,64 @@
+/*const express = require('express');
+const cookieSession = require('cookie-session');
+const bodyParser = require('body-parser');
+
+const app = express();
+
+// Middleware to parse request bodies
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Cookie session middleware
+app.use(cookieSession({
+  name: 'session',
+  keys: ['your_secret_key'],
+  maxAge: 24 * 60 * 60 * 1000, // 24 hours
+  secure: false,      // Ensures the cookie is only sent over HTTPS
+  httpOnly: true,    // Prevents client-side JavaScript from accessing the cookie
+  sameSite: 'strict' // Helps protect against CSRF attacks
+}));
+
+// Route to serve the login form
+app.get('/login', (req, res) => {
+  res.send(`
+    <form action="/login" method="post">
+      <input type="text" name="username" placeholder="Enter your username" required />
+      <button type="submit">Login</button>
+    </form>
+  `);
+});
+
+// Route to handle login form submission
+app.post('/login', (req, res) => {
+  const { username } = req.body;
+  if (username) {
+    req.session.username = username;
+    //res.send(`Welcome, ${username}!`);
+	res.redirect('/dashboard');
+  } else {
+    res.status(400).send('Username is required.');
+  }
+});
+
+// Route to handle user dashboard
+app.get('/dashboard', (req, res) => {
+  if (req.session.username) {
+    res.send(`Hello, ${req.session.username}. Welcome to your dashboard.`);
+  } else {
+    res.status(401).send('Unauthorized. Please log in.');
+  }
+});
+
+// Start the server
+app.listen(3000, () => {
+  console.log('Server running on port 3000');
+});*/
+
+
+
+
+
+
+
 //--- 3rd party modules ---//
 const express = require("express");
 const dotenv = require("dotenv");

@@ -40,14 +40,14 @@ const AuthController = {
 				if (match) {
 					req.session.username = user.username;
 					//return res.redirect("/game/menu");
-					console.log('Password Check - Session:', req.session, req.sessionID);
-					req.session.save((err) => {
-						if (err) {
-							console.log(err);
-							return res.send(MSG_UNEXPECTED_ERROR);
-						}
+					//console.log('Password Check - Session:', req.session, req.sessionID);
+					//req.session.save((err) => {
+					//	if (err) {
+					//		console.log(err);
+					//		return res.send(MSG_UNEXPECTED_ERROR);
+					//	}
 						res.redirect("/game/menu");
-					});
+					//});
 				} else {
 					return res.render("auth/login", { login_error: MSG_INVALID_LOGIN });
 				}
