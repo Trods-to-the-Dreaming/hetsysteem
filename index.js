@@ -28,17 +28,17 @@ const sessionStore = new MySQLStore({
 });
 
 // Express Session
-app.set("trust proxy");
+//app.set("trust proxy");
 app.use(
 	session({
 		name: 'session_cookie_name',
-		proxy: process.env.NODE_ENV === "production",
+		proxy: true,//process.env.NODE_ENV === "production",
 		secret: process.env.SESSION_SECRET,
 		store: sessionStore,
-		resave: false,
-		saveUninitialized: false,
+		resave: true,//false,
+		saveUninitialized: true,//false,
 		cookie: { 
-			secure: process.env.NODE_ENV === "production"
+			secure: true//process.env.NODE_ENV === "production"
 		}
 	})
 );
