@@ -1,31 +1,37 @@
 const express = require('express');
-const session = require('express-session');
+const cookieSession = require('cookie-session');
 
 const app = express();
 
-app.use(session({
-  secret: 'your_secret_key', // A secret key used to sign the session ID cookie
-  resave: false, // Forces the session to be saved back to the session store
-  saveUninitialized: false, // Forces a session that is "uninitialized" to be saved to the store
+// Trust the first proxy in case the app is behind one (e.g., on Combell)
+app.set('trust proxy', 1);
+
+// Configure cookie-session middleware with secure cookies
+app.use(cookieSession({
+  name: 'session',
+  keys: ['your_secret_key'], // Replace with your own secret key(s)
   cookie: {
-    maxAge: 3600000, // Sets the cookie expiration time in milliseconds (1 hour here)
-    httpOnly: true, // Reduces client-side script control over the cookie
-    secure: true, // Ensures cookies are only sent over HTTPS
+    secure: true, // Cookie is only sent over HTTPS
+    httpOnly: true, // Cookie is not accessible via JavaScript
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }));
 
-app.get('/', (req, res) => {
-  if (req.session.views) {
-    req.session.views++;
-    res.send(`Number of views: ${req.session.views}`);
-  } else {
-    req.session.views = 1;
-    res.send('Welcome to this page for the first time!');
-  }
+// Middleware to track page views
+app.use((req, res, next) => {
+  req.session.views = (req.session.views || 0) + 1;
+  next();
 });
 
-const server = app.listen(3000, () => {
-  console.log('Server running on port 3000...');
+// Route to display the number of page views
+app.get('/', (req, res) => {
+  res.send(`Number of page views: ${req.session.views}`);
+});
+
+// Start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
 
 
