@@ -1,4 +1,5 @@
 function requireAuth(req, res, next) {
+	console.log('requireAuth - Session:', req.session, req.sessionID);
 	if (req.session && req.session.username) {
         res.locals.authenticated = true;
 		next(); // User is authenticated, continue to the requested page

@@ -18,6 +18,30 @@ dotenv.config({ path: path.join(__dirname, ".env")});
 const app = express();
 
 //--- Middlewares ---//
+// Express MySQL Session
+const sessionStore = new MySQLStore({
+	host: process.env.DB_HOST,
+	port: 3306,
+	user: process.env.DB_USER,
+	password: process.env.DB_PASSWORD,
+	database: process.env.DB_NAME
+});
+
+// Express Session
+app.set('trust proxy', 1);
+app.use(
+	session({
+		name: 'session_cookie_name',
+		secret: process.env.SESSION_SECRET,
+		store: sessionStore,
+		resave: false,
+		saveUninitialized: false,
+		cookie: { 
+			secure: false //process.env.NODE_ENV === "production"
+		}
+	})
+);
+
 // Express
 app.use(express.urlencoded({extended: 'true'}));
 app.use(express.json());
@@ -41,32 +65,6 @@ app.engine("hbs",
 app.set("view engine", "hbs");
 app.set("views", path.join(__dirname, "src/views"));
 
-// Express MySQL Session
-const sessionStore = new MySQLStore({
-	host: process.env.DB_HOST,
-	port: 3306,
-	user: process.env.DB_USER,
-	password: process.env.DB_PASSWORD,
-	database: process.env.DB_NAME
-});
-
-// Express Session
-app.set('trust proxy', 1);
-app.use(
-	session({
-		name: 'session_cookie_name',
-		secret: process.env.SESSION_SECRET,
-		store: sessionStore,
-		resave: false,
-		saveUninitialized: false,
-		cookie: { 
-			secure: process.env.NODE_ENV === "production",
-			sameSite: 'lax',
-			maxAge: 60000
-		}
-	})
-);
-
 // Body parser
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -76,7 +74,8 @@ app.use(express.static(publicDir));
 
 // Local variables for the navigation bar
 app.use((req, res, next) => {
-    if (req.session && req.session.username) {
+    //res.locals.sessionID = req.sessionID;
+	if (req.session && req.session.username) {
 		res.locals.authenticated = true;
 		res.locals.username = req.session.username;
 	} else {
