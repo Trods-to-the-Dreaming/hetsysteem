@@ -27,7 +27,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false, //process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV === "production", // true --> werkt niet // false, // --> werkt wel, maar onveilig?
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000
   }
