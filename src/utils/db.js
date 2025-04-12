@@ -1,10 +1,7 @@
-//const dotenv = require("dotenv");
 const mysql = require("mysql2");
 const path = require("path");
 
-//dotenv.config({ path: path.join(__dirname, "../../.env")});
-
-const MSG_CONNECTION_SUCCESS = "MySQL pool is gecreëerd.";
+const MSG_CONNECTION_SUCCESS = "MySQL pool gecreëerd";
 const MSG_CONNECTION_FAILED = "Creëren van MySQL pool mislukt: ";
 
 const pool = mysql.createPool({

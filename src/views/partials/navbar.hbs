@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
 	<div class="container-fluid">
-		<a class="navbar-brand mt-0 mb-0 ml-0 mr-2 p-0" href="/"><img src="/favicon.png" width="36" height="36"></a>
+		<a class="navbar-brand mt-0 mb-0 ml-0 mr-2 p-0" href="/"><img src="/img/favicon.png" width="36" height="36"></a>
 		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
 			<span class="navbar-toggler-icon"></span>
 		</button>
@@ -18,7 +18,8 @@
 						<i class="bi bi-person-circle navbar-account-icon"></i>
 					</a>
 					<ul class="dropdown-menu dropdown-menu-end">
-						<li><a class="dropdown-item" href="/auth/account">Account</a></li>
+						<li><a class="dropdown-item" href="/game/menu">Spelmenu</a></li>
+						<li><a class="dropdown-item" href="/account/menu">Mijn account</a></li>
 						<li class="nav-item"><hr class="dropdown-divider"></li>
 						<li>
 							<form method="POST" action="/auth/logout">
@@ -31,7 +32,8 @@
 				</div>
 				<!-- Collapsed navbar -->
 				<ul class="navbar-nav d-sm-none">
-					<li class="nav-item"><a class="nav-link" href="/auth/account">Account</a></li>
+					<li class="nav-item"><a class="nav-link" href="/game/menu">Spelmenu</a></li>
+					<li class="nav-item"><a class="nav-link" href="/account/menu">Mijn account</a></li>
 					<li class="nav-item">
 						<form method="POST" action="/auth/logout">
 							<button type="submit" class="nav-link btn w-100 text-start">

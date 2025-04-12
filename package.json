@@ -21,6 +21,7 @@
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "body-parser": "^1.20.2",
+    "bootstrap": "^5.3.5",
     "connect-redis": "^8.0.2",
     "cookie-session": "^2.1.0",
     "dotenv": "^16.4.7",

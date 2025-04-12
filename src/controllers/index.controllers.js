@@ -1,13 +1,20 @@
-const IndexController = {
-	//--- Show index page ---//
-	showIndex: (req, res) => {
-		res.render("index");
-	},
-	
-	//--- Show game rules page ---//
-	showRules: (req, res) => {
-		res.render("rules");
-	}
+//--- Show index page ---//
+const showIndex = (req, res) => {
+	res.redirect("/about");
 };
 
-module.exports = { IndexController };
+//--- Show about page ---//
+const showAbout = (req, res) => {
+	res.render("about");
+};
+
+//--- Show game rules page ---//
+const showRules = (req, res) => {
+	res.render("rules");
+};
+
+module.exports = {
+	showIndex,
+	showAbout,
+	showRules
+};

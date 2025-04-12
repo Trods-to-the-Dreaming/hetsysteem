@@ -1,27 +1,27 @@
 {{#block "title"}}Het Systeem - Registreren{{/block}}
 
-<form class="form-box w-50 mx-auto" method="POST" action="/auth/register">
+<form class="box" method="POST" action="/auth/register">
 	<h3>Registreren</h3>
-	<div class="mt-3 mb-3">
+	<div>
 		<label for="username" class="form-label">Gebruikersnaam:</label>
-		<input type="text" class="form-control" id="username" name="username" required>
+		<input type="text" class="form-control" id="username" name="username" value="{{ username }}" required>
 	</div>
-	{{#if username_error}}
-	<p class="alert alert-danger mt-3 mb-3 p-1">{{username_error}}</p>
+	{{#if errorUsername}}
+	<p class="error">{{errorUsername}}</p>
 	{{/if}}
-	<div class="mt-3 mb-3">
+	<div>
 		<label for="password" class="form-label">Wachtwoord:</label>
 		<input type="password" class="form-control" id="password" name="password" required>
 	</div>
-	<div class="mt-3 mb-3">
-		<label for="password_confirm" class="form-label">Bevestig wachtwoord:</label>
-		<input type="password" class="form-control" id="password_confirm" name="password_confirm" required>
+	<div>
+		<label for="passwordConfirm" class="form-label">Bevestig wachtwoord:</label>
+		<input type="password" class="form-control" id="passwordConfirm" name="passwordConfirm" required>
 	</div>
-	{{#if confirmation_error}}
-	<p class="alert alert-danger mt-3 mb-3 p-1">{{confirmation_error}}</p>
+	{{#if errorPasswordConfirm}}
+	<p class="error">{{errorPasswordConfirm}}</p>
 	{{/if}}
 	<div class="d-grid">
-		<button type="submit" class="btn btn-primary btn-block">Registreren</button>
+		<button type="submit" class="button-1">Registreren</button>
 	</div>
-	<p class="mt-3 mb-1">Reeds lid? <a href="/auth/login">Aanmelden</a>.</p>
+	<p class="no-distance">Reeds lid? <a href="/auth/login">Aanmelden</a>.</p>
 </form>

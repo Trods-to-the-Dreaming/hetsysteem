@@ -1,0 +1,29 @@
+{{#block "title"}}Het Systeem - Mijn account{{/block}}
+
+<div class="box">
+	<h3>Mijn account</h3>
+	<div>
+		<label for="username" class="form-label">Gebruikersnaam:</label>
+		<input type="text" class="form-control" id="username" value="{{username}}" readonly>
+		<p class="change"><a href="/account/changeusername">Wijzigen</a></p>
+	</div>
+	<div>
+		<label for="password" class="form-label">Wachtwoord:</label>
+		<input type="password" class="form-control" id="password" value="********" readonly>
+		<p class="change"><a href="/account/changepassword">Wijzigen</a></p>
+	</div>
+	<!--div class="d-grid">
+		<a class="button-1" href="/account/changeusername">Gebruikersnaam wijzigen</a>
+	</div>
+	<div class="d-grid">
+		<a class="button-1" href="/account/changepassword">Wachtwoord wijzigen</a>
+	</div-->
+</div>
+
+
+<!--h3>Mijn account</h3>
+<p>Gebruikersnaam: {{username}}</p>
+<p><a href="/account/changeusername">Gebruikersnaam wijzigen</a></p>
+<p><a href="/account/changepassword">Wachtwoord wijzigen</a></p>
+
+<a class="btn btn-primary" href="/auth/account">Wachtwoord wijzigen</a-->

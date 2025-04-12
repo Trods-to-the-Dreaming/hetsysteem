@@ -1,73 +1,101 @@
-const express = require('express');
 const dotenv = require("dotenv");
 const path = require("path");
-const mysql = require("mysql2");
-const session = require("express-session");
-const MySQLStore = require('express-mysql-session')(session);
-const bodyParser = require('body-parser');
+const express = require("express");
+const expressSession = require("express-session");
+const expressHandlebars = require("express-handlebars");
+const fs = require("fs");
 
+const MySQLStore = require('express-mysql-session')(expressSession);
+
+//--- Error messages ---//
+const MSG_SERVER_STARTED = "Server gestart via poort ";
+const MSG_MYSQLSTORE_READY = "MySQL store klaar voor gebruik";
+
+// --- Environmental variables ---//
 dotenv.config({ path: path.join(__dirname, ".env")});
 
+//--- Initialize server ---//
 const app = express();
 
+//--- Middlewares ---//
+// Express
+app.use(express.urlencoded({extended: "true"}));
+app.use(express.json());
+
+// Public directory
+const publicDir = path.join(__dirname, "public");
+app.use(express.static(publicDir));
+
+// Express MySQL Session
 const sessionStore = new MySQLStore({
 	host: process.env.DB_HOST,
-	port: 3306,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
+	port: process.env.DB_PORT,
+	database: process.env.DB_NAME,
+	user: process.env.DB_USER,
+	password: process.env.DB_PASSWORD  
 });
-
-app.set('trust proxy', 1);
-
-app.use(session({
-  key: 'session_cookie_name',
-  secret: process.env.SESSION_SECRET,
-  store: sessionStore,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === "production", // true --> werkt niet // false, // --> werkt wel, maar onveilig?
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000
-  }
-}));
-
 sessionStore.onReady().then(() => {
-	console.log('MySQLStore ready');
+	console.log(MSG_MYSQLSTORE_READY);
 }).catch(error => {
 	console.error(error);
 });
 
-app.use(bodyParser.urlencoded({ extended: true }));
+// Express Session
+app.set("trust proxy", 1);
+app.use(expressSession({
+	name: "systeem_session_cookie",
+	secret: process.env.SESSION_SECRET,
+	store: sessionStore,
+	resave: false,
+	saveUninitialized: false,
+	rolling: true,
+	cookie: {
+		secure: process.env.NODE_ENV === "production",
+		httpOnly: true,
+		maxAge: 24 * 60 * 60 * 1000 // 24 hours
+	}
+}));
 
-app.get('/', (req, res) => {
-  res.send(`
-    <form action="/login" method="post">
-      <input type="text" name="username" placeholder="Enter your username" required />
-      <button type="submit">Login</button>
-    </form>
-  `);
+// Express Handlebars
+app.engine("hbs",
+	expressHandlebars.engine({
+		helpers: {
+			block: function (name, options) {
+				if (!this._blocks) this._blocks = {};
+				this._blocks[name] = options.fn(this);
+				return null;
+			}
+		},
+		extname: "hbs",
+		defaultLayout: "main",
+		layoutsDir: path.join(__dirname, "src/views/layouts"),
+		partialsDir: path.join(__dirname, "src/views/partials")
+	})
+);
+app.set("view engine", "hbs");
+app.set("views", path.join(__dirname, "src/views"));
+
+// Local variables for the navigation bar
+app.use((req, res, next) => {
+	if (req.session && req.session.username) {
+		res.locals.authenticated = true;
+		res.locals.username = req.session.username;
+	} else {
+		res.locals.authenticated = false;
+	}
+    next();
 });
 
-app.post('/login', (req, res) => {
-  const { username } = req.body;
-  if (username) {
-    req.session.username = username;
-	res.redirect('/welcome');
-  } else {
-    res.status(400).send('Username is required.');
-  }
+// Routers
+const routersPath = path.join(__dirname, "src/routes");
+fs.readdirSync(routersPath).forEach((file) => {
+	if (file.endsWith(".js")) {
+		const router = require(path.join(routersPath, file));
+		app.use(router);
+	}
 });
 
-app.get('/welcome', (req, res) => {
-  if (req.session.username) {
-    res.send(`Welcome, ${req.session.username}.`);
-  } else {
-    res.status(401).send('Unauthorized. Please log in.');
-  }
-});
-
-app.listen(3000, () => {
-  console.log('Server running on port 3000');
+//--- Start server ---//
+app.listen(process.env.APP_PORT, () => {
+    console.log(MSG_SERVER_STARTED + process.env.APP_PORT);
 });
