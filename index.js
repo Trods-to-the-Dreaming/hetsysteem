@@ -83,7 +83,7 @@ app.use((req, res, next) => {
 	} else {
 		res.locals.authenticated = false;
 	}
-    next();
+	next();
 });
 
 // Routers
@@ -97,5 +97,5 @@ fs.readdirSync(routersPath).forEach((file) => {
 
 //--- Start server ---//
 app.listen(process.env.APP_PORT, () => {
-    console.log(MSG_SERVER_STARTED + process.env.APP_PORT);
+	console.log(MSG_SERVER_STARTED + process.env.APP_PORT);
 });

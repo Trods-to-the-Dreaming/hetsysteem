@@ -11,15 +11,27 @@
 	@extend .mt-3;
 }
 
+h1 {
+	font-size: 1.3rem;
+}
+
+h2 {
+	font-size: 1.15rem;
+}
+
+h3 {
+	font-size: 1rem;
+}
+
 .box {
 	@extend .w-50;
 	@extend .mx-auto;
 	@extend .d-grid;
 	@extend .gap-3;
-	background: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+	@extend .p-4;
+	@extend .rounded;
+	@extend .shadow;
+	@extend .bg-white;
 	min-width: 320px;
 	max-width: 480px;
 }
