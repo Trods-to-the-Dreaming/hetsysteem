@@ -23,7 +23,7 @@ const handleChangeUsername = async (req, res) => {
 
 	try {
 		// Check if new username already exists
-		const [existingUsers] = await db.execute("SELECT * FROM users WHERE username = ?", [newUsername]);
+		const [existingUsers] = await db.execute("SELECT * FROM users WHERE name = ?", [newUsername]);
 		if (existingUsers.length > 0) {
 			return res.render("account/changeusername", {
 				errorUsername: ACCOUNT.USERNAME_TAKEN,
@@ -32,7 +32,7 @@ const handleChangeUsername = async (req, res) => {
 		}
 
 		// Get current user data
-		const [currentUsers] = await db.execute("SELECT * FROM users WHERE username = ?", [currentUsername]);
+		const [currentUsers] = await db.execute("SELECT * FROM users WHERE name = ?", [currentUsername]);
 		const user = currentUsers[0];
 
 		// Verify password
@@ -45,7 +45,7 @@ const handleChangeUsername = async (req, res) => {
 		}
 
 		// Update username
-		await db.execute("UPDATE users SET username = ? WHERE username = ?", [newUsername, currentUsername]);
+		await db.execute("UPDATE users SET username = ? WHERE name = ?", [newUsername, currentUsername]);
 
 		// Update session and redirect
 		req.session.username = newUsername;
@@ -86,7 +86,7 @@ const handleChangePassword = async (req, res) => {
 
 	try {
 		// Fetch user
-		const [users] = await db.execute("SELECT * FROM users WHERE username = ?", [username]);
+		const [users] = await db.execute("SELECT * FROM users WHERE name = ?", [username]);
 		const user = users[0];
 
 		// Check current password
@@ -99,7 +99,7 @@ const handleChangePassword = async (req, res) => {
 
 		// Hash new password and update DB
 		const hashedPassword = await bcrypt.hash(newPassword, 8);
-		await db.execute("UPDATE users SET password = ? WHERE username = ?", [hashedPassword, username]);
+		await db.execute("UPDATE users SET password = ? WHERE name = ?", [hashedPassword, username]);
 
 		// Save session and redirect
 		req.session.changeSuccessful = ACCOUNT.PASSWORD_CHANGED;

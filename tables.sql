@@ -7,8 +7,8 @@ CREATE TABLE users (
 CREATE TABLE games (
 	id INT PRIMARY KEY AUTO_INCREMENT,
 	name VARCHAR(32) NOT NULL,
-	money_system ENUM('fixed_amount', 'loan_interest', 'growing_limits') NOT NULL,
-	max_players INT NOT NULL,
+	--money_system ENUM('fixed_amount', 'loan_interest', 'growing_limits') NOT NULL,
+	--max_players INT NOT NULL,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

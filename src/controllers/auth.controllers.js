@@ -11,20 +11,20 @@ const showLogin = (req, res) => {
 const handleLogin = async (req, res) => {
 	try {
 		const { username, password } = req.body;
-		const [results] = await db.execute("SELECT * FROM users WHERE username = ?", [username]);
+		const [users] = await db.execute("SELECT * FROM users WHERE name = ?", [username]);
 
-		if (results.length === 0) {
+		if (users.length === 0) {
 			return res.render("auth/login", {
 				errorLogin: ACCOUNT.INVALID_LOGIN,
 				username
 			});
 		}
 
-		const user = results[0];
+		const user = users[0];
 		const match = await bcrypt.compare(password, user.password);
 
 		if (match) {
-			req.session.username = user.username;
+			req.session.username = user.name;
 			req.session.save((error) => {
 				if (error) {
 					console.log(error);
@@ -62,7 +62,7 @@ const handleRegister = async (req, res) => {
 
 	try {
 		// Check if username exists
-		const [users] = await db.execute("SELECT * FROM users WHERE username = ?", [username]);
+		const [users] = await db.execute("SELECT * FROM users WHERE name = ?", [username]);
 
 		if (users.length > 0) {
 			return res.render("auth/register", {
@@ -75,7 +75,7 @@ const handleRegister = async (req, res) => {
 		const hashedPassword = await bcrypt.hash(password, 8);
 
 		// Insert the user
-		await db.execute("INSERT INTO users (username, password) VALUES (?, ?)", [username, hashedPassword]);
+		await db.execute("INSERT INTO users (name, password) VALUES (?, ?)", [username, hashedPassword]);
 
 		// Log in the user by creating a session
 		req.session.username = username;
