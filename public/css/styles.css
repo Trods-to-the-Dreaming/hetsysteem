@@ -7585,7 +7585,7 @@ textarea.form-control-lg {
   width: 25% !important;
 }
 
-.w-50, .box {
+.w-50 {
   width: 50% !important;
 }
 
@@ -7593,7 +7593,7 @@ textarea.form-control-lg {
   width: 75% !important;
 }
 
-.w-100 {
+.w-100, .box {
   width: 100% !important;
 }
 
@@ -7927,7 +7927,7 @@ textarea.form-control-lg {
   margin-top: 0.5rem !important;
 }
 
-.mt-3, .body-container {
+.mt-3 {
   margin-top: 1rem !important;
 }
 
@@ -8039,7 +8039,7 @@ textarea.form-control-lg {
   padding: 0.5rem !important;
 }
 
-.p-3 {
+.p-3, .body-container {
   padding: 1rem !important;
 }
 
@@ -11900,6 +11900,11 @@ textarea.form-control-lg {
   line-height: 1;
 }
 
+/*body {
+	@extend .m-0;
+	@extend .p-0;
+	@extend .bg-primary;
+}*/
 h1, .h1 {
   font-size: 1.3rem;
 }
@@ -11913,7 +11918,6 @@ h3, .h3 {
 }
 
 .box {
-  min-width: 320px;
   max-width: 480px;
 }
 

@@ -8,7 +8,7 @@
 
 .body-container {
 	@extend .container-fluid;
-	@extend .mt-3;
+	@extend .p-3;
 }
 
 h1 {
@@ -24,7 +24,7 @@ h3 {
 }
 
 .box {
-	@extend .w-50;
+	@extend .w-100;
 	@extend .mx-auto;
 	@extend .d-grid;
 	@extend .gap-3;
@@ -32,7 +32,7 @@ h3 {
 	@extend .rounded;
 	@extend .shadow;
 	@extend .bg-white;
-	min-width: 320px;
+	//min-width: 320px;
 	max-width: 480px;
 }
 
