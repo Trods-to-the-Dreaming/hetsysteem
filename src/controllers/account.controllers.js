@@ -17,56 +17,51 @@ const showChangeUsername = (req, res) => {
 	});
 };
 
-//--- Handle change username request ---//
-const handleChangeUsername = (req, res) => {
+const handleChangeUsername = async (req, res) => {
 	const currentUsername = req.session.username;
 	const { newUsername, password } = req.body;
 
-	// Check if new username is available
-	db.query("SELECT * FROM users WHERE username = ?", [newUsername], (error, results) => {
-		if (error) {
-			console.log(error);
-			return res.status(500).send(ACCOUNT.UNEXPECTED_ERROR);
-		}
-
-		// Username already exists
-		if (results.length > 0) {
+	try {
+		// Check if new username already exists
+		const [existingUsers] = await db.execute("SELECT * FROM users WHERE username = ?", [newUsername]);
+		if (existingUsers.length > 0) {
 			return res.render("account/changeusername", {
 				errorUsername: ACCOUNT.USERNAME_TAKEN,
-				newUsername: newUsername
+				newUsername
 			});
 		}
-		
-		// Check password
-		db.query("SELECT * FROM users WHERE username = ?", [currentUsername], (error, results) => {
-			const user = results[0];
-			bcrypt.compare(password, user.password, (error, match) => {
-				if (error) {
-					console.log(error);
-					return res.status(500).send(ACCOUNT.UNEXPECTED_ERROR);
-				}
 
-				if (match) {
-					db.query("UPDATE users SET username = ? WHERE username = ?", [newUsername, currentUsername], (error, results) => {
-						req.session.username = newUsername;
-						req.session.changeSuccessful = ACCOUNT.USERNAME_CHANGED;
-						req.session.save((error) => {
-							if (error) {
-								console.log(error);
-								return res.status(500).send(ACCOUNT.UNEXPECTED_ERROR);
-							}
-							return res.redirect("/account/changeusername");
-						});
-					});
-				} else {
-					return res.render("account/changeusername", {
-						errorPassword: ACCOUNT.PASSWORD_WRONG,
-						newUsername: newUsername
-					});
-				}
+		// Get current user data
+		const [currentUsers] = await db.execute("SELECT * FROM users WHERE username = ?", [currentUsername]);
+		const user = currentUsers[0];
+
+		// Verify password
+		const match = await bcrypt.compare(password, user.password);
+		if (!match) {
+			return res.render("account/changeusername", {
+				errorPassword: ACCOUNT.PASSWORD_WRONG,
+				newUsername
 			});
+		}
+
+		// Update username
+		await db.execute("UPDATE users SET username = ? WHERE username = ?", [newUsername, currentUsername]);
+
+		// Update session and redirect
+		req.session.username = newUsername;
+		req.session.changeSuccessful = ACCOUNT.USERNAME_CHANGED;
+		req.session.save((error) => {
+			if (error) {
+				console.log(error);
+				return res.status(500).send(ACCOUNT.UNEXPECTED_ERROR);
+			}
+			return res.redirect("/account/changeusername");
 		});
-	});
+
+	} catch (err) {
+		console.error(err);
+		return res.status(500).send(ACCOUNT.UNEXPECTED_ERROR);
+	}
 };
 
 //--- Show change password page ---//
@@ -79,8 +74,7 @@ const showChangePassword = (req, res) => {
 	});
 };
 
-//--- Handle change password request ---//
-const handleChangePassword = (req, res) => {
+const handleChangePassword = async (req, res) => {
 	const username = req.session.username;
 	const { currentPassword, newPassword, passwordConfirm } = req.body;
 
@@ -90,47 +84,37 @@ const handleChangePassword = (req, res) => {
 		});
 	}
 
-	// Look up user
-	db.query("SELECT * FROM users WHERE username = ?", [username], (error, results) => {
-		if (error) {
-			console.log(error);
-			return res.status(500).send(ACCOUNT.UNEXPECTED_ERROR);
+	try {
+		// Fetch user
+		const [users] = await db.execute("SELECT * FROM users WHERE username = ?", [username]);
+		const user = users[0];
+
+		// Check current password
+		const match = await bcrypt.compare(currentPassword, user.password);
+		if (!match) {
+			return res.render("account/changepassword", {
+				errorPassword: ACCOUNT.PASSWORD_WRONG
+			});
 		}
 
-		// Check password
-		const user = results[0];
-		bcrypt.compare(currentPassword, user.password, (error, match) => {
+		// Hash new password and update DB
+		const hashedPassword = await bcrypt.hash(newPassword, 8);
+		await db.execute("UPDATE users SET password = ? WHERE username = ?", [hashedPassword, username]);
+
+		// Save session and redirect
+		req.session.changeSuccessful = ACCOUNT.PASSWORD_CHANGED;
+		req.session.save((error) => {
 			if (error) {
 				console.log(error);
 				return res.status(500).send(ACCOUNT.UNEXPECTED_ERROR);
 			}
-
-			if (match) {
-				// Hash the new password and replace the old one
-				bcrypt.hash(newPassword, 8, (error, hashedNewPassword) => {
-					if (error) {
-						console.log(error);
-						return res.status(500).send(ACCOUNT.UNEXPECTED_ERROR);
-					}
-
-					db.query("UPDATE users SET password = ? WHERE username = ?", [hashedNewPassword, username], (error, results) => {
-						req.session.changeSuccessful = ACCOUNT.PASSWORD_CHANGED;
-						req.session.save((error) => {
-							if (error) {
-								console.log(error);
-								return res.status(500).send(ACCOUNT.UNEXPECTED_ERROR);
-							}
-							return res.redirect("/account/changepassword");
-						});
-					});
-				});
-			} else {
-				return res.render("account/changepassword", {
-					errorPassword: ACCOUNT.PASSWORD_WRONG
-				});
-			}
+			return res.redirect("/account/changepassword");
 		});
-	});	
+
+	} catch (err) {
+		console.error(err);
+		return res.status(500).send(ACCOUNT.UNEXPECTED_ERROR);
+	}
 };
 
 //--- Export ---//
