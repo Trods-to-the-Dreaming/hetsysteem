@@ -1,6 +1,6 @@
 const ACCOUNT = require("../constants/account");
 const db = require("../utils/db");
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
 
 //--- Show account menu page ---//
 const showAccountMenu = (req, res) => {
