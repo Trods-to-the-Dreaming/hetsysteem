@@ -1,7 +1,8 @@
-const express = require("express");
+import express from "express";
+import accountController from "../controllers/account.controllers.js";
+import requireAuth from"../middleware/auth.middleware.js";
+
 const router = express.Router();
-const accountController = require("../controllers/account.controllers.js");
-const requireAuth = require("../middleware/auth.middleware.js");
 
 router.get("/account/menu", requireAuth, accountController.showAccountMenu);
 router.get("/account/changeusername", requireAuth, accountController.showChangeUsername);
@@ -9,4 +10,4 @@ router.post("/account/changeusername", requireAuth, accountController.handleChan
 router.get("/account/changepassword", requireAuth, accountController.showChangePassword);
 router.post("/account/changepassword", requireAuth, accountController.handleChangePassword);
 
-module.exports = router;
+export default router;

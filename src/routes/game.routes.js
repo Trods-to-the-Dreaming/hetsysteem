@@ -1,10 +1,11 @@
-const express = require("express");
+import express from "express";
+import gameController from "../controllers/game.controllers.js";
+import requireAuth from "../middleware/auth.middleware.js";
+
 const router = express.Router();
-const gameController = require("../controllers/game.controllers.js");
-const requireAuth = require("../middleware/auth.middleware.js");
 
 router.get("/game/menu", requireAuth, gameController.showMenu);
 router.post("/game/enter", gameController.handleEnter);
 router.get("/game/enter", requireAuth, gameController.showEnter);
 
-module.exports = router;
+export default router;

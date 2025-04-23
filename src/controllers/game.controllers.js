@@ -1,5 +1,5 @@
-const GAME = require("../constants/game");
-const db = require("../utils/db");
+import GAME from "../constants/game.js";
+import db from "../utils/db.js";
 
 /*//--- Show menu page ---//
 const showMenu = (req, res) => {
@@ -56,7 +56,7 @@ const showEnter = (req, res) => {
 	res.render("game/enter");
 };
 
-module.exports = {
+export default  {
 	showMenu,
 	handleEnter,
 	showEnter

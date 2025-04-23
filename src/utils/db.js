@@ -1,5 +1,5 @@
-const mysql = require("mysql2");
-const path = require("path");
+import mysql from "mysql2";
+import path from "path";
 
 const MSG_CONNECTION_SUCCESS = "MySQL pool created successfully.";
 const MSG_CONNECTION_FAILED = "Failed to create MySQL pool: ";
@@ -30,4 +30,4 @@ async function testConnection() {
 
 testConnection();
 
-module.exports = db;
+export default db;

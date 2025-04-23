@@ -13,8 +13,9 @@ const showRules = (req, res) => {
 	res.render("rules");
 };
 
-module.exports = {
-	showIndex,
-	showAbout,
-	showRules
+//--- Export ---//
+export default {
+  showIndex,
+  showAbout,
+  showRules,
 };

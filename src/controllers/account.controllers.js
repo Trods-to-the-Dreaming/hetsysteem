@@ -1,6 +1,6 @@
-const ACCOUNT = require("../constants/account");
-const db = require("../utils/db");
-const bcrypt = require("bcrypt");
+import ACCOUNT from "../constants/account.js";
+import db from "../utils/db.js";
+import bcrypt from "bcrypt";
 
 //--- Show account menu page ---//
 const showAccountMenu = (req, res) => {
@@ -118,7 +118,7 @@ const handleChangePassword = async (req, res) => {
 };
 
 //--- Export ---//
-module.exports = {
+export default {
 	showAccountMenu,
 	showChangeUsername,
 	handleChangeUsername,

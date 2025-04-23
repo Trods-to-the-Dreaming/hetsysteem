@@ -1,4 +1,4 @@
-module.exports = Object.freeze({
+const ACCOUNT = Object.freeze({
 	UNEXPECTED_ERROR: "Er is een onverwachte fout opgetreden.",
 	INVALID_LOGIN: "Ongeldige gebruikersnaam of wachtwoord.",
 	PASSWORD_MISMATCH: "De wachtwoorden komen niet overeen.",
@@ -7,3 +7,5 @@ module.exports = Object.freeze({
 	USERNAME_CHANGED: "Uw gebruikersnaam is gewijzigd.",
 	PASSWORD_CHANGED: "Uw wachtwoord is gewijzigd."
 });
+
+export default ACCOUNT;
