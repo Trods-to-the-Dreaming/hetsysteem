@@ -8,8 +8,6 @@ import fs from "fs";
 import { pathToFileURL } from "url";
 import Knex from "knex";
 import { ConnectSessionKnexStore  } from "connect-session-knex";
-//const { default: connectSessionKnex } = await import("connect-session-knex");
-//const SessionStore = KnexSessionStore(expressSession);
 
 //--- Error messages ---//
 const MSG_SERVER_STARTED = "Server gestart via poort ";
@@ -42,10 +40,10 @@ const knex = Knex({
 	},
 });
 const sessionStore = new ConnectSessionKnexStore ({
-	knex,
+	knex: knex,
 	tablename: "sessions",
-	createtable: true,
-	sidfieldname: "session_id",
+	createtable: false//true,
+	//sidfieldname: "session_id",
 });
 
 // Express Session with Knex Store
@@ -104,6 +102,8 @@ fs.readdirSync(routersPath).forEach((file) => {
 		});
 	}
 });
+
+await sessionStore.ready;
 
 //--- Start server ---//
 app.listen(process.env.APP_PORT, () => {
