@@ -1,0 +1,63 @@
+{{#block "title"}}Het Systeem - Personage creëren {{/block}}
+
+<form class="box" id="game-create-character-form" method="POST" action="/game/create-character">
+	<h1>Personage creëren</h1>
+	<div>
+		<label for="first-name" class="form-label">Voornaam:</label>
+		<input type="text" class="form-control" id="first-name" name="firstName" value="{{firstName}}" required>
+	</div>
+	<div>
+		<label for="last-name" class="form-label">Achternaam:</label>
+		<input type="text" class="form-control" id="last-name" name="lastName" value="{{lastName}}" required>
+	</div>
+	<div>
+		<label for="job-preference-1" class="form-label">Droomjob (+3 geluk):</label>
+		<select class="form-select" id="job-preference-1" name="jobPreference1" required>
+			{{#each jobs}}
+			<option value="{{this.id}}">{{this.name}}</option>
+			{{/each}}
+		</select>
+	</div>
+	<div>
+		<label for="job-preference-2" class="form-label">Geweldige job (+2 geluk):</label>
+		<select class="form-select" id="job-preference-2" name="jobPreference2" required>
+			{{#each jobs}}
+			<option value="{{this.id}}">{{this.name}}</option>
+			{{/each}}
+		</select>
+	</div>
+	<div>
+		<label for="job-preference-3" class="form-label">Leuke job (+1 geluk):</label>
+		<select class="form-select" id="job-preference-3" name="jobPreference3" required>
+			{{#each jobs}}
+			<option value="{{this.id}}">{{this.name}}</option>
+			{{/each}}
+		</select>
+	</div>
+	<p class="error" id="error-job-preference">{{errorJobPreference}}</p>
+	<div>
+		<label for="luxury-preference" class="form-label">Interesse (+3 geluk):</label>
+		<select class="form-select" id="luxury-preference" name="luxuryPreference" required>
+			{{#each luxuries}}
+			<option value="{{this.id}}">{{this.name}}</option>
+			{{/each}}
+		</select>
+	</div>
+	<div class="d-grid">
+		<button type="submit" class="button-1">Spelen</button>
+	</div>
+</form>
+
+<script>
+document.getElementById("game-create-character-form").addEventListener("submit", function (e) {
+	const job1 = document.getElementById('job-preference-1').value;
+	const job2 = document.getElementById('job-preference-2').value;
+	const job3 = document.getElementById('job-preference-3').value;
+	if (job1 === job2 || job1 === job3 || job2 === job3) {
+		document.getElementById("error-job-preference").textContent = "Kies drie verschillende jobs.";
+		e.preventDefault();
+	} else {
+		document.getElementById("error-job-preference").textContent = "";
+	}
+});
+</script>

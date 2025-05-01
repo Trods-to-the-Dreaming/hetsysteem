@@ -1,25 +1,17 @@
 {{#block "title"}}Het Systeem - Spelmenu{{/block}}
 
-<form class="box" method="POST" action="/game/enter">
+<form class="box" id="game-menu-form" method="POST" action="/game/enter">
 	<h1>Spelmenu</h1>
 	<div>
 		<label for="game" class="form-label">Wereld:</label>
-		<select id="game" name="game">
+		<select class="form-select" id="game" name="gameId">
 			{{#each games}}
-				<option value="{{this.id}}">{{this.name}}</option>
+			<option value="{{this.id}}">{{this.name}}</option>
 			{{/each}}
 		</select>
 	</div>
-	{{#if errorGame}}
-		<p class="error">{{errorGame}}</p>
-	{{/if}}
+	<p class="error" id="error-game">{{errorGame}}</p>
 	<div class="d-grid">
 		<button type="submit" class="button-1">Betreden</button>
 	</div>
 </form>
-
-<!--
-Zo zuiver als goud
-Belofte maakt schuld
-De tijd brengt raad
--->

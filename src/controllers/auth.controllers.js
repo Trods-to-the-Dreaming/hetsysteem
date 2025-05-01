@@ -10,20 +10,27 @@ const showLogin = (req, res) => {
 //--- Handle login request ---//
 const handleLogin = async (req, res) => {
 	try {
-		const { username, password } = req.body;
-		const [users] = await db.execute("SELECT * FROM users WHERE name = ?", [username]);
-
+		const { username, 
+				password } = req.body;
+		
+		// Fetch user
+		const [users] = await db.execute(
+			"SELECT * FROM users WHERE name = ?", 
+			[username]
+		);
 		if (users.length === 0) {
 			return res.render("auth/login", {
 				errorLogin: ACCOUNT.INVALID_LOGIN,
 				username
 			});
 		}
-
 		const user = users[0];
+		
+		// Verify password
 		const match = await bcrypt.compare(password, user.password);
-
 		if (match) {
+			// Start session
+			req.session.userId = user.id;
 			req.session.username = user.name;
 			req.session.save((error) => {
 				if (error) {
@@ -51,8 +58,11 @@ const showRegister = (req, res) => {
 
 //--- Handle registration request ---//
 const handleRegister = async (req, res) => {
-	const { username, password, passwordConfirm } = req.body;
+	const { username, 
+			password, 
+			passwordConfirm } = req.body;
 
+	// Check if passwords are the same
 	if (password !== passwordConfirm) {
 		return res.render("auth/register", {
 			errorConfirm: ACCOUNT.PASSWORD_MISMATCH,
@@ -61,34 +71,38 @@ const handleRegister = async (req, res) => {
 	}
 
 	try {
-		// Check if username exists
-		const [users] = await db.execute("SELECT * FROM users WHERE name = ?", [username]);
-
-		if (users.length > 0) {
+		// Check if username is already taken
+		const [existingUsers] = await db.execute(
+			"SELECT * FROM users WHERE name = ?", 
+			[username]
+		);
+		if (existingUsers.length > 0) {
 			return res.render("auth/register", {
 				errorUsername: ACCOUNT.USERNAME_TAKEN,
 				username: username
 			});
 		}
 
-		// Hash the password (using a Promise-based version of bcrypt)
+		// Register user
 		const hashedPassword = await bcrypt.hash(password, 8);
+		const [user] = await db.execute(
+			"INSERT INTO users (name, password) VALUES (?, ?)", 
+			[username, hashedPassword]
+		);
 
-		// Insert the user
-		await db.execute("INSERT INTO users (name, password) VALUES (?, ?)", [username, hashedPassword]);
-
-		// Log in the user by creating a session
-		req.session.username = username;
-		req.session.save((err) => {
-			if (err) {
-				console.log(err);
+		// Start session
+		req.session.userId = user.insertId;
+		req.session.username = username
+		req.session.save((error) => {
+			if (error) {
+				console.log(error);
 				return res.status(500).send(ACCOUNT.UNEXPECTED_ERROR);
 			}
 			return res.redirect("/game/menu");
 		});
 
-	} catch (err) {
-		console.error(err);
+	} catch (error) {
+		console.error(error);
 		return res.status(500).send(ACCOUNT.UNEXPECTED_ERROR);
 	}
 };

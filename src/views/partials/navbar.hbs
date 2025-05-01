@@ -22,7 +22,7 @@
 						<li><a class="dropdown-item" href="/account/menu">Mijn account</a></li>
 						<li class="nav-item"><hr class="dropdown-divider"></li>
 						<li>
-							<form method="POST" action="/auth/logout">
+							<form id="logoutExpanded" method="POST" action="/auth/logout">
 								<button type="submit" class="dropdown-item btn w-100 text-start">
 									Afmelden
 								</button>
@@ -35,7 +35,7 @@
 					<li class="nav-item"><a class="nav-link" href="/game/menu">Spelmenu</a></li>
 					<li class="nav-item"><a class="nav-link" href="/account/menu">Mijn account</a></li>
 					<li class="nav-item">
-						<form method="POST" action="/auth/logout">
+						<form id="logoutCollapsed" method="POST" action="/auth/logout">
 							<button type="submit" class="nav-link btn w-100 text-start">
 								Afmelden
 							</button>

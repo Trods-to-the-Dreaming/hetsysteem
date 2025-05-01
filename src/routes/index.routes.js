@@ -7,4 +7,7 @@ router.get("/", indexController.showIndex);
 router.get("/about", indexController.showAbout);
 router.get("/rules", indexController.showRules);
 
-export default router;
+export default {
+	path: "/",
+	router
+};

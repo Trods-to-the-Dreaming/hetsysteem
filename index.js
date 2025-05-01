@@ -42,9 +42,9 @@ const knex = Knex({
 const sessionStore = new ConnectSessionKnexStore ({
 	knex: knex,
 	tablename: "sessions",
-	createtable: false//true,
-	//sidfieldname: "session_id",
+	createtable: false
 });
+await sessionStore.ready;
 
 // Express Session with Knex Store
 app.set("trust proxy", 1);
@@ -94,16 +94,20 @@ app.use((req, res, next) => {
 
 // Routers
 const routersPath = path.join(process.cwd(), "src/routes");
-fs.readdirSync(routersPath).forEach((file) => {
+const routerImports = fs.readdirSync(routersPath).map(async (file) => {
 	if (file.endsWith(".js")) {
 		const fullPath = path.join(routersPath, file);
-		import(pathToFileURL(fullPath).href).then((router) => {
-			app.use(router.default);
-		});
+		const module = await import(pathToFileURL(fullPath).href);
+		const { path: basePath, router } = module.default;
+		app.use(basePath, router);
 	}
 });
+await Promise.all(routerImports);
 
-await sessionStore.ready;
+// Errors
+app.use((req, res) => {
+    res.status(404).render("errors/404");
+});
 
 //--- Start server ---//
 app.listen(process.env.APP_PORT, () => {

@@ -1,31 +1,25 @@
 {{#block "title"}}Het Systeem - Gebruikersnaam wijzigen{{/block}}
 
-<form class="box" method="POST" action="/account/changeusername">
+<form class="box" id="account-change-username-form" method="POST" action="/account/changeusername">
 	<h1>Gebruikersnaam wijzigen</h1>
 	<div>
-		<label for="currentUsername" class="form-label">Huidige gebruikersnaam:</label>
-		<input type="text" class="form-control" id="currentUsername" value="{{username}}" readonly>
+		<label for="current-username" class="form-label">Huidige gebruikersnaam:</label>
+		<input type="text" class="form-control" id="current-username" value="{{username}}" readonly>
 	</div>
 	<div>
-		<label for="newUsername" class="form-label">Nieuwe gebruikersnaam:</label>
-		<input type="text" class="form-control" id="newUsername" name="newUsername" value="{{newUsername}}" required>
+		<label for="new-username" class="form-label">Nieuwe gebruikersnaam:</label>
+		<input type="text" class="form-control" id="new-username" name="newUsername" value="{{newUsername}}" required>
 	</div>
-	{{#if errorUsername}}
-	<p class="error">{{errorUsername}}</p>
-	{{/if}}
+	<p class="error" id="error-username">{{errorUsername}}</p>
 	<div>
 		<label for="password" class="form-label">Wachtwoord:</label>
 		<input type="password" class="form-control" id="password" name="password" required>
 	</div>
-	{{#if errorPassword}}
-	<p class="error">{{errorPassword}}</p>
-	{{/if}}
+	<p class="error" id="error-password">{{errorPassword}}</p>
 	<div class="d-grid">
 		<button type="submit" class="button-1">Bewaren</button>
 	</div>
-	{{#if changeSuccessful}}
-	<p class="success">{{changeSuccessful}}</p>
-	{{/if}}
+	<p class="success" id="success-change">{{successChange}}</p>
 	<div class="d-grid">
 		<a class="button-2" href="/account/menu">Mijn account</a>
 	</div>

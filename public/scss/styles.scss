@@ -46,11 +46,19 @@ h3 {
 .error {
 	@include message;
 	@extend .alert-danger;
+	display: none;
+	&:not(:empty) {
+		display: block;
+	}
 }
 
 .success {
 	@include message;
 	@extend .alert-success;
+	display: none;
+	&:not(:empty) {
+		display: block;
+	}
 }
 
 .button-1 {

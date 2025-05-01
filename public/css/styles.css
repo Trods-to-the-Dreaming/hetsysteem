@@ -11900,11 +11900,6 @@ textarea.form-control-lg {
   line-height: 1;
 }
 
-/*body {
-	@extend .m-0;
-	@extend .p-0;
-	@extend .bg-primary;
-}*/
 h1, .h1 {
   font-size: 1.3rem;
 }
@@ -11919,6 +11914,20 @@ h3, .h3 {
 
 .box {
   max-width: 480px;
+}
+
+.error {
+  display: none;
+}
+.error:not(:empty) {
+  display: block;
+}
+
+.success {
+  display: none;
+}
+.success:not(:empty) {
+  display: block;
 }
 
 .change {

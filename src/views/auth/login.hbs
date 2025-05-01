@@ -1,6 +1,6 @@
 {{#block "title"}}Het Systeem - Aanmelden{{/block}}
 
-<form class="box" method="POST" action="/auth/login">
+<form class="box" id="auth-login-form" method="POST" action="/auth/login">
 	<h1>Aanmelden</h1>
 	<div>
 		<label for="username" class="form-label">Gebruikersnaam:</label>
@@ -10,9 +10,7 @@
 		<label for="password" class="form-label">Wachtwoord:</label>
 		<input type="password" class="form-control" id="password" name="password" required>
 	</div>
-	{{#if errorLogin}}
-	<p class="error">{{errorLogin}}</p>
-	{{/if}}
+	<p class="error" id="error-login">{{errorLogin}}</p>
 	<div class="d-grid">
 		<button type="submit" class="button-1">Aanmelden</button>
 	</div>
