@@ -1,7 +1,7 @@
-{{#block "title"}}Het Systeem - Personage creëren {{/block}}
+{{#block "title"}}Het Systeem - Personage aanpassen{{/block}}
 
-<form class="box" id="game-create-character-form" method="POST" action="/game/create-character">
-	<h1>Personage creëren</h1>
+<form class="box" id="game-customize-character-form" method="POST" action="/game/customize-character">
+	<h1>Personage aanpassen</h1>
 	<div>
 		<label for="first-name" class="form-label">Voornaam:</label>
 		<input type="text" class="form-control" id="first-name" name="firstName" value="{{firstName}}" required>
@@ -38,7 +38,7 @@
 	<div>
 		<label for="luxury-preference" class="form-label">Interesse (+3 geluk):</label>
 		<select class="form-select" id="luxury-preference" name="luxuryPreference" required>
-			{{#each luxuries}}
+			{{#each luxury_preferences}}
 			<option value="{{this.id}}">{{this.name}}</option>
 			{{/each}}
 		</select>
@@ -49,7 +49,7 @@
 </form>
 
 <script>
-document.getElementById("game-create-character-form").addEventListener("submit", function (e) {
+document.getElementById("game-customize-character-form").addEventListener("submit", function (e) {
 	const job1 = document.getElementById('job-preference-1').value;
 	const job2 = document.getElementById('job-preference-2').value;
 	const job3 = document.getElementById('job-preference-3').value;

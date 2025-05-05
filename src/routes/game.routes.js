@@ -1,14 +1,25 @@
 import express from "express";
-import gameController from "../controllers/game.controllers.js";
-import requireAuth from "../middleware/auth.middleware.js";
-import setGameLocals from "../middleware/game.middleware.js";
+import { requireAuth } from"../middleware/auth.middleware.js";
+import {
+	requireWorldSelected,
+	requireCharacterSelected,
+	requireCharacterCustomized
+} from "../middleware/game.middleware.js";
+import {
+	showChooseWorld,
+	handleChooseWorld,
+	showCustomizeCharacter,
+	handleCustomizeCharacter,
+	showDashboard
+} from "../controllers/game.controllers.js";
 
 const router = express.Router();
 
-router.get("/menu", requireAuth, setGameLocals, gameController.showMenu);
-router.post("/enter", requireAuth, setGameLocals, gameController.handleEnter);
-router.get("/create-character", requireAuth, setGameLocals, gameController.showCreateCharacter);
-router.post("/create-character", requireAuth, setGameLocals, gameController.handleCreateCharacter);
+router.get("/choose-world", requireAuth, showChooseWorld);
+router.post("/choose-world", requireAuth, handleChooseWorld);
+router.get("/customize-character", requireAuth, requireWorldSelected, requireCharacterSelected, showCustomizeCharacter);
+router.post("/customize-character", requireAuth, requireWorldSelected, requireCharacterSelected, handleCustomizeCharacter);
+router.get("/dashboard", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showDashboard);
 
 export default {
 	path: "/game",

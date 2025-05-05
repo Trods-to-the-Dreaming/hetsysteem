@@ -1,11 +1,15 @@
 import express from "express";
-import indexController from "../controllers/index.controllers.js";
+import {
+	showIndex,
+	showAbout,
+	showRules
+} from "../controllers/index.controllers.js";
 
 const router = express.Router();
 
-router.get("/", indexController.showIndex);
-router.get("/about", indexController.showAbout);
-router.get("/rules", indexController.showRules);
+router.get("/", showIndex);
+router.get("/about", showAbout);
+router.get("/rules", showRules);
 
 export default {
 	path: "/",

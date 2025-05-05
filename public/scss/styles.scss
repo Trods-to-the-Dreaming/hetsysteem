@@ -43,6 +43,15 @@ h3 {
 	@extend .p-2;
 }
 
+.warning {
+	@include message;
+	@extend .alert-warning;
+	display: none;
+	&:not(:empty) {
+		display: block;
+	}
+}
+
 .error {
 	@include message;
 	@extend .alert-danger;

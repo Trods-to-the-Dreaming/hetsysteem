@@ -1,34 +1,46 @@
 import ACCOUNT from "../constants/account.js";
 import db from "../utils/db.js";
+import saveSession from "../utils/session.js";
 import bcrypt from "bcrypt";
 
 //--- Show account menu page ---//
-const showAccountMenu = (req, res) => {
-	res.render("account/menu");
+export const showAccountMenu = (req, res) => {
+	try {
+		res.render("account/menu");
+	} catch (err) {
+		console.error(err);
+		return res.status(500).render("errors/500"); 
+	}
 };
 
 //--- Show change username page ---//
-const showChangeUsername = (req, res) => {
-	const successChange = req.session.successChange;
-	delete req.session.successChange;
-	res.render("account/changeusername", {
-		username: req.session.username,
-		successChange: successChange
-	});
+export const showChangeUsername = (req, res) => {	
+	try {
+		const successChange = req.session.successChange;
+		delete req.session.successChange;
+		res.render("account/changeusername", {
+			username: req.session.username,
+			successChange: successChange
+		});
+	} catch (err) {
+		console.error(err);
+		return res.status(500).render("errors/500"); 
+	}
 };
 
-const handleChangeUsername = async (req, res) => {
-	const userId = req.session.userId;
-	const { newUsername, 
-			password } = req.body;
-
+//--- Handle change username request ---//
+export const handleChangeUsername = async (req, res) => {
 	try {
+		const { userId } = req.session;
+		const { newUsername, 
+				password } = req.body;
+		
 		// Check if username is already taken
-		const [existingUsers] = await db.execute(
-			"SELECT * FROM users WHERE name = ?",
+		const [usersWithName] = await db.execute(
+			`SELECT * FROM users WHERE name = ?`,
 			[newUsername]
 		);
-		if (existingUsers.length > 0) {
+		if (usersWithName.length > 0) {
 			return res.render("account/changeusername", {
 				errorUsername: ACCOUNT.USERNAME_TAKEN,
 				newUsername
@@ -36,11 +48,11 @@ const handleChangeUsername = async (req, res) => {
 		}
 
 		// Fetch user
-		const [users] = await db.execute(
-			"SELECT * FROM users WHERE id = ?", 
+		const [usersWithId] = await db.execute(
+			`SELECT * FROM users WHERE id = ?`, 
 			[userId]
 		);
-		const user = users[0];
+		const user = usersWithId[0];
 
 		// Verify password
 		const match = await bcrypt.compare(password, user.password);
@@ -53,57 +65,58 @@ const handleChangeUsername = async (req, res) => {
 
 		// Update username
 		await db.execute(
-			"UPDATE users SET name = ? WHERE id = ?", 
+			`UPDATE users SET name = ? WHERE id = ?`, 
 			[newUsername, userId]
 		);
 
-		// Update session
+		// Save session
 		req.session.username = newUsername
 		req.session.successChange = ACCOUNT.USERNAME_CHANGED;
-		req.session.save((error) => {
-			if (error) {
-				console.log(error);
-				return res.status(500).send(ACCOUNT.UNEXPECTED_ERROR);
-			}
-			return res.redirect("/account/changeusername");
-		});
-
-	} catch (error) {
-		console.error(error);
-		return res.status(500).send(ACCOUNT.UNEXPECTED_ERROR);
+		await saveSession(req);
+		
+		return res.redirect("/account/changeusername");
+	} catch (err) {
+		console.error(err);
+		return res.status(500).render("errors/500"); 
 	}
 };
 
 //--- Show change password page ---//
-const showChangePassword = (req, res) => {
-	const successChange = req.session.successChange;
-	delete req.session.successChange;
-	res.render("account/changepassword", {
-		username: req.session.username,
-		successChange: successChange
-	});
+export const showChangePassword = (req, res) => {
+	try {
+		const successChange = req.session.successChange;
+		delete req.session.successChange;
+		res.render("account/changepassword", {
+			username: req.session.username,
+			successChange: successChange
+		});
+	} catch (err) {
+		console.error(err);
+		return res.status(500).render("errors/500"); 
+	}
 };
 
-const handleChangePassword = async (req, res) => {
-	const username = req.session.username;
-	const { currentPassword, 
-			newPassword, 
-			passwordConfirm } = req.body;
-
-	// Check if passwords are the same
-	if (newPassword !== passwordConfirm) {
-		return res.render("account/changepassword", {
-			errorConfirm: ACCOUNT.PASSWORD_MISMATCH
-		});
-	}
-
+//--- Handle change password request ---//
+export const handleChangePassword = async (req, res) => {
 	try {
+		const { userId } = req.session;
+		const { currentPassword, 
+				newPassword, 
+				passwordConfirm } = req.body;
+
+		// Check if passwords are the same
+		if (newPassword !== passwordConfirm) {
+			return res.render("account/changepassword", {
+				errorConfirm: ACCOUNT.PASSWORD_MISMATCH
+			});
+		}
+		
 		// Fetch user
-		const [users] = await db.execute(
-			"SELECT * FROM users WHERE name = ?", 
-			[username]
+		const [usersWithId] = await db.execute(
+			`SELECT * FROM users WHERE id = ?`, 
+			[userId]
 		);
-		const user = users[0];
+		const user = usersWithId[0];
 
 		// Verify current password
 		const match = await bcrypt.compare(currentPassword, user.password);
@@ -116,31 +129,17 @@ const handleChangePassword = async (req, res) => {
 		// Update password
 		const hashedPassword = await bcrypt.hash(newPassword, 8);
 		await db.execute(
-			"UPDATE users SET password = ? WHERE name = ?", 
-			[hashedPassword, username]
+			`UPDATE users SET password = ? WHERE id = ?`, 
+			[hashedPassword, userId]
 		);
 
-		// Update session
+		// Save session
 		req.session.successChange = ACCOUNT.PASSWORD_CHANGED;
-		req.session.save((error) => {
-			if (error) {
-				console.log(error);
-				return res.status(500).send(ACCOUNT.UNEXPECTED_ERROR);
-			}
-			return res.redirect("/account/changepassword");
-		});
-
-	} catch (error) {
-		console.error(error);
-		return res.status(500).send(ACCOUNT.UNEXPECTED_ERROR);
+		await saveSession(req);
+		
+		return res.redirect("/account/changepassword");
+	} catch (err) {
+		console.error(err);
+		return res.status(500).render("errors/500"); 
 	}
-};
-
-//--- Export ---//
-export default {
-	showAccountMenu,
-	showChangeUsername,
-	handleChangeUsername,
-	showChangePassword,
-	handleChangePassword
 };

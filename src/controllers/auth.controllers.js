@@ -1,129 +1,127 @@
 import ACCOUNT from "../constants/account.js";
 import db from "../utils/db.js";
+import saveSession from "../utils/session.js";
 import bcrypt from "bcrypt";
 
 //--- Show login page ---//
-const showLogin = (req, res) => {
-	res.render("auth/login");
+export const showLogin = (req, res) => {
+	try {
+		res.render("auth/login");
+	} catch (err) {
+		console.error(err);
+		return res.status(500).render("errors/500"); 
+	}
 };
 
 //--- Handle login request ---//
-const handleLogin = async (req, res) => {
+export const handleLogin = async (req, res) => {
 	try {
 		const { username, 
 				password } = req.body;
-		
+
 		// Fetch user
-		const [users] = await db.execute(
-			"SELECT * FROM users WHERE name = ?", 
+		const [usersWithName] = await db.execute(
+			`SELECT * FROM users WHERE name = ?`, 
 			[username]
 		);
-		if (users.length === 0) {
+		if (usersWithName.length === 0) {
 			return res.render("auth/login", {
 				errorLogin: ACCOUNT.INVALID_LOGIN,
 				username
 			});
 		}
-		const user = users[0];
-		
+		const user = usersWithName[0];
+
 		// Verify password
 		const match = await bcrypt.compare(password, user.password);
-		if (match) {
-			// Start session
-			req.session.userId = user.id;
-			req.session.username = user.name;
-			req.session.save((error) => {
-				if (error) {
-					console.log(error);
-					return res.status(500).send(ACCOUNT.UNEXPECTED_ERROR);
-				}
-				return res.redirect("/game/menu");
-			});
-		} else {
+		if (!match) {
 			return res.render("auth/login", {
 				errorLogin: ACCOUNT.INVALID_LOGIN,
 				username
 			});
 		}
-	} catch (error) {
-		console.log(error);
-		return res.status(500).send(ACCOUNT.UNEXPECTED_ERROR);
+
+		// Start session
+		req.session.userId = user.id;
+		req.session.username = user.name;
+		await saveSession(req);
+		
+		return res.redirect("/game/choose-world");
+	} catch (err) {
+		console.error(err);
+		return res.status(500).render("errors/500"); 
 	}
 };
 
 //--- Show registration page ---//
-const showRegister = (req, res) => {
-	res.render("auth/register");
+export const showRegister = (req, res) => {
+	try {
+		res.render("auth/register");
+	} catch (err) {
+		console.error(err);
+		return res.status(500).render("errors/500"); 
+	}
 };
 
 //--- Handle registration request ---//
-const handleRegister = async (req, res) => {
-	const { username, 
-			password, 
-			passwordConfirm } = req.body;
-
-	// Check if passwords are the same
-	if (password !== passwordConfirm) {
-		return res.render("auth/register", {
-			errorConfirm: ACCOUNT.PASSWORD_MISMATCH,
-			username: username
-		});
-	}
-
+export const handleRegister = async (req, res) => {
 	try {
+		const { username, 
+				password, 
+				passwordConfirm } = req.body;
+
+		// Check if passwords are the same
+		if (password !== passwordConfirm) {
+			return res.render("auth/register", {
+				errorConfirm: ACCOUNT.PASSWORD_MISMATCH,
+				username
+			});
+		}
+		
 		// Check if username is already taken
-		const [existingUsers] = await db.execute(
-			"SELECT * FROM users WHERE name = ?", 
+		const [usersWithName] = await db.execute(
+			`SELECT * FROM users WHERE name = ?`, 
 			[username]
 		);
-		if (existingUsers.length > 0) {
+		if (usersWithName.length > 0) {
 			return res.render("auth/register", {
 				errorUsername: ACCOUNT.USERNAME_TAKEN,
-				username: username
+				username
 			});
 		}
 
 		// Register user
 		const hashedPassword = await bcrypt.hash(password, 8);
 		const [user] = await db.execute(
-			"INSERT INTO users (name, password) VALUES (?, ?)", 
+			`INSERT INTO users (name, password) VALUES (?, ?)`, 
 			[username, hashedPassword]
 		);
 
 		// Start session
 		req.session.userId = user.insertId;
 		req.session.username = username
-		req.session.save((error) => {
-			if (error) {
-				console.log(error);
-				return res.status(500).send(ACCOUNT.UNEXPECTED_ERROR);
-			}
-			return res.redirect("/game/menu");
-		});
-
-	} catch (error) {
-		console.error(error);
-		return res.status(500).send(ACCOUNT.UNEXPECTED_ERROR);
+		await saveSession(req);
+		
+		return res.redirect("/game/choose-world");
+	} catch (err) {
+		console.error(err);
+		return res.status(500).render("errors/500"); 
 	}
 };
 
 //--- Handle logout request ---//
-const handleLogout = (req, res) => {
-	req.session.destroy((error) => {
-		if (error) {
-			console.error(error);
-			return res.status(500).send(ACCOUNT.UNEXPECTED_ERROR);
-		}
-		res.clearCookie("systeem_session_cookie");
-		res.redirect("/auth/login");
-	});
-};
-
-//--- Export ---//
-export default {
-	showLogin,
-	handleLogin,
-	showRegister,
-	handleRegister,	
-	handleLogout
+export const handleLogout = (req, res) => {
+	try {
+		req.session.destroy((error) => {
+			if (error) {
+				console.error(error);
+				return res.status(500).render("errors/500"); 
+			}
+			res.clearCookie("systeem_session_cookie");
+			res.redirect("/auth/login");
+		});
+	} catch (err) {
+		console.error(err);
+		return res.status(500).render("errors/500"); 
+	}
 };

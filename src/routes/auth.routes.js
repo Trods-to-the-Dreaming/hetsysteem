@@ -1,13 +1,19 @@
 import express from "express";
-import authController from "../controllers/auth.controllers.js";
+import {
+	showLogin,
+	handleLogin,
+	showRegister,
+	handleRegister,	
+	handleLogout
+} from "../controllers/auth.controllers.js";
 
 const router = express.Router();
 
-router.get("/login", authController.showLogin);
-router.post("/login", authController.handleLogin);
-router.get("/register", authController.showRegister);
-router.post("/register", authController.handleRegister);
-router.post("/logout", authController.handleLogout);
+router.get("/login", showLogin);
+router.post("/login", handleLogin);
+router.get("/register", showRegister);
+router.post("/register", handleRegister);
+router.post("/logout", handleLogout);
 
 export default {
     path: "/auth",

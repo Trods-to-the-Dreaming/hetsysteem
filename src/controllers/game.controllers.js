@@ -1,238 +1,246 @@
 import GAME from "../constants/game.js";
 import db from "../utils/db.js";
+import saveSession from "../utils/session.js";
 
-//--- Show menu page ---//
-const showMenu = async (req, res) => {
+//--- Show choose world page ---//
+export const showChooseWorld = async (req, res) => {
 	try {
-		const [games] = await db.execute(
-			"SELECT id, name FROM games ORDER BY id"
+		const [worlds] = await db.execute(
+			`SELECT id, name FROM worlds ORDER BY id`
 		);
-		res.render("game/menu", {
-			games
+		res.render("game/choose-world", {
+			worlds
 		});
-	} catch (error) {
-		console.error(error);
-		res.status(500).send(GAME.UNEXPECTED_ERROR);
+	} catch (err) {
+		console.error(err);
+		return res.status(500).render("errors/500"); 
 	}
 };
 
-//--- Handle enter request ---//
-const handleEnter = async (req, res) => {
+//--- Handle choose world request ---//
+export const handleChooseWorld = async (req, res) => {
+	const connection = await db.getConnection();
 	try {
-		const gameId = req.body.gameId;
-		const userId = req.session.userId;
+		await connection.beginTransaction();
+		
+		const { userId } = req.session;
+		const { worldId } = req.body;
 
-		// Fetch game
-		const [games] = await db.execute(
-			"SELECT * FROM games WHERE id = ?", 
-			[gameId]
+		// Fetch world
+		const [worldsWithId] = await connection.execute(
+			`SELECT * FROM worlds WHERE id = ?`,
+			[worldId]
 		);
-		if (games.length === 0) {
-			return res.render("game/menu", {
-				errorGame: GAME.INVALID_GAME
+		if (worldsWithId.length === 0) {
+			const [worlds] = await connection.execute(
+				`SELECT id, name FROM worlds ORDER BY id`
+			);
+			await connection.rollback();
+			return res.render("game/choose-world", {
+				worlds,
+				errorChosenWorld: GAME.INVALID_WORLD,
+				selectedWorldId: parseInt(worldId)
 			});
 		}
-		const game = games[0];
-		
-		// Fetch character
-		const [characters] = await db.execute(
-			"SELECT * FROM characters WHERE user_id = ? AND game_id = ?",
-			[userId, gameId]
+		const world = worldsWithId[0];
+
+		// Fetch user's character in this world
+		const [myCharacters] = await connection.execute(
+			`SELECT * FROM characters WHERE user_id = ? AND world_id = ?`,
+			[userId, worldId]
 		);
+		if (myCharacters.length > 0) {
+			const character = myCharacters[0];
 
-		// Update session
-		req.session.gameId = game.id;
-		req.session.gameName = game.name;
-		req.session.save((error) => {
-			if (error) {
-				console.error(error);
-				return res.status(500).send(GAME.UNEXPECTED_ERROR);
+			if (!character.is_customized) {
+				await connection.commit();
+
+				// Save session
+				req.session.worldId = world.id;
+				req.session.worldName = world.name;
+				req.session.characterId = character.id;
+				await saveSession(req);
+
+				// Finish character customization before entering world
+				return res.redirect("/game/customize-character");
 			}
 
-			if (characters.length > 0) {
-				res.redirect("/game/dashboard");
-			} else {
-				res.redirect("/game/create-character");
-			}
-		});
-	} catch (error) {
-		console.log(error);
-		return res.status(500).send(GAME.UNEXPECTED_ERROR);
+			await connection.commit();
+
+			// Save session
+			req.session.worldId = world.id;
+			req.session.worldName = world.name;
+			req.session.characterId = character.id;
+			req.session.characterFirstName = character.first_name;
+			req.session.characterLastName = character.last_name;
+			await saveSession(req);
+
+			// Enter world
+			return res.redirect("/game/dashboard");
+		}
+		
+		// Fetch an AI-character to claim
+		const [aiCharacter] = await connection.execute(
+			`SELECT id FROM characters WHERE user_id IS NULL AND world_id = ? LIMIT 1`,
+			[worldId]
+		);
+		if (aiCharacter.length === 0) {
+			const [worlds] = await connection.execute(
+				`SELECT id, name FROM worlds ORDER BY id`
+			);
+			await connection.rollback();
+			return res.render("game/choose-world", {
+				worlds,
+				errorChosenWorld: GAME.NO_NEW_CHARACTERS,
+				selectedWorldId: parseInt(worldId)
+			});
+		}
+
+		// Claim the character
+		const characterId = aiCharacter[0].id;
+		const [updateResult] = await connection.execute(
+			`UPDATE characters
+			 SET user_id = ?
+			 WHERE id = ?`,
+			[userId, characterId]
+		);
+		if (updateResult.affectedRows !== 1) {
+			await connection.rollback();
+			return res.status(403).render("errors/403");
+		}
+
+		// Search for the claimed character
+		const [characters] = await connection.execute(
+			`SELECT * FROM characters WHERE user_id = ? AND world_id = ? AND is_customized = false`,
+			[userId, worldId]
+		);
+		const character = characters[0];		
+		
+		await connection.commit();
+
+		// Save session
+		req.session.worldId = world.id;
+		req.session.worldName = world.name;
+		req.session.characterId = character.id;
+		await saveSession(req);
+
+		// Customize the claimed character
+		return res.redirect("/game/customize-character");
+	} catch (err) {
+		await connection.rollback();
+		console.error(err);
+		return res.status(500).render("errors/500");
+	} finally {
+		if (connection) connection.release();
 	}
 };
 
-//--- Show create character page ---//
-const showCreateCharacter = async (req, res) => {
+//--- Show customize character page ---//
+export const showCustomizeCharacter = async (req, res) => {
 	try {
 		const [jobs] = await db.execute(
-			"SELECT id, name FROM jobs ORDER BY id"
+			`SELECT id, name FROM jobs ORDER BY id`
 		);
-		const [luxuries] = await db.execute(
-			"SELECT id, name FROM luxury_preferences ORDER BY id"
+		const [luxury_preferences] = await db.execute(
+			`SELECT id, name FROM luxury_preferences ORDER BY id`
 		);
-		res.render("game/create-character", {
+		res.render("game/customize-character", {
 			jobs,
-			luxuries
+			luxury_preferences
 		});
-	} catch (error) {
-		console.error(error);
-		res.status(500).send(GAME.UNEXPECTED_ERROR);
+	} catch (err) {
+		console.error(err);
+		return res.status(500).render("errors/500"); 
 	}
 };
 
-//--- Handle create character request ---//
-const handleCreateCharacter = async (req, res) => {
+//--- Handle customize character request ---//
+export const handleCustomizeCharacter = async (req, res) => {
 	try {
+		const { userId,
+				characterId } = req.session;
 		const { firstName, 
 				lastName, 
 				jobPreference1, 
 				jobPreference2, 
 				jobPreference3, 
 				luxuryPreference } = req.body;
-		const userId = req.session.userId;
-		const gameId = req.session.gameId;
 
-		// Validation
+		// Check if job preferences are different
 		if (
 			jobPreference1 === jobPreference2 ||
 			jobPreference1 === jobPreference3 ||
 			jobPreference2 === jobPreference3
 		) {
-			return res.render("game/create-character", {
-				errorJobPreference: "Kies drie verschillende jobs.",
+			const [jobs] = await db.execute(
+				`SELECT id, name FROM jobs ORDER BY id`
+			);
+			const [luxury_preferences] = await db.execute(
+				`SELECT id, name FROM luxury_preferences ORDER BY id`
+			);
+			return res.render("game/customize-character", {
+				jobs,
+				luxury_preferences,
+				errorJobPreference: GAME.INVALID_JOB_PREFERENCES,
 				firstName,
 				lastName
 			});
 		}
+		
+		// Check character
+		const [characters] = await db.execute(
+			`SELECT * FROM characters WHERE id = ? AND user_id = ? AND is_customized = false`,
+			[characterId, userId]
+		);
+		if (characters.length === 0) {
+			return res.status(403).render("errors/403");
+		}
 
-		// Voeg nieuw personage toe
-		await db.execute(`
-			INSERT INTO characters (
-				first_name, last_name, game_id, user_id,
-				balance, age, hours_available,
-				health, cumulative_health_loss, happiness,
-				education_level, 
-				job_preference_1_id, job_preference_2_id, job_preference_3_id,
-				luxury_preference_id
-			) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		`, [
-			firstName, lastName, gameId, userId,
-			1000, // start balance
-			18,   // age
-			40,   // hours_available per week
-			100,  // health
-			0,    // cumulative_health_loss
-			50,   // happiness
-			0,    // education_level
-			jobPreference1,
-			jobPreference2,
-			jobPreference3,
-			luxuryPreference
-		]);
-
-		res.redirect("/game/dashboard");
-
-	} catch (error) {
-		console.error(error);
-
-		// Error bij dubbele naam?
-		if (error.code === "ER_DUP_ENTRY") {
-			return res.render("game/create-character", {
+		// Update character
+		await db.execute(
+			`UPDATE characters
+			 SET first_name = ?, 
+			     last_name = ?, 
+			     job_preference_1_id = ?, 
+			     job_preference_2_id = ?, 
+			     job_preference_3_id = ?, 
+			     luxury_preference_id = ?, 
+			     is_customized = true
+			 WHERE id = ?`,
+			[
 				firstName,
 				lastName,
-				errorJobPreference: "Er bestaat al een personage met die voor- en achternaam in deze wereld."
-			});
-		}
+				jobPreference1,
+				jobPreference2,
+				jobPreference3,
+				luxuryPreference,
+				characterId
+			]
+		);
 
-		res.status(500).send("Onverwachte fout bij het aanmaken van het personage.");
+		// Save session
+		req.session.characterFirstName = firstName;
+		req.session.characterLastName = lastName;
+		await saveSession(req);
+		
+		// Enter world
+		return res.redirect("/game/dashboard");
+	} catch (err) {
+		console.error(err);
+		return res.status(500).render("errors/500");
 	}
 };
 
-
-
-
-const handleCreateCharacter = async (req, res) => {
+//--- Show dashboard page ---//
+export const showDashboard = async (req, res) => {
 	try {
-		const gameId = req.body.gameId;
-		
-		const gameId = req.session.gameId;
-		const userId = req.session.userId;
-
-		// Fetch game
-		const [games] = await db.execute(
-			"SELECT * FROM games WHERE id = ?", 
-			[gameId]
-		);
-		if (games.length === 0) {
-			return res.render("game/menu", {
-				errorGame: GAME.INVALID_GAME
-			});
-		}
-		const game = games[0];
-		
-		// Fetch character
-		const [characters] = await db.execute(
-			"SELECT * FROM characters WHERE user_id = ? AND game_id = ?",
-			[userId, gameId]
-		);
-
-		// Update session
-		req.session.gameId = game.id;
-		req.session.gameName = game.name;
-		req.session.save((error) => {
-			if (error) {
-				console.error(error);
-				return res.status(500).send(GAME.UNEXPECTED_ERROR);
-			}
-
-			if (characters.length > 0) {
-				res.redirect("/game/dashboard");
-			} else {
-				res.redirect("/game/create-character");
-			}
+		const { characterFirstName, 
+				characterLastName } = req.session;
+		res.render("game/dashboard", {
+			fullName: `${characterFirstName} ${characterLastName}`
 		});
-	} catch (error) {
-		console.log(error);
-		return res.status(500).send(GAME.UNEXPECTED_ERROR);
+	} catch (err) {
+		console.error(err);
+		return res.status(500).render("errors/500");
 	}
-};				
-
-/*const handleEnter = async (req, res) => {
-	try {
-		const gameId = req.body.game;
-		const [games] = await db.execute("SELECT * FROM games WHERE id = ?", [gameId]);
-
-		if (games.length === 0) {
-			return res.render("game/menu", {
-				errorGame: GAME.INVALID_GAME
-			});
-		}
-
-		const selectedGame = games[0];
-		
-		req.session.gameId = selectedGame.id;
-		req.session.gameName = selectedGame.name;
-		req.session.save((error) => {
-			if (error) {
-				console.error(error);
-				return res.status(500).send(GAME.UNEXPECTED_ERROR);
-			}
-			res.redirect("/game/enter");
-		});
-	} catch (error) {
-		console.log(error);
-		return res.status(500).send(GAME.UNEXPECTED_ERROR);
-	}
-};*/
-
-//--- Show enter page ---//
-const showEnter = (req, res) => {
-	res.render("game/enter");
-};
-
-export default  {
-	showMenu,
-	handleEnter,
-	showCreateCharacter,
-	showEnter
 };

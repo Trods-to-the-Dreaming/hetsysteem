@@ -1,6 +1,7 @@
 const GAME = Object.freeze({
-	UNEXPECTED_ERROR: "Er is een onverwachte fout opgetreden.",
-	INVALID_GAME: "Ongeldige wereld geselecteerd."
+	INVALID_WORLD: "Ongeldige wereld geselecteerd.",
+	NO_NEW_CHARACTERS: "Er is geen plaats meer voor nieuwe personages in de geselecteerde wereld.",
+	INVALID_JOB_PREFERENCES: "Kies drie verschillende jobs."
 });
 
 export default GAME;

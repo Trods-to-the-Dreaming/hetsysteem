@@ -20,9 +20,9 @@ DROP TABLE luxury_preferences;
 DROP TABLE items;
 DROP TABLE global_resource_stocks;
 DROP TABLE global_resources;
-DROP TABLE games;
+DROP TABLE worlds;
 
-CREATE TABLE games (
+CREATE TABLE worlds (
 	id INT PRIMARY KEY AUTO_INCREMENT,
 	name VARCHAR(32) NOT NULL,
 	money_system ENUM('fixed_amount', 'loan_interest', 'growing_limits') NOT NULL,
@@ -37,11 +37,11 @@ CREATE TABLE global_resources (
 );
 
 CREATE TABLE global_resource_stocks (
-    game_id INT NOT NULL,
+    world_id INT NOT NULL,
     global_resource_id INT NOT NULL,
     quantity INT NOT NULL,
-    PRIMARY KEY (game_id, global_resource_id),
-    FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE,
+    PRIMARY KEY (world_id, global_resource_id),
+    FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE,
     FOREIGN KEY (global_resource_id) REFERENCES global_resources(id)
 );
 
@@ -86,21 +86,23 @@ CREATE TABLE characters (
 	id INT PRIMARY KEY AUTO_INCREMENT,
 	first_name VARCHAR(32) NOT NULL,
 	last_name VARCHAR(32) NOT NULL,
-	game_id INT NOT NULL,
-	user_id INT,
-	balance INT NOT NULL,
-	age INT NOT NULL,
-	hours_available INT NOT NULL,
-	health INT NOT NULL,
-	cumulative_health_loss INT NOT NULL,
-	happiness INT NOT NULL,
-	education_level INT NOT NULL,
-	job_preference_1_id INT NOT NULL,
-	job_preference_2_id INT NOT NULL,
-	job_preference_3_id INT NOT NULL,
-	luxury_preference_id INT NOT NULL,
-	UNIQUE (game_id, first_name, last_name),
-	FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE,
+	world_id INT NOT NULL,
+	user_id INT DEFAULT NULL,
+	is_customized BOOLEAN NOT NULL DEFAULT FALSE,
+	balance INT NOT NULL DEFAULT 0,
+	age INT NOT NULL DEFAULT 18,
+	hours_available INT NOT NULL DEFAULT 8,
+	health INT NOT NULL DEFAULT 100,
+	cumulative_health_loss INT NOT NULL DEFAULT 0,
+	happiness INT NOT NULL DEFAULT 0,
+	education_level INT NOT NULL DEFAULT 0,
+	job_preference_1_id INT NOT NULL DEFAULT 1,
+	job_preference_2_id INT NOT NULL DEFAULT 2,
+	job_preference_3_id INT NOT NULL DEFAULT 3,
+	luxury_preference_id INT NOT NULL DEFAULT 1,
+	UNIQUE (world_id, user_id),
+	UNIQUE (world_id, first_name, last_name),
+	FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE,
 	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
 	FOREIGN KEY (job_preference_1_id) REFERENCES jobs(id),
 	FOREIGN KEY (job_preference_2_id) REFERENCES jobs(id),
@@ -196,7 +198,7 @@ CREATE TABLE applications (
     FOREIGN KEY (building_id) REFERENCES buildings(id)
 );
 
-INSERT INTO games (name, money_system) VALUES 
+INSERT INTO worlds (name, money_system) VALUES 
 ('Zo zuiver als goud', 'fixed_amount'),
 ('Belofte maakt schuld', 'loan_interest'),
 ('De tijd brengt raad', 'growing_limits');
@@ -206,7 +208,7 @@ INSERT INTO global_resources (name) VALUES
 ('Zwerfvuil'),                     -- id = 2
 ('Infrastructuur');                -- id = 3
 
-INSERT INTO global_resource_stocks (game_id, global_resource_id, quantity) VALUES
+INSERT INTO global_resource_stocks (world_id, global_resource_id, quantity) VALUES
 (1, 1, 100), -- Natuurlijke hulpbronnen
 (1, 2, 0),   -- Zwerfvuil op straat
 (1, 3, 100); -- Infrastructuur
@@ -277,11 +279,78 @@ INSERT INTO buildings (name, job_id, max_hours) VALUES
 ('Elektronicafabriek', 18, 100),
 ('Kledingfabriek', 19, 100);
 
+-- Voor world_id 1
+INSERT INTO characters (
+  first_name,
+  last_name,
+  world_id
+)
+VALUES
+  -- 100 characters voor world_id 1
+  -- Je kunt dit eventueel automatiseren met een script in een backendtaal, maar hier als SQL:
+  ('First 1', 'Last 1', 1),
+  ('First 2', 'Last 2', 1),
+  ('First 3', 'Last 3', 1),
+  ('First 4', 'Last 4', 1),
+  ('First 5', 'Last 5', 1),
+  ('First 6', 'Last 6', 1),
+  ('First 7', 'Last 7', 1),
+  ('First 8', 'Last 8', 1),
+  ('First 9', 'Last 9', 1),
+  ('First 10', 'Last 10', 1);
+
+-- Voor world_id 2
+INSERT INTO characters (
+  first_name,
+  last_name,
+  world_id
+)
+VALUES
+  ('First 1', 'Last 1', 2),
+  ('First 2', 'Last 2', 2),
+  ('First 3', 'Last 3', 2),
+  ('First 4', 'Last 4', 2),
+  ('First 5', 'Last 5', 2),
+  ('First 6', 'Last 6', 2),
+  ('First 7', 'Last 7', 2),
+  ('First 8', 'Last 8', 2),
+  ('First 9', 'Last 9', 2),
+  ('First 10', 'Last 10', 2);
+
+-- Voor world_id 3
+INSERT INTO characters (
+  first_name,
+  last_name,
+  world_id
+)
+VALUES
+  ('First 1', 'Last 1', 3),
+  ('First 2', 'Last 2', 3),
+  ('First 3', 'Last 3', 3),
+  ('First 4', 'Last 4', 3),
+  ('First 5', 'Last 5', 3),
+  ('First 6', 'Last 5', 3),
+  ('First 7', 'Last 5', 3),
+  ('First 8', 'Last 5', 3),
+  ('First 9', 'Last 5', 3),
+  ('First 10', 'Last 5', 3);
+
+
+
+
+
+
+
+
+
+
+
 INSERT INTO characters (
   first_name, 
   last_name, 
-  game_id, 
-  user_id, 
+  world_id, 
+  user_id,
+  is_customized,  
   balance, 
   age, 
   hours_available, 
@@ -297,8 +366,9 @@ INSERT INTO characters (
 VALUES (
   'First 1', -- first_name
   'Last 1',  -- last_name
-  1,         -- game_id
-  1,         -- user_id
+  1,         -- world_id
+  NULL,      -- user_id
+  false,     -- is_customized
   1000,      -- balance
   25,        -- age
   8,         -- hours_available
@@ -313,8 +383,9 @@ VALUES (
 ),(
   'First 2', -- first_name
   'Last 2',  -- last_name
-  1,         -- game_id
-  2,         -- user_id
+  1,         -- world_id
+  NULL,      -- user_id
+  false,     -- is_customized
   1000,      -- balance
   30,        -- age
   8,         -- hours_available

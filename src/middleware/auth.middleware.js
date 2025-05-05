@@ -1,5 +1,6 @@
-const requireAuth = (req, res, next) => {
-	if (req.session && req.session.userId) {
+export const requireAuth = (req, res, next) => {
+	if (req.session.userId && 
+		req.session.username) {
 		res.locals.authenticated = true;
 		next();
 	} else {
@@ -7,5 +8,3 @@ const requireAuth = (req, res, next) => {
 		res.redirect("/auth/login");
 	}
 };
-
-export default requireAuth;

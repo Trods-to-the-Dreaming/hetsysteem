@@ -2,6 +2,7 @@
 
 <form class="box" id="auth-register-form" method="POST" action="/auth/register">
 	<h1>Registreren</h1>
+	<p class="warning" id="warning-security">Kies geen gebruikersnaam en wachtwoord die je ook voor andere websites gebruikt.</p>
 	<div>
 		<label for="username" class="form-label">Gebruikersnaam:</label>
 		<input type="text" class="form-control" id="username" name="username" value="{{username}}" required>

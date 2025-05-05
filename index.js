@@ -70,6 +70,9 @@ app.engine("hbs",
 				if (!this._blocks) this._blocks = {};
 				this._blocks[name] = options.fn(this);
 				return null;
+			},
+			ifeq(a, b, options) {
+				return a === b ? options.fn(this) : options.inverse(this);
 			}
 		},
 		extname: "hbs",
@@ -105,8 +108,18 @@ const routerImports = fs.readdirSync(routersPath).map(async (file) => {
 await Promise.all(routerImports);
 
 // Errors
+app.use((err, req, res, next) => {
+	console.error(err.stack);
+	const status = err.status || 500;
+
+	if ([403, 404, 500].includes(status)) {
+		return res.status(status).render(`errors/${status}`);
+	}
+
+	res.status(status).send("Er ging iets mis.");
+});
 app.use((req, res) => {
-    res.status(404).render("errors/404");
+	res.status(404).render("errors/404");
 });
 
 //--- Start server ---//

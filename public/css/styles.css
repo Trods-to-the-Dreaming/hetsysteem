@@ -4810,7 +4810,7 @@ textarea.form-control-lg {
   top: -1px;
 }
 
-.alert, .success, .error {
+.alert, .success, .error, .warning {
   --bs-alert-bg: transparent;
   --bs-alert-padding-x: 1rem;
   --bs-alert-padding-y: 1rem;
@@ -4877,7 +4877,7 @@ textarea.form-control-lg {
   --bs-alert-link-color: var(--bs-info-text-emphasis);
 }
 
-.alert-warning {
+.alert-warning, .warning {
   --bs-alert-color: var(--bs-warning-text-emphasis);
   --bs-alert-bg: var(--bs-warning-bg-subtle);
   --bs-alert-border-color: var(--bs-warning-border-subtle);
@@ -7915,7 +7915,7 @@ textarea.form-control-lg {
   margin-bottom: auto !important;
 }
 
-.mt-0, .change, .no-distance, .success, .error {
+.mt-0, .change, .no-distance, .success, .error, .warning {
   margin-top: 0 !important;
 }
 
@@ -7971,7 +7971,7 @@ textarea.form-control-lg {
   margin-right: auto !important;
 }
 
-.mb-0, .change, .no-distance, .success, .error {
+.mb-0, .change, .no-distance, .success, .error, .warning {
   margin-bottom: 0 !important;
 }
 
@@ -8035,7 +8035,7 @@ textarea.form-control-lg {
   padding: 0.25rem !important;
 }
 
-.p-2, .success, .error {
+.p-2, .success, .error, .warning {
   padding: 0.5rem !important;
 }
 
@@ -11914,6 +11914,13 @@ h3, .h3 {
 
 .box {
   max-width: 480px;
+}
+
+.warning {
+  display: none;
+}
+.warning:not(:empty) {
+  display: block;
 }
 
 .error {
