@@ -76,7 +76,7 @@ export const handleChooseWorld = async (req, res) => {
 			await saveSession(req);
 
 			// Enter world
-			return res.redirect("/game/dashboard");
+			return res.redirect("/game/play");
 		}
 		
 		// Fetch an AI-character to claim
@@ -224,23 +224,68 @@ export const handleCustomizeCharacter = async (req, res) => {
 		await saveSession(req);
 		
 		// Enter world
-		return res.redirect("/game/dashboard");
+		return res.redirect("/game/play");
 	} catch (err) {
 		console.error(err);
 		return res.status(500).render("errors/500");
 	}
 };
 
-//--- Show dashboard page ---//
-export const showDashboard = async (req, res) => {
+//--- Show play page ---//
+export const showPlay = async (req, res) => {
 	try {
-		const { characterFirstName, 
-				characterLastName } = req.session;
-		res.render("game/dashboard", {
-			fullName: `${characterFirstName} ${characterLastName}`
-		});
+		res.render("game/play");
 	} catch (err) {
 		console.error(err);
 		return res.status(500).render("errors/500");
 	}
 };
+/*
+//--- Show character page ---//
+export const showCharacter = async (req, res) => {
+	try {
+		res.render("game/play/character");
+	} catch (err) {
+		console.error(err);
+		return res.status(500).render("errors/500");
+	}
+};
+*/
+
+
+
+//--- Show character page ---//
+export const showCharacter = async (req, res) => {
+	try {
+		const { userId, 
+				worldId } = req.session;
+
+		const [rows] = await db.execute(
+		  `SELECT c.*,
+				  j1.name AS job_preference_1,
+				  j2.name AS job_preference_2,
+				  j3.name AS job_preference_3,
+				  l.name AS luxury_preference
+		   FROM characters c
+		   JOIN jobs j1 ON c.job_preference_1_id = j1.id
+		   JOIN jobs j2 ON c.job_preference_2_id = j2.id
+		   JOIN jobs j3 ON c.job_preference_3_id = j3.id
+		   JOIN luxury_preferences l ON c.luxury_preference_id = l.id
+		   WHERE c.user_id = ? AND c.world_id = ?`,
+		  [userId, worldId]
+		);
+
+
+		if (rows.length === 0) {
+			return res.status(404).render("errors/404");
+		}
+
+		const character = rows[0];
+
+		res.render("game/play/character", { character });
+	} catch (err) {
+		console.error(err);
+		return res.status(500).render("errors/500");
+	}
+};
+

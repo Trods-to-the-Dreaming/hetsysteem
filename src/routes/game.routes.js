@@ -10,7 +10,8 @@ import {
 	handleChooseWorld,
 	showCustomizeCharacter,
 	handleCustomizeCharacter,
-	showDashboard
+	showPlay,
+	showCharacter
 } from "../controllers/game.controllers.js";
 
 const router = express.Router();
@@ -19,7 +20,8 @@ router.get("/choose-world", requireAuth, showChooseWorld);
 router.post("/choose-world", requireAuth, handleChooseWorld);
 router.get("/customize-character", requireAuth, requireWorldSelected, requireCharacterSelected, showCustomizeCharacter);
 router.post("/customize-character", requireAuth, requireWorldSelected, requireCharacterSelected, handleCustomizeCharacter);
-router.get("/dashboard", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showDashboard);
+router.get("/play", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showPlay);
+router.get("/play/character", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showCharacter);
 
 export default {
 	path: "/game",
