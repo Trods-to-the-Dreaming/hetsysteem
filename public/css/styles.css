@@ -7277,7 +7277,7 @@ textarea.form-control-lg {
   display: table-cell !important;
 }
 
-.d-flex, .content-wrapper, .page-wrapper {
+.d-flex, .page-wrapper {
   display: flex !important;
 }
 
@@ -7623,7 +7623,7 @@ textarea.form-control-lg {
   height: 75% !important;
 }
 
-.h-100, .page-wrapper {
+.h-100 {
   height: 100% !important;
 }
 
@@ -7635,7 +7635,7 @@ textarea.form-control-lg {
   max-height: 100% !important;
 }
 
-.vh-100, body {
+.vh-100 {
   height: 100vh !important;
 }
 
@@ -7651,7 +7651,7 @@ textarea.form-control-lg {
   flex-direction: row !important;
 }
 
-.flex-column, .content-wrapper, .page-wrapper {
+.flex-column, .page-wrapper {
   flex-direction: column !important;
 }
 
@@ -8748,7 +8748,7 @@ textarea.form-control-lg {
   background-color: rgba(var(--bs-black-rgb), var(--bs-bg-opacity)) !important;
 }
 
-.bg-white, .content-wrapper {
+.bg-white, .page-wrapper {
   --bs-bg-opacity: 1;
   background-color: rgba(var(--bs-white-rgb), var(--bs-bg-opacity)) !important;
 }
@@ -11906,6 +11906,7 @@ h3, .h3 {
 
 .page-wrapper {
   max-width: 960px;
+  min-height: 100vh;
 }
 
 .navbar-account-icon {

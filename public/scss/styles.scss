@@ -1,7 +1,6 @@
 @import "../../node_modules/bootstrap/scss/bootstrap";
 
 body {
-	@extend .vh-100;
 	@extend .m-0;
 	@extend .bg-light;
 }
@@ -25,16 +24,14 @@ h3 {
 	@extend .w-100;
 	@extend .m-0;
 	@extend .mx-auto;
-	@extend .h-100;
 	max-width: 960px;
+	min-height: 100vh;
+	@extend .bg-white;
 }
 
 .content-wrapper {
-	@extend .d-flex;
-	@extend .flex-column;
 	@extend .flex-grow-1;
 	@extend .p-4;
-	@extend .bg-white;
 }
 
 .navbar-account-icon {
