@@ -11,7 +11,8 @@ import {
 	showCustomizeCharacter,
 	handleCustomizeCharacter,
 	showPlay,
-	showCharacter
+	showCharacter,
+	showInventory
 } from "../controllers/game.controllers.js";
 
 const router = express.Router();
@@ -22,6 +23,7 @@ router.get("/customize-character", requireAuth, requireWorldSelected, requireCha
 router.post("/customize-character", requireAuth, requireWorldSelected, requireCharacterSelected, handleCustomizeCharacter);
 router.get("/play", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showPlay);
 router.get("/play/character", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showCharacter);
+router.get("/play/inventory", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showInventory);
 
 export default {
 	path: "/game",

@@ -1,19 +1,19 @@
 {{#block "title"}}Het Systeem - Wereld kiezen{{/block}}
 
-<form class="box" id="game-choose-world-form" method="POST" action="/game/choose-world">
-	<h1>Wereld kiezen</h1>
-	<div>
-		<label for="world" class="form-label">Wereld:</label>
-		<select class="form-select" id="world" name="worldId">
-			{{#each worlds}}
-			<option value="{{this.id}}" {{#ifeq ../selectedWorldId this.id}}selected{{/ifeq}}>
-				{{this.name}}
-			</option>
-			{{/each}}
-		</select>
-	</div>
-	<p class="error" id="error-chosen-world">{{errorChosenWorld}}</p>
-	<div class="d-grid">
+<h1>Wereld kiezen</h1>
+<div class="mw-container">
+	<form id="game-choose-world-form" method="POST" action="/game/choose-world">
+		<div class="field">
+			<label for="world" class="form-label">Wereld:</label>
+			<select class="form-select" id="world" name="worldId">
+				{{#each worlds}}
+				<option value="{{this.id}}" {{#ifeq ../selectedWorldId this.id}}selected{{/ifeq}}>
+					{{this.name}}
+				</option>
+				{{/each}}
+			</select>
+		</div>
+		<p class="error" id="error-chosen-world">{{errorChosenWorld}}</p>
 		<button type="submit" class="button-1">Volgende</button>
-	</div>
-</form>
+	</form>
+</div>

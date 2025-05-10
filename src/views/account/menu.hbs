@@ -1,13 +1,13 @@
 {{#block "title"}}Het Systeem - Mijn account{{/block}}
 
-<div class="box">
-	<h1>Mijn account</h1>
-	<div>
+<h1>Mijn account</h1>
+<div class="mw-container">
+	<div class="field">
 		<label for="username" class="form-label">Gebruikersnaam:</label>
 		<input type="text" class="form-control" id="username" value="{{username}}" readonly>
 		<p class="change"><a href="/account/changeusername">Wijzigen</a></p>
 	</div>
-	<div>
+	<div class="field">
 		<label for="password" class="form-label">Wachtwoord:</label>
 		<input type="password" class="form-control" id="password" value="********" readonly>
 		<p class="change"><a href="/account/changepassword">Wijzigen</a></p>

@@ -1,18 +1,18 @@
 {{#block "title"}}Het Systeem - Aanmelden{{/block}}
 
-<form class="box" id="auth-login-form" method="POST" action="/auth/login">
-	<h1>Aanmelden</h1>
-	<div>
-		<label for="username" class="form-label">Gebruikersnaam:</label>
-		<input type="text" class="form-control" id="username" name="username" value="{{username}}" required>
-	</div>
-	<div>
-		<label for="password" class="form-label">Wachtwoord:</label>
-		<input type="password" class="form-control" id="password" name="password" required>
-	</div>
-	<p class="error" id="error-login">{{errorLogin}}</p>
-	<div class="d-grid">
+<h1>Aanmelden</h1>
+<div class="mw-container">
+	<form id="auth-login-form" method="POST" action="/auth/login">
+		<div class="field">
+			<label for="username" class="form-label">Gebruikersnaam:</label>
+			<input type="text" class="form-control" id="username" name="username" value="{{username}}" required>
+		</div>
+		<div class="field">
+			<label for="password" class="form-label">Wachtwoord:</label>
+			<input type="password" class="form-control" id="password" name="password" required>
+		</div>
+		<p class="error" id="error-login">{{errorLogin}}</p>
 		<button type="submit" class="button-1">Aanmelden</button>
-	</div>
-	<p class="no-distance">Nog geen lid? <a href="/auth/register">Registreren</a>.</p>
-</form>
+	</form>
+	<p>Nog geen lid? <a href="/auth/register">Registreren</a>.</p>
+</div>

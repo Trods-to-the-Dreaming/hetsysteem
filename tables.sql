@@ -279,62 +279,44 @@ INSERT INTO buildings (name, job_id, max_hours) VALUES
 ('Elektronicafabriek', 18, 100),
 ('Kledingfabriek', 19, 100);
 
--- Voor world_id 1
-INSERT INTO characters (
-  first_name,
-  last_name,
-  world_id
-)
-VALUES
-  -- 100 characters voor world_id 1
-  -- Je kunt dit eventueel automatiseren met een script in een backendtaal, maar hier als SQL:
-  ('First 1', 'Last 1', 1),
-  ('First 2', 'Last 2', 1),
-  ('First 3', 'Last 3', 1),
-  ('First 4', 'Last 4', 1),
-  ('First 5', 'Last 5', 1),
-  ('First 6', 'Last 6', 1),
-  ('First 7', 'Last 7', 1),
-  ('First 8', 'Last 8', 1),
-  ('First 9', 'Last 9', 1),
-  ('First 10', 'Last 10', 1);
+INSERT INTO characters (first_name, last_name, world_id) VALUES
+('First 1', 'Last 1', 1),
+('First 2', 'Last 2', 1),
+('First 3', 'Last 3', 1),
+('First 4', 'Last 4', 1),
+('First 5', 'Last 5', 1),
+('First 6', 'Last 6', 1),
+('First 7', 'Last 7', 1),
+('First 8', 'Last 8', 1),
+('First 9', 'Last 9', 1),
+('First 10', 'Last 10', 1)
+('First 1', 'Last 1', 2),
+('First 2', 'Last 2', 2),
+('First 3', 'Last 3', 2),
+('First 4', 'Last 4', 2),
+('First 5', 'Last 5', 2),
+('First 6', 'Last 6', 2),
+('First 7', 'Last 7', 2),
+('First 8', 'Last 8', 2),
+('First 9', 'Last 9', 2),
+('First 10', 'Last 10', 2)
+('First 1', 'Last 1', 3),
+('First 2', 'Last 2', 3),
+('First 3', 'Last 3', 3),
+('First 4', 'Last 4', 3),
+('First 5', 'Last 5', 3),
+('First 6', 'Last 5', 3),
+('First 7', 'Last 5', 3),
+('First 8', 'Last 5', 3),
+('First 9', 'Last 5', 3),
+('First 10', 'Last 5', 3);
 
--- Voor world_id 2
-INSERT INTO characters (
-  first_name,
-  last_name,
-  world_id
-)
-VALUES
-  ('First 1', 'Last 1', 2),
-  ('First 2', 'Last 2', 2),
-  ('First 3', 'Last 3', 2),
-  ('First 4', 'Last 4', 2),
-  ('First 5', 'Last 5', 2),
-  ('First 6', 'Last 6', 2),
-  ('First 7', 'Last 7', 2),
-  ('First 8', 'Last 8', 2),
-  ('First 9', 'Last 9', 2),
-  ('First 10', 'Last 10', 2);
-
--- Voor world_id 3
-INSERT INTO characters (
-  first_name,
-  last_name,
-  world_id
-)
-VALUES
-  ('First 1', 'Last 1', 3),
-  ('First 2', 'Last 2', 3),
-  ('First 3', 'Last 3', 3),
-  ('First 4', 'Last 4', 3),
-  ('First 5', 'Last 5', 3),
-  ('First 6', 'Last 5', 3),
-  ('First 7', 'Last 5', 3),
-  ('First 8', 'Last 5', 3),
-  ('First 9', 'Last 5', 3),
-  ('First 10', 'Last 5', 3);
-
+INSERT INTO character_items (character_id, item_id, quantity) VALUES
+(11, 1, 4),
+(11, 4, 2),
+(11, 6, 1),
+(11, 10, 3),
+(11, 16, 5);
 
 
 

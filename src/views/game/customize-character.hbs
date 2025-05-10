@@ -1,52 +1,53 @@
 {{#block "title"}}Het Systeem - Personage aanpassen{{/block}}
 
-<form class="box" id="game-customize-character-form" method="POST" action="/game/customize-character">
-	<h1>Personage aanpassen</h1>
-	<div>
-		<label for="first-name" class="form-label">Voornaam:</label>
-		<input type="text" class="form-control" id="first-name" name="firstName" value="{{firstName}}" required>
-	</div>
-	<div>
-		<label for="last-name" class="form-label">Achternaam:</label>
-		<input type="text" class="form-control" id="last-name" name="lastName" value="{{lastName}}" required>
-	</div>
-	<div>
-		<label for="job-preference-1" class="form-label">Droomjob (+3 geluk):</label>
-		<select class="form-select" id="job-preference-1" name="jobPreference1" required>
-			{{#each jobs}}
-			<option value="{{this.id}}">{{this.name}}</option>
-			{{/each}}
-		</select>
-	</div>
-	<div>
-		<label for="job-preference-2" class="form-label">Geweldige job (+2 geluk):</label>
-		<select class="form-select" id="job-preference-2" name="jobPreference2" required>
-			{{#each jobs}}
-			<option value="{{this.id}}">{{this.name}}</option>
-			{{/each}}
-		</select>
-	</div>
-	<div>
-		<label for="job-preference-3" class="form-label">Leuke job (+1 geluk):</label>
-		<select class="form-select" id="job-preference-3" name="jobPreference3" required>
-			{{#each jobs}}
-			<option value="{{this.id}}">{{this.name}}</option>
-			{{/each}}
-		</select>
-	</div>
-	<p class="error" id="error-job-preference">{{errorJobPreference}}</p>
-	<div>
-		<label for="luxury-preference" class="form-label">Interesse (+3 geluk):</label>
-		<select class="form-select" id="luxury-preference" name="luxuryPreference" required>
-			{{#each luxury_preferences}}
-			<option value="{{this.id}}">{{this.name}}</option>
-			{{/each}}
-		</select>
-	</div>
-	<div class="d-grid">
+<h1>Personage aanpassen</h1>
+<div class="mw-container">
+	<form id="game-customize-character-form" method="POST" action="/game/customize-character">
+		<div class="field">
+			<label for="first-name" class="form-label">Voornaam:</label>
+			<input type="text" class="form-control" id="first-name" name="firstName" value="{{firstName}}" required>
+		</div>
+		<div class="field">
+			<label for="last-name" class="form-label">Achternaam:</label>
+			<input type="text" class="form-control" id="last-name" name="lastName" value="{{lastName}}" required>
+		</div>
+		<div class="field">
+			<label for="job-preference-1" class="form-label">Droomjob (+3 geluk):</label>
+			<select class="form-select" id="job-preference-1" name="jobPreference1" required>
+				{{#each jobs}}
+				<option value="{{this.id}}">{{this.name}}</option>
+				{{/each}}
+			</select>
+		</div>
+		<div class="field">
+			<label for="job-preference-2" class="form-label">Geweldige job (+2 geluk):</label>
+			<select class="form-select" id="job-preference-2" name="jobPreference2" required>
+				{{#each jobs}}
+				<option value="{{this.id}}">{{this.name}}</option>
+				{{/each}}
+			</select>
+		</div>
+		<div class="field">
+			<label for="job-preference-3" class="form-label">Leuke job (+1 geluk):</label>
+			<select class="form-select" id="job-preference-3" name="jobPreference3" required>
+				{{#each jobs}}
+				<option value="{{this.id}}">{{this.name}}</option>
+				{{/each}}
+			</select>
+		</div>
+		<p class="error" id="error-job-preference">{{errorJobPreference}}</p>
+		<div class="field">
+			<label for="luxury-preference" class="form-label">Interesse (+3 geluk):</label>
+			<select class="form-select" id="luxury-preference" name="luxuryPreference" required>
+				{{#each luxury_preferences}}
+				<option value="{{this.id}}">{{this.name}}</option>
+				{{/each}}
+			</select>
+		</div>
 		<button type="submit" class="button-1">Volgende</button>
-	</div>
-</form>
+		<a href="/game/choose-world" class="button-2">Terug</a>
+	</form>
+</div>
 
 <script>
 document.getElementById("game-customize-character-form").addEventListener("submit", function (e) {

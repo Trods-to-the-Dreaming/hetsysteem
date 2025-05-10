@@ -240,19 +240,6 @@ export const showPlay = async (req, res) => {
 		return res.status(500).render("errors/500");
 	}
 };
-/*
-//--- Show character page ---//
-export const showCharacter = async (req, res) => {
-	try {
-		res.render("game/play/character");
-	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500");
-	}
-};
-*/
-
-
 
 //--- Show character page ---//
 export const showCharacter = async (req, res) => {
@@ -260,7 +247,7 @@ export const showCharacter = async (req, res) => {
 		const { userId, 
 				worldId } = req.session;
 
-		const [rows] = await db.execute(
+		const [characterRows] = await db.execute(
 		  `SELECT c.*,
 				  j1.name AS job_preference_1,
 				  j2.name AS job_preference_2,
@@ -275,17 +262,38 @@ export const showCharacter = async (req, res) => {
 		  [userId, worldId]
 		);
 
-
-		if (rows.length === 0) {
+		if (characterRows.length === 0) {
 			return res.status(404).render("errors/404");
 		}
 
-		const character = rows[0];
-
-		res.render("game/play/character", { character });
+		res.render("game/play/character", { 
+			character: characterRows[0]
+		});
 	} catch (err) {
 		console.error(err);
 		return res.status(500).render("errors/500");
 	}
 };
 
+//--- Show inventory page ---//
+export const showInventory = async (req, res) => {
+	try {
+		const { characterId } = req.session;
+
+		const [itemRows] = await db.execute(
+			`SELECT i.name, ci.quantity
+			 FROM character_items ci
+			 JOIN items i ON ci.item_id = i.id
+			 WHERE ci.character_id = ? AND ci.quantity > 0
+			 ORDER BY i.id`,
+			[characterId]
+		);
+
+		res.render("game/play/inventory", {
+			items: itemRows
+		});
+	} catch (err) {
+		console.error(err);
+		return res.status(500).render("errors/500");
+	}
+};

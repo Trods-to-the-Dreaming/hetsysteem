@@ -1,26 +1,26 @@
 {{#block "title"}}Het Systeem - Registreren{{/block}}
 
-<form class="box" id="auth-register-form" method="POST" action="/auth/register">
-	<h1>Registreren</h1>
-	<div>
-		<label for="username" class="form-label">Gebruikersnaam:</label>
-		<input type="text" class="form-control" id="username" name="username" value="{{username}}" required>
-	</div>
-	<p class="error" id="error-username">{{errorUsername}}</p>
-	<div>
-		<label for="password" class="form-label">Wachtwoord:</label>
-		<input type="password" class="form-control" id="password" name="password" required>
-	</div>
-	<div>
-		<label for="password-confirm" class="form-label">Bevestig wachtwoord:</label>
-		<input type="password" class="form-control" id="password-confirm" name="passwordConfirm" required>
-	</div>
-	<p class="error" id="error-confirm">{{errorConfirm}}</p>
-	<div class="d-grid">
+<h1>Registreren</h1>
+<div class="mw-container">
+	<form id="auth-register-form" method="POST" action="/auth/register">
+		<div class="field">
+			<label for="username" class="form-label">Gebruikersnaam:</label>
+			<input type="text" class="form-control" id="username" name="username" value="{{username}}" required>
+		</div>
+		<p class="error" id="error-username">{{errorUsername}}</p>
+		<div class="field">
+			<label for="password" class="form-label">Wachtwoord:</label>
+			<input type="password" class="form-control" id="password" name="password" required>
+		</div>
+		<div class="field">
+			<label for="password-confirm" class="form-label">Bevestig wachtwoord:</label>
+			<input type="password" class="form-control" id="password-confirm" name="passwordConfirm" required>
+		</div>
+		<p class="error" id="error-confirm">{{errorConfirm}}</p>
 		<button type="submit" class="button-1">Registreren</button>
-	</div>
-	<p class="no-distance">Reeds lid? <a href="/auth/login">Aanmelden</a>.</p>
-</form>
+	</form>
+	<p>Reeds lid? <a href="/auth/login">Aanmelden</a>.</p>
+</div>
 
 <script>
 document.getElementById("auth-register-form").addEventListener("submit", function (e) {
