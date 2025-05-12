@@ -10,6 +10,7 @@ DROP TABLE building_sell_orders;
 DROP TABLE building_buy_orders;
 DROP TABLE item_sell_orders;
 DROP TABLE item_buy_orders;
+DROP TABLE employment_contracts;
 DROP TABLE character_buildings;
 DROP TABLE character_items;
 DROP TABLE character_job_experience;
@@ -32,17 +33,17 @@ CREATE TABLE worlds (
 );
 
 CREATE TABLE global_resources (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(32) NOT NULL UNIQUE
+	id INT PRIMARY KEY AUTO_INCREMENT,
+	name VARCHAR(32) NOT NULL UNIQUE
 );
 
 CREATE TABLE global_resource_stocks (
-    world_id INT NOT NULL,
-    global_resource_id INT NOT NULL,
-    quantity INT NOT NULL,
-    PRIMARY KEY (world_id, global_resource_id),
-    FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE,
-    FOREIGN KEY (global_resource_id) REFERENCES global_resources(id)
+	world_id INT NOT NULL,
+	global_resource_id INT NOT NULL,
+	quantity INT NOT NULL,
+	PRIMARY KEY (world_id, global_resource_id),
+	FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE,
+	FOREIGN KEY (global_resource_id) REFERENCES global_resources(id)
 );
 
 CREATE TABLE items (
@@ -51,35 +52,35 @@ CREATE TABLE items (
 );
 
 CREATE TABLE luxury_preferences (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(32) NOT NULL UNIQUE,
-    material_item_id INT NOT NULL,
-    service_item_id INT NOT NULL,
-    FOREIGN KEY (material_item_id) REFERENCES items(id),
-    FOREIGN KEY (service_item_id) REFERENCES items(id)
+	id INT PRIMARY KEY AUTO_INCREMENT,
+	name VARCHAR(32) NOT NULL UNIQUE,
+	material_item_id INT NOT NULL,
+	service_item_id INT NOT NULL,
+	FOREIGN KEY (material_item_id) REFERENCES items(id),
+	FOREIGN KEY (service_item_id) REFERENCES items(id)
 );
 
 CREATE TABLE jobs (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(32) NOT NULL UNIQUE,
-    input_item_id INT,
-    global_input_id INT,
-    booster_item_id INT,
-    output_item_id INT,
+	id INT PRIMARY KEY AUTO_INCREMENT,
+	name VARCHAR(32) NOT NULL UNIQUE,
+	input_item_id INT,
+	global_input_id INT,
+	booster_item_id INT,
+	output_item_id INT,
 	global_output_id INT,
-    FOREIGN KEY (input_item_id) REFERENCES items(id),
-    FOREIGN KEY (global_input_id) REFERENCES global_resources(id),
-    FOREIGN KEY (booster_item_id) REFERENCES items(id),
-    FOREIGN KEY (output_item_id) REFERENCES items(id),
-    FOREIGN KEY (global_output_id) REFERENCES global_resources(id)
+	FOREIGN KEY (input_item_id) REFERENCES items(id),
+	FOREIGN KEY (global_input_id) REFERENCES global_resources(id),
+	FOREIGN KEY (booster_item_id) REFERENCES items(id),
+	FOREIGN KEY (output_item_id) REFERENCES items(id),
+	FOREIGN KEY (global_output_id) REFERENCES global_resources(id)
 );
 
 CREATE TABLE buildings (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(32) NOT NULL UNIQUE,
-    job_id INT,
+	id INT PRIMARY KEY AUTO_INCREMENT,
+	name VARCHAR(32) NOT NULL UNIQUE,
+	job_id INT,
 	max_hours INT NOT NULL,
-    FOREIGN KEY (job_id) REFERENCES jobs(id)
+	FOREIGN KEY (job_id) REFERENCES jobs(id)
 );
 
 CREATE TABLE characters (
@@ -111,91 +112,103 @@ CREATE TABLE characters (
 );
 
 CREATE TABLE character_job_experience (
-    character_id INT NOT NULL,
-    job_id INT NOT NULL,
-    experience INT NOT NULL DEFAULT 0,
-    PRIMARY KEY (character_id, job_id),
-    FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
-    FOREIGN KEY (job_id) REFERENCES jobs(id)
+	character_id INT NOT NULL,
+	job_id INT NOT NULL,
+	experience INT NOT NULL DEFAULT 0,
+	PRIMARY KEY (character_id, job_id),
+	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (job_id) REFERENCES jobs(id)
 );
 
 CREATE TABLE character_items (
-    character_id INT NOT NULL,
-    item_id INT NOT NULL,
-    quantity INT NOT NULL DEFAULT 0,
-    PRIMARY KEY (character_id, item_id),
-    FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
-    FOREIGN KEY (item_id) REFERENCES items(id)
+	character_id INT NOT NULL,
+	item_id INT NOT NULL,
+	quantity INT NOT NULL DEFAULT 0,
+	PRIMARY KEY (character_id, item_id),
+	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (item_id) REFERENCES items(id)
 );
 
 CREATE TABLE character_buildings (
 	character_id INT NOT NULL,
-    building_id INT NOT NULL,
-    quantity INT NOT NULL DEFAULT 0,
-    PRIMARY KEY (character_id, building_id),
-    FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
-    FOREIGN KEY (building_id) REFERENCES buildings(id)
+	building_id INT NOT NULL,
+	quantity INT NOT NULL DEFAULT 0,
+	PRIMARY KEY (character_id, building_id),
+	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (building_id) REFERENCES buildings(id)
+);
+
+CREATE TABLE employment_contracts (
+	id INT PRIMARY KEY AUTO_INCREMENT,
+	employer_id INT NOT NULL,
+	employee_id INT NOT NULL,
+	job_id INT NOT NULL,
+	hours INT NOT NULL,
+	hourly_wage INT NOT NULL,
+	FOREIGN KEY (employer_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (employee_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (job_id) REFERENCES jobs(id)
 );
 
 CREATE TABLE item_buy_orders (
-    character_id INT NOT NULL,
-    item_id INT NOT NULL,
-    quantity INT NOT NULL,
-    max_price_per_unit INT NOT NULL,
+	character_id INT NOT NULL,
+	item_id INT NOT NULL,
+	quantity INT NOT NULL,
+	max_price_per_unit INT NOT NULL,
 	PRIMARY KEY (character_id, item_id),
-    FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
-    FOREIGN KEY (item_id) REFERENCES items(id)
+	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (item_id) REFERENCES items(id)
 );
 
 CREATE TABLE item_sell_orders (
-    character_id INT NOT NULL,
-    item_id INT NOT NULL,
-    quantity INT NOT NULL,
-    min_price_per_unit INT NOT NULL,
+	character_id INT NOT NULL,
+	item_id INT NOT NULL,
+	quantity INT NOT NULL,
+	min_price_per_unit INT NOT NULL,
 	PRIMARY KEY (character_id, item_id),
-    FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
-    FOREIGN KEY (item_id) REFERENCES items(id)
+	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (item_id) REFERENCES items(id)
 );
 
 CREATE TABLE building_buy_orders (
-    character_id INT NOT NULL,
-    building_id INT NOT NULL,
-    quantity INT NOT NULL,
-    max_price_per_unit INT NOT NULL,
+	character_id INT NOT NULL,
+	building_id INT NOT NULL,
+	quantity INT NOT NULL,
+	max_price_per_unit INT NOT NULL,
 	PRIMARY KEY (character_id, building_id),
-    FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
-    FOREIGN KEY (building_id) REFERENCES buildings(id)
+	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (building_id) REFERENCES buildings(id)
 );
 
 CREATE TABLE building_sell_orders (
-    character_id INT NOT NULL,
-    building_id INT NOT NULL,
-    quantity INT NOT NULL,
-    min_price_per_unit INT NOT NULL,
+	character_id INT NOT NULL,
+	building_id INT NOT NULL,
+	quantity INT NOT NULL,
+	min_price_per_unit INT NOT NULL,
 	PRIMARY KEY (character_id, building_id),
-    FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
-    FOREIGN KEY (building_id) REFERENCES buildings(id)
+	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (building_id) REFERENCES buildings(id)
 );
 
 CREATE TABLE vacancies (
-    character_id INT NOT NULL,
+	character_id INT NOT NULL,
 	building_id INT NOT NULL,
-    hours INT NOT NULL,
+	hours INT NOT NULL,
 	min_education_experience INT NOT NULL,
-    max_hourly_wage INT NOT NULL,
+	max_hourly_wage INT NOT NULL,
 	PRIMARY KEY (character_id, building_id, min_education_experience),
-    FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
 	FOREIGN KEY (building_id) REFERENCES buildings(id)
 );
 
 CREATE TABLE applications (
-    character_id INT NOT NULL,
-    building_id INT NOT NULL,
-    hours INT NOT NULL,
-    min_hourly_wage INT NOT NULL,
+	character_id INT NOT NULL,
+	building_id INT NOT NULL,
+	hours INT NOT NULL,
+	min_hourly_wage INT NOT NULL,
 	PRIMARY KEY (character_id, building_id),
-    FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
-    FOREIGN KEY (building_id) REFERENCES buildings(id)
+	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (building_id) REFERENCES buildings(id)
 );
 
 INSERT INTO worlds (name, money_system) VALUES 
@@ -289,7 +302,7 @@ INSERT INTO characters (first_name, last_name, world_id) VALUES
 ('First 7', 'Last 7', 1),
 ('First 8', 'Last 8', 1),
 ('First 9', 'Last 9', 1),
-('First 10', 'Last 10', 1)
+('First 10', 'Last 10', 1),
 ('First 1', 'Last 1', 2),
 ('First 2', 'Last 2', 2),
 ('First 3', 'Last 3', 2),
@@ -299,7 +312,7 @@ INSERT INTO characters (first_name, last_name, world_id) VALUES
 ('First 7', 'Last 7', 2),
 ('First 8', 'Last 8', 2),
 ('First 9', 'Last 9', 2),
-('First 10', 'Last 10', 2)
+('First 10', 'Last 10', 2),
 ('First 1', 'Last 1', 3),
 ('First 2', 'Last 2', 3),
 ('First 3', 'Last 3', 3),
@@ -318,6 +331,10 @@ INSERT INTO character_items (character_id, item_id, quantity) VALUES
 (11, 10, 3),
 (11, 16, 5);
 
+INSERT INTO employment_contracts (employer_id, employee_id, job_id, hours, hourly_wage) VALUES
+(2, 1, 1, 3, 500),
+(5, 1, 4, 2, 400),
+(7, 1, 8, 2, 250);
 
 
 
