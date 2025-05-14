@@ -1,28 +1,78 @@
 {{#block "title"}}Het Systeem - Tijd besteden{{/block}}
 
 <h1>Tijd besteden</h1>
-<h2>Job</h2>
-{{#if contracts.length}}
-	<form method="POST" action="/game/world/actions/spend-time/job">
+<form method="POST" action="/game/world/actions/spend-time/job">
+	<h2>Job</h2>
+	{{#if contracts.length}}
 		{{#each contracts}}
-			<div class="card mb-3 p-3 shadow-sm" style="max-width: 600px;">
-				<p><strong>Werkgever:</strong> {{this.employer_first_name}} {{this.employer_last_name}}</p>
-				<p><strong>Job:</strong> {{this.job_name}}</p>
-				<p><strong>Uren te presteren:</strong> {{this.hours}}</p>
-				<p><strong>Uurloon:</strong> €{{this.hourly_wage}}</p>
-				<div class="mb-2">
-					<label for="hours-{{this.id}}" class="form-label">Aantal uren dat je effectief werkt:</label>
-					<input type="number" name="worked_hours[{{this.id}}]" id="hours-{{this.id}}" class="form-control" min="0" max="{{this.hours}}">
+			<div class="card-border">
+				<div class="card-body">
+					<p class="card-p"><strong>Werkgever:</strong> {{this.employer_first_name}} {{this.employer_last_name}}</p>
+					<p class="card-p"><strong>Job:</strong> {{this.job_name}}</p>
+					<p class="card-p"><strong>Uurloon:</strong> € {{this.hourly_wage}}</p>
+					<p class="card-p"><strong>Uren te presteren:</strong> {{this.hours}}</p>
+					<div class="card-field">
+						<label for="job-hours-{{this.id}}" class="card-label"><strong>Uren gepresteerd:</strong></label>
+						<select name="jobHours[{{this.id}}]" id="job-hours-{{this.id}}" class="card-select">
+							{{#range 0 this.hours}}
+								<option value="{{this}}">{{this}}</option>
+							{{/range}}
+						</select>
+					</div>
 				</div>
 			</div>
 		{{/each}}
-		<!--button type="submit" class="btn btn-primary">Bevestigen</button-->
-	</form>
-{{else}}
-	<p>Je hebt momenteel geen actieve arbeidscontracten.</p>
-{{/if}}
-<h2>Studie</h2>
-<h2>Ontspanning</h2>
-<div class="mw-container">
+	{{else}}
+		<p>Je hebt geen lopend arbeidscontract.</p>
+	{{/if}}
+	<h2>Opleiding</h2>
+	{{#if courses.length}}
+		{{#each courses}}
+			<div class="card-border">
+				<div class="card-body">
+					<p class="card-p"><strong>Leraar:</strong> {{this.teacher_first_name}} {{this.teacher_last_name}}</p>
+					<p class="card-p"><strong>Uren te volgen:</strong> {{this.hours}}</p>
+					<div class="card-field">
+						<label for="course-hours-{{this.id}}" class="card-label"><strong>Uren gevolgd:</strong></label>
+						<select name="courseHours[{{this.id}}]" id="course-hours-{{this.id}}" class="card-select">
+							{{#range 0 this.hours}}
+								<option value="{{this}}">{{this}}</option>
+							{{/range}}
+						</select>
+					</div>
+				</div>
+			</div>
+		{{/each}}
+	{{else}}
+		<p>Je bent niet ingeschreven voor een opleiding.</p>
+	{{/if}}
+	<h2>Ontspanning</h2>
+	{{#if activities.length}}
+		{{#each activities}}
+			<div class="card-border">
+				<div class="card-body">
+					<p class="card-p"><strong>Organisator:</strong> {{this.organizer_first_name}} {{this.organizer_last_name}}</p>
+					<p class="card-p"><strong>Uren deel te nemen:</strong> {{this.hours}}</p>
+					<div class="card-field">
+						<label for="activity-hours-{{this.id}}" class="card-label"><strong>Uren deelgenomen:</strong></label>
+						<select name="activityHours[{{this.id}}]" id="activity-hours-{{this.id}}" class="card-select">
+							{{#range 0 this.hours}}
+								<option value="{{this}}">{{this}}</option>
+							{{/range}}
+						</select>
+					</div>
+				</div>
+			</div>
+		{{/each}}
+	{{else}}
+		<p>Je bent niet ingeschreven voor een ontspannende activiteit.</p>
+	{{/if}}
+	<div class="max-width-container">
+		<button type="submit" class="button-1">Bevestigen</button>
+	</div>
+</form>
+<div class="max-width-container">
 	<a class="button-2" href="/game/world/actions">← Acties</a>
 </div>
+
+					<!--input type="number" name="worked_hours[{{this.id}}]" id="hours-{{this.id}}" class="form-control" min="0" max="{{this.hours}}"-->

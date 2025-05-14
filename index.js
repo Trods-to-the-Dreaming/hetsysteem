@@ -73,6 +73,13 @@ app.engine("hbs",
 			},
 			ifeq(a, b, options) {
 				return a === b ? options.fn(this) : options.inverse(this);
+			},
+			range: function(start, end, options) {
+				let result = '';
+				for (let i = start; i <= end; i++) {
+					result += options.fn(i);
+				}
+				return result;
 			}
 		},
 		extname: "hbs",

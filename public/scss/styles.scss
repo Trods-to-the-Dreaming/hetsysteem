@@ -40,13 +40,43 @@ h3 {
 	line-height: 1;
 }
 
-.mw-container {
+.max-width-container {
 	@extend .w-100;
 	max-width: 400px;
 }
 
 .field {
 	@extend .mb-3;
+}
+
+.card-border {
+	@extend .card;
+	@extend .mb-3;
+	@extend .shadow-sm;
+}
+
+.card-p {
+	@extend .mb-1;
+	@extend .p-0;
+}
+
+.card-field {
+	@extend .mb-1;
+	@extend .p-0;
+	@extend .d-flex;
+	@extend .align-items-center;
+	@extend .flex-wrap;
+	@extend .gap-1;
+}
+
+.card-label {
+	@extend .mb-0;
+}
+
+.card-select {
+	@extend .form-select;
+	@extend .form-select-sm;
+	@extend .w-auto;
 }
 
 @mixin message {

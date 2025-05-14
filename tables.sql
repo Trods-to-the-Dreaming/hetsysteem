@@ -325,11 +325,11 @@ INSERT INTO characters (first_name, last_name, world_id) VALUES
 ('First 10', 'Last 5', 3);
 
 INSERT INTO character_items (character_id, item_id, quantity) VALUES
-(11, 1, 4),
-(11, 4, 2),
-(11, 6, 1),
-(11, 10, 3),
-(11, 16, 5);
+(1, 1, 4),
+(1, 4, 2),
+(1, 6, 1),
+(1, 10, 3),
+(1, 16, 5);
 
 INSERT INTO employment_contracts (employer_id, employee_id, job_id, hours, hourly_wage) VALUES
 (2, 1, 1, 3, 500),
@@ -337,7 +337,10 @@ INSERT INTO employment_contracts (employer_id, employee_id, job_id, hours, hourl
 (7, 1, 8, 2, 250);
 
 
-
+INSERT INTO employment_contracts (employer_id, employee_id, job_id, hours, hourly_wage) VALUES
+(1, 2, 3, 3, 200),
+(4, 2, 5, 2, 400),
+(9, 2, 9, 2, 350);
 
 
 
