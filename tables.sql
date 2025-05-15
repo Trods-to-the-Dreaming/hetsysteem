@@ -17,7 +17,7 @@ DROP TABLE character_job_experience;
 DROP TABLE characters;
 DROP TABLE buildings;
 DROP TABLE jobs;
-DROP TABLE luxury_preferences;
+DROP TABLE luxuries;
 DROP TABLE items;
 DROP TABLE global_resource_stocks;
 DROP TABLE global_resources;
@@ -51,7 +51,7 @@ CREATE TABLE items (
 	name VARCHAR(32) NOT NULL UNIQUE
 );
 
-CREATE TABLE luxury_preferences (
+CREATE TABLE luxuries (
 	id INT PRIMARY KEY AUTO_INCREMENT,
 	name VARCHAR(32) NOT NULL UNIQUE,
 	material_item_id INT NOT NULL,
@@ -108,7 +108,7 @@ CREATE TABLE characters (
 	FOREIGN KEY (job_preference_1_id) REFERENCES jobs(id),
 	FOREIGN KEY (job_preference_2_id) REFERENCES jobs(id),
 	FOREIGN KEY (job_preference_3_id) REFERENCES jobs(id),
-	FOREIGN KEY (luxury_preference_id) REFERENCES luxury_preferences(id)
+	FOREIGN KEY (luxury_preference_id) REFERENCES luxuries(id)
 );
 
 CREATE TABLE character_job_experience (
@@ -245,7 +245,7 @@ INSERT INTO items (name) VALUES
 ('Elektronica'),               -- id = 16
 ('Kleding');                   -- id = 17
 
-INSERT INTO luxury_preferences (name, material_item_id, service_item_id) VALUES
+INSERT INTO luxuries (name, material_item_id, service_item_id) VALUES
 ('Muziek', 15, 7),    -- Muziekinstrumenten en Concert
 ('Games', 16, 8),     -- Elektronica en Videospel
 ('Mode', 17, 9);      -- Kleding en Modeshow
@@ -334,10 +334,7 @@ INSERT INTO character_items (character_id, item_id, quantity) VALUES
 INSERT INTO employment_contracts (employer_id, employee_id, job_id, hours, hourly_wage) VALUES
 (2, 1, 1, 3, 500),
 (5, 1, 4, 2, 400),
-(7, 1, 8, 2, 250);
-
-
-INSERT INTO employment_contracts (employer_id, employee_id, job_id, hours, hourly_wage) VALUES
+(7, 1, 8, 2, 250),
 (1, 2, 3, 3, 200),
 (4, 2, 5, 2, 400),
 (9, 2, 9, 2, 350);

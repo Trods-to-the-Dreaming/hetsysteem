@@ -20,7 +20,7 @@ export const showChangeUsername = (req, res) => {
 		delete req.session.successChange;
 		res.render("account/changeusername", {
 			username: req.session.username,
-			successChange: successChange
+			success_change: successChange
 		});
 	} catch (err) {
 		console.error(err);
@@ -42,8 +42,8 @@ export const handleChangeUsername = async (req, res) => {
 		);
 		if (usersWithName.length > 0) {
 			return res.render("account/changeusername", {
-				errorUsername: ACCOUNT.USERNAME_TAKEN,
-				newUsername
+				error_username: ACCOUNT.USERNAME_TAKEN,
+				new_username: newUsername
 			});
 		}
 
@@ -58,8 +58,8 @@ export const handleChangeUsername = async (req, res) => {
 		const match = await bcrypt.compare(password, user.password);
 		if (!match) {
 			return res.render("account/changeusername", {
-				errorPassword: ACCOUNT.PASSWORD_WRONG,
-				newUsername
+				error_password: ACCOUNT.PASSWORD_WRONG,
+				new_username: newUsername
 			});
 		}
 
@@ -88,7 +88,7 @@ export const showChangePassword = (req, res) => {
 		delete req.session.successChange;
 		res.render("account/changepassword", {
 			username: req.session.username,
-			successChange: successChange
+			success_change: successChange
 		});
 	} catch (err) {
 		console.error(err);
@@ -107,7 +107,7 @@ export const handleChangePassword = async (req, res) => {
 		// Check if passwords are the same
 		if (newPassword !== passwordConfirm) {
 			return res.render("account/changepassword", {
-				errorConfirm: ACCOUNT.PASSWORD_MISMATCH
+				error_confirm: ACCOUNT.PASSWORD_MISMATCH
 			});
 		}
 		
@@ -122,7 +122,7 @@ export const handleChangePassword = async (req, res) => {
 		const match = await bcrypt.compare(currentPassword, user.password);
 		if (!match) {
 			return res.render("account/changepassword", {
-				errorPassword: ACCOUNT.PASSWORD_WRONG
+				error_password: ACCOUNT.PASSWORD_WRONG
 			});
 		}
 

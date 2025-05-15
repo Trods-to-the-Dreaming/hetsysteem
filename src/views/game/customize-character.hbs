@@ -5,11 +5,11 @@
 	<form id="game-customize-character-form" method="POST" action="/game/customize-character">
 		<div class="field">
 			<label for="first-name" class="form-label">Voornaam:</label>
-			<input type="text" class="form-control" id="first-name" name="firstName" value="{{firstName}}" required>
+			<input type="text" class="form-control" id="first-name" name="firstName" value="{{first_name}}" required>
 		</div>
 		<div class="field">
 			<label for="last-name" class="form-label">Achternaam:</label>
-			<input type="text" class="form-control" id="last-name" name="lastName" value="{{lastName}}" required>
+			<input type="text" class="form-control" id="last-name" name="lastName" value="{{last_name}}" required>
 		</div>
 		<div class="field">
 			<label for="job-preference-1" class="form-label">Droomjob (+3 geluk):</label>
@@ -35,11 +35,11 @@
 				{{/each}}
 			</select>
 		</div>
-		<p class="error" id="error-job-preference">{{errorJobPreference}}</p>
+		<p class="error" id="error-job-preference">{{error_job_preference}}</p>
 		<div class="field">
 			<label for="luxury-preference" class="form-label">Interesse (+3 geluk):</label>
 			<select class="form-select" id="luxury-preference" name="luxuryPreference" required>
-				{{#each luxury_preferences}}
+				{{#each luxuries}}
 				<option value="{{this.id}}">{{this.name}}</option>
 				{{/each}}
 			</select>

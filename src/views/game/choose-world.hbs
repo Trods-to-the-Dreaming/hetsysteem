@@ -7,13 +7,13 @@
 			<label for="world" class="form-label">Wereld:</label>
 			<select class="form-select" id="world" name="worldId">
 				{{#each worlds}}
-				<option value="{{this.id}}" {{#ifeq ../selectedWorldId this.id}}selected{{/ifeq}}>
+				<option value="{{this.id}}" {{#ifeq ../selected_world_id this.id}}selected{{/ifeq}}>
 					{{this.name}}
 				</option>
 				{{/each}}
 			</select>
 		</div>
-		<p class="error" id="error-chosen-world">{{errorChosenWorld}}</p>
+		<p class="error" id="error-chosen-world">{{error_chosen_world}}</p>
 		<button type="submit" class="button-1">Volgende</button>
 	</form>
 </div>

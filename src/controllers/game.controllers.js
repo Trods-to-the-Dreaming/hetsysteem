@@ -38,8 +38,7 @@ export const handleChooseWorld = async (req, res) => {
 			await connection.rollback();
 			return res.render("game/choose-world", {
 				worlds,
-				errorChosenWorld: GAME.INVALID_WORLD,
-				selectedWorldId: parseInt(worldId)
+				error_chosen_world: GAME.INVALID_WORLD
 			});
 		}
 		const world = worldsWithId[0];
@@ -91,8 +90,8 @@ export const handleChooseWorld = async (req, res) => {
 			await connection.rollback();
 			return res.render("game/choose-world", {
 				worlds,
-				errorChosenWorld: GAME.NO_NEW_CHARACTERS,
-				selectedWorldId: parseInt(worldId)
+				error_chosen_world: GAME.NO_NEW_CHARACTERS,
+				selected_world_id: parseInt(worldId)
 			});
 		}
 
@@ -141,12 +140,12 @@ export const showCustomizeCharacter = async (req, res) => {
 		const [jobs] = await db.execute(
 			`SELECT id, name FROM jobs ORDER BY id`
 		);
-		const [luxury_preferences] = await db.execute(
-			`SELECT id, name FROM luxury_preferences ORDER BY id`
+		const [luxuries] = await db.execute(
+			`SELECT id, name FROM luxuries ORDER BY id`
 		);
 		res.render("game/customize-character", {
 			jobs,
-			luxury_preferences
+			luxuries
 		});
 	} catch (err) {
 		console.error(err);
@@ -166,28 +165,50 @@ export const handleCustomizeCharacter = async (req, res) => {
 				jobPreference3, 
 				luxuryPreference } = req.body;
 
-		// Check if job preferences are different
-		if (
-			jobPreference1 === jobPreference2 ||
-			jobPreference1 === jobPreference3 ||
-			jobPreference2 === jobPreference3
-		) {
-			const [jobs] = await db.execute(
-				`SELECT id, name FROM jobs ORDER BY id`
-			);
-			const [luxury_preferences] = await db.execute(
-				`SELECT id, name FROM luxury_preferences ORDER BY id`
-			);
+		// Fetch jobs and luxuries
+		const [jobs] = await db.execute(`SELECT id, name FROM jobs ORDER BY id`);
+		const [luxuries] = await db.execute(`SELECT id, name FROM luxuries ORDER BY id`);
+		
+		// Fetch valid IDs
+		const validJobIds = jobs.map(job => job.id);
+		const validLuxuryIds = luxuries.map(lux => lux.id);
+
+		// Validate job preferences
+		const jobIds = [jobPreference1, jobPreference2, jobPreference3].map(id => parseInt(id));
+		if (!jobIds.every(id => validJobIds.includes(id))) {
 			return res.render("game/customize-character", {
 				jobs,
-				luxury_preferences,
-				errorJobPreference: GAME.INVALID_JOB_PREFERENCES,
-				firstName,
-				lastName
+				luxuries,
+				error_job_preference: GAME.INVALID_JOB_PREFERENCE,
+				first_name: firstName,
+				last_name: lastName
 			});
 		}
 		
-		// Check character
+		// Validate job preference uniqueness
+		const uniqueJobs = new Set(jobIds);
+		if (uniqueJobs.size !== 3) {
+			return res.render("game/customize-character", {
+				jobs,
+				luxuries,
+				error_job_preference: GAME.IDENTICAL_JOB_PREFERENCES,
+				first_name: firstName,
+				last_name: lastName
+			});
+		}
+		
+		// Validate luxury preference
+		if (!validLuxuryIds.includes(parseInt(luxuryPreference))) {
+			return res.render("game/customize-character", {
+				jobs,
+				luxuries,
+				error_luxury_preference: GAME.INVALID_LUXURY_PREFERENCE,
+				first_name: firstName,
+				last_name: lastName
+			});
+		}
+
+		// Validate character
 		const [characters] = await db.execute(
 			`SELECT * FROM characters WHERE id = ? AND user_id = ? AND is_customized = false`,
 			[characterId, userId]
@@ -231,8 +252,8 @@ export const handleCustomizeCharacter = async (req, res) => {
 	}
 };
 
-//--- Show play page ---//
-export const showPlay = async (req, res) => {
+//--- Show world page ---//
+export const showWorld = async (req, res) => {
 	try {
 		res.render("game/world");
 	} catch (err) {
@@ -248,18 +269,18 @@ export const showCharacter = async (req, res) => {
 				worldId } = req.session;
 
 		const [characters] = await db.execute(
-		  `SELECT c.*,
-				  j1.name AS job_preference_1,
-				  j2.name AS job_preference_2,
-				  j3.name AS job_preference_3,
-				  l.name AS luxury_preference
-		   FROM characters c
-		   JOIN jobs j1 ON c.job_preference_1_id = j1.id
-		   JOIN jobs j2 ON c.job_preference_2_id = j2.id
-		   JOIN jobs j3 ON c.job_preference_3_id = j3.id
-		   JOIN luxury_preferences l ON c.luxury_preference_id = l.id
-		   WHERE c.user_id = ? AND c.world_id = ?`,
-		  [userId, worldId]
+			`SELECT c.*,
+					j1.name AS job_preference_1,
+					j2.name AS job_preference_2,
+					j3.name AS job_preference_3,
+					l.name AS luxury_preference
+			FROM characters c
+			JOIN jobs j1 ON c.job_preference_1_id = j1.id
+			JOIN jobs j2 ON c.job_preference_2_id = j2.id
+			JOIN jobs j3 ON c.job_preference_3_id = j3.id
+			JOIN luxuries l ON c.luxury_preference_id = l.id
+			WHERE c.user_id = ? AND c.world_id = ?`,
+			[userId, worldId]
 		);
 
 		if (characters.length === 0) {

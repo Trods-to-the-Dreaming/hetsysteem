@@ -1,7 +1,8 @@
 {{#block "title"}}Het Systeem - Tijd besteden{{/block}}
 
 <h1>Tijd besteden</h1>
-<form method="POST" action="/game/world/actions/spend-time/job">
+<p id="hours-available">Nog te besteden uren: {{hours_available}}</p>
+<form id="game-spend-time-form" method="POST" action="/game/world/actions/spend-time/job">
 	<h2>Job</h2>
 	{{#if contracts.length}}
 		{{#each contracts}}
@@ -75,4 +76,52 @@
 	<a class="button-2" href="/game/world/actions">← Acties</a>
 </div>
 
-					<!--input type="number" name="worked_hours[{{this.id}}]" id="hours-{{this.id}}" class="form-control" min="0" max="{{this.hours}}"-->
+<script>
+document.getElementById("game-spend-time-form").addEventListener("submit", function (e) {
+	let totalHoursToSpend = parseInt({{remaining_hours}}, 10);
+    let hoursAvailableElement = document.getElementById("hours-available");
+
+    // Verzamel alle selects
+    const allSelects = document.querySelectorAll("select.card-select");
+
+    function updateHoursAvailable() {
+        let usedHours = 0;
+        allSelects.forEach(select => {
+            usedHours += parseInt(select.value, 10) || 0;
+        });
+        const remaining = totalHoursToSpend - usedHours;
+        hoursAvailableElement.innerText = `Nog te besteden uren: ${remaining}`;
+
+        allSelects.forEach(select => {
+            const max = parseInt(select.getAttribute("data-max"), 10);
+            const currentVal = parseInt(select.value, 10) || 0;
+            const available = remaining + currentVal;
+
+            // Bewaar huidige waarde
+            const previousValue = select.value;
+
+            // Herbouw opties
+            select.innerHTML = "";
+            for (let i = 0; i <= Math.min(max, available); i++) {
+                const option = document.createElement("option");
+                option.value = i;
+                option.textContent = i;
+                if (i === parseInt(previousValue, 10)) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            }
+        });
+    }
+
+    // Initieer max-data attribuut en events
+    allSelects.forEach(select => {
+        const max = select.options.length - 1;
+        select.setAttribute("data-max", max);
+        select.addEventListener("change", updateHoursAvailable);
+    });
+
+    // Eerste update
+    updateHoursAvailable();
+});
+</script>

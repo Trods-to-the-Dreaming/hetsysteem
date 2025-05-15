@@ -26,7 +26,7 @@ export const handleLogin = async (req, res) => {
 		);
 		if (usersWithName.length === 0) {
 			return res.render("auth/login", {
-				errorLogin: ACCOUNT.INVALID_LOGIN,
+				error_login: ACCOUNT.INVALID_LOGIN,
 				username
 			});
 		}
@@ -36,7 +36,7 @@ export const handleLogin = async (req, res) => {
 		const match = await bcrypt.compare(password, user.password);
 		if (!match) {
 			return res.render("auth/login", {
-				errorLogin: ACCOUNT.INVALID_LOGIN,
+				error_login: ACCOUNT.INVALID_LOGIN,
 				username
 			});
 		}
@@ -73,7 +73,7 @@ export const handleRegister = async (req, res) => {
 		// Check if passwords are the same
 		if (password !== passwordConfirm) {
 			return res.render("auth/register", {
-				errorConfirm: ACCOUNT.PASSWORD_MISMATCH,
+				error_confirm: ACCOUNT.PASSWORD_MISMATCH,
 				username
 			});
 		}
@@ -85,7 +85,7 @@ export const handleRegister = async (req, res) => {
 		);
 		if (usersWithName.length > 0) {
 			return res.render("auth/register", {
-				errorUsername: ACCOUNT.USERNAME_TAKEN,
+				error_username: ACCOUNT.USERNAME_TAKEN,
 				username
 			});
 		}

@@ -10,7 +10,7 @@ import {
 	handleChooseWorld,
 	showCustomizeCharacter,
 	handleCustomizeCharacter,
-	showPlay,
+	showWorld,
 	showCharacter,
 	showActions,
 	showStatistics
@@ -30,7 +30,7 @@ router.get("/choose-world", requireAuth, showChooseWorld);
 router.post("/choose-world", requireAuth, handleChooseWorld);
 router.get("/customize-character", requireAuth, requireWorldSelected, requireCharacterSelected, showCustomizeCharacter);
 router.post("/customize-character", requireAuth, requireWorldSelected, requireCharacterSelected, handleCustomizeCharacter);
-router.get("/world", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showPlay);
+router.get("/world", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showWorld);
 router.get("/world/character", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showCharacter);
 router.get("/world/actions", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showActions);
 router.get("/world/actions/spend-time", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showSpendTime);

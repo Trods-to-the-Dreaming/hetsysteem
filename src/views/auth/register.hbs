@@ -7,7 +7,7 @@
 			<label for="username" class="form-label">Gebruikersnaam:</label>
 			<input type="text" class="form-control" id="username" name="username" value="{{username}}" required>
 		</div>
-		<p class="error" id="error-username">{{errorUsername}}</p>
+		<p class="error" id="error-username">{{error_username}}</p>
 		<div class="field">
 			<label for="password" class="form-label">Wachtwoord:</label>
 			<input type="password" class="form-control" id="password" name="password" required>
@@ -16,7 +16,7 @@
 			<label for="password-confirm" class="form-label">Bevestig wachtwoord:</label>
 			<input type="password" class="form-control" id="password-confirm" name="passwordConfirm" required>
 		</div>
-		<p class="error" id="error-confirm">{{errorConfirm}}</p>
+		<p class="error" id="error-confirm">{{error_confirm}}</p>
 		<button type="submit" class="button-1">Registreren</button>
 	</form>
 	<p>Reeds lid? <a href="/auth/login">Aanmelden</a>.</p>

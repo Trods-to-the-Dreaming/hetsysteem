@@ -20,7 +20,8 @@ export const showSpendTime = async (req, res) => {
 		);
 
 		res.render("game/world/actions/spend-time", {
-			contracts
+			contracts,
+			
 		});
 	} catch (err) {
 		console.error(err);
