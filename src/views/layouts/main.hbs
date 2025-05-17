@@ -11,6 +11,11 @@
 <body>
 	<div class="page-wrapper"-->
 		{{> navbar }}
+		{{#if world_name}}
+			<div class="active-world-banner {{world_class}}">
+				🌍 {{world_name}}
+			</div>
+		{{/if}}
 		<div class="content-wrapper">
 			{{{ body }}}
 		</div>

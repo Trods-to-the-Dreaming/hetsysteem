@@ -2,6 +2,17 @@ export const requireWorldSelected = (req, res, next) => {
 	if (req.session.worldId && 
 		req.session.worldName) {
 		res.locals.world_name = req.session.worldName;
+		switch (req.session.worldName) {
+			case "Zo zuiver als goud":
+				res.locals.world_class = "gold-world";
+				break;
+			case "Belofte maakt schuld":
+				res.locals.world_class = "debt-world";
+				break;
+			case "De tijd brengt raad":
+				res.locals.world_class = "time-world";
+				break;
+		}
 		next();
 	} else {
 		res.redirect("/game/choose-world");

@@ -320,7 +320,7 @@ strong {
   font-weight: bolder;
 }
 
-small, .small {
+small, .small, .active-world-banner {
   font-size: 0.875em;
 }
 
@@ -8108,7 +8108,7 @@ textarea.form-control-lg {
   padding-bottom: 0.25rem !important;
 }
 
-.py-2 {
+.py-2, .active-world-banner {
   padding-top: 0.5rem !important;
   padding-bottom: 0.5rem !important;
 }
@@ -8348,7 +8348,7 @@ textarea.form-control-lg {
   font-weight: 500 !important;
 }
 
-.fw-semibold {
+.fw-semibold, .active-world-banner {
   font-weight: 600 !important;
 }
 
@@ -8384,7 +8384,7 @@ textarea.form-control-lg {
   text-align: right !important;
 }
 
-.text-center {
+.text-center, .active-world-banner {
   text-align: center !important;
 }
 
@@ -11926,6 +11926,28 @@ h3, .h3 {
 .page-wrapper {
   max-width: 960px;
   min-height: 100vh;
+}
+
+.active-world-banner {
+  border-bottom: 1px solid;
+}
+
+.gold-world {
+  background-color: #fff8dc;
+  color: #a67c00;
+  border-color: #e0c97f;
+}
+
+.debt-world {
+  background-color: rgb(215.3278688525, 231.2295081967, 254.6721311475);
+  color: #0d6efd;
+  border-color: rgb(114.1639344262, 170.6147540984, 253.8360655738);
+}
+
+.time-world {
+  background-color: #e6f9f1;
+  color: #1f8f5f;
+  border-color: #bce3d1;
 }
 
 .navbar-account-icon {
