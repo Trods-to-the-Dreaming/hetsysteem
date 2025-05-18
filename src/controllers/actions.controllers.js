@@ -18,10 +18,16 @@ export const showSpendTime = async (req, res) => {
 			WHERE ec.employee_id = ?`,
 			[characterId]
 		);
+		
+		const [[character]] = await db.execute(
+			`SELECT hours_available FROM characters WHERE id = ?`,
+			[characterId]
+		);
+		const hours_available = character.hours_available;
 
-		res.render("game/world/actions/spend-time", {
+		res.render("game/actions/spend-time", {
 			contracts,
-			
+			hours_available
 		});
 	} catch (err) {
 		console.error(err);
@@ -52,7 +58,7 @@ export const showTrade = async (req, res) => {
 			[characterId]
 		);*/
 
-		res.render("game/world/actions/trade"/*, {
+		res.render("game/actions/trade"/*, {
 			items: itemRows,
 			buildings: buildingRows
 		}*/);
@@ -65,7 +71,7 @@ export const showTrade = async (req, res) => {
 //--- Show apply page ---//
 export const showApply = async (req, res) => {
 	try {
-		res.render("game/world/actions/apply");
+		res.render("game/actions/apply");
 	} catch (err) {
 		console.error(err);
 		return res.status(500).render("errors/500");
@@ -75,7 +81,7 @@ export const showApply = async (req, res) => {
 //--- Show resign page ---//
 export const showResign = async (req, res) => {
 	try {
-		res.render("game/world/actions/resign");
+		res.render("game/actions/resign");
 	} catch (err) {
 		console.error(err);
 		return res.status(500).render("errors/500");
@@ -85,7 +91,7 @@ export const showResign = async (req, res) => {
 //--- Show recruit page ---//
 export const showRecruit = async (req, res) => {
 	try {
-		res.render("game/world/actions/recruit");
+		res.render("game/actions/recruit");
 	} catch (err) {
 		console.error(err);
 		return res.status(500).render("errors/500");
@@ -95,7 +101,7 @@ export const showRecruit = async (req, res) => {
 //--- Show fire page ---//
 export const showFire = async (req, res) => {
 	try {
-		res.render("game/world/actions/fire");
+		res.render("game/actions/fire");
 	} catch (err) {
 		console.error(err);
 		return res.status(500).render("errors/500");

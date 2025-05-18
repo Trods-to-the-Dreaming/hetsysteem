@@ -75,7 +75,7 @@ export const handleChooseWorld = async (req, res) => {
 			await saveSession(req);
 
 			// Enter world
-			return res.redirect("/game/world");
+			return res.redirect("/game/menu");
 		}
 		
 		// Fetch an AI-character to claim
@@ -245,17 +245,17 @@ export const handleCustomizeCharacter = async (req, res) => {
 		await saveSession(req);
 		
 		// Enter world
-		return res.redirect("/game/world");
+		return res.redirect("/game/menu");
 	} catch (err) {
 		console.error(err);
 		return res.status(500).render("errors/500");
 	}
 };
 
-//--- Show world page ---//
-export const showWorld = async (req, res) => {
+//--- Show menu page ---//
+export const showMenu = async (req, res) => {
 	try {
-		res.render("game/world");
+		res.render("game/menu");
 	} catch (err) {
 		console.error(err);
 		return res.status(500).render("errors/500");
@@ -288,7 +288,7 @@ export const showCharacter = async (req, res) => {
 		}
 		const character = characters[0];
 
-		res.render("game/world/character", { 
+		res.render("game/character", { 
 			character
 		});
 	} catch (err) {
@@ -300,7 +300,7 @@ export const showCharacter = async (req, res) => {
 //--- Show actions page ---//
 export const showActions = async (req, res) => {
 	try {
-		res.render("game/world/actions");
+		res.render("game/actions");
 	} catch (err) {
 		console.error(err);
 		return res.status(500).render("errors/500");
@@ -310,7 +310,7 @@ export const showActions = async (req, res) => {
 //--- Show statistics page ---//
 export const showStatistics = async (req, res) => {
 	try {
-		res.render("game/world/statistics");
+		res.render("game/statistics");
 	} catch (err) {
 		console.error(err);
 		return res.status(500).render("errors/500");
