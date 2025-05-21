@@ -1,4 +1,4 @@
-import ACCOUNT from "../constants/account.js";
+import ACCOUNT_ERRORS from "../constants/account.errors.js";
 import db from "../utils/db.js";
 import saveSession from "../utils/session.js";
 import bcrypt from "bcrypt";
@@ -26,7 +26,7 @@ export const handleLogin = async (req, res) => {
 		);
 		if (usersWithName.length === 0) {
 			return res.render("auth/login", {
-				error_login: ACCOUNT.INVALID_LOGIN,
+				error_login: ACCOUNT_ERRORS.INVALID_LOGIN,
 				username
 			});
 		}
@@ -36,7 +36,7 @@ export const handleLogin = async (req, res) => {
 		const match = await bcrypt.compare(password, user.password);
 		if (!match) {
 			return res.render("auth/login", {
-				error_login: ACCOUNT.INVALID_LOGIN,
+				error_login: ACCOUNT_ERRORS.INVALID_LOGIN,
 				username
 			});
 		}
@@ -73,7 +73,7 @@ export const handleRegister = async (req, res) => {
 		// Check if passwords are the same
 		if (password !== passwordConfirm) {
 			return res.render("auth/register", {
-				error_confirm: ACCOUNT.PASSWORD_MISMATCH,
+				error_confirm: ACCOUNT_ERRORS.PASSWORD_MISMATCH,
 				username
 			});
 		}
@@ -85,7 +85,7 @@ export const handleRegister = async (req, res) => {
 		);
 		if (usersWithName.length > 0) {
 			return res.render("auth/register", {
-				error_username: ACCOUNT.USERNAME_TAKEN,
+				error_username: ACCOUNT_ERRORS.USERNAME_TAKEN,
 				username
 			});
 		}

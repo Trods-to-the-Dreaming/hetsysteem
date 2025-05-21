@@ -252,7 +252,7 @@ INSERT INTO luxuries (name, material_item_id, service_item_id) VALUES
 
 INSERT INTO jobs (name, input_item_id, global_input_id, booster_item_id, output_item_id, global_output_id) VALUES
 ('Landbouwer', NULL, NULL, 13, 1, NULL),                   -- x → Voedsel (Machines)
-('Dokter', NULL, NULL, 12, 2, NULL),                       -- x → Medische zorg (Gereedschap)
+('Verpleegkundige', NULL, NULL, 12, 2, NULL),              -- x → Medische zorg (Gereedschap)
 ('Leraar', NULL, NULL, 6, 3, NULL),                        -- x → Onderwijs (Informatie)
 ('Kwaliteitsingenieur', NULL, NULL, 6, 4, NULL),           -- x → Procedures (Informatie)
 ('Windmolenoperator', NULL, NULL, 6, 5, NULL),             -- x → Energie (Informatie)
@@ -270,6 +270,7 @@ INSERT INTO jobs (name, input_item_id, global_input_id, booster_item_id, output_
 ('Instrumentmaker', 14, NULL, 4, 15, NULL),                -- Halffabricaten → Muziekinstrumenten (Procedures)
 ('Elektronicaproducent', 14, NULL, 4, 16, NULL),           -- Halffabricaten → Elektronica (Procedures)
 ('Kledingproducent', 14, NULL, 4, 17, NULL);               -- Halffabricaten → Kleding (Procedures)
+-- boswachter
 
 INSERT INTO buildings (name, job_id, max_hours) VALUES
 ('Boerderij', 1, 100),
@@ -291,6 +292,9 @@ INSERT INTO buildings (name, job_id, max_hours) VALUES
 ('Instrumentenatelier', 17, 100),
 ('Elektronicafabriek', 18, 100),
 ('Kledingfabriek', 19, 100);
+-- magazijn
+-- woonwijk/woning
+-- natuurgebied
 
 INSERT INTO characters (first_name, last_name, world_id) VALUES
 ('First 1', 'Last 1', 1),
@@ -325,7 +329,7 @@ INSERT INTO characters (first_name, last_name, world_id) VALUES
 ('First 10', 'Last 5', 3);
 
 INSERT INTO character_items (character_id, item_id, quantity) VALUES
-(1, 1, 4),
+(1, 1, 6),
 (1, 4, 2),
 (1, 6, 1),
 (1, 10, 3),
@@ -335,6 +339,7 @@ INSERT INTO employment_contracts (employer_id, employee_id, job_id, hours, hourl
 (2, 1, 1, 3, 500),
 (5, 1, 4, 2, 400),
 (7, 1, 8, 2, 250),
+(10, 1, 8, 3, 350),
 (1, 2, 3, 3, 200),
 (4, 2, 5, 2, 400),
 (9, 2, 9, 2, 350);

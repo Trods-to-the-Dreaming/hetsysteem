@@ -66,13 +66,13 @@ app.use(expressSession({
 app.engine("hbs",
 	expressHandlebars.engine({
 		helpers: {
+			gt: (a, b) => a > b,
+			eq: (a, b) => a === b,
+			lt: (a, b) => a < b,
 			block(name, options) {
 				if (!this._blocks) this._blocks = {};
 				this._blocks[name] = options.fn(this);
 				return null;
-			},
-			ifeq(a, b, options) {
-				return a === b ? options.fn(this) : options.inverse(this);
 			},
 			range: function(start, end, options) {
 				let result = '';

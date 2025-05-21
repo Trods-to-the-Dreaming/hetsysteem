@@ -1,4 +1,4 @@
-import GAME from "../constants/game.js";
+import GAME_ERRORS from "../constants/game.errors.js";
 import db from "../utils/db.js";
 import saveSession from "../utils/session.js";
 
@@ -38,7 +38,7 @@ export const handleChooseWorld = async (req, res) => {
 			await connection.rollback();
 			return res.render("game/choose-world", {
 				worlds,
-				error_chosen_world: GAME.INVALID_WORLD
+				error_chosen_world: GAME_ERRORS.INVALID_WORLD
 			});
 		}
 		const world = worldsWithId[0];
@@ -90,7 +90,7 @@ export const handleChooseWorld = async (req, res) => {
 			await connection.rollback();
 			return res.render("game/choose-world", {
 				worlds,
-				error_chosen_world: GAME.NO_NEW_CHARACTERS,
+				error_chosen_world: GAME_ERRORS.NO_NEW_CHARACTERS,
 				selected_world_id: parseInt(worldId)
 			});
 		}
@@ -179,7 +179,7 @@ export const handleCustomizeCharacter = async (req, res) => {
 			return res.render("game/customize-character", {
 				jobs,
 				luxuries,
-				error_job_preference: GAME.INVALID_JOB_PREFERENCE,
+				error_job_preference: GAME_ERRORS.INVALID_JOB_PREFERENCE,
 				first_name: firstName,
 				last_name: lastName
 			});
@@ -191,7 +191,7 @@ export const handleCustomizeCharacter = async (req, res) => {
 			return res.render("game/customize-character", {
 				jobs,
 				luxuries,
-				error_job_preference: GAME.IDENTICAL_JOB_PREFERENCES,
+				error_job_preference: GAME_ERRORS.IDENTICAL_JOB_PREFERENCES,
 				first_name: firstName,
 				last_name: lastName
 			});
@@ -202,7 +202,7 @@ export const handleCustomizeCharacter = async (req, res) => {
 			return res.render("game/customize-character", {
 				jobs,
 				luxuries,
-				error_luxury_preference: GAME.INVALID_LUXURY_PREFERENCE,
+				error_luxury_preference: GAME_ERRORS.INVALID_LUXURY_PREFERENCE,
 				first_name: firstName,
 				last_name: lastName
 			});

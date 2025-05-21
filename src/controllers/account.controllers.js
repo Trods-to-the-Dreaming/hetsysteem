@@ -1,4 +1,4 @@
-import ACCOUNT from "../constants/account.js";
+import ACCOUNT_ERRORS from "../constants/account.errors.js";
 import db from "../utils/db.js";
 import saveSession from "../utils/session.js";
 import bcrypt from "bcrypt";
@@ -42,7 +42,7 @@ export const handleChangeUsername = async (req, res) => {
 		);
 		if (usersWithName.length > 0) {
 			return res.render("account/changeusername", {
-				error_username: ACCOUNT.USERNAME_TAKEN,
+				error_username: ACCOUNT_ERRORS.USERNAME_TAKEN,
 				new_username: newUsername
 			});
 		}
@@ -58,7 +58,7 @@ export const handleChangeUsername = async (req, res) => {
 		const match = await bcrypt.compare(password, user.password);
 		if (!match) {
 			return res.render("account/changeusername", {
-				error_password: ACCOUNT.PASSWORD_WRONG,
+				error_password: ACCOUNT_ERRORS.PASSWORD_WRONG,
 				new_username: newUsername
 			});
 		}
@@ -71,7 +71,7 @@ export const handleChangeUsername = async (req, res) => {
 
 		// Save session
 		req.session.username = newUsername
-		req.session.successChange = ACCOUNT.USERNAME_CHANGED;
+		req.session.successChange = ACCOUNT_ERRORS.USERNAME_CHANGED;
 		await saveSession(req);
 		
 		return res.redirect("/account/changeusername");
@@ -107,7 +107,7 @@ export const handleChangePassword = async (req, res) => {
 		// Check if passwords are the same
 		if (newPassword !== passwordConfirm) {
 			return res.render("account/changepassword", {
-				error_confirm: ACCOUNT.PASSWORD_MISMATCH
+				error_confirm: ACCOUNT_ERRORS.PASSWORD_MISMATCH
 			});
 		}
 		
@@ -122,7 +122,7 @@ export const handleChangePassword = async (req, res) => {
 		const match = await bcrypt.compare(currentPassword, user.password);
 		if (!match) {
 			return res.render("account/changepassword", {
-				error_password: ACCOUNT.PASSWORD_WRONG
+				error_password: ACCOUNT_ERRORS.PASSWORD_WRONG
 			});
 		}
 
@@ -134,7 +134,7 @@ export const handleChangePassword = async (req, res) => {
 		);
 
 		// Save session
-		req.session.successChange = ACCOUNT.PASSWORD_CHANGED;
+		req.session.successChange = ACCOUNT_ERRORS.PASSWORD_CHANGED;
 		await saveSession(req);
 		
 		return res.redirect("/account/changepassword");

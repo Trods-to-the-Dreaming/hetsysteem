@@ -16,8 +16,9 @@ import {
 	showStatistics
 } from "../controllers/game.controllers.js";
 import {
-	showSpendTime,
+	showSurvive,
 	showTrade,
+	showSpendTime,
 	showApply,
 	showResign,
 	showRecruit,
@@ -32,13 +33,16 @@ router.get("/customize-character", requireAuth, requireWorldSelected, requireCha
 router.post("/customize-character", requireAuth, requireWorldSelected, requireCharacterSelected, handleCustomizeCharacter);
 router.get("/menu", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showMenu);
 router.get("/character", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showCharacter);
+
 router.get("/actions", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showActions);
-router.get("/actions/spend-time", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showSpendTime);
+router.get("/actions/survive", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showSurvive);
 router.get("/actions/trade", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showTrade);
+router.get("/actions/spend-time", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showSpendTime);
 router.get("/actions/apply", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showApply);
 router.get("/actions/resign", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showResign);
 router.get("/actions/recruit", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showRecruit);
 router.get("/actions/fire", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showFire);
+
 router.get("/statistics", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showStatistics);
 
 export default {

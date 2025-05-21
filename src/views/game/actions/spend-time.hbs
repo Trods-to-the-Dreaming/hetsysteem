@@ -1,19 +1,19 @@
 {{#block "title"}}Het Systeem - Tijd besteden{{/block}}
 
 <h1>Tijd besteden</h1>
-<p id="hours-available">Nog te besteden uren: {{hours_available}}</p>
+<p id="hours-available"></p>
 <form id="game-spend-time-form" method="POST" action="/game/world/actions/spend-time/job">
 	<h2>Job</h2>
 	{{#if contracts.length}}
 		{{#each contracts}}
 			<div class="card-border">
 				<div class="card-body">
-					<p class="card-p"><strong>Werkgever:</strong> {{this.employer_first_name}} {{this.employer_last_name}}</p>
-					<p class="card-p"><strong>Job:</strong> {{this.job_name}}</p>
-					<p class="card-p"><strong>Uurloon:</strong> € {{this.hourly_wage}}</p>
-					<p class="card-p"><strong>Uren te presteren:</strong> {{this.hours}}</p>
+					<p class="card-p">Werkgever: {{this.employer_first_name}} {{this.employer_last_name}}</p>
+					<p class="card-p">Job: {{this.job_name}}</p>
+					<p class="card-p">Uurloon: € {{this.hourly_wage}}</p>
+					<p class="card-p">Uren te presteren: {{this.hours}}</p>
 					<div class="card-field">
-						<label for="job-hours-{{this.id}}" class="card-label"><strong>Uren gepresteerd:</strong></label>
+						<label for="job-hours-{{this.id}}" class="card-label">Uren gepresteerd:</label>
 						<select name="jobHours[{{this.id}}]" id="job-hours-{{this.id}}" class="card-select">
 							{{#range 0 this.hours}}
 								<option value="{{this}}">{{this}}</option>
@@ -96,7 +96,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		});
 
 		const remaining = totalHoursToSpend - usedHours;
-		hoursAvailableElement.innerText = `Nog te besteden uren: ${remaining}`;
+		hoursAvailableElement.innerText = `Uren te besteden: ${remaining}`;
 
 		allSelects.forEach(select => {
 			const max = parseInt(select.getAttribute("data-max"), 10);

@@ -7,7 +7,7 @@
 			<label for="world" class="form-label">Wereld:</label>
 			<select class="form-select" id="world" name="worldId">
 				{{#each worlds}}
-				<option value="{{this.id}}" {{#ifeq ../selected_world_id this.id}}selected{{/ifeq}}>
+				<option value="{{this.id}}" {{#if (eq this.id ../selected_world_id)}}selected{{/if}}>
 					{{this.name}}
 				</option>
 				{{/each}}
