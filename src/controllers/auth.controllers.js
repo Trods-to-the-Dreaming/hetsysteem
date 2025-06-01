@@ -21,7 +21,9 @@ export const handleLogin = async (req, res) => {
 
 		// Fetch user
 		const [usersWithName] = await db.execute(
-			`SELECT * FROM users WHERE name = ?`, 
+			`SELECT * 
+			 FROM users 
+			 WHERE name = ?`, 
 			[username]
 		);
 		if (usersWithName.length === 0) {
@@ -80,7 +82,9 @@ export const handleRegister = async (req, res) => {
 		
 		// Check if username is already taken
 		const [usersWithName] = await db.execute(
-			`SELECT * FROM users WHERE name = ?`, 
+			`SELECT * 
+			 FROM users 
+			 WHERE name = ?`, 
 			[username]
 		);
 		if (usersWithName.length > 0) {
@@ -93,8 +97,10 @@ export const handleRegister = async (req, res) => {
 		// Register user
 		const hashedPassword = await bcrypt.hash(password, 8);
 		const [user] = await db.execute(
-			`INSERT INTO users (name, password) VALUES (?, ?)`, 
-			[username, hashedPassword]
+			`INSERT INTO users (name, password) 
+			 VALUES (?, ?)`, 
+			[username, 
+			 hashedPassword]
 		);
 
 		// Start session

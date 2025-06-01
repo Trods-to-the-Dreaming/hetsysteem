@@ -1,16 +1,73 @@
-{{#block "title"}}Het Systeem - Personage{{/block}}
+{{#block "title"}}Personage{{/block}}
 
 <h1>{{character.first_name}} {{character.last_name}}</h1>
-<ul>
-	<li>Leeftijd: {{character.age}}</li>
-	<li>Gezondheid: {{character.health}}</li>
-	<li>Geluk: {{character.happiness}}</li>
-	<li>Opleidingsniveau: {{character.education_level}}</li>
-	<li>Droomjob: {{character.job_preference_1}}</li>
-	<li>Geweldige job: {{character.job_preference_2}}</li>
-	<li>Leuke job: {{character.job_preference_3}}</li>
-	<li>Interesse: {{character.luxury_preference}}</li>
+
+<h2>Welzijn</h2>
+<ul class="list-compact">
+	<li class="list-item-justify">
+		<span>Leeftijd</span>
+		<span>{{character.age}} jaar</span>
+	</li>
+	<li class="list-item-justify">
+		<span>Levensverwachting</span>
+		<span>{{character.life_expectancy}} jaar</span>
+	</li>
+	<li class="list-item-justify">
+		<span>Gezondheid</span>
+		<span>{{character.health}} %</span>
+	</li>
+	<li class="list-item-justify">
+		<span>Geluk</span>
+		<span>{{character.happiness}}</span>
+	</li>
 </ul>
-<div class="max-width-container">
-	<a class="button-2" href="/game/menu">← Menu</a>
+
+<h2>Voorkeuren</h2>
+<ul class="list-compact">
+	<li class="list-item-justify">
+		<span>{{character.job_preference_1}}</span>
+		<span>★★★</span>
+	</li>
+	<li class="list-item-justify">
+		<span>{{character.job_preference_2}}</span>
+		<span>★★</span>
+	</li>
+	<li class="list-item-justify">
+		<span>{{character.job_preference_3}}</span>
+		<span>★</span>
+	</li>
+	<li class="list-item-justify">
+		<span>{{character.recreation_preference}}</span>
+		<span>★★★</span>
+	</li>
+</ul>
+
+<h2>Opleiding</h2>
+{{#if (gt character.education 0)}}
+	<ul class="list-compact">
+		<li class="list-item-justify">
+			<span>Niveau</span>
+			<span>{{character.education_label}}</span>
+		</li>
+	</ul>
+{{else}}
+	<p>Je hebt nog geen opleiding gevolgd.</p>
+{{/if}}
+
+<h2>Werkervaring</h2>
+{{#if character.job_experience.length}}
+	<ul class="list-compact">
+		{{#each character.job_experience}}
+			<li class="list-item-justify">
+				<span>{{this.job_name}}</span>
+				<span>{{this.experience_years}} jaar</span>
+			</li>
+		{{/each}}
+	</ul>
+{{else}}
+	<p>Je hebt nog geen werkervaring.</p>
+{{/if}}
+
+<div class="container-compact">
+	<a class="button-2" href="/game/menu">← Spelmenu</a>
 </div>

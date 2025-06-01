@@ -4,7 +4,7 @@
 		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
 			<span class="navbar-toggler-icon"></span>
 		</button>
-		<div class="collapse navbar-collapse" id="mynavbar">
+		<div id="mynavbar" class="collapse navbar-collapse">
 			<ul class="navbar-nav me-auto">
 				<li class="nav-item">
 					<a class="nav-link" href="/rules">Spelregels</a>
@@ -14,16 +14,16 @@
 			{{#if authenticated}}
 				<!-- Expanded navbar -->
 				<div class="dropdown d-none d-sm-block">
-					<a class="nav-link" href="#" role="button" id="accountDropdown" data-bs-toggle="dropdown">
+					<a id="accountDropdown" class="nav-link" href="#" role="button" data-bs-toggle="dropdown">
 						<i class="bi bi-person-circle navbar-account-icon"></i>
 					</a>
 					<ul class="dropdown-menu dropdown-menu-end">
 						<li><a class="dropdown-item" href="/game/choose-world">Spelen</a></li>
-						<li><a class="dropdown-item" href="/account/menu">Mijn account</a></li>
+						<li><a class="dropdown-item" href="/account">Mijn account</a></li>
 						<li class="nav-item"><hr class="dropdown-divider"></li>
 						<li>
 							<form id="logoutExpanded" method="POST" action="/auth/logout">
-								<button type="submit" class="dropdown-item btn w-100 text-start">
+								<button class="dropdown-item btn w-100 text-start" type="submit">
 									Afmelden
 								</button>
 							</form>
@@ -33,10 +33,10 @@
 				<!-- Collapsed navbar -->
 				<ul class="navbar-nav d-sm-none">
 					<li class="nav-item"><a class="nav-link" href="/game/choose-world">Spelen</a></li>
-					<li class="nav-item"><a class="nav-link" href="/account/menu">Mijn account</a></li>
+					<li class="nav-item"><a class="nav-link" href="/account">Mijn account</a></li>
 					<li class="nav-item">
 						<form id="logoutCollapsed" method="POST" action="/auth/logout">
-							<button type="submit" class="nav-link btn w-100 text-start">
+							<button class="nav-link btn w-100 text-start" type="submit">
 								Afmelden
 							</button>
 						</form>

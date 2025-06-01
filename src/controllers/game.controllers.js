@@ -1,4 +1,9 @@
 import GAME_ERRORS from "../constants/game.errors.js";
+import GAME_RULES from "../constants/game.rules.js";
+import { 
+	convertHoursToYears,
+	calculateLifeExpectancy	
+} from "../utils/game.calculations.js";
 import db from "../utils/db.js";
 import saveSession from "../utils/session.js";
 
@@ -6,7 +11,10 @@ import saveSession from "../utils/session.js";
 export const showChooseWorld = async (req, res) => {
 	try {
 		const [worlds] = await db.execute(
-			`SELECT id, name FROM worlds ORDER BY id`
+			`SELECT id, 
+			        name 
+			 FROM worlds 
+			 ORDER BY id`
 		);
 		res.render("game/choose-world", {
 			worlds
@@ -28,12 +36,17 @@ export const handleChooseWorld = async (req, res) => {
 
 		// Fetch world
 		const [worldsWithId] = await connection.execute(
-			`SELECT * FROM worlds WHERE id = ?`,
+			`SELECT * 
+			 FROM worlds 
+			 WHERE id = ?`,
 			[worldId]
 		);
 		if (worldsWithId.length === 0) {
 			const [worlds] = await connection.execute(
-				`SELECT id, name FROM worlds ORDER BY id`
+				`SELECT id, 
+				        name 
+				 FROM worlds 
+				 ORDER BY id`
 			);
 			await connection.rollback();
 			return res.render("game/choose-world", {
@@ -45,8 +58,12 @@ export const handleChooseWorld = async (req, res) => {
 
 		// Fetch user's character in this world
 		const [myCharacters] = await connection.execute(
-			`SELECT * FROM characters WHERE user_id = ? AND world_id = ?`,
-			[userId, worldId]
+			`SELECT * 
+			 FROM characters 
+			 WHERE user_id = ? AND 
+			       world_id = ?`,
+			[userId, 
+			 worldId]
 		);
 		if (myCharacters.length > 0) {
 			const character = myCharacters[0];
@@ -80,12 +97,19 @@ export const handleChooseWorld = async (req, res) => {
 		
 		// Fetch an AI-character to claim
 		const [aiCharacter] = await connection.execute(
-			`SELECT id FROM characters WHERE user_id IS NULL AND world_id = ? LIMIT 1`,
+			`SELECT id 
+			 FROM characters 
+			 WHERE user_id IS NULL AND 
+			       world_id = ? 
+			 LIMIT 1`,
 			[worldId]
 		);
 		if (aiCharacter.length === 0) {
 			const [worlds] = await connection.execute(
-				`SELECT id, name FROM worlds ORDER BY id`
+				`SELECT id, 
+				        name 
+				 FROM worlds 
+				 ORDER BY id`
 			);
 			await connection.rollback();
 			return res.render("game/choose-world", {
@@ -101,7 +125,8 @@ export const handleChooseWorld = async (req, res) => {
 			`UPDATE characters
 			 SET user_id = ?
 			 WHERE id = ?`,
-			[userId, characterId]
+			[userId, 
+			 characterId]
 		);
 		if (updateResult.affectedRows !== 1) {
 			await connection.rollback();
@@ -110,8 +135,13 @@ export const handleChooseWorld = async (req, res) => {
 
 		// Search for the claimed character
 		const [characters] = await connection.execute(
-			`SELECT * FROM characters WHERE user_id = ? AND world_id = ? AND is_customized = false`,
-			[userId, worldId]
+			`SELECT * 
+			 FROM characters
+			 WHERE user_id = ? AND 
+			       world_id = ? AND 
+				   is_customized = false`,
+			[userId, 
+			 worldId]
 		);
 		const character = characters[0];
 		
@@ -138,14 +168,21 @@ export const handleChooseWorld = async (req, res) => {
 export const showCustomizeCharacter = async (req, res) => {
 	try {
 		const [jobs] = await db.execute(
-			`SELECT id, name FROM jobs ORDER BY id`
+			`SELECT id, 
+			        name 
+			 FROM jobs 
+			 ORDER BY id`
 		);
-		const [luxuries] = await db.execute(
-			`SELECT id, name FROM luxuries ORDER BY id`
+		const [recreations] = await db.execute(
+			`SELECT recreations.id, 
+			        products.name
+			 FROM recreations
+			 JOIN products ON recreations.product_id = products.id
+			 ORDER BY recreations.id;`
 		);
 		res.render("game/customize-character", {
 			jobs,
-			luxuries
+			recreations
 		});
 	} catch (err) {
 		console.error(err);
@@ -163,22 +200,33 @@ export const handleCustomizeCharacter = async (req, res) => {
 				jobPreference1, 
 				jobPreference2, 
 				jobPreference3, 
-				luxuryPreference } = req.body;
+				recreationPreference } = req.body;
 
-		// Fetch jobs and luxuries
-		const [jobs] = await db.execute(`SELECT id, name FROM jobs ORDER BY id`);
-		const [luxuries] = await db.execute(`SELECT id, name FROM luxuries ORDER BY id`);
+		// Fetch jobs and recreations
+		const [jobs] = await db.execute(
+			`SELECT id, 
+			        name 
+			 FROM jobs 
+			 ORDER BY id`
+		);
+		const [recreations] = await db.execute(
+			`SELECT recreations.id, 
+			        products.name
+			 FROM recreations
+			 JOIN products ON recreations.product_id = products.id
+			 ORDER BY recreations.id;`
+		);
 		
 		// Fetch valid IDs
 		const validJobIds = jobs.map(job => job.id);
-		const validLuxuryIds = luxuries.map(lux => lux.id);
+		const validRecreationIds = recreations.map(recreation => recreation.id);
 
 		// Validate job preferences
 		const jobIds = [jobPreference1, jobPreference2, jobPreference3].map(id => parseInt(id));
 		if (!jobIds.every(id => validJobIds.includes(id))) {
 			return res.render("game/customize-character", {
 				jobs,
-				luxuries,
+				recreations,
 				error_job_preference: GAME_ERRORS.INVALID_JOB_PREFERENCE,
 				first_name: firstName,
 				last_name: lastName
@@ -190,19 +238,19 @@ export const handleCustomizeCharacter = async (req, res) => {
 		if (uniqueJobs.size !== 3) {
 			return res.render("game/customize-character", {
 				jobs,
-				luxuries,
+				recreations,
 				error_job_preference: GAME_ERRORS.IDENTICAL_JOB_PREFERENCES,
 				first_name: firstName,
 				last_name: lastName
 			});
 		}
 		
-		// Validate luxury preference
-		if (!validLuxuryIds.includes(parseInt(luxuryPreference))) {
+		// Validate recreation preference
+		if (!validRecreationIds.includes(parseInt(recreationPreference))) {
 			return res.render("game/customize-character", {
 				jobs,
-				luxuries,
-				error_luxury_preference: GAME_ERRORS.INVALID_LUXURY_PREFERENCE,
+				recreations,
+				error_recreation_preference: GAME_ERRORS.INVALID_RECREATION_PREFERENCE,
 				first_name: firstName,
 				last_name: lastName
 			});
@@ -210,8 +258,13 @@ export const handleCustomizeCharacter = async (req, res) => {
 
 		// Validate character
 		const [characters] = await db.execute(
-			`SELECT * FROM characters WHERE id = ? AND user_id = ? AND is_customized = false`,
-			[characterId, userId]
+			`SELECT * 
+			 FROM characters 
+			 WHERE id = ? AND 
+			       user_id = ? AND 
+				   is_customized = false`,
+			[characterId, 
+			 userId]
 		);
 		if (characters.length === 0) {
 			return res.status(403).render("errors/403");
@@ -225,18 +278,16 @@ export const handleCustomizeCharacter = async (req, res) => {
 			     job_preference_1_id = ?, 
 			     job_preference_2_id = ?, 
 			     job_preference_3_id = ?, 
-			     luxury_preference_id = ?, 
+			     recreation_preference_id = ?, 
 			     is_customized = true
 			 WHERE id = ?`,
-			[
-				firstName,
-				lastName,
-				jobPreference1,
-				jobPreference2,
-				jobPreference3,
-				luxuryPreference,
-				characterId
-			]
+			[firstName,
+			 lastName,
+			 jobPreference1,
+			 jobPreference2,
+			 jobPreference3,
+			 recreationPreference,
+			 characterId]
 		);
 
 		// Save session
@@ -273,34 +324,53 @@ export const showCharacter = async (req, res) => {
 					j1.name AS job_preference_1,
 					j2.name AS job_preference_2,
 					j3.name AS job_preference_3,
-					l.name AS luxury_preference
-			FROM characters c
-			JOIN jobs j1 ON c.job_preference_1_id = j1.id
-			JOIN jobs j2 ON c.job_preference_2_id = j2.id
-			JOIN jobs j3 ON c.job_preference_3_id = j3.id
-			JOIN luxuries l ON c.luxury_preference_id = l.id
-			WHERE c.user_id = ? AND c.world_id = ?`,
-			[userId, worldId]
+					p.name AS recreation_preference
+			 FROM characters c
+			 JOIN jobs j1 ON c.job_preference_1_id = j1.id
+			 JOIN jobs j2 ON c.job_preference_2_id = j2.id
+			 JOIN jobs j3 ON c.job_preference_3_id = j3.id
+			 JOIN recreations l ON c.recreation_preference_id = l.id
+			 JOIN products p ON l.product_id = p.id
+			 WHERE c.user_id = ? AND 
+			       c.world_id = ?`,
+			[userId, 
+			 worldId]
 		);
 
 		if (characters.length === 0) {
 			return res.status(404).render("errors/404");
 		}
 		const character = characters[0];
+		
+		// Life expectancy
+		character.life_expectancy = calculateLifeExpectancy(
+			character.age,
+			character.cumulative_health_loss,
+			character.cumulative_health_gain
+		);
+		
+		// Education
+		if (character.education > 0) {
+			character.education_label = GAME_RULES.EDUCATION_LABELS[character.education];
+		}
+		
+		// Job experience
+		const [jobExperience] = await db.execute(
+			`SELECT j.name AS job_name,
+				    e.experience AS experience_hours
+			 FROM character_job_experience e
+			 JOIN jobs j ON e.job_id = j.id
+			 WHERE e.character_id = ?`,
+			[character.id]
+		);
+		character.job_experience = jobExperience.map((row) => ({
+			job_name: row.job_name,
+			experience_years: convertHoursToYears(row.experience_hours),
+		}));
 
 		res.render("game/character", { 
 			character
 		});
-	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500");
-	}
-};
-
-//--- Show actions page ---//
-export const showActions = async (req, res) => {
-	try {
-		res.render("game/actions");
 	} catch (err) {
 		console.error(err);
 		return res.status(500).render("errors/500");

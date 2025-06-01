@@ -1,4 +1,4 @@
-{{#block "title"}}Het Systeem - Tijd besteden{{/block}}
+{{#block "title"}}Tijd besteden{{/block}}
 
 <h1>Tijd besteden</h1>
 <p id="hours-available"></p>
@@ -7,19 +7,17 @@
 	{{#if contracts.length}}
 		{{#each contracts}}
 			<div class="card-border">
-				<div class="card-body">
-					<p class="card-p">Werkgever: {{this.employer_first_name}} {{this.employer_last_name}}</p>
-					<p class="card-p">Job: {{this.job_name}}</p>
-					<p class="card-p">Uurloon: € {{this.hourly_wage}}</p>
-					<p class="card-p">Uren te presteren: {{this.hours}}</p>
-					<div class="card-field">
-						<label for="job-hours-{{this.id}}" class="card-label">Uren gepresteerd:</label>
-						<select name="jobHours[{{this.id}}]" id="job-hours-{{this.id}}" class="card-select">
-							{{#range 0 this.hours}}
-								<option value="{{this}}">{{this}}</option>
-							{{/range}}
-						</select>
-					</div>
+				<p class="card-p">Werkgever: {{this.employer_first_name}} {{this.employer_last_name}}</p>
+				<p class="card-p">Job: {{this.job_name}}</p>
+				<p class="card-p">Uurloon: € {{this.hourly_wage}}</p>
+				<p class="card-p">Uren te presteren: {{this.hours}}</p>
+				<div class="card-field">
+					<label for="job-hours-{{this.id}}" class="card-label">Uren gepresteerd:</label>
+					<select id="job-hours-{{this.id}}" class="card-select" name="jobHours[{{this.id}}]">
+						{{#range 0 this.hours}}
+							<option value="{{this}}">{{this}}</option>
+						{{/range}}
+					</select>
 				</div>
 			</div>
 		{{/each}}
@@ -30,17 +28,15 @@
 	{{#if courses.length}}
 		{{#each courses}}
 			<div class="card-border">
-				<div class="card-body">
-					<p class="card-p"><strong>Leraar:</strong> {{this.teacher_first_name}} {{this.teacher_last_name}}</p>
-					<p class="card-p"><strong>Uren te volgen:</strong> {{this.hours}}</p>
-					<div class="card-field">
-						<label for="course-hours-{{this.id}}" class="card-label"><strong>Uren gevolgd:</strong></label>
-						<select name="courseHours[{{this.id}}]" id="course-hours-{{this.id}}" class="card-select">
-							{{#range 0 this.hours}}
-								<option value="{{this}}">{{this}}</option>
-							{{/range}}
-						</select>
-					</div>
+				<p class="card-p"><strong>Leraar:</strong> {{this.teacher_first_name}} {{this.teacher_last_name}}</p>
+				<p class="card-p"><strong>Uren te volgen:</strong> {{this.hours}}</p>
+				<div class="card-field">
+					<label for="course-hours-{{this.id}}" class="card-label"><strong>Uren gevolgd:</strong></label>
+					<select id="course-hours-{{this.id}}" class="card-select" name="courseHours[{{this.id}}]">
+						{{#range 0 this.hours}}
+							<option value="{{this}}">{{this}}</option>
+						{{/range}}
+					</select>
 				</div>
 			</div>
 		{{/each}}
@@ -51,28 +47,26 @@
 	{{#if activities.length}}
 		{{#each activities}}
 			<div class="card-border">
-				<div class="card-body">
-					<p class="card-p"><strong>Organisator:</strong> {{this.organizer_first_name}} {{this.organizer_last_name}}</p>
-					<p class="card-p"><strong>Uren deel te nemen:</strong> {{this.hours}}</p>
-					<div class="card-field">
-						<label for="activity-hours-{{this.id}}" class="card-label"><strong>Uren deelgenomen:</strong></label>
-						<select name="activityHours[{{this.id}}]" id="activity-hours-{{this.id}}" class="card-select">
-							{{#range 0 this.hours}}
-								<option value="{{this}}">{{this}}</option>
-							{{/range}}
-						</select>
-					</div>
+				<p class="card-p"><strong>Organisator:</strong> {{this.organizer_first_name}} {{this.organizer_last_name}}</p>
+				<p class="card-p"><strong>Uren deel te nemen:</strong> {{this.hours}}</p>
+				<div class="card-field">
+					<label for="activity-hours-{{this.id}}" class="card-label"><strong>Uren deelgenomen:</strong></label>
+					<select id="activity-hours-{{this.id}}" name="activityHours[{{this.id}}]" class="card-select">
+						{{#range 0 this.hours}}
+							<option value="{{this}}">{{this}}</option>
+						{{/range}}
+					</select>
 				</div>
 			</div>
 		{{/each}}
 	{{else}}
 		<p>Je bent niet ingeschreven voor een ontspannende activiteit.</p>
 	{{/if}}
-	<div class="max-width-container">
-		<button type="submit" class="button-1">Bevestigen</button>
+	<div class="container-compact">
+		<button class="button-1" type="submit">Bevestigen</button>
 	</div>
 </form>
-<div class="max-width-container">
+<div class="container-compact">
 	<a class="button-2" href="/game/actions">← Acties</a>
 </div>
 

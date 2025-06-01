@@ -1,14 +1,14 @@
-{{#block "title"}}Het Systeem - Overleven{{/block}}
+{{#block "title"}}Overleven{{/block}}
 
 <h1>Overleven</h1>
 <form id="game-survive-form" method="POST" action="/game/actions/survive">
 	<h2>Voedsel</h2>
 	{{#if (gt food_available 0)}}
-		<div class="card-body">
+		<div class="card-border">
 			<p class="card-p">Beschikbaar: {{food_available}}</p>
 			<div class="card-field">
 				<label for="food-consumed" class="card-label">Genuttigd:</label>
-				<select name="foodConsumed" id="food-consumed" class="card-select">
+				<select id="food-consumed" class="card-select" name="foodConsumed">
 					{{#range 0 food_selectable}}
 						<option value="{{this}}" {{#if (eq this ../food_default)}}selected{{/if}}>{{this}}</option>
 					{{/range}}
@@ -20,11 +20,11 @@
 	{{/if}}
 	<h2>Medische zorg</h2>
 	{{#if (gt medical_care_available 0)}}
-		<div class="card-body">
+		<div class="card-border">
 			<p class="card-p">Beschikbaar: {{medical_care_available}}</p>
 			<div class="card-field">
 				<label for="medical-care-consumed" class="card-label">Genoten:</label>
-				<select name="medicalCareConsumed" id="medical-care-consumed" class="card-select">
+				<select id="medical-care-consumed" class="card-select" name="medicalCareConsumed">
 					{{#range 0 medical_care_selectable}}
 						<option value="{{this}}" {{#if (eq this ../medical_care_default)}}selected{{/if}}>{{this}}</option>
 					{{/range}}
@@ -34,10 +34,10 @@
 	{{else}}
 		<p>Je hebt geen toegang tot medische zorg.</p>
 	{{/if}}
-	<div class="max-width-container">
-		<button type="submit" class="button-1">Bevestigen</button>
+	<div class="container-compact">
+		<button class="button-1" type="submit">Bevestigen</button>
 	</div>
 </form>
-<div class="max-width-container">
+<div class="container-compact">
 	<a class="button-2" href="/game/actions">← Acties</a>
 </div>

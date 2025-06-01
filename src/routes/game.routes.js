@@ -12,10 +12,10 @@ import {
 	handleCustomizeCharacter,
 	showMenu,
 	showCharacter,
-	showActions,
 	showStatistics
 } from "../controllers/game.controllers.js";
 import {
+	showActions,
 	showSurvive,
 	showTrade,
 	showSpendTime,

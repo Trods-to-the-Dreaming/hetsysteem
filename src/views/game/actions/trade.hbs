@@ -1,6 +1,329 @@
 {{#block "title"}}Het Systeem - Handel drijven{{/block}}
 
 <h1>Handel drijven</h1>
-<div class="max-width-container">
+
+<div class="container-compact">
+	<button id="create-order-button" class="button-1" type="button">Order maken</button>
+</div>
+
+<div id="create-order-section" class="card-border d-none">
+	<div id="type-field" class="card-field">
+		<label for="type" class="card-label">Type:</label>
+		<select id="type" class="card-select">
+			<option value="">-- Kies --</option>
+			<option value="buy">Kopen</option>
+			<option value="sell">Verkopen</option>
+		</select>
+	</div>
+	
+	<div id="category-field" class="card-field d-none">
+		<label for="category" class="card-label">Categorie:</label>
+		<select id="category" class="card-select">
+			<option value="">-- Kies --</option>
+			<option value="products">Producten</option>
+			<option value="buildings">Gebouwen</option>
+		</select>
+	</div>
+	
+	<div id="item-field" class="card-field d-none">
+		<label for="item" id="item-label" class="card-label"><!-- hier moet ofwel Product ofwel Gebouw staan -->:</label>
+		<select id="item" class="card-select">
+			<option value="">-- Kies --</option>
+		</select>
+	</div>
+	
+	<button id="add-order-button" class="card-button" type="button" disabled>Order toevoegen</button>
+</div>
+
+<div class="container-compact">
 	<a class="button-2" href="/game/actions">← Acties</a>
 </div>
+
+	<!--const stepType = document.getElementById("order-step-type");
+	const stepCategory = document.getElementById("order-step-category");
+	const stepItem = document.getElementById("order-step-item");
+	const stepDetails = document.getElementById("order-step-details");-->
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+	const allProducts = {{{allProducts}}};
+	const allBuildings = {{{allBuildings}}};
+	const ownedProducts = {{{ownedProducts}}};
+	const ownedPuildings = {{{ownedBuildings}}};
+	
+	const createOrderButton = document.getElementById("create-order-button");
+	const createOrderSection = document.getElementById("create-order-section");
+	
+	const typeSelect = document.getElementById("type");
+	
+	const categoryField = document.getElementById("category-field");
+	const categorySelect = document.getElementById("category");
+	
+	const itemField = document.getElementById("item-field");
+	const itemLabel = document.getElementById('item-label');
+	const itemSelect = document.getElementById("item");
+	
+	createOrderButton.addEventListener("click", () => {
+		createOrderButton.classList.add("d-none");
+		createOrderSection.classList.remove("d-none");
+	});
+	
+	typeSelect.addEventListener("change", () => {
+		categoryField.classList.remove("d-none");
+		itemField.classList.add("d-none");
+		itemSelect.innerHTML = `<option value="">-- Kies --</option>`;
+	});
+	
+	categorySelect.addEventListener("change", () => {
+		const selectedType = typeSelect.value;
+		const selectedCategory = categorySelect.value;
+		
+		let options = [];
+		let labelText = "";
+
+		if (selectedCategory === "products") {
+			labelText = "Product";
+			options = selectedType === "buy" ? allProducts : ownedProducts;
+		} else if (selectedCategory === "buildings") {
+			labelText = "Gebouw";
+			options = selectedType === "buy" ? allBuildings : ownedBuildings;
+		}
+		
+		itemLabel.textContent = labelText + ":";
+
+		itemSelect.innerHTML = `<option value="">-- Kies --</option>`;
+		options.forEach(item => {
+			const option = document.createElement("option");
+			option.value = item.id;
+			option.textContent = item.name;
+			itemSelect.appendChild(option);
+		});
+
+		itemField.classList.remove("d-none");
+	});
+});
+</script>
+
+
+<!--div id="create-order-section" class="card-border p-4 mb-4">
+	<button type="button" id="create-order-button" class="button-1">Order maken</button>
+
+	<div id="order-step-type" class="mt-4 d-none">
+		<label for="order-type">Type order:</label>
+		<select id="order-type" class="form-control">
+			<option value="">-- Kies --</option>
+			<option value="buy">Kopen</option>
+			<option value="sell">Verkopen</option>
+		</select>
+	</div>
+
+	<div id="order-step-category" class="mt-4 d-none">
+		<label for="order-category">Categorie:</label>
+		<select id="order-category" class="form-control">
+			<option value="">-- Kies --</option>
+			<option value="items">Goederen en diensten</option>
+			<option value="buildings">Gebouwen</option>
+		</select>
+	</div>
+
+	<div id="order-step-item" class="mt-4 d-none">
+		<label for="order-item">Kies item:</label>
+		<select id="order-item" class="form-control">
+			<option value="">-- Kies --</option>
+		</select>
+	</div>
+
+	<div id="order-step-details" class="mt-4 d-none">
+		<div class="card-field">
+			<label for="order-quantity" class="card-label">Hoeveelheid:</label>
+			<input type="number" id="order-quantity" class="form-control" min="1" step="1">
+		</div>
+		<div class="card-field mt-2">
+			<label for="order-price" class="card-label">Limietprijs (€):</label>
+			<input type="number" id="order-price" class="form-control" min="1" step="1">
+		</div>
+		<button type="button" id="add-order-button" class="button-1 mt-4" disabled>Order toevoegen</button>
+	</div>
+</div>
+
+<form id="game-trade-form" method="POST" action="/game/actions/trade">
+	<h2>Kopen</h2>
+	<div id="buy-orders-container">
+	</div>
+
+	<h2>Verkopen</h2>
+	<div id="sell-orders-container">
+	</div>
+
+	<div class="container-compact mt-4">
+		<button type="submit" class="button-1">Bevestigen</button>
+	</div>
+</form>
+
+<div class="container-compact">
+	<a class="button-2" href="/game/actions">← Acties</a>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+	const items = {{{items}}};
+	const buildings = {{{buildings}}};
+
+	const createOrderBtn = document.getElementById("create-order-button");
+	const stepType = document.getElementById("order-step-type");
+	const stepCategory = document.getElementById("order-step-category");
+	const stepItem = document.getElementById("order-step-item");
+	const stepDetails = document.getElementById("order-step-details");
+
+	const orderTypeSelect = document.getElementById("order-type");
+	const orderCategorySelect = document.getElementById("order-category");
+	const orderItemSelect = document.getElementById("order-item");
+	const quantityInput = document.getElementById("order-quantity");
+	const priceInput = document.getElementById("order-price");
+	const addOrderBtn = document.getElementById("add-order-button");
+
+	const buyContainer = document.getElementById("buy-orders-container");
+	const sellContainer = document.getElementById("sell-orders-container");
+
+	let orderId = 0; // Voor unieke input-namen
+
+	function resetForm() {
+		stepType.classList.add("d-none");
+		stepCategory.classList.add("d-none");
+		stepItem.classList.add("d-none");
+		stepDetails.classList.add("d-none");
+
+		orderTypeSelect.value = "";
+		orderCategorySelect.value = "";
+		orderItemSelect.innerHTML = `<option value="">-- Kies --</option>`;
+		quantityInput.value = "";
+		priceInput.value = "";
+		addOrderBtn.disabled = true;
+
+		createOrderBtn.classList.remove("d-none");
+	}
+
+	createOrderBtn.addEventListener("click", () => {
+		createOrderBtn.classList.add("d-none");
+		stepType.classList.remove("d-none");
+	});
+
+	orderTypeSelect.addEventListener("change", () => {
+		stepCategory.classList.remove("d-none");
+	});
+
+	orderCategorySelect.addEventListener("change", () => {
+		const selectedCategory = orderCategorySelect.value;
+		const options = selectedCategory === "items" ? items : buildings;
+
+		orderItemSelect.innerHTML = `<option value="">-- Kies --</option>`;
+		options.forEach((opt) => {
+			const option = document.createElement("option");
+			option.value = opt.id;
+			option.textContent = opt.name;
+			orderItemSelect.appendChild(option);
+		});
+
+		stepItem.classList.remove("d-none");
+	});
+
+	orderItemSelect.addEventListener("change", () => {
+		if (orderItemSelect.value) {
+			stepDetails.classList.remove("d-none");
+		} else {
+			stepDetails.classList.add("d-none");
+		}
+	});
+
+	function validateInputs() {
+		addOrderBtn.disabled = !(quantityInput.value > 0 && priceInput.value > 0);
+	}
+
+	quantityInput.addEventListener("input", validateInputs);
+	priceInput.addEventListener("input", validateInputs);
+
+	addOrderBtn.addEventListener("click", () => {
+		const type = orderTypeSelect.value;
+		const category = orderCategorySelect.value;
+		const itemId = orderItemSelect.value;
+		const itemName = orderItemSelect.options[orderItemSelect.selectedIndex].text;
+		const quantity = quantityInput.value;
+		const price = priceInput.value;
+
+		const container = type === "buy" ? buyContainer : sellContainer;
+		const fieldPrefix = `${type}Orders[${orderId}]`;
+
+		const card = document.createElement("div");
+		card.className = "card-border";
+		card.innerHTML = `
+			<div class="card-body">
+				<p class="card-p"><strong>${itemName}</strong> (${category})</p>
+				<input type="hidden" name="${fieldPrefix}.item_id" value="${itemId}">
+				<input type="hidden" name="${fieldPrefix}.category" value="${category}">
+				<div class="card-field">
+					<label class="card-label">Hoeveelheid:</label>
+					<input type="number" class="form-control" name="${fieldPrefix}.quantity" value="${quantity}" min="1" required>
+				</div>
+				<div class="card-field mt-2">
+					<label class="card-label">Limietprijs (€):</label>
+					<input type="number" class="form-control" name="${fieldPrefix}.limit_price" value="${price}" min="1" required>
+				</div>
+			</div>
+		`;
+
+		container.appendChild(card);
+		orderId++;
+
+		resetForm();
+	});
+});
+</script-->
+
+
+
+
+
+
+
+
+<!--h1>Handel drijven</h1>
+<form id="game-trade-form" method="POST" action="/game/actions/trade">
+	<h2>Kopen</h2>
+	<h3>Goederen en diensten</h3>
+	{{#if buy_orders.length}}
+		{{#each buy_orders}}
+			<div class="card-border">
+				<div class="card-body">
+					<p class="card-p">{{this.item_name}}</p>
+					<div class="card-field">
+						<label for="buy-orders-{{this.id}}" class="card-label">Hoeveelheid:</label>
+						<input type="number" class="form-control" id="buy-orders-{{this.id}}-quantity" name="buyOrders[{{this.id}}].quantity"
+						min="1" step="1" required pattern="\d+">
+					</div>
+					<div class="card-field">
+						<label for="buy-orders-{{this.id}}" class="card-label">Limietprijs: € </label>
+						<input type="number" class="form-control" id="buy-orders-{{this.id}}-limit-price" name="buyOrders[{{this.id}}].limit_price"
+						min="1" step="1" required pattern="\d+">
+					</div>
+				</div>
+			</div>
+		{{/each}}
+	{{else}}
+		<p>Je hebt geen kooporders geplaatst.</p>
+	{{/if}}
+	<h3>Gebouwen</h3>
+	<p>Je hebt geen kooporders geplaatst.</p>
+	<h2>Verkopen</h2>
+	<h3>Goederen en diensten</h3>
+	<p>Je hebt geen kooporders geplaatst.</p>
+	<h3>Gebouwen</h3>
+	<p>Je hebt geen kooporders geplaatst.</p>
+	<div class="container-compact">
+		<button type="submit" class="button-1">Bevestigen</button>
+	</div>
+</form>
+<div class="container-compact">
+	<a class="button-2" href="/game/actions">← Acties</a>
+</div-->

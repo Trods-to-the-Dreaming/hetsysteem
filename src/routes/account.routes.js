@@ -1,7 +1,7 @@
 import express from "express";
 import { requireAuth } from"../middleware/auth.middleware.js";
 import {
-	showAccountMenu,
+	showAccount,
 	showChangeUsername,
 	handleChangeUsername,
 	showChangePassword,
@@ -10,11 +10,11 @@ import {
 
 const router = express.Router();
 
-router.get("/menu", requireAuth, showAccountMenu);
-router.get("/changeusername", requireAuth, showChangeUsername);
-router.post("/changeusername", requireAuth, handleChangeUsername);
-router.get("/changepassword", requireAuth, showChangePassword);
-router.post("/changepassword", requireAuth, handleChangePassword);
+router.get("", requireAuth, showAccount);
+router.get("/change-username", requireAuth, showChangeUsername);
+router.post("/change-username", requireAuth, handleChangeUsername);
+router.get("/change-password", requireAuth, showChangePassword);
+router.post("/change-password", requireAuth, handleChangePassword);
 
 export default {
     path: "/account",

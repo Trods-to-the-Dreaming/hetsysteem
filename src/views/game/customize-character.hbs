@@ -1,51 +1,52 @@
-{{#block "title"}}Het Systeem - Personage aanpassen{{/block}}
+{{#block "title"}}Personage aanpassen{{/block}}
 
 <h1>Personage aanpassen</h1>
-<div class="max-width-container">
+<div class="container-compact">
 	<form id="game-customize-character-form" method="POST" action="/game/customize-character">
 		<div class="field">
 			<label for="first-name" class="form-label">Voornaam:</label>
-			<input type="text" class="form-control" id="first-name" name="firstName" value="{{first_name}}" required>
+			<input id="first-name" class="form-control" type="text" name="firstName" value="{{first_name}}" required>
 		</div>
 		<div class="field">
 			<label for="last-name" class="form-label">Achternaam:</label>
-			<input type="text" class="form-control" id="last-name" name="lastName" value="{{last_name}}" required>
+			<input id="last-name" class="form-control" type="text" name="lastName" value="{{last_name}}" required>
 		</div>
 		<div class="field">
-			<label for="job-preference-1" class="form-label">Droomjob (+3 geluk):</label>
-			<select class="form-select" id="job-preference-1" name="jobPreference1" required>
+			<label for="job-preference-1" class="form-label">Voorkeursjob (★★★):</label>
+			<select id="job-preference-1" class="form-select" name="jobPreference1" required>
 				{{#each jobs}}
 				<option value="{{this.id}}">{{this.name}}</option>
 				{{/each}}
 			</select>
 		</div>
 		<div class="field">
-			<label for="job-preference-2" class="form-label">Geweldige job (+2 geluk):</label>
-			<select class="form-select" id="job-preference-2" name="jobPreference2" required>
+			<label for="job-preference-2" class="form-label">Voorkeursjob (★★):</label>
+			<select id="job-preference-2" class="form-select" name="jobPreference2" required>
 				{{#each jobs}}
 				<option value="{{this.id}}">{{this.name}}</option>
 				{{/each}}
 			</select>
 		</div>
 		<div class="field">
-			<label for="job-preference-3" class="form-label">Leuke job (+1 geluk):</label>
-			<select class="form-select" id="job-preference-3" name="jobPreference3" required>
+			<label for="job-preference-3" class="form-label">Voorkeursjob (★):</label>
+			<select id="job-preference-3" class="form-select" name="jobPreference3" required>
 				{{#each jobs}}
 				<option value="{{this.id}}">{{this.name}}</option>
 				{{/each}}
 			</select>
 		</div>
-		<p class="error" id="error-job-preference">{{error_job_preference}}</p>
+		<p id="error-job-preference" class="error">{{error_job_preference}}</p>
 		<div class="field">
-			<label for="luxury-preference" class="form-label">Interesse (+3 geluk):</label>
-			<select class="form-select" id="luxury-preference" name="luxuryPreference" required>
-				{{#each luxuries}}
+			<label for="recreation-preference" class="form-label">Voorkeursactiviteit (★★★):</label>
+			<select id="recreation-preference" class="form-select" name="recreationPreference" required>
+				{{#each recreations}}
 				<option value="{{this.id}}">{{this.name}}</option>
 				{{/each}}
 			</select>
 		</div>
-		<button type="submit" class="button-1">Volgende</button>
-		<a href="/game/choose-world" class="button-2">Terug</a>
+		<p id="error-recreation-preference" class="error">{{error_recreation_preference}}</p>
+		<button class="button-1" type="submit">Volgende</button>
+		<a class="button-2" href="/game/choose-world">Terug</a>
 	</form>
 </div>
 

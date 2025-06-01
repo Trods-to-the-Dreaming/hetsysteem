@@ -3,25 +3,15 @@ import GAME_RULES from "../constants/game.rules.js";
 import db from "../utils/db.js";
 import saveSession from "../utils/session.js";
 
-
-
-/*
-const foodAvailable = character.foodAvailable;      // bv. 2
-const foodNeeded = character.foodNeeded;            // bv. 3
-const maxFood = character.maxFoodConsumed;          // bv. 4
-
-const foodSelectable = Math.min(maxFood, foodAvailable);
-const foodDefault = Math.min(foodNeeded, foodAvailable);
-
-
-res.render("survive", {
-  food_available: foodAvailable,
-  food_selectable: foodSelectable,
-  food_default: foodDefault,
-  ...
-});
-*/
-
+//--- Show actions page ---//
+export const showActions = async (req, res) => {
+	try {
+		res.render("game/actions/actions");
+	} catch (err) {
+		console.error(err);
+		return res.status(500).render("errors/500");
+	}
+};
 
 //--- Show survive page ---//
 export const showSurvive = async (req, res) => {
@@ -31,8 +21,8 @@ export const showSurvive = async (req, res) => {
 		const [food] = await db.execute(
 			`SELECT COALESCE(
 				(SELECT quantity 
-				FROM character_items 
-				WHERE character_id = ? AND item_id = 1),
+				FROM character_products 
+				WHERE character_id = ? AND product_id = 1),
 				0
 			) AS quantity;`,
 			[characterId]
@@ -44,8 +34,8 @@ export const showSurvive = async (req, res) => {
 		const [medicalCare] = await db.execute(
 			`SELECT COALESCE(
 				(SELECT quantity 
-				FROM character_items 
-				WHERE character_id = ? AND item_id = 2),
+				FROM character_products 
+				WHERE character_id = ? AND product_id = 2),
 				0
 			) AS quantity;`,
 			[characterId]
@@ -71,30 +61,30 @@ export const showSurvive = async (req, res) => {
 //--- Show trade page ---//
 export const showTrade = async (req, res) => {
 	try {
-		/*const { characterId } = req.session;
+		const { characterId } = req.session;
 
-		const [itemRows] = await db.execute(
-			`SELECT i.name, ci.quantity
-			 FROM character_items ci
-			 JOIN items i ON ci.item_id = i.id
-			 WHERE ci.character_id = ? AND ci.quantity > 0
-			 ORDER BY i.id`,
+		const [productRows] = await db.execute(
+			`SELECT p.name, cp.quantity
+			 FROM character_products cp
+			 JOIN products p ON cp.product_id = p.id
+			 WHERE cp.character_id = ? AND cp.quantity > 0
+			 ORDER BY p.id`,
 			[characterId]
 		);
 		
 		const [buildingRows] = await db.execute(
-			`SELECT i.name, ci.quantity
-			 FROM character_buildings ci
-			 JOIN buildings i ON ci.building_id = i.id
-			 WHERE ci.character_id = ? AND ci.quantity > 0
-			 ORDER BY i.id`,
+			`SELECT b.name, cb.quantity
+			 FROM character_buildings cb
+			 JOIN buildings b ON cb.building_id = b.id
+			 WHERE cb.character_id = ? AND cb.quantity > 0
+			 ORDER BY b.id`,
 			[characterId]
-		);*/
+		);
 
-		res.render("game/actions/trade"/*, {
-			items: itemRows,
+		res.render("game/actions/trade", {
+			products: productRows,
 			buildings: buildingRows
-		}*/);
+		});
 	} catch (err) {
 		console.error(err);
 		return res.status(500).render("errors/500");
@@ -174,38 +164,3 @@ export const showFire = async (req, res) => {
 		return res.status(500).render("errors/500");
 	}
 };
-
-/*
-//--- Show inventory page ---//
-export const showInventory = async (req, res) => {
-	try {
-		const { characterId } = req.session;
-
-		const [itemRows] = await db.execute(
-			`SELECT i.name, ci.quantity
-			 FROM character_items ci
-			 JOIN items i ON ci.item_id = i.id
-			 WHERE ci.character_id = ? AND ci.quantity > 0
-			 ORDER BY i.id`,
-			[characterId]
-		);
-		
-		const [buildingRows] = await db.execute(
-			`SELECT i.name, ci.quantity
-			 FROM character_buildings ci
-			 JOIN buildings i ON ci.building_id = i.id
-			 WHERE ci.character_id = ? AND ci.quantity > 0
-			 ORDER BY i.id`,
-			[characterId]
-		);
-
-		res.render("game/world/inventory", {
-			items: itemRows,
-			buildings: buildingRows
-		});
-	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500");
-	}
-};
-*/

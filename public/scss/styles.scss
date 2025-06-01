@@ -66,7 +66,7 @@ h3 {
 	line-height: 1;
 }
 
-.max-width-container {
+.container-compact {
 	@extend .w-100;
 	max-width: 400px;
 }
@@ -75,19 +75,36 @@ h3 {
 	@extend .mb-3;
 }
 
-.card-border {
-	@extend .card;
+.list-compact {
+	@extend .list-group;
 	@extend .mb-3;
+	max-width: 400px;
+}
+
+.list-item-justify {
+	@extend .list-group-item;
+	@extend .d-flex;
+	@extend .justify-content-between;
+}
+
+.card-border {
+	@extend .d-flex;
+	@extend .flex-column;
+	@extend .gap-1;
+	@extend .border;
+	@extend .rounded;
+	@extend .mb-3;
+	@extend .p-3;
 	@extend .shadow-sm;
 }
 
 .card-p {
-	@extend .mb-1;
+	@extend .m-0;
 	@extend .p-0;
 }
 
 .card-field {
-	@extend .mb-1;
+	@extend .m-0;
 	@extend .p-0;
 	@extend .d-flex;
 	@extend .align-items-center;
@@ -103,6 +120,13 @@ h3 {
 	@extend .form-select;
 	@extend .form-select-sm;
 	@extend .w-auto;
+}
+
+.card-button {
+	@extend .btn;
+	@extend .btn-primary;
+	@extend .mt-2;
+	@extend .align-self-start;
 }
 
 @mixin message {
@@ -154,6 +178,7 @@ h3 {
 }
 
 .change {
+	@extend .d-block;
 	@extend .mt-0;
 	@extend .mb-0;
 	@extend .pe-2;
