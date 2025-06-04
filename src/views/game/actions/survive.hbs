@@ -1,24 +1,29 @@
 {{#block "title"}}Overleven{{/block}}
 
 <h1>Overleven</h1>
+
 <form id="game-survive-form" method="POST" action="/game/actions/survive">
-	<h2>Voedsel</h2>
+	<h2>🍎 Voedsel</h2>
 	{{#if (gt food_available 0)}}
-		<div class="card-border">
-			<p class="card-p">Beschikbaar: {{food_available}}</p>
-			<div class="card-field">
-				<label for="food-consumed" class="card-label">Genuttigd:</label>
-				<select id="food-consumed" class="card-select" name="foodConsumed">
+		<ul class="list-compact">
+			<li class="list-item-justify">
+				<span>Beschikbaar</span>
+				<span class="list-fake-select">{{food_available}}</span>
+			</li>
+			<li class="list-item-justify">
+				<span>Genuttigd</span>
+				<select id="food-consumed" class="form-select w-auto" name="foodConsumed">
 					{{#range 0 food_selectable}}
 						<option value="{{this}}" {{#if (eq this ../food_default)}}selected{{/if}}>{{this}}</option>
 					{{/range}}
 				</select>
-			</div>
-		</div>
+			</li>
+		</ul>
 	{{else}}
 		<p>Je hebt geen voedsel.</p>
 	{{/if}}
-	<h2>Medische zorg</h2>
+	
+	<h2>💊 Medische zorg</h2>
 	{{#if (gt medical_care_available 0)}}
 		<div class="card-border">
 			<p class="card-p">Beschikbaar: {{medical_care_available}}</p>
@@ -34,10 +39,26 @@
 	{{else}}
 		<p>Je hebt geen toegang tot medische zorg.</p>
 	{{/if}}
+	
 	<div class="container-compact">
 		<button class="button-1" type="submit">Bevestigen</button>
 	</div>
 </form>
+
 <div class="container-compact">
 	<a class="button-2" href="/game/actions">← Acties</a>
 </div>
+
+<script>
+document.getElementById("game-survive-form").addEventListener("submit", function (e) {
+	const job1 = document.getElementById('job-preference-1').value;
+	const job2 = document.getElementById('job-preference-2').value;
+	const job3 = document.getElementById('job-preference-3').value;
+	if (job1 === job2 || job1 === job3 || job2 === job3) {
+		document.getElementById("error-job-preference").textContent = "Kies drie verschillende jobs.";
+		e.preventDefault();
+	} else {
+		document.getElementById("error-job-preference").textContent = "";
+	}
+});
+</script>

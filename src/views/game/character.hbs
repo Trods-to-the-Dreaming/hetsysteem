@@ -2,7 +2,7 @@
 
 <h1>{{character.first_name}} {{character.last_name}}</h1>
 
-<h2>Welzijn</h2>
+<h2>💖 Welzijn</h2>
 <ul class="list-compact">
 	<li class="list-item-justify">
 		<span>Leeftijd</span>
@@ -22,7 +22,7 @@
 	</li>
 </ul>
 
-<h2>Voorkeuren</h2>
+<h2>⭐ Voorkeuren</h2>
 <ul class="list-compact">
 	<li class="list-item-justify">
 		<span>{{character.job_preference_1}}</span>
@@ -42,7 +42,7 @@
 	</li>
 </ul>
 
-<h2>Opleiding</h2>
+<h2>🎓 Opleiding</h2>
 {{#if (gt character.education 0)}}
 	<ul class="list-compact">
 		<li class="list-item-justify">
@@ -54,7 +54,7 @@
 	<p>Je hebt nog geen opleiding gevolgd.</p>
 {{/if}}
 
-<h2>Werkervaring</h2>
+<h2>🛠️ Werkervaring</h2>
 {{#if character.job_experience.length}}
 	<ul class="list-compact">
 		{{#each character.job_experience}}
