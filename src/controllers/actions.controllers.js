@@ -48,9 +48,11 @@ export const showSurvive = async (req, res) => {
 			food_available: foodAvailable,
 			food_default: foodDefault,
 			food_selectable: foodSelectable,
+			food_needed: GAME_RULES.FOOD.NEEDED,
 			medical_care_available: medicalCareAvailable,
 			medical_care_default: medicalCareDefault,
-			medical_care_selectable: medicalCareSelectable
+			medical_care_selectable: medicalCareSelectable,
+			medical_care_needed: GAME_RULES.MEDICAL_CARE.NEEDED
 		});
 	} catch (err) {
 		console.error(err);
@@ -62,6 +64,12 @@ export const showSurvive = async (req, res) => {
 export const showTrade = async (req, res) => {
 	try {
 		const { characterId } = req.session;
+		
+		const [allProducts] = await db.execute(
+			`SELECT id,
+					name
+			 FROM products`
+		);
 
 		const [productRows] = await db.execute(
 			`SELECT p.name, cp.quantity
@@ -82,8 +90,7 @@ export const showTrade = async (req, res) => {
 		);
 
 		res.render("game/actions/trade", {
-			products: productRows,
-			buildings: buildingRows
+			all_products: allProducts
 		});
 	} catch (err) {
 		console.error(err);

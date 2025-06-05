@@ -80,7 +80,8 @@ app.engine("hbs",
 					result += options.fn(i);
 				}
 				return result;
-			}
+			},
+			json: context => JSON.stringify(context)
 		},
 		extname: "hbs",
 		defaultLayout: "main",

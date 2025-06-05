@@ -1,24 +1,31 @@
 {{#block "title"}}Registreren{{/block}}
 
 <h1>Registreren</h1>
+
 <div class="container-compact">
 	<form id="auth-register-form" method="POST" action="/auth/register">
 		<div class="field">
 			<label for="username" class="form-label">Gebruikersnaam:</label>
 			<input id="username" class="form-control" type="text" name="username" value="{{username}}" required>
 		</div>
+		
 		<p id="error-username" class="error">{{error_username}}</p>
+		
 		<div class="field">
 			<label for="password" class="form-label">Wachtwoord:</label>
 			<input id="password" class="form-control" type="password" name="password" required>
 		</div>
+		
 		<div class="field">
 			<label for="password-confirm" class="form-label">Bevestig wachtwoord:</label>
 			<input id="password-confirm" class="form-control" type="password" name="passwordConfirm" required>
 		</div>
+		
 		<p id="error-confirm" class="error">{{error_confirm}}</p>
+		
 		<button class="button-1" type="submit">Registreren</button>
 	</form>
+	
 	<p>Reeds lid? <a href="/auth/login">Aanmelden</a>.</p>
 </div>
 

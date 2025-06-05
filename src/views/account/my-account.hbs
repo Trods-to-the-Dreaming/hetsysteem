@@ -1,12 +1,14 @@
 {{#block "title"}}Mijn account{{/block}}
 
 <h1>Mijn account</h1>
+
 <div class="container-compact">
 	<div class="field">
 		<label for="username" class="form-label">Gebruikersnaam:</label>
 		<input id="username" class="form-control" type="text" value="{{username}}" readonly>
 		<a class="change" href="/account/change-username">Wijzigen</a>
 	</div>
+	
 	<div class="field">
 		<label for="password" class="form-label">Wachtwoord:</label>
 		<input id="password" class="form-control" type="password" value="********" readonly>
