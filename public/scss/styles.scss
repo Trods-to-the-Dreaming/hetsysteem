@@ -78,6 +78,8 @@ h3 {
 .list-compact {
 	@extend .list-group;
 	@extend .mb-3;
+	@extend .border;
+	@extend .border-2;
 	max-width: 400px;
 }
 
@@ -86,6 +88,18 @@ h3 {
 	@extend .d-flex;
 	@extend .justify-content-between;
 	@extend .align-items-center;
+}
+
+.list-input-quantity {
+	@extend .form-control;
+	text-align: right;
+	width: 6.3rem;
+}
+
+.list-input-price {
+	@extend .form-control;
+	text-align: right;
+	width: 14.2ch;
 }
 
 .list-select {

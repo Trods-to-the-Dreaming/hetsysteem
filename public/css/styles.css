@@ -2105,7 +2105,7 @@ progress {
   color: var(--bs-secondary-color);
 }
 
-.form-control {
+.form-control, .list-input-price, .list-input-quantity {
   display: block;
   width: 100%;
   padding: 0.375rem 0.75rem;
@@ -2121,41 +2121,41 @@ progress {
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 @media (prefers-reduced-motion: reduce) {
-  .form-control {
+  .form-control, .list-input-price, .list-input-quantity {
     transition: none;
   }
 }
-.form-control[type=file] {
+.form-control[type=file], [type=file].list-input-price, [type=file].list-input-quantity {
   overflow: hidden;
 }
-.form-control[type=file]:not(:disabled):not([readonly]) {
+.form-control[type=file]:not(:disabled):not([readonly]), [type=file].list-input-price:not(:disabled):not([readonly]), [type=file].list-input-quantity:not(:disabled):not([readonly]) {
   cursor: pointer;
 }
-.form-control:focus {
+.form-control:focus, .list-input-price:focus, .list-input-quantity:focus {
   color: var(--bs-body-color);
   background-color: var(--bs-body-bg);
   border-color: rgb(134, 182.5, 254);
   outline: 0;
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
-.form-control::-webkit-date-and-time-value {
+.form-control::-webkit-date-and-time-value, .list-input-price::-webkit-date-and-time-value, .list-input-quantity::-webkit-date-and-time-value {
   min-width: 85px;
   height: 1.5em;
   margin: 0;
 }
-.form-control::-webkit-datetime-edit {
+.form-control::-webkit-datetime-edit, .list-input-price::-webkit-datetime-edit, .list-input-quantity::-webkit-datetime-edit {
   display: block;
   padding: 0;
 }
-.form-control::placeholder {
+.form-control::placeholder, .list-input-price::placeholder, .list-input-quantity::placeholder {
   color: var(--bs-secondary-color);
   opacity: 1;
 }
-.form-control:disabled {
+.form-control:disabled, .list-input-price:disabled, .list-input-quantity:disabled {
   background-color: var(--bs-secondary-bg);
   opacity: 1;
 }
-.form-control::file-selector-button {
+.form-control::file-selector-button, .list-input-price::file-selector-button, .list-input-quantity::file-selector-button {
   padding: 0.375rem 0.75rem;
   margin: -0.375rem -0.75rem;
   margin-inline-end: 0.75rem;
@@ -2170,11 +2170,11 @@ progress {
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 @media (prefers-reduced-motion: reduce) {
-  .form-control::file-selector-button {
+  .form-control::file-selector-button, .list-input-price::file-selector-button, .list-input-quantity::file-selector-button {
     transition: none;
   }
 }
-.form-control:hover:not(:disabled):not([readonly])::file-selector-button {
+.form-control:hover:not(:disabled):not([readonly])::file-selector-button, .list-input-price:hover:not(:disabled):not([readonly])::file-selector-button, .list-input-quantity:hover:not(:disabled):not([readonly])::file-selector-button {
   background-color: var(--bs-secondary-bg);
 }
 
@@ -2221,7 +2221,7 @@ progress {
   margin-inline-end: 1rem;
 }
 
-textarea.form-control {
+textarea.form-control, textarea.list-input-price, textarea.list-input-quantity {
   min-height: calc(1.5em + 0.75rem + calc(var(--bs-border-width) * 2));
 }
 textarea.form-control-sm {
@@ -2530,7 +2530,7 @@ textarea.form-control-lg {
 .form-floating {
   position: relative;
 }
-.form-floating > .form-control,
+.form-floating > .form-control, .form-floating > .list-input-price, .form-floating > .list-input-quantity,
 .form-floating > .form-control-plaintext,
 .form-floating > .form-select,
 .form-floating > .card-select,
@@ -2562,21 +2562,21 @@ textarea.form-control-lg {
     transition: none;
   }
 }
-.form-floating > .form-control,
+.form-floating > .form-control, .form-floating > .list-input-price, .form-floating > .list-input-quantity,
 .form-floating > .form-control-plaintext {
   padding: 1rem 0.75rem;
 }
-.form-floating > .form-control::placeholder,
+.form-floating > .form-control::placeholder, .form-floating > .list-input-price::placeholder, .form-floating > .list-input-quantity::placeholder,
 .form-floating > .form-control-plaintext::placeholder {
   color: transparent;
 }
-.form-floating > .form-control:focus, .form-floating > .form-control:not(:placeholder-shown),
+.form-floating > .form-control:focus, .form-floating > .list-input-price:focus, .form-floating > .list-input-quantity:focus, .form-floating > .form-control:not(:placeholder-shown), .form-floating > .list-input-price:not(:placeholder-shown), .form-floating > .list-input-quantity:not(:placeholder-shown),
 .form-floating > .form-control-plaintext:focus,
 .form-floating > .form-control-plaintext:not(:placeholder-shown) {
   padding-top: 1.625rem;
   padding-bottom: 0.625rem;
 }
-.form-floating > .form-control:-webkit-autofill,
+.form-floating > .form-control:-webkit-autofill, .form-floating > .list-input-price:-webkit-autofill, .form-floating > .list-input-quantity:-webkit-autofill,
 .form-floating > .form-control-plaintext:-webkit-autofill {
   padding-top: 1.625rem;
   padding-bottom: 0.625rem;
@@ -2586,15 +2586,17 @@ textarea.form-control-lg {
   padding-bottom: 0.625rem;
   padding-left: 0.75rem;
 }
-.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:focus ~ label, .form-floating > .list-input-price:focus ~ label, .form-floating > .list-input-quantity:focus ~ label,
 .form-floating > .form-control:not(:placeholder-shown) ~ label,
+.form-floating > .list-input-price:not(:placeholder-shown) ~ label,
+.form-floating > .list-input-quantity:not(:placeholder-shown) ~ label,
 .form-floating > .form-control-plaintext ~ label,
 .form-floating > .form-select ~ label,
 .form-floating > .card-select ~ label,
 .form-floating > .list-select ~ label {
   transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
 }
-.form-floating > .form-control:-webkit-autofill ~ label {
+.form-floating > .form-control:-webkit-autofill ~ label, .form-floating > .list-input-price:-webkit-autofill ~ label, .form-floating > .list-input-quantity:-webkit-autofill ~ label {
   transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
 }
 .form-floating > textarea:focus ~ label::after,
@@ -2625,7 +2627,7 @@ textarea.form-control-lg {
   align-items: stretch;
   width: 100%;
 }
-.input-group > .form-control,
+.input-group > .form-control, .input-group > .list-input-price, .input-group > .list-input-quantity,
 .input-group > .form-select,
 .input-group > .card-select,
 .input-group > .list-select,
@@ -2635,7 +2637,7 @@ textarea.form-control-lg {
   width: 1%;
   min-width: 0;
 }
-.input-group > .form-control:focus,
+.input-group > .form-control:focus, .input-group > .list-input-price:focus, .input-group > .list-input-quantity:focus,
 .input-group > .form-select:focus,
 .input-group > .card-select:focus,
 .input-group > .list-select:focus,
@@ -2665,7 +2667,7 @@ textarea.form-control-lg {
   border-radius: var(--bs-border-radius);
 }
 
-.input-group-lg > .form-control,
+.input-group-lg > .form-control, .input-group-lg > .list-input-price, .input-group-lg > .list-input-quantity,
 .input-group-lg > .form-select,
 .input-group-lg > .card-select,
 .input-group-lg > .list-select,
@@ -2679,7 +2681,7 @@ textarea.form-control-lg {
   border-radius: var(--bs-border-radius-lg);
 }
 
-.input-group-sm > .form-control,
+.input-group-sm > .form-control, .input-group-sm > .list-input-price, .input-group-sm > .list-input-quantity,
 .input-group-sm > .form-select,
 .input-group-sm > .card-select,
 .input-group-sm > .list-select,
@@ -2703,6 +2705,8 @@ textarea.form-control-lg {
 .input-group:not(.has-validation) > :not(:last-child):not(.dropdown-toggle):not(.dropdown-menu):not(.form-floating),
 .input-group:not(.has-validation) > .dropdown-toggle:nth-last-child(n+3),
 .input-group:not(.has-validation) > .form-floating:not(:last-child) > .form-control,
+.input-group:not(.has-validation) > .form-floating:not(:last-child) > .list-input-price,
+.input-group:not(.has-validation) > .form-floating:not(:last-child) > .list-input-quantity,
 .input-group:not(.has-validation) > .form-floating:not(:last-child) > .form-select,
 .input-group:not(.has-validation) > .form-floating:not(:last-child) > .card-select,
 .input-group:not(.has-validation) > .form-floating:not(:last-child) > .list-select {
@@ -2712,6 +2716,8 @@ textarea.form-control-lg {
 .input-group.has-validation > :nth-last-child(n+3):not(.dropdown-toggle):not(.dropdown-menu):not(.form-floating),
 .input-group.has-validation > .dropdown-toggle:nth-last-child(n+4),
 .input-group.has-validation > .form-floating:nth-last-child(n+3) > .form-control,
+.input-group.has-validation > .form-floating:nth-last-child(n+3) > .list-input-price,
+.input-group.has-validation > .form-floating:nth-last-child(n+3) > .list-input-quantity,
 .input-group.has-validation > .form-floating:nth-last-child(n+3) > .form-select,
 .input-group.has-validation > .form-floating:nth-last-child(n+3) > .card-select,
 .input-group.has-validation > .form-floating:nth-last-child(n+3) > .list-select {
@@ -2723,7 +2729,7 @@ textarea.form-control-lg {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
-.input-group > .form-floating:not(:first-child) > .form-control,
+.input-group > .form-floating:not(:first-child) > .form-control, .input-group > .form-floating:not(:first-child) > .list-input-price, .input-group > .form-floating:not(:first-child) > .list-input-quantity,
 .input-group > .form-floating:not(:first-child) > .form-select,
 .input-group > .form-floating:not(:first-child) > .card-select,
 .input-group > .form-floating:not(:first-child) > .list-select {
@@ -2760,7 +2766,7 @@ textarea.form-control-lg {
   display: block;
 }
 
-.was-validated .form-control:valid, .form-control.is-valid {
+.was-validated .form-control:valid, .was-validated .list-input-price:valid, .was-validated .list-input-quantity:valid, .form-control.is-valid, .is-valid.list-input-price, .is-valid.list-input-quantity {
   border-color: var(--bs-form-valid-border-color);
   padding-right: calc(1.5em + 0.75rem);
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1'/%3e%3c/svg%3e");
@@ -2768,12 +2774,12 @@ textarea.form-control-lg {
   background-position: right calc(0.375em + 0.1875rem) center;
   background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
 }
-.was-validated .form-control:valid:focus, .form-control.is-valid:focus {
+.was-validated .form-control:valid:focus, .was-validated .list-input-price:valid:focus, .was-validated .list-input-quantity:valid:focus, .form-control.is-valid:focus, .is-valid.list-input-price:focus, .is-valid.list-input-quantity:focus {
   border-color: var(--bs-form-valid-border-color);
   box-shadow: 0 0 0 0.25rem rgba(var(--bs-success-rgb), 0.25);
 }
 
-.was-validated textarea.form-control:valid, textarea.form-control.is-valid {
+.was-validated textarea.form-control:valid, .was-validated textarea.list-input-price:valid, .was-validated textarea.list-input-quantity:valid, textarea.form-control.is-valid, textarea.is-valid.list-input-price, textarea.is-valid.list-input-quantity {
   padding-right: calc(1.5em + 0.75rem);
   background-position: top calc(0.375em + 0.1875rem) right calc(0.375em + 0.1875rem);
 }
@@ -2813,7 +2819,7 @@ textarea.form-control-lg {
   margin-left: 0.5em;
 }
 
-.was-validated .input-group > .form-control:not(:focus):valid, .input-group > .form-control:not(:focus).is-valid,
+.was-validated .input-group > .form-control:not(:focus):valid, .was-validated .input-group > .list-input-price:not(:focus):valid, .was-validated .input-group > .list-input-quantity:not(:focus):valid, .input-group > .form-control:not(:focus).is-valid, .input-group > .list-input-price:not(:focus).is-valid, .input-group > .list-input-quantity:not(:focus).is-valid,
 .was-validated .input-group > .form-select:not(:focus):valid,
 .was-validated .input-group > .card-select:not(:focus):valid,
 .was-validated .input-group > .list-select:not(:focus):valid,
@@ -2854,7 +2860,7 @@ textarea.form-control-lg {
   display: block;
 }
 
-.was-validated .form-control:invalid, .form-control.is-invalid {
+.was-validated .form-control:invalid, .was-validated .list-input-price:invalid, .was-validated .list-input-quantity:invalid, .form-control.is-invalid, .is-invalid.list-input-price, .is-invalid.list-input-quantity {
   border-color: var(--bs-form-invalid-border-color);
   padding-right: calc(1.5em + 0.75rem);
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
@@ -2862,12 +2868,12 @@ textarea.form-control-lg {
   background-position: right calc(0.375em + 0.1875rem) center;
   background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
 }
-.was-validated .form-control:invalid:focus, .form-control.is-invalid:focus {
+.was-validated .form-control:invalid:focus, .was-validated .list-input-price:invalid:focus, .was-validated .list-input-quantity:invalid:focus, .form-control.is-invalid:focus, .is-invalid.list-input-price:focus, .is-invalid.list-input-quantity:focus {
   border-color: var(--bs-form-invalid-border-color);
   box-shadow: 0 0 0 0.25rem rgba(var(--bs-danger-rgb), 0.25);
 }
 
-.was-validated textarea.form-control:invalid, textarea.form-control.is-invalid {
+.was-validated textarea.form-control:invalid, .was-validated textarea.list-input-price:invalid, .was-validated textarea.list-input-quantity:invalid, textarea.form-control.is-invalid, textarea.is-invalid.list-input-price, textarea.is-invalid.list-input-quantity {
   padding-right: calc(1.5em + 0.75rem);
   background-position: top calc(0.375em + 0.1875rem) right calc(0.375em + 0.1875rem);
 }
@@ -2907,7 +2913,7 @@ textarea.form-control-lg {
   margin-left: 0.5em;
 }
 
-.was-validated .input-group > .form-control:not(:focus):invalid, .input-group > .form-control:not(:focus).is-invalid,
+.was-validated .input-group > .form-control:not(:focus):invalid, .was-validated .input-group > .list-input-price:not(:focus):invalid, .was-validated .input-group > .list-input-quantity:not(:focus):invalid, .input-group > .form-control:not(:focus).is-invalid, .input-group > .list-input-price:not(:focus).is-invalid, .input-group > .list-input-quantity:not(:focus).is-invalid,
 .was-validated .input-group > .form-select:not(:focus):invalid,
 .was-validated .input-group > .card-select:not(:focus):invalid,
 .was-validated .input-group > .list-select:not(:focus):invalid,
@@ -7467,7 +7473,7 @@ textarea.form-control-lg {
   transform: translateY(-50%) !important;
 }
 
-.border, .card-border {
+.border, .card-border, .list-compact {
   border: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;
 }
 
@@ -7593,7 +7599,7 @@ textarea.form-control-lg {
   border-width: 1px !important;
 }
 
-.border-2 {
+.border-2, .list-compact {
   border-width: 2px !important;
 }
 
@@ -11993,6 +11999,16 @@ h3, .h3 {
 
 .list-compact {
   max-width: 400px;
+}
+
+.list-input-quantity {
+  text-align: right;
+  width: 6.3rem;
+}
+
+.list-input-price {
+  text-align: right;
+  width: 14.2ch;
 }
 
 .list-fake-select {

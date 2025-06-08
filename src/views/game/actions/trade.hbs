@@ -6,83 +6,131 @@
 	<button id="create-order-button" class="button-1" type="button">Order maken</button>
 </div>
 
-<div id="create-order-section" class="card-border d-none">
-	<div id="type-field" class="card-field">
-		<label for="type" class="card-label">Type:</label>
-		<select id="type" class="card-select">
+<ul id="create-order-section" class="list-compact d-none">
+	<li id="type-field" class="list-item-justify">
+		<label for="type">Type:</label>
+		<select id="type" class="list-select">
 			<option value="">-- Kies --</option>
 			<option value="buy">Kopen</option>
-			<option value="sell">Verkopen</option>
+			<!-- option "sell" is added via JS -->
 		</select>
-	</div>
-	
-	<div id="category-field" class="card-field d-none">
-		<label for="category" class="card-label">Categorie:</label>
-		<select id="category" class="card-select">
-			<option value="">-- Kies --</option>
-			<option value="products">Producten</option>
-			<option value="buildings">Gebouwen</option>
+	</li>
+	<li id="category-field" class="list-item-justify d-none">
+		<label for="category">Categorie:</label>
+		<select id="category" class="list-select">
+			<!-- options are added via JS -->
 		</select>
-	</div>
-	
-	<div id="item-field" class="card-field d-none">
-		<label for="item" id="item-label" class="card-label"><!-- hier moet ofwel Product ofwel Gebouw staan -->:</label>
-		<select id="item" class="card-select">
-			<option value="">-- Kies --</option>
+	</li>
+	<li id="item-field" class="list-item-justify d-none">
+		<label for="item" id="item-label"><!-- label is added via JS --></label>
+		<select id="item" class="list-select">
+			<!-- options are added via JS -->
 		</select>
-	</div>
-	
-	<button id="add-order-button" class="card-button" type="button" disabled>Order toevoegen</button>
+	</li>
+	<li id="quantity-field" class="list-item-justify d-none">
+		<label for="quantity">Aantal:</label>
+		<input id="quantity" class="list-input-quantity" type="number" min="1" step="1" value="1">
+	</li>
+	<li id="unit-price-field" class="list-item-justify d-none">
+		<label for="unit-price" id="unit-price-label"><!-- label is added via JS --></label>
+		<input id="unit-price" class="list-input-price" type="number" min="0.01" step="0.01" value="0.01">
+	</li>
+</ul>
+
+<div class="container-compact">
+	<button id="place-order-button" class="button-1 d-none" type="button">Order plaatsen</button>
 </div>
 
 <div class="container-compact">
 	<a class="button-2" href="/game/actions">← Acties</a>
 </div>
 
-	<!--const stepType = document.getElementById("order-step-type");
-	const stepCategory = document.getElementById("order-step-category");
-	const stepItem = document.getElementById("order-step-item");
-	const stepDetails = document.getElementById("order-step-details");-->
-
-
-
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 	const allProducts = {{{json all_products}}};
-	//const allBuildings = {{{allBuildings}}};
-	//const ownedProducts = {{{ownedProducts}}};
-	//const ownedPuildings = {{{ownedBuildings}}};
-	
+	const allBuildings = {{{json all_buildings}}};
+	const ownedProducts = {{{json owned_products}}};
+	const ownedBuildings = {{{json owned_buildings}}};
+
 	const createOrderButton = document.getElementById("create-order-button");
 	const createOrderSection = document.getElementById("create-order-section");
-	
+	const placeOrderButton = document.getElementById("place-order-button");
+
 	const typeSelect = document.getElementById("type");
 	
 	const categoryField = document.getElementById("category-field");
 	const categorySelect = document.getElementById("category");
-	
+
 	const itemField = document.getElementById("item-field");
-	const itemLabel = document.getElementById('item-label');
+	const itemLabel = document.getElementById("item-label");
 	const itemSelect = document.getElementById("item");
 	
+	const quantityField = document.getElementById("quantity-field");
+	const quantityInput = document.getElementById("quantity");
+	
+	const unitPriceField = document.getElementById("unit-price-field");
+	const unitPriceLabel = document.getElementById("unit-price-label");
+	const unitPriceInput = document.getElementById("unit-price");
+
+	// Hide create order button
 	createOrderButton.addEventListener("click", () => {
 		createOrderButton.classList.add("d-none");
 		createOrderSection.classList.remove("d-none");
+		placeOrderButton.classList.remove("d-none");
+		placeOrderButton.disabled = true;
 	});
 	
+	// Order type: add sell option only if the player owns something
+	if (ownedProducts.length > 0 || ownedBuildings.length > 0) {
+		const sellOption = document.createElement("option");
+		sellOption.value = "sell";
+		sellOption.textContent = "Verkopen";
+		typeSelect.appendChild(sellOption);
+	}
+
+	// Handle type change
 	typeSelect.addEventListener("change", () => {
+		const selectedType = typeSelect.value;
+
+		// Hide category when no type is selected
+		if (selectedType === "") {
+			categoryField.classList.add("d-none");
+			categorySelect.innerHTML = "";
+			categorySelect.dispatchEvent(new Event("change"));
+			return;
+		}
+
+		// Create category options
+		categorySelect.innerHTML = `<option value="">-- Kies --</option>`;
+		if (selectedType === "buy" || ownedProducts.length > 0) {
+			categorySelect.innerHTML += `<option value="products">Producten</option>`;
+		}
+		if (selectedType === "buy" || ownedBuildings.length > 0) {
+			categorySelect.innerHTML += `<option value="buildings">Gebouwen</option>`;
+		}
+
+		// Make category visible
 		categoryField.classList.remove("d-none");
-		itemField.classList.add("d-none");
-		itemSelect.innerHTML = `<option value="">-- Kies --</option>`;
+		categorySelect.value = "";
+		categorySelect.dispatchEvent(new Event("change"));
 	});
-	
+
+	// Handle category change
 	categorySelect.addEventListener("change", () => {
 		const selectedType = typeSelect.value;
 		const selectedCategory = categorySelect.value;
 		
-		let options = [];
-		let labelText = "";
+		// Hide item when no category is selected
+		if (selectedCategory  === "") {
+			itemField.classList.add("d-none");
+			itemSelect.innerHTML = "";
+			itemSelect.dispatchEvent(new Event("change"));
+			return;
+		}
 
+		// Create item label and options
+		let labelText = "";
+		let options = [];
 		if (selectedCategory === "products") {
 			labelText = "Product";
 			options = selectedType === "buy" ? allProducts : ownedProducts;
@@ -90,9 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			labelText = "Gebouw";
 			options = selectedType === "buy" ? allBuildings : ownedBuildings;
 		}
-		
 		itemLabel.textContent = labelText + ":";
-
 		itemSelect.innerHTML = `<option value="">-- Kies --</option>`;
 		options.forEach(item => {
 			const option = document.createElement("option");
@@ -101,10 +147,46 @@ document.addEventListener("DOMContentLoaded", () => {
 			itemSelect.appendChild(option);
 		});
 
+		// Make item visible
 		itemField.classList.remove("d-none");
+	});
+	
+	// Handle item change
+	itemSelect.addEventListener("change", () => {
+		const selectedType = typeSelect.value;
+		const selectedCategory = categorySelect.value;
+		const selectedItem = itemSelect.value;
+		
+		// Hide quantity and unit price when no item is selected
+		if (selectedItem  === "") {
+			quantityField.classList.add("d-none");
+			unitPriceField.classList.add("d-none");
+			placeOrderButton.disabled = true;
+			return;
+		}
+
+		// Create unit price label
+		if (selectedType === "buy") {
+			unitPriceLabel.textContent = "Maximale eenheidsprijs:";
+		} else if (selectedType === "sell") {
+			unitPriceLabel.textContent = "Minimale eenheidsprijs:";
+		}
+
+		// Make quantity and unit price visible
+		quantityField.classList.remove("d-none");
+		unitPriceField.classList.remove("d-none");
+		placeOrderButton.disabled = false;
 	});
 });
 </script>
+
+
+	<!--const stepType = document.getElementById("order-step-type");
+	const stepCategory = document.getElementById("order-step-category");
+	const stepItem = document.getElementById("order-step-item");
+	const stepDetails = document.getElementById("order-step-details");-->
+
+
 
 
 <!--div id="create-order-section" class="card-border p-4 mb-4">

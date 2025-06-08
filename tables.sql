@@ -160,7 +160,7 @@ CREATE TABLE product_buy_orders (
 	character_id INT NOT NULL,
 	product_id INT NOT NULL,
 	quantity INT NOT NULL,
-	max_price_per_unit INT NOT NULL,
+	max_unit_price INT NOT NULL,
 	PRIMARY KEY (character_id, product_id),
 	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
 	FOREIGN KEY (product_id) REFERENCES products(id)
@@ -170,7 +170,7 @@ CREATE TABLE product_sell_orders (
 	character_id INT NOT NULL,
 	product_id INT NOT NULL,
 	quantity INT NOT NULL,
-	min_price_per_unit INT NOT NULL,
+	min_unit_price INT NOT NULL,
 	PRIMARY KEY (character_id, product_id),
 	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
 	FOREIGN KEY (product_id) REFERENCES products(id)

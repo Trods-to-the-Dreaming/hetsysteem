@@ -7,12 +7,12 @@
 	{{#if (gt food_available 0)}}
 		<ul class="list-compact">
 			<li class="list-item-justify">
-				<span>Beschikbaar</span>
+				<span>Beschikbaar:</span>
 				<span class="list-fake-select">{{food_available}}</span>
 			</li>
 			<li class="list-item-justify">
-				<span>Opgegeten</span>
-				<select id="food-consumed" class="form-select w-auto" name="foodConsumed">
+				<span>Opeten:</span>
+				<select id="food-consumed" class="list-select" name="foodConsumed">
 					{{#range 0 food_selectable}}
 						<option value="{{this}}" {{#if (eq this ../food_default)}}selected{{/if}}>{{this}}</option>
 					{{/range}}
@@ -27,17 +27,20 @@
 	
 	<h2>💊 Medische zorg</h2>
 	{{#if (gt medical_care_available 0)}}
-		<div class="card-border">
-			<p class="card-p">Beschikbaar: {{medical_care_available}}</p>
-			<div class="card-field">
-				<label for="medical-care-consumed" class="card-label">Ontvangen:</label>
-				<select id="medical-care-consumed" class="card-select" name="medicalCareConsumed">
+		<ul class="list-compact">
+			<li class="list-item-justify">
+				<span>Beschikbaar:</span>
+				<span class="list-fake-select">{{medical_care_available}}</span>
+			</li>
+			<li class="list-item-justify">
+				<span>Benutten:</span>
+				<select id="medical-care-consumed" class="list-select" name="medicalCareConsumed">
 					{{#range 0 medical_care_selectable}}
 						<option value="{{this}}" {{#if (eq this ../medical_care_default)}}selected{{/if}}>{{this}}</option>
 					{{/range}}
 				</select>
-			</div>
-		</div>
+			</li>
+		</ul>
 	{{else}}
 		<p>Je hebt geen toegang tot medische zorg.</p>
 	{{/if}}
@@ -76,7 +79,7 @@
 	function checkMedicalCareWarning() {
 		const selectedValue = parseInt(medicalCareConsumed.value, 10);
 		if (selectedValue < medicalCareNeeded && medicalCareSelectable >= medicalCareNeeded) {
-			warningMedicalCare.textContent = "⚠️ Je ontvangt minder medische zorg dan nodig, terwijl je toegang tot genoeg medische zorg hebt!";
+			warningMedicalCare.textContent = "⚠️ Je benut minder medische zorg dan nodig, terwijl je toegang tot genoeg medische zorg hebt!";
 		} else {
 			warningMedicalCare.textContent = "";
 		}
