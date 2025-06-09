@@ -7,15 +7,18 @@ body {
 
 h1 {
 	font-size: 1.3rem;
+	@extend .text-primary;
 	@extend .mb-3;
 }
 
 h2 {
 	font-size: 1.15rem;
+	@extend .text-secondary;
 }
 
 h3 {
 	font-size: 1rem;
+	@extend .text-body;
 }
 
 .page-wrapper {
@@ -199,7 +202,14 @@ h3 {
 
 .button-2 {
 	@extend .btn;
-	@extend .btn-outline-secondary;
+	@extend .btn-secondary;
+	@extend .w-100;
+	@extend .mb-3;
+}
+
+.button-back {
+	@extend .btn;
+	@extend .btn-outline-primary;
 	@extend .w-100;
 	@extend .mb-3;
 }

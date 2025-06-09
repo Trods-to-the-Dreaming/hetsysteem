@@ -65,19 +65,19 @@ export const showTrade = async (req, res) => {
 	try {
 		const { characterId } = req.session;
 		
-		const [allProducts] = await db.execute(
+		const [buyableProducts] = await db.execute(
 			`SELECT id,
 					name
 			 FROM products`
 		);
 		
-		const [allBuildings] = await db.execute(
+		const [buyableBuildings] = await db.execute(
 			`SELECT id,
 					name
 			 FROM buildings`
 		);
 
-		const [ownedProducts] = await db.execute(
+		const [sellableProducts] = await db.execute(
 			`SELECT p.name, cp.quantity
 			 FROM character_products cp
 			 JOIN products p ON cp.product_id = p.id
@@ -86,7 +86,7 @@ export const showTrade = async (req, res) => {
 			[characterId]
 		);
 		
-		const [ownedBuildings] = await db.execute(
+		const [sellableBuildings] = await db.execute(
 			`SELECT b.name, cb.quantity
 			 FROM character_buildings cb
 			 JOIN buildings b ON cb.building_id = b.id
@@ -94,12 +94,21 @@ export const showTrade = async (req, res) => {
 			 ORDER BY b.id`,
 			[characterId]
 		);
+		
+		const productBuyOrders = [];
+		const productSsellOrders = [];
+		const buildingBuyOrders = [];
+		const buildingSellOrders = [];
 
 		res.render("game/actions/trade", {
-			all_products: allProducts,
-			all_buildings: allBuildings,
-			owned_products: ownedProducts,
-			owned_buildings: ownedBuildings
+			product_buy_orders: productBuyOrders,
+			product_sell_orders: productSsellOrders,
+			building_buy_orders: buildingBuyOrders,
+			building_sell_orders: buildingSellOrders,
+			buyable_products: buyableProducts,
+			sellable_products: sellableProducts,
+			buyable_buildings: buyableBuildings,
+			sellable_buildings: sellableBuildings
 		});
 	} catch (err) {
 		console.error(err);

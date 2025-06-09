@@ -3,109 +3,195 @@
 <h1>Handel drijven</h1>
 
 <div class="container-compact">
-	<button id="create-order-button" class="button-1" type="button">Order maken</button>
+	<button id="create-order-button" class="button-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#create-order-window">
+		Order maken
+	</button>
 </div>
 
-<ul id="create-order-section" class="list-compact d-none">
-	<li id="type-field" class="list-item-justify">
-		<label for="type">Type:</label>
-		<select id="type" class="list-select">
-			<option value="">-- Kies --</option>
-			<option value="buy">Kopen</option>
-			<!-- option "sell" is added via JS -->
-		</select>
-	</li>
-	<li id="category-field" class="list-item-justify d-none">
-		<label for="category">Categorie:</label>
-		<select id="category" class="list-select">
-			<!-- options are added via JS -->
-		</select>
-	</li>
-	<li id="item-field" class="list-item-justify d-none">
-		<label for="item" id="item-label"><!-- label is added via JS --></label>
-		<select id="item" class="list-select">
-			<!-- options are added via JS -->
-		</select>
-	</li>
-	<li id="quantity-field" class="list-item-justify d-none">
-		<label for="quantity">Aantal:</label>
-		<input id="quantity" class="list-input-quantity" type="number" min="1" step="1" value="1">
-	</li>
-	<li id="unit-price-field" class="list-item-justify d-none">
-		<label for="unit-price" id="unit-price-label"><!-- label is added via JS --></label>
-		<input id="unit-price" class="list-input-price" type="number" min="0.01" step="0.01" value="0.01">
-	</li>
-</ul>
+<div id="create-order-window" class="offcanvas offcanvas-start" data-bs-backdrop="true" data-bs-scroll="false" tabindex="-1">
+	<div class="offcanvas-header">
+		<h2>📈 Order maken</h2>
+		
+		<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Sluiten"></button>
+	</div>
+	
+	<div class="offcanvas-body">
+		<ul id="create-order-section" class="list-compact">
+			<li id="type-field" class="list-item-justify">
+				<label for="type">Type:</label>
+				<select id="type" class="list-select">
+					<option value="">-- Kies --</option>
+					<option value="buy">Kopen</option>
+					<!-- option "sell" is added via JS -->
+				</select>
+			</li>
+			
+			<li id="category-field" class="list-item-justify d-none">
+				<label for="category">Categorie:</label>
+				<select id="category" class="list-select">
+					<!-- options are added via JS -->
+				</select>
+			</li>
+			
+			<li id="item-field" class="list-item-justify d-none">
+				<label for="item" id="item-label"><!-- label is added via JS --></label>
+				<select id="item" class="list-select">
+					<!-- options are added via JS -->
+				</select>
+			</li>
+			
+			<li id="quantity-field" class="list-item-justify d-none">
+				<label for="quantity">Aantal:</label>
+				<input id="quantity" class="list-input-quantity" type="number" min="1" step="1" value="0">
+			</li>
+			
+			<li id="unit-price-field" class="list-item-justify d-none">
+				<label for="unit-price" id="unit-price-label"><!-- label is added via JS --></label>
+				<input id="unit-price" class="list-input-price" type="number" min="1" step="1" value="0">
+			</li>
+		</ul>
+		
+		<div class="container-compact">
+			<button id="place-order-button" class="button-2" type="button">Order plaatsen</button>
+		</div>
+	</div>
+</div>
+
+<form id="game-trade-form" method="POST" action="/game/actions/trade">
+	<h2>🛒 Kopen</h2>
+	
+	<h3>Producten</h3>
+	<div id="product-buy-orders">
+		<!-- list is added via JS -->
+	</div>
+	
+	<h3>Gebouwen</h3>
+	<div id="building-buy-orders">
+		<!-- list is added via JS -->
+	</div>
+	
+	<h2>💰 Verkopen</h2>
+	
+	<h3>Producten</h3>
+	<div id="product-sell-orders">
+		<!-- list is added via JS -->
+	</div>
+	
+	<h3>Gebouwen</h3>
+	<div id="building-sell-orders">
+		<!-- list is added via JS -->
+	</div>
+	
+	<div class="container-compact">
+		<button type="submit" class="button-1">Bevestigen</button>
+	</div>
+</form>
 
 <div class="container-compact">
-	<button id="place-order-button" class="button-1 d-none" type="button">Order plaatsen</button>
+	<a class="button-back" href="/game/actions">← Acties</a>
 </div>
 
-<div class="container-compact">
-	<a class="button-2" href="/game/actions">← Acties</a>
-</div>
+<script src="/js/shared-ui.js"></script>
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-	const allProducts = {{{json all_products}}};
-	const allBuildings = {{{json all_buildings}}};
-	const ownedProducts = {{{json owned_products}}};
-	const ownedBuildings = {{{json owned_buildings}}};
-
 	const createOrderButton = document.getElementById("create-order-button");
+	const createOrderWindow = document.getElementById("create-order-window");
 	const createOrderSection = document.getElementById("create-order-section");
-	const placeOrderButton = document.getElementById("place-order-button");
-
 	const typeSelect = document.getElementById("type");
-	
 	const categoryField = document.getElementById("category-field");
 	const categorySelect = document.getElementById("category");
-
 	const itemField = document.getElementById("item-field");
 	const itemLabel = document.getElementById("item-label");
 	const itemSelect = document.getElementById("item");
-	
 	const quantityField = document.getElementById("quantity-field");
 	const quantityInput = document.getElementById("quantity");
-	
 	const unitPriceField = document.getElementById("unit-price-field");
 	const unitPriceLabel = document.getElementById("unit-price-label");
 	const unitPriceInput = document.getElementById("unit-price");
-
-	// Hide create order button
-	createOrderButton.addEventListener("click", () => {
-		createOrderButton.classList.add("d-none");
-		createOrderSection.classList.remove("d-none");
-		placeOrderButton.classList.remove("d-none");
-		placeOrderButton.disabled = true;
-	});
+	const placeOrderButton = document.getElementById("place-order-button");
 	
-	// Order type: add sell option only if the player owns something
-	if (ownedProducts.length > 0 || ownedBuildings.length > 0) {
+	createOrderButton.addEventListener("click", createOrder);
+	typeSelect.addEventListener("change", changeType);
+	categorySelect.addEventListener("change", changeCategory);
+	itemSelect.addEventListener("change", changeItem);
+	quantityInput.addEventListener("input", validateInputs);
+	unitPriceInput.addEventListener("input", validateInputs);
+	placeOrderButton.addEventListener("click", placeOrder);
+	
+	let bsOffcanvas = bootstrap.Offcanvas.getInstance(createOrderWindow);
+	if (!bsOffcanvas) {
+		bsOffcanvas = new bootstrap.Offcanvas(createOrderWindow);
+	}
+	
+	const productBuyOrders = {{{json product_buy_orders}}};
+	const productSellOrders = {{{json product_sell_orders}}};
+	const buildingBuyOrders = {{{json building_buy_orders}}};
+	const buildingSellOrders = {{{json building_sell_orders}}};
+	
+	const orderMap = {
+		"buy-products": {	list: productBuyOrders,
+							id: "product-buy-orders",
+							type: "koop",
+							category: "producten",
+							limit: "hoogstens" },
+		"sell-products": { 	list: productSellOrders,
+							id: "product-sell-orders",
+							type: "verkoop",
+							category: "producten",
+							limit: "minstens" },
+		"buy-buildings": { 	list: buildingBuyOrders,
+							id: "building-buy-orders",
+							type: "koop",
+							category: "gebouwen",
+							limit: "hoogstens" },
+		"sell-buildings": {	list: buildingSellOrders,
+							id: "building-sell-orders",
+							type: "verkoop",
+							category: "gebouwen",
+							limit: "minstens" },
+	};
+	
+	const buyableProducts = {{{json buyable_products}}};
+	const sellableProducts = {{{json sellable_products}}};
+	const buyableBuildings = {{{json buyable_buildings}}};
+	const sellableBuildings = {{{json sellable_buildings}}};
+
+	// Add sell option only if the player owns something
+	if (sellableProducts.length > 0 || sellableBuildings.length > 0) {
 		const sellOption = document.createElement("option");
 		sellOption.value = "sell";
 		sellOption.textContent = "Verkopen";
 		typeSelect.appendChild(sellOption);
 	}
-
+	
+	// Handle create order
+	function createOrder() {
+		//createOrderButton.classList.add("d-none");
+		//createOrderSection.classList.remove("d-none");
+		//placeOrderButton.classList.remove("d-none");
+		//placeOrderButton.disabled = true;
+		validateInputs();
+	};
+	
 	// Handle type change
-	typeSelect.addEventListener("change", () => {
+	function changeType() {
 		const selectedType = typeSelect.value;
 
+		// Reset category
+		categoryField.classList.add("d-none");
+		categorySelect.innerHTML = "";
+		categorySelect.dispatchEvent(new Event("change"));
+		
 		// Hide category when no type is selected
-		if (selectedType === "") {
-			categoryField.classList.add("d-none");
-			categorySelect.innerHTML = "";
-			categorySelect.dispatchEvent(new Event("change"));
-			return;
-		}
+		if (selectedType === "") return;
 
 		// Create category options
 		categorySelect.innerHTML = `<option value="">-- Kies --</option>`;
-		if (selectedType === "buy" || ownedProducts.length > 0) {
+		if (selectedType === "buy" || sellableProducts.length > 0) {
 			categorySelect.innerHTML += `<option value="products">Producten</option>`;
 		}
-		if (selectedType === "buy" || ownedBuildings.length > 0) {
+		if (selectedType === "buy" || sellableBuildings.length > 0) {
 			categorySelect.innerHTML += `<option value="buildings">Gebouwen</option>`;
 		}
 
@@ -113,30 +199,30 @@ document.addEventListener("DOMContentLoaded", () => {
 		categoryField.classList.remove("d-none");
 		categorySelect.value = "";
 		categorySelect.dispatchEvent(new Event("change"));
-	});
+	};
 
 	// Handle category change
-	categorySelect.addEventListener("change", () => {
+	function changeCategory() {
 		const selectedType = typeSelect.value;
 		const selectedCategory = categorySelect.value;
 		
+		// Reset item
+		itemField.classList.add("d-none");
+		itemSelect.innerHTML = "";
+		itemSelect.dispatchEvent(new Event("change"));
+		
 		// Hide item when no category is selected
-		if (selectedCategory  === "") {
-			itemField.classList.add("d-none");
-			itemSelect.innerHTML = "";
-			itemSelect.dispatchEvent(new Event("change"));
-			return;
-		}
+		if (selectedCategory  === "") return;
 
 		// Create item label and options
 		let labelText = "";
 		let options = [];
 		if (selectedCategory === "products") {
 			labelText = "Product";
-			options = selectedType === "buy" ? allProducts : ownedProducts;
+			options = selectedType === "buy" ? buyableProducts : sellableProducts;
 		} else if (selectedCategory === "buildings") {
 			labelText = "Gebouw";
-			options = selectedType === "buy" ? allBuildings : ownedBuildings;
+			options = selectedType === "buy" ? buyableBuildings : sellableBuildings;
 		}
 		itemLabel.textContent = labelText + ":";
 		itemSelect.innerHTML = `<option value="">-- Kies --</option>`;
@@ -149,21 +235,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
 		// Make item visible
 		itemField.classList.remove("d-none");
-	});
+	};
 	
 	// Handle item change
-	itemSelect.addEventListener("change", () => {
+	function changeItem() {
 		const selectedType = typeSelect.value;
 		const selectedCategory = categorySelect.value;
 		const selectedItem = itemSelect.value;
 		
+		// Reset quantity and unit price
+		quantityField.classList.add("d-none");
+		quantityInput.value = 0;
+		unitPriceField.classList.add("d-none");
+		unitPriceInput.value = 0;
+		placeOrderButton.disabled = true;
+		
 		// Hide quantity and unit price when no item is selected
-		if (selectedItem  === "") {
-			quantityField.classList.add("d-none");
-			unitPriceField.classList.add("d-none");
-			placeOrderButton.disabled = true;
-			return;
-		}
+		if (selectedItem  === "") return;
 
 		// Create unit price label
 		if (selectedType === "buy") {
@@ -175,205 +263,134 @@ document.addEventListener("DOMContentLoaded", () => {
 		// Make quantity and unit price visible
 		quantityField.classList.remove("d-none");
 		unitPriceField.classList.remove("d-none");
-		placeOrderButton.disabled = false;
-	});
+		validateInputs();
+	};
+	
+	// Handle quantity and unit price change
+	function validateInputs() {
+		const quantityValue = quantityInput.value.trim();
+		const unitPriceValue = unitPriceInput.value.trim();
+
+		const isQuantityValid = /^[1-9]\d*$/.test(quantityValue);
+		const isUnitPriceValid = /^[1-9]\d*$/.test(unitPriceValue);
+
+		placeOrderButton.disabled = !(isQuantityValid && isUnitPriceValid);
+	}
+	
+	// Handle place order
+	function placeOrder() {
+		const type = typeSelect.value;
+		const category = categorySelect.value;
+		/*const itemId = itemSelect.value;
+		const quantity = parseInt(quantityInput.value, 10);
+		const unitPrice = parseFloat(unitPriceInput.value);
+
+		if (!itemId || quantity < 1 || unitPrice < 0.01) return;
+
+		// Zoek het item op in de juiste bronlijst
+		let sourceList;
+		if (category === "products") {
+			sourceList = (type === "buy") ? buyableProducts : sellableProducts;
+		} else {
+			sourceList = (type === "buy") ? buyableBuildings : sellableBuildings;
+		}
+		const item = sourceList.find(i => i.id === itemId);
+		if (!item) return;*/
+
+		// Create order object
+		const order = {
+			id: itemSelect.value,
+			name: itemSelect.options[itemSelect.selectedIndex].textContent,
+			quantity: quantityInput.valueAsNumber,
+			unitPrice: unitPriceInput.valueAsNumber
+		};
+
+		const config = orderMap[`${type}-${category}`];
+		config.list.push(order);
+		
+		// Reset type
+		typeSelect.value = "";
+		typeSelect.dispatchEvent(new Event("change"));
+		
+		updateOrderDisplay(config);
+		
+		bsOffcanvas.hide();
+
+		/*// Verwijder item uit bronlijsten
+		removeItemFromList(buyableProducts, item.id);
+		removeItemFromList(sellableProducts, item.id);
+		removeItemFromList(buyableBuildings, item.id);
+		removeItemFromList(sellableBuildings, item.id);
+
+		// Reset formulier
+		typeSelect.value = "";
+		categorySelect.innerHTML = "";
+		itemSelect.innerHTML = "";
+		categoryField.classList.add("d-none");
+		itemField.classList.add("d-none");
+		quantityField.classList.add("d-none");
+		unitPriceField.classList.add("d-none");
+		placeOrderButton.disabled = true;
+
+		updateOrderDisplay();*/
+	}
+
+	function updateOrderDisplay(config) {
+		const div = document.getElementById(config.id);
+		div.innerHTML = "";
+
+		if (config.list.length === 0) {
+			const p = document.createElement("p");
+			p.textContent = `Je hebt geen ${config.type}orders voor ${config.category} geplaatst.`;
+			div.appendChild(p);
+			return;
+		}
+		
+		const formatter = new Intl.NumberFormat('nl-NL');
+		const ul = document.createElement("ul");
+		ul.classList.add("list-compact");
+		config.list.forEach(order => {
+			const pieces = order.quantity === 1 ? "stuk" : "stuks";
+			const formattedUnitPrice = formatter.format(order.unitPrice);
+			
+			const li = document.createElement("li");
+			li.classList.add("list-item-justify");
+			
+			const text = document.createElement("span");
+			text.append(
+				`${order.name}:`,
+				document.createElement("br"),
+				`${order.quantity} ${pieces} aan ${config.limit} ${formattedUnitPrice} `,
+				createCurrencySymbol(),
+				"/stuk"
+			);
+			
+			const deleteBtn = document.createElement("button");
+			deleteBtn.classList.add("btn", "btn-sm", "btn-danger", "ms-2");
+			deleteBtn.type = "button";
+			deleteBtn.innerHTML = "✖"; // of: "&times;" of een SVG-icon
+			deleteBtn.addEventListener("click", () => {
+				li.remove(); // verwijder dit order-item uit de lijst
+				// eventueel ook verwijderen uit de onderliggende array
+			});
+			
+			li.append(
+				text,
+				deleteBtn
+			);
+			ul.appendChild(li);
+		});
+		div.appendChild(ul);
+	}
+
+	updateOrderDisplay(orderMap["buy-products"]);
+	updateOrderDisplay(orderMap["sell-products"]);
+	updateOrderDisplay(orderMap["buy-buildings"]);
+	updateOrderDisplay(orderMap["sell-buildings"]);
 });
 </script>
 
-
-	<!--const stepType = document.getElementById("order-step-type");
-	const stepCategory = document.getElementById("order-step-category");
-	const stepItem = document.getElementById("order-step-item");
-	const stepDetails = document.getElementById("order-step-details");-->
-
-
-
-
-<!--div id="create-order-section" class="card-border p-4 mb-4">
-	<button type="button" id="create-order-button" class="button-1">Order maken</button>
-
-	<div id="order-step-type" class="mt-4 d-none">
-		<label for="order-type">Type order:</label>
-		<select id="order-type" class="form-control">
-			<option value="">-- Kies --</option>
-			<option value="buy">Kopen</option>
-			<option value="sell">Verkopen</option>
-		</select>
-	</div>
-
-	<div id="order-step-category" class="mt-4 d-none">
-		<label for="order-category">Categorie:</label>
-		<select id="order-category" class="form-control">
-			<option value="">-- Kies --</option>
-			<option value="items">Goederen en diensten</option>
-			<option value="buildings">Gebouwen</option>
-		</select>
-	</div>
-
-	<div id="order-step-item" class="mt-4 d-none">
-		<label for="order-item">Kies item:</label>
-		<select id="order-item" class="form-control">
-			<option value="">-- Kies --</option>
-		</select>
-	</div>
-
-	<div id="order-step-details" class="mt-4 d-none">
-		<div class="card-field">
-			<label for="order-quantity" class="card-label">Hoeveelheid:</label>
-			<input type="number" id="order-quantity" class="form-control" min="1" step="1">
-		</div>
-		<div class="card-field mt-2">
-			<label for="order-price" class="card-label">Limietprijs (€):</label>
-			<input type="number" id="order-price" class="form-control" min="1" step="1">
-		</div>
-		<button type="button" id="add-order-button" class="button-1 mt-4" disabled>Order toevoegen</button>
-	</div>
-</div>
-
-<form id="game-trade-form" method="POST" action="/game/actions/trade">
-	<h2>Kopen</h2>
-	<div id="buy-orders-container">
-	</div>
-
-	<h2>Verkopen</h2>
-	<div id="sell-orders-container">
-	</div>
-
-	<div class="container-compact mt-4">
-		<button type="submit" class="button-1">Bevestigen</button>
-	</div>
-</form>
-
-<div class="container-compact">
-	<a class="button-2" href="/game/actions">← Acties</a>
-</div>
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-	const items = {{{items}}};
-	const buildings = {{{buildings}}};
-
-	const createOrderBtn = document.getElementById("create-order-button");
-	const stepType = document.getElementById("order-step-type");
-	const stepCategory = document.getElementById("order-step-category");
-	const stepItem = document.getElementById("order-step-item");
-	const stepDetails = document.getElementById("order-step-details");
-
-	const orderTypeSelect = document.getElementById("order-type");
-	const orderCategorySelect = document.getElementById("order-category");
-	const orderItemSelect = document.getElementById("order-item");
-	const quantityInput = document.getElementById("order-quantity");
-	const priceInput = document.getElementById("order-price");
-	const addOrderBtn = document.getElementById("add-order-button");
-
-	const buyContainer = document.getElementById("buy-orders-container");
-	const sellContainer = document.getElementById("sell-orders-container");
-
-	let orderId = 0; // Voor unieke input-namen
-
-	function resetForm() {
-		stepType.classList.add("d-none");
-		stepCategory.classList.add("d-none");
-		stepItem.classList.add("d-none");
-		stepDetails.classList.add("d-none");
-
-		orderTypeSelect.value = "";
-		orderCategorySelect.value = "";
-		orderItemSelect.innerHTML = `<option value="">-- Kies --</option>`;
-		quantityInput.value = "";
-		priceInput.value = "";
-		addOrderBtn.disabled = true;
-
-		createOrderBtn.classList.remove("d-none");
-	}
-
-	createOrderBtn.addEventListener("click", () => {
-		createOrderBtn.classList.add("d-none");
-		stepType.classList.remove("d-none");
-	});
-
-	orderTypeSelect.addEventListener("change", () => {
-		stepCategory.classList.remove("d-none");
-	});
-
-	orderCategorySelect.addEventListener("change", () => {
-		const selectedCategory = orderCategorySelect.value;
-		const options = selectedCategory === "items" ? items : buildings;
-
-		orderItemSelect.innerHTML = `<option value="">-- Kies --</option>`;
-		options.forEach((opt) => {
-			const option = document.createElement("option");
-			option.value = opt.id;
-			option.textContent = opt.name;
-			orderItemSelect.appendChild(option);
-		});
-
-		stepItem.classList.remove("d-none");
-	});
-
-	orderItemSelect.addEventListener("change", () => {
-		if (orderItemSelect.value) {
-			stepDetails.classList.remove("d-none");
-		} else {
-			stepDetails.classList.add("d-none");
-		}
-	});
-
-	function validateInputs() {
-		addOrderBtn.disabled = !(quantityInput.value > 0 && priceInput.value > 0);
-	}
-
-	quantityInput.addEventListener("input", validateInputs);
-	priceInput.addEventListener("input", validateInputs);
-
-	addOrderBtn.addEventListener("click", () => {
-		const type = orderTypeSelect.value;
-		const category = orderCategorySelect.value;
-		const itemId = orderItemSelect.value;
-		const itemName = orderItemSelect.options[orderItemSelect.selectedIndex].text;
-		const quantity = quantityInput.value;
-		const price = priceInput.value;
-
-		const container = type === "buy" ? buyContainer : sellContainer;
-		const fieldPrefix = `${type}Orders[${orderId}]`;
-
-		const card = document.createElement("div");
-		card.className = "card-border";
-		card.innerHTML = `
-			<div class="card-body">
-				<p class="card-p"><strong>${itemName}</strong> (${category})</p>
-				<input type="hidden" name="${fieldPrefix}.item_id" value="${itemId}">
-				<input type="hidden" name="${fieldPrefix}.category" value="${category}">
-				<div class="card-field">
-					<label class="card-label">Hoeveelheid:</label>
-					<input type="number" class="form-control" name="${fieldPrefix}.quantity" value="${quantity}" min="1" required>
-				</div>
-				<div class="card-field mt-2">
-					<label class="card-label">Limietprijs (€):</label>
-					<input type="number" class="form-control" name="${fieldPrefix}.limit_price" value="${price}" min="1" required>
-				</div>
-			</div>
-		`;
-
-		container.appendChild(card);
-		orderId++;
-
-		resetForm();
-	});
-});
-</script-->
-
-
-
-
-
-
-
-
-<!--h1>Handel drijven</h1>
-<form id="game-trade-form" method="POST" action="/game/actions/trade">
-	<h2>Kopen</h2>
-	<h3>Goederen en diensten</h3>
+<!--
 	{{#if buy_orders.length}}
 		{{#each buy_orders}}
 			<div class="card-border">
@@ -395,17 +412,4 @@ document.addEventListener("DOMContentLoaded", () => {
 	{{else}}
 		<p>Je hebt geen kooporders geplaatst.</p>
 	{{/if}}
-	<h3>Gebouwen</h3>
-	<p>Je hebt geen kooporders geplaatst.</p>
-	<h2>Verkopen</h2>
-	<h3>Goederen en diensten</h3>
-	<p>Je hebt geen kooporders geplaatst.</p>
-	<h3>Gebouwen</h3>
-	<p>Je hebt geen kooporders geplaatst.</p>
-	<div class="container-compact">
-		<button type="submit" class="button-1">Bevestigen</button>
-	</div>
-</form>
-<div class="container-compact">
-	<a class="button-2" href="/game/actions">← Acties</a>
-</div-->
+	-->

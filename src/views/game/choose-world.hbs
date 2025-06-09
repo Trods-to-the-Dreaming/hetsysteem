@@ -1,6 +1,7 @@
 {{#block "title"}}Wereld kiezen{{/block}}
 
 <h1>Wereld kiezen</h1>
+
 <div class="container-compact">
 	<form id="game-choose-world-form" method="POST" action="/game/choose-world">
 		<div class="field">
@@ -13,7 +14,9 @@
 				{{/each}}
 			</select>
 		</div>
+		
 		<p id="error-chosen-world" class="error">{{error_chosen_world}}</p>
+		
 		<button class="button-1" type="submit">Volgende</button>
 	</form>
 </div>

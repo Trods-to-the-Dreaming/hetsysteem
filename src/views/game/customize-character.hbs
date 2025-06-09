@@ -1,16 +1,19 @@
 {{#block "title"}}Personage aanpassen{{/block}}
 
 <h1>Personage aanpassen</h1>
+
 <div class="container-compact">
 	<form id="game-customize-character-form" method="POST" action="/game/customize-character">
 		<div class="field">
 			<label for="first-name" class="form-label">Voornaam:</label>
 			<input id="first-name" class="form-control" type="text" name="firstName" value="{{first_name}}" required>
 		</div>
+		
 		<div class="field">
 			<label for="last-name" class="form-label">Achternaam:</label>
 			<input id="last-name" class="form-control" type="text" name="lastName" value="{{last_name}}" required>
 		</div>
+		
 		<div class="field">
 			<label for="job-preference-1" class="form-label">Voorkeursjob (★★★):</label>
 			<select id="job-preference-1" class="form-select" name="jobPreference1" required>
@@ -19,6 +22,7 @@
 				{{/each}}
 			</select>
 		</div>
+		
 		<div class="field">
 			<label for="job-preference-2" class="form-label">Voorkeursjob (★★):</label>
 			<select id="job-preference-2" class="form-select" name="jobPreference2" required>
@@ -27,6 +31,7 @@
 				{{/each}}
 			</select>
 		</div>
+		
 		<div class="field">
 			<label for="job-preference-3" class="form-label">Voorkeursjob (★):</label>
 			<select id="job-preference-3" class="form-select" name="jobPreference3" required>
@@ -35,7 +40,9 @@
 				{{/each}}
 			</select>
 		</div>
+		
 		<p id="error-job-preference" class="error">{{error_job_preference}}</p>
+		
 		<div class="field">
 			<label for="recreation-preference" class="form-label">Voorkeursactiviteit (★★★):</label>
 			<select id="recreation-preference" class="form-select" name="recreationPreference" required>
@@ -44,10 +51,13 @@
 				{{/each}}
 			</select>
 		</div>
+		
 		<p id="error-recreation-preference" class="error">{{error_recreation_preference}}</p>
+		
 		<button class="button-1" type="submit">Volgende</button>
-		<a class="button-2" href="/game/choose-world">Terug</a>
 	</form>
+		
+	<a class="button-back" href="/game/choose-world">Terug</a>
 </div>
 
 <script>
