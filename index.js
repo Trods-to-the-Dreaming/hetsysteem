@@ -117,6 +117,14 @@ await Promise.all(routerImports);
 
 // Errors
 app.use((err, req, res, next) => {
+	console.error(err);
+
+	const status = err.status || 500;
+	res.status(status).render(`errors/${status}`, {
+		message: err.expose ? err.message : null
+	});
+});
+/*app.use((err, req, res, next) => {
 	console.error(err.stack);
 	const status = err.status || 500;
 
@@ -128,7 +136,7 @@ app.use((err, req, res, next) => {
 });
 app.use((req, res) => {
 	res.status(404).render("errors/404");
-});
+});*/
 
 //--- Start server ---//
 app.listen(process.env.APP_PORT, () => {

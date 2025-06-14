@@ -1,29 +1,26 @@
 //--- Show index page ---//
-export const showIndex = (req, res) => {
+export const showIndex = (req, res, next) => {
 	try {
 		res.redirect("/about");
 	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500"); 
+		next(err); 
 	}
 };
 
 //--- Show about page ---//
-export const showAbout = (req, res) => {
+export const showAbout = (req, res, next) => {
 	try {
 		res.render("about");
 	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500"); 
+		next(err);  
 	}
 };
 
 //--- Show game rules page ---//
-export const showRules = (req, res) => {
+export const showRules = (req, res, next) => {
 	try {
 		res.render("rules");
 	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500"); 
+		next(err); 
 	}
 };

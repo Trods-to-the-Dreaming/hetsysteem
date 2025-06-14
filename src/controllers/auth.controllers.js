@@ -1,20 +1,19 @@
-import ACCOUNT_ERRORS from "../constants/account.errors.js";
+import ACCOUNT_MSG from "../constants/account.messages.js";
 import db from "../utils/db.js";
 import saveSession from "../utils/session.js";
 import bcrypt from "bcrypt";
 
 //--- Show login page ---//
-export const showLogin = (req, res) => {
+export const showLogin = (req, res, next) => {
 	try {
 		res.render("auth/login");
 	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500"); 
+		next(err); 
 	}
 };
 
 //--- Handle login request ---//
-export const handleLogin = async (req, res) => {
+export const handleLogin = async (req, res, next) => {
 	try {
 		const { username, 
 				password } = req.body;
@@ -28,7 +27,7 @@ export const handleLogin = async (req, res) => {
 		);
 		if (usersWithName.length === 0) {
 			return res.render("auth/login", {
-				error_login: ACCOUNT_ERRORS.INVALID_LOGIN,
+				error_login: ACCOUNT_MSG.INVALID_LOGIN,
 				username
 			});
 		}
@@ -38,7 +37,7 @@ export const handleLogin = async (req, res) => {
 		const match = await bcrypt.compare(password, user.password);
 		if (!match) {
 			return res.render("auth/login", {
-				error_login: ACCOUNT_ERRORS.INVALID_LOGIN,
+				error_login: ACCOUNT_MSG.INVALID_LOGIN,
 				username
 			});
 		}
@@ -50,23 +49,21 @@ export const handleLogin = async (req, res) => {
 		
 		return res.redirect("/game/choose-world");
 	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500"); 
+		next(err); 
 	}
 };
 
 //--- Show registration page ---//
-export const showRegister = (req, res) => {
+export const showRegister = (req, res, next) => {
 	try {
 		res.render("auth/register");
 	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500"); 
+		next(err);
 	}
 };
 
 //--- Handle registration request ---//
-export const handleRegister = async (req, res) => {
+export const handleRegister = async (req, res, next) => {
 	try {
 		const { username, 
 				password, 
@@ -75,7 +72,7 @@ export const handleRegister = async (req, res) => {
 		// Check if passwords are the same
 		if (password !== passwordConfirm) {
 			return res.render("auth/register", {
-				error_confirm: ACCOUNT_ERRORS.PASSWORD_MISMATCH,
+				error_confirm: ACCOUNT_MSG.PASSWORD_MISMATCH,
 				username
 			});
 		}
@@ -89,7 +86,7 @@ export const handleRegister = async (req, res) => {
 		);
 		if (usersWithName.length > 0) {
 			return res.render("auth/register", {
-				error_username: ACCOUNT_ERRORS.USERNAME_TAKEN,
+				error_username: ACCOUNT_MSG.USERNAME_TAKEN,
 				username
 			});
 		}
@@ -97,7 +94,9 @@ export const handleRegister = async (req, res) => {
 		// Register user
 		const hashedPassword = await bcrypt.hash(password, 8);
 		const [user] = await db.execute(
-			`INSERT INTO users (name, password) 
+			`INSERT INTO users
+			 (name, 
+			  password) 
 			 VALUES (?, ?)`, 
 			[username, 
 			 hashedPassword]
@@ -110,13 +109,12 @@ export const handleRegister = async (req, res) => {
 		
 		return res.redirect("/game/choose-world");
 	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500"); 
+		next(err);
 	}
 };
 
 //--- Handle logout request ---//
-export const handleLogout = (req, res) => {
+export const handleLogout = (req, res, next) => {
 	try {
 		req.session.destroy((error) => {
 			if (error) {
@@ -127,7 +125,6 @@ export const handleLogout = (req, res) => {
 			res.redirect("/auth/login");
 		});
 	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500"); 
+		next(err);
 	}
 };

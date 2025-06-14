@@ -1,20 +1,19 @@
-import ACCOUNT_ERRORS from "../constants/account.errors.js";
+import ACCOUNT_MSG from "../constants/account.messages.js";
 import db from "../utils/db.js";
 import saveSession from "../utils/session.js";
 import bcrypt from "bcrypt";
 
 //--- Show account page ---//
-export const showAccount = (req, res) => {
+export const showAccount = (req, res, next) => {
 	try {
 		res.render("account/my-account");
 	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500"); 
+		next(err); 
 	}
 };
 
 //--- Show change username page ---//
-export const showChangeUsername = (req, res) => {	
+export const showChangeUsername = (req, res, next) => {	
 	try {
 		const successChange = req.session.successChange;
 		delete req.session.successChange;
@@ -23,13 +22,12 @@ export const showChangeUsername = (req, res) => {
 			success_change: successChange
 		});
 	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500"); 
+		next(err); 
 	}
 };
 
 //--- Handle change username request ---//
-export const handleChangeUsername = async (req, res) => {
+export const handleChangeUsername = async (req, res, next) => {
 	try {
 		const { userId } = req.session;
 		const { newUsername, 
@@ -44,7 +42,7 @@ export const handleChangeUsername = async (req, res) => {
 		);
 		if (usersWithName.length > 0) {
 			return res.render("account/change-username", {
-				error_username: ACCOUNT_ERRORS.USERNAME_TAKEN,
+				error_username: ACCOUNT_MSG.USERNAME_TAKEN,
 				new_username: newUsername
 			});
 		}
@@ -62,7 +60,7 @@ export const handleChangeUsername = async (req, res) => {
 		const match = await bcrypt.compare(password, user.password);
 		if (!match) {
 			return res.render("account/change-username", {
-				error_password: ACCOUNT_ERRORS.PASSWORD_WRONG,
+				error_password: ACCOUNT_MSG.PASSWORD_WRONG,
 				new_username: newUsername
 			});
 		}
@@ -78,18 +76,17 @@ export const handleChangeUsername = async (req, res) => {
 
 		// Save session
 		req.session.username = newUsername
-		req.session.successChange = ACCOUNT_ERRORS.USERNAME_CHANGED;
+		req.session.successChange = ACCOUNT_MSG.USERNAME_CHANGED;
 		await saveSession(req);
 		
 		return res.redirect("/account/change-username");
 	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500"); 
+		next(err); 
 	}
 };
 
 //--- Show change password page ---//
-export const showChangePassword = (req, res) => {
+export const showChangePassword = (req, res, next) => {
 	try {
 		const successChange = req.session.successChange;
 		delete req.session.successChange;
@@ -98,13 +95,12 @@ export const showChangePassword = (req, res) => {
 			success_change: successChange
 		});
 	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500"); 
+		next(err); 
 	}
 };
 
 //--- Handle change password request ---//
-export const handleChangePassword = async (req, res) => {
+export const handleChangePassword = async (req, res, next) => {
 	try {
 		const { userId } = req.session;
 		const { currentPassword, 
@@ -114,7 +110,7 @@ export const handleChangePassword = async (req, res) => {
 		// Check if passwords are the same
 		if (newPassword !== passwordConfirm) {
 			return res.render("account/change-password", {
-				error_confirm: ACCOUNT_ERRORS.PASSWORD_MISMATCH
+				error_confirm: ACCOUNT_MSG.PASSWORD_MISMATCH
 			});
 		}
 		
@@ -131,7 +127,7 @@ export const handleChangePassword = async (req, res) => {
 		const match = await bcrypt.compare(currentPassword, user.password);
 		if (!match) {
 			return res.render("account/change-password", {
-				error_password: ACCOUNT_ERRORS.PASSWORD_WRONG
+				error_password: ACCOUNT_MSG.PASSWORD_WRONG
 			});
 		}
 
@@ -146,12 +142,11 @@ export const handleChangePassword = async (req, res) => {
 		);
 
 		// Save session
-		req.session.successChange = ACCOUNT_ERRORS.PASSWORD_CHANGED;
+		req.session.successChange = ACCOUNT_MSG.PASSWORD_CHANGED;
 		await saveSession(req);
 		
 		return res.redirect("/account/change-password");
 	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500"); 
+		next(err); 
 	}
 };

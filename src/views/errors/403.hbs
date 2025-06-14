@@ -1,7 +1,7 @@
-{{#block "title"}}Toegang geweigerd{{/block}}
+{{#block "title"}}403 - Geen toegang{{/block}}
 
-<h1>Error 403</h1>
-
-<p>Je hebt geen rechten om deze pagina te bekijken.</p>
-
-<a href="/">Terug naar de startpagina</a>
+{{> error-page 
+	heading="403 - Geen toegang"
+	defaultMessage="Je hebt geen toestemming om deze pagina te bekijken."
+	message=message
+	redirect=redirect }}

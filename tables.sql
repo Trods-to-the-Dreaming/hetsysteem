@@ -180,7 +180,7 @@ CREATE TABLE building_buy_orders (
 	character_id INT NOT NULL,
 	building_id INT NOT NULL,
 	quantity INT NOT NULL,
-	max_price_per_unit INT NOT NULL,
+	max_unit_price INT NOT NULL,
 	PRIMARY KEY (character_id, building_id),
 	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
 	FOREIGN KEY (building_id) REFERENCES buildings(id)
@@ -190,7 +190,7 @@ CREATE TABLE building_sell_orders (
 	character_id INT NOT NULL,
 	building_id INT NOT NULL,
 	quantity INT NOT NULL,
-	min_price_per_unit INT NOT NULL,
+	min_unit_price INT NOT NULL,
 	PRIMARY KEY (character_id, building_id),
 	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
 	FOREIGN KEY (building_id) REFERENCES buildings(id)

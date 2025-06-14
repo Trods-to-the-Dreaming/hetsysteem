@@ -1,4 +1,4 @@
-const ACCOUNT_ERRORS = Object.freeze({
+const ACCOUNT_MSG = Object.freeze({
 	INVALID_LOGIN: "Ongeldige gebruikersnaam of wachtwoord.",
 	PASSWORD_MISMATCH: "De wachtwoorden komen niet overeen.",
 	USERNAME_TAKEN: "Deze gebruikersnaam is al in gebruik.",
@@ -7,4 +7,4 @@ const ACCOUNT_ERRORS = Object.freeze({
 	PASSWORD_CHANGED: "Uw wachtwoord is gewijzigd."
 });
 
-export default ACCOUNT_ERRORS;
+export default ACCOUNT_MSG;

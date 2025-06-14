@@ -1,20 +1,22 @@
 import GAME_ERRORS from "../constants/game.errors.js";
 import GAME_RULES from "../constants/game.rules.js";
+import { 
+	replaceOrders	
+} from "../utils/game.helpers.js";
 import db from "../utils/db.js";
 import saveSession from "../utils/session.js";
 
 //--- Show actions page ---//
-export const showActions = async (req, res) => {
+export const showActions = async (req, res, next) => {
 	try {
 		res.render("game/actions/actions");
 	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500");
+		next(err);
 	}
 };
 
 //--- Show survive page ---//
-export const showSurvive = async (req, res) => {
+export const showSurvive = async (req, res, next) => {
 	try {
 		const { characterId } = req.session;
 
@@ -55,28 +57,72 @@ export const showSurvive = async (req, res) => {
 			medical_care_needed: GAME_RULES.MEDICAL_CARE.NEEDED
 		});
 	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500");
+		next(err);
 	}
 };
 
 //--- Show trade page ---//
-export const showTrade = async (req, res) => {
+export const showTrade = async (req, res, next) => {
 	try {
 		const { characterId } = req.session;
 		
+		// Orders
+		const [productBuyOrders] = await db.execute(
+			`SELECT 
+			 pbo.product_id AS id,
+			 p.name AS name,
+			 pbo.quantity AS quantity,
+			 pbo.max_unit_price AS unitPrice
+			 FROM product_buy_orders pbo
+			 JOIN products p ON pbo.product_id = p.id
+			 WHERE pbo.character_id = ?`,
+			[characterId]
+		);
+		const [productSellOrders] = await db.execute(
+			`SELECT 
+			 pso.product_id AS id,
+			 p.name AS name,
+			 pso.quantity AS quantity,
+			 pso.min_unit_price AS unitPrice
+			 FROM product_sell_orders pso
+			 JOIN products p ON pso.product_id = p.id
+			 WHERE pso.character_id = ?`,
+			[characterId]
+		);
+		const [buildingBuyOrders] = await db.execute(
+			`SELECT 
+			 bbo.building_id AS id,
+			 b.name AS name,
+			 bbo.quantity AS quantity,
+			 bbo.max_unit_price AS unitPrice
+			 FROM building_buy_orders bbo
+			 JOIN buildings b ON bbo.building_id = b.id
+			 WHERE bbo.character_id = ?`,
+			[characterId]
+		);
+		const [buildingSellOrders] = await db.execute(
+			`SELECT 
+			 bso.building_id AS id,
+			 b.name AS name,
+			 bso.quantity AS quantity,
+			 bso.min_unit_price AS unitPrice
+			 FROM building_sell_orders bso
+			 JOIN buildings b ON bso.building_id = b.id
+			 WHERE bso.character_id = ?`,
+			[characterId]
+		);
+		
+		// Products and buildings
 		const [buyableProducts] = await db.execute(
 			`SELECT id,
 					name
 			 FROM products`
 		);
-		
 		const [buyableBuildings] = await db.execute(
 			`SELECT id,
 					name
 			 FROM buildings`
 		);
-
 		const [sellableProducts] = await db.execute(
 			`SELECT p.name, cp.quantity
 			 FROM character_products cp
@@ -85,7 +131,6 @@ export const showTrade = async (req, res) => {
 			 ORDER BY p.id`,
 			[characterId]
 		);
-		
 		const [sellableBuildings] = await db.execute(
 			`SELECT b.name, cb.quantity
 			 FROM character_buildings cb
@@ -94,15 +139,10 @@ export const showTrade = async (req, res) => {
 			 ORDER BY b.id`,
 			[characterId]
 		);
-		
-		const productBuyOrders = [];
-		const productSsellOrders = [];
-		const buildingBuyOrders = [];
-		const buildingSellOrders = [];
 
 		res.render("game/actions/trade", {
 			product_buy_orders: productBuyOrders,
-			product_sell_orders: productSsellOrders,
+			product_sell_orders: productSellOrders,
 			building_buy_orders: buildingBuyOrders,
 			building_sell_orders: buildingSellOrders,
 			buyable_products: buyableProducts,
@@ -111,13 +151,38 @@ export const showTrade = async (req, res) => {
 			sellable_buildings: sellableBuildings
 		});
 	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500");
+		next(err);
+	}
+};
+
+//--- Handle trade request ---//
+export const handleTrade = async (req, res, next) => {
+	try {
+		console.log("load request...");
+		
+		const { characterId } = req.session;
+		
+		const productBuyOrders = JSON.parse(req.body.productBuyOrders || "[]");
+		const productSellOrders = JSON.parse(req.body.productSellOrders || "[]");
+		const buildingBuyOrders = JSON.parse(req.body.buildingBuyOrders || "[]");
+		const buildingSellOrders = JSON.parse(req.body.buildingSellOrders || "[]");
+		
+		console.log("handle request...");
+		
+		// Remove existing orders and add new orders for this character
+		await replaceOrders(db, characterId, "buy", "product", productBuyOrders);
+		await replaceOrders(db, characterId, "sell", "product", productSellOrders);
+		await replaceOrders(db, characterId, "buy", "building", buildingBuyOrders);
+		await replaceOrders(db, characterId, "sell", "building", buildingSellOrders);
+		
+		console.log("finishing...");
+	} catch (err) {
+		next(err);
 	}
 };
 
 //--- Show spend time page ---//
-export const showSpendTime = async (req, res) => {
+export const showSpendTime = async (req, res, next) => {
 	try {
 		const { characterId } = req.session;
 		
@@ -145,47 +210,42 @@ export const showSpendTime = async (req, res) => {
 			hours_available
 		});
 	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500");
+		next(err);
 	}
 };
 
 //--- Show apply page ---//
-export const showApply = async (req, res) => {
+export const showApply = async (req, res, next) => {
 	try {
 		res.render("game/actions/apply");
 	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500");
+		next(err);
 	}
 };
 
 //--- Show resign page ---//
-export const showResign = async (req, res) => {
+export const showResign = async (req, res, next) => {
 	try {
 		res.render("game/actions/resign");
 	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500");
+		next(err);
 	}
 };
 
 //--- Show recruit page ---//
-export const showRecruit = async (req, res) => {
+export const showRecruit = async (req, res, next) => {
 	try {
 		res.render("game/actions/recruit");
 	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500");
+		next(err);
 	}
 };
 
 //--- Show fire page ---//
-export const showFire = async (req, res) => {
+export const showFire = async (req, res, next) => {
 	try {
 		res.render("game/actions/fire");
 	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500");
+		next(err);
 	}
 };

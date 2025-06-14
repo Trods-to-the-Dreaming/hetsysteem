@@ -1,0 +1,11 @@
+<h1>{{heading}}</h1>
+
+<p>
+	{{#if message}}
+		{{message}}
+	{{else}}
+		{{defaultMessage}}
+	{{/if}}
+</p>
+
+<a class="button-back" href="{{#if redirect}}{{redirect}}{{else}}/{{/if}}" >← Terug</a>

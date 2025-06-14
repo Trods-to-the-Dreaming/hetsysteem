@@ -3,30 +3,50 @@
 <h1>Gebruikersnaam wijzigen</h1>
 
 <div class="container-compact">
-	<form id="account-change-username-form" method="POST" action="/account/change-username">
-		<div class="field">
-			<label for="current-username" class="form-label">Huidige gebruikersnaam:</label>
-			<input id="current-username" class="form-control" type="text" value="{{username}}" readonly>
-		</div>
-		
-		<div class="field">
-			<label for="new-username" class="form-label">Nieuwe gebruikersnaam:</label>
-			<input id="new-username" class="form-control" type="text" name="newUsername" value="{{new_username}}" required>
-		</div>
-		
-		<p id="error-username" class="error">{{error_username}}</p>
-		
-		<div class="field">
-			<label for="password" class="form-label">Wachtwoord:</label>
-			<input id="password" class="form-control" type="password" name="password" required>
-		</div>
-		
-		<p id="error-password" class="error">{{error_password}}</p>
-		
-		<button class="button-1" type="submit">Bewaren</button>
-		
+	{{#if success_change}}
 		<p id="success-change" class="success">{{success_change}}</p>
-	</form>
+	{{else}}
+		<form id="account-change-username-form" method="POST" action="/account/change-username">
+			<div class="field">
+				<label for="current-username" class="form-label">Huidige gebruikersnaam:</label>
+				<input id="current-username" class="form-control" type="text" value="{{username}}" readonly>
+			</div>
+			
+			<div class="field">
+				<label for="new-username" class="form-label">Nieuwe gebruikersnaam:</label>
+				<input id="new-username" class="form-control" type="text" name="newUsername" value="{{new_username}}" required>
+			</div>
+			
+			<p id="error-username" class="error">{{error_username}}</p>
+			
+			<div class="field">
+				<label for="password" class="form-label">Wachtwoord:</label>
+				<input id="password" class="form-control" type="password" name="password" required>
+			</div>
+			
+			<p id="error-password" class="error">{{error_password}}</p>
+			
+			<button class="button-1" type="submit">Bewaren</button>
+		</form>
+	{{/if}}
 	
 	<a class="button-back" href="/account">← Mijn account</a>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+	const newUsername = document.getElementById("new-username");
+	const password = document.getElementById("password");
+	
+	const errorUsername = document.getElementById("error-username");
+	const errorPassword = document.getElementById("error-password");
+	
+	newUsername.addEventListener("input", function () {
+		errorUsername.textContent = "";
+	});
+	
+	password.addEventListener("input", function () {
+		errorPassword.textContent = "";
+	});
+});
+</script>

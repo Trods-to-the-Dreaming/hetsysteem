@@ -61,11 +61,13 @@
 	<h2>🛒 Kopen</h2>
 	
 	<h3>Producten</h3>
+	<input id="product-buy-orders-input" type="hidden" name="productBuyOrders">
 	<div id="product-buy-orders">
 		<!-- list is added via JS -->
 	</div>
 	
 	<h3>Gebouwen</h3>
+	<input id="building-buy-orders-input" type="hidden" name="buildingBuyOrders">
 	<div id="building-buy-orders">
 		<!-- list is added via JS -->
 	</div>
@@ -73,17 +75,21 @@
 	<h2>💰 Verkopen</h2>
 	
 	<h3>Producten</h3>
+	<input id="product-sell-orders-input" type="hidden" name="productSellOrders">
 	<div id="product-sell-orders">
 		<!-- list is added via JS -->
 	</div>
 	
 	<h3>Gebouwen</h3>
+	<input id="building-sell-orders-input" type="hidden" name="buildingSellOrders">
 	<div id="building-sell-orders">
 		<!-- list is added via JS -->
 	</div>
 	
 	<div class="container-compact">
 		<button type="submit" class="button-1">Bevestigen</button>
+		
+		<p id="success-trade" class="success">{{success_trade}}</p>
 	</div>
 </form>
 
@@ -111,6 +117,12 @@ document.addEventListener("DOMContentLoaded", () => {
 	const unitPriceInput = document.getElementById("unit-price");
 	const placeOrderButton = document.getElementById("place-order-button");
 	
+	const form = document.getElementById("game-trade-form");
+	const productBuyOrdersInput = document.getElementById("product-buy-orders-input");
+	const productSellOrdersInput = document.getElementById("product-sell-orders-input");
+	const buildingBuyOrdersInput = document.getElementById("building-buy-orders-input");
+	const buildingSellOrdersInput = document.getElementById("building-sell-orders-input");
+	
 	createOrderButton.addEventListener("click", createOrder);
 	typeSelect.addEventListener("change", changeType);
 	categorySelect.addEventListener("change", changeCategory);
@@ -118,6 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	quantityInput.addEventListener("input", validateInputs);
 	unitPriceInput.addEventListener("input", validateInputs);
 	placeOrderButton.addEventListener("click", placeOrder);
+	form.addEventListener("submit", confirmOrders);
 	
 	let bsOffcanvas = bootstrap.Offcanvas.getInstance(createOrderWindow);
 	if (!bsOffcanvas) {
@@ -167,10 +180,6 @@ document.addEventListener("DOMContentLoaded", () => {
 	
 	// Handle create order
 	function createOrder() {
-		//createOrderButton.classList.add("d-none");
-		//createOrderSection.classList.remove("d-none");
-		//placeOrderButton.classList.remove("d-none");
-		//placeOrderButton.disabled = true;
 		validateInputs();
 	};
 	
@@ -366,12 +375,10 @@ document.addEventListener("DOMContentLoaded", () => {
 			);
 			
 			const deleteBtn = document.createElement("button");
-			deleteBtn.classList.add("btn", "btn-sm", "btn-danger", "ms-2");
+			deleteBtn.classList.add("btn-close");
 			deleteBtn.type = "button";
-			deleteBtn.innerHTML = "✖"; // of: "&times;" of een SVG-icon
 			deleteBtn.addEventListener("click", () => {
-				li.remove(); // verwijder dit order-item uit de lijst
-				// eventueel ook verwijderen uit de onderliggende array
+				li.remove();
 			});
 			
 			li.append(
@@ -387,6 +394,13 @@ document.addEventListener("DOMContentLoaded", () => {
 	updateOrderDisplay(orderMap["sell-products"]);
 	updateOrderDisplay(orderMap["buy-buildings"]);
 	updateOrderDisplay(orderMap["sell-buildings"]);
+	
+	function confirmOrders() {
+		productBuyOrdersInput.value = JSON.stringify(productBuyOrders);
+		productSellOrdersInput.value = JSON.stringify(productSellOrders);
+		buildingBuyOrdersInput.value = JSON.stringify(buildingBuyOrders);
+		buildingSellOrdersInput.value = JSON.stringify(buildingSellOrders);
+	};
 });
 </script>
 

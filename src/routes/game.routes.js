@@ -18,6 +18,7 @@ import {
 	showActions,
 	showSurvive,
 	showTrade,
+	handleTrade,
 	showSpendTime,
 	showApply,
 	showResign,
@@ -37,6 +38,7 @@ router.get("/character", requireAuth, requireWorldSelected, requireCharacterSele
 router.get("/actions", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showActions);
 router.get("/actions/survive", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showSurvive);
 router.get("/actions/trade", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showTrade);
+router.post("/actions/trade", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, handleTrade);
 router.get("/actions/spend-time", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showSpendTime);
 router.get("/actions/apply", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showApply);
 router.get("/actions/resign", requireAuth, requireWorldSelected, requireCharacterSelected, requireCharacterCustomized, showResign);

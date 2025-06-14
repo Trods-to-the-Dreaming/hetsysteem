@@ -3,12 +3,12 @@ import GAME_RULES from "../constants/game.rules.js";
 import { 
 	convertHoursToYears,
 	calculateLifeExpectancy	
-} from "../utils/game.calculations.js";
+} from "../utils/game.helpers.js";
 import db from "../utils/db.js";
 import saveSession from "../utils/session.js";
 
 //--- Show choose world page ---//
-export const showChooseWorld = async (req, res) => {
+export const showChooseWorld = async (req, res, next) => {
 	try {
 		const [worlds] = await db.execute(
 			`SELECT id, 
@@ -20,13 +20,12 @@ export const showChooseWorld = async (req, res) => {
 			worlds
 		});
 	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500"); 
+		next(err);
 	}
 };
 
 //--- Handle choose world request ---//
-export const handleChooseWorld = async (req, res) => {
+export const handleChooseWorld = async (req, res, next) => {
 	const connection = await db.getConnection();
 	try {
 		await connection.beginTransaction();
@@ -157,15 +156,14 @@ export const handleChooseWorld = async (req, res) => {
 		return res.redirect("/game/customize-character");
 	} catch (err) {
 		await connection.rollback();
-		console.error(err);
-		return res.status(500).render("errors/500");
+		next(err);
 	} finally {
 		if (connection) connection.release();
 	}
 };
 
 //--- Show customize character page ---//
-export const showCustomizeCharacter = async (req, res) => {
+export const showCustomizeCharacter = async (req, res, next) => {
 	try {
 		const [jobs] = await db.execute(
 			`SELECT id, 
@@ -185,13 +183,12 @@ export const showCustomizeCharacter = async (req, res) => {
 			recreations
 		});
 	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500"); 
+		next(err);
 	}
 };
 
 //--- Handle customize character request ---//
-export const handleCustomizeCharacter = async (req, res) => {
+export const handleCustomizeCharacter = async (req, res, next) => {
 	try {
 		const { userId,
 				characterId } = req.session;
@@ -298,23 +295,21 @@ export const handleCustomizeCharacter = async (req, res) => {
 		// Enter world
 		return res.redirect("/game/menu");
 	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500");
+		next(err);
 	}
 };
 
 //--- Show menu page ---//
-export const showMenu = async (req, res) => {
+export const showMenu = async (req, res, next) => {
 	try {
 		res.render("game/menu");
 	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500");
+		next(err);
 	}
 };
 
 //--- Show character page ---//
-export const showCharacter = async (req, res) => {
+export const showCharacter = async (req, res, next) => {
 	try {
 		const { userId, 
 				worldId } = req.session;
@@ -372,17 +367,15 @@ export const showCharacter = async (req, res) => {
 			character
 		});
 	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500");
+		next(err);
 	}
 };
 
 //--- Show statistics page ---//
-export const showStatistics = async (req, res) => {
+export const showStatistics = async (req, res, next) => {
 	try {
 		res.render("game/statistics");
 	} catch (err) {
-		console.error(err);
-		return res.status(500).render("errors/500");
+		next(err);
 	}
 };

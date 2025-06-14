@@ -1,7 +1,7 @@
-{{#block "title"}}Pagina niet gevonden{{/block}}
+{{#block "title"}}404 - Pagina niet gevonden{{/block}}
 
-<h1>Error 404</h1>
-
-<p>De pagina die je zoekt bestaat niet.</p>
-
-<a href="/">Terug naar de startpagina</a>
+{{> error-page 
+	heading="404 - Pagina niet gevonden"
+	defaultMessage="De gevraagde pagina bestaat niet of is verplaatst."
+	message=message
+	redirect=redirect }}

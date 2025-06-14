@@ -1,7 +1,7 @@
-{{#block "title"}}Onverwachte fout{{/block}}
+{{#block "title"}}500 - Interne fout{{/block}}
 
-<h1>Error 500</h1>
-
-<p>Er is iets misgegaan op de server. Probeer het later opnieuw.</p>
-
-<a href="/">Terug naar de startpagina</a>
+{{> error-page 
+	heading="500 - Interne fout"
+	defaultMessage="Er is een onverwachte fout opgetreden. Probeer het later opnieuw."
+	message=message
+	redirect=redirect }}
