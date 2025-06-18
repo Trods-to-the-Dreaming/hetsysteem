@@ -187,10 +187,7 @@ h3 {
 .success {
 	@include message;
 	@extend .alert-success;
-	display: none;
-	&:not(:empty) {
-		display: inline-block;
-	}
+	display: inline-block;
 }
 
 .button-1 {

@@ -6,7 +6,7 @@ import bcrypt from "bcrypt";
 //--- Show login page ---//
 export const showLogin = (req, res, next) => {
 	try {
-		res.render("auth/login");
+		return res.render("auth/login");
 	} catch (err) {
 		next(err); 
 	}
@@ -56,7 +56,7 @@ export const handleLogin = async (req, res, next) => {
 //--- Show registration page ---//
 export const showRegister = (req, res, next) => {
 	try {
-		res.render("auth/register");
+		return res.render("auth/register");
 	} catch (err) {
 		next(err);
 	}

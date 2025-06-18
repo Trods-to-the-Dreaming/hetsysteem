@@ -1,10 +1,10 @@
 {{#block "title"}}Gebruikersnaam wijzigen{{/block}}
 
-<h1>Gebruikersnaam wijzigen</h1>
-
 <div class="container-compact">
-	{{#if success_change}}
-		<p id="success-change" class="success">{{success_change}}</p>
+	<h1>Gebruikersnaam wijzigen</h1>
+	
+	{{#if change_saved}}
+		<p id="change-saved" class="success">{{change_message}}</p>
 	{{else}}
 		<form id="account-change-username-form" method="POST" action="/account/change-username">
 			<div class="field">

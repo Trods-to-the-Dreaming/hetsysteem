@@ -6,20 +6,26 @@ import bcrypt from "bcrypt";
 //--- Show account page ---//
 export const showAccount = (req, res, next) => {
 	try {
-		res.render("account/my-account");
+		return res.render("account/my-account");
 	} catch (err) {
 		next(err); 
 	}
 };
 
 //--- Show change username page ---//
-export const showChangeUsername = (req, res, next) => {	
+export const showChangeUsername = async (req, res, next) => {
 	try {
-		const successChange = req.session.successChange;
-		delete req.session.successChange;
-		res.render("account/change-username", {
+		const { changeSaved, 
+				changeMessage } = req.session;
+
+		delete req.session.changeSaved;
+		delete req.session.changeMessage;
+		await saveSession(req);
+		
+		return res.render("account/change-username", {
 			username: req.session.username,
-			success_change: successChange
+			change_saved: !!changeSaved,
+			change_message: changeMessage
 		});
 	} catch (err) {
 		next(err); 
@@ -75,8 +81,9 @@ export const handleChangeUsername = async (req, res, next) => {
 		);
 
 		// Save session
-		req.session.username = newUsername
-		req.session.successChange = ACCOUNT_MSG.USERNAME_CHANGED;
+		req.session.username = newUsername;
+		req.session.changeSaved = true;
+		req.session.changeMessage = ACCOUNT_MSG.USERNAME_CHANGED;
 		await saveSession(req);
 		
 		return res.redirect("/account/change-username");
@@ -86,13 +93,19 @@ export const handleChangeUsername = async (req, res, next) => {
 };
 
 //--- Show change password page ---//
-export const showChangePassword = (req, res, next) => {
+export const showChangePassword = async (req, res, next) => {
 	try {
-		const successChange = req.session.successChange;
-		delete req.session.successChange;
-		res.render("account/change-password", {
+		const { changeSaved, 
+				changeMessage } = req.session;
+
+		delete req.session.changeSaved;
+		delete req.session.changeMessage;
+		await saveSession(req);
+		
+		return res.render("account/change-password", {
 			username: req.session.username,
-			success_change: successChange
+			change_saved: !!changeSaved,
+			change_message: changeMessage
 		});
 	} catch (err) {
 		next(err); 
@@ -142,7 +155,8 @@ export const handleChangePassword = async (req, res, next) => {
 		);
 
 		// Save session
-		req.session.successChange = ACCOUNT_MSG.PASSWORD_CHANGED;
+		req.session.changeSaved = true;
+		req.session.changeMessage = ACCOUNT_MSG.PASSWORD_CHANGED;
 		await saveSession(req);
 		
 		return res.redirect("/account/change-password");

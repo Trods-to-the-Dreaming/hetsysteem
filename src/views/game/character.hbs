@@ -1,73 +1,73 @@
 {{#block "title"}}Personage{{/block}}
 
-<h1>{{character.first_name}} {{character.last_name}}</h1>
-
-<h2>💖 Welzijn</h2>
-<ul class="list-compact">
-	<li class="list-item-justify">
-		<span>Leeftijd</span>
-		<span>{{character.age}} jaar</span>
-	</li>
-	<li class="list-item-justify">
-		<span>Levensverwachting</span>
-		<span>{{character.life_expectancy}} jaar</span>
-	</li>
-	<li class="list-item-justify">
-		<span>Gezondheid</span>
-		<span>{{character.health}} %</span>
-	</li>
-	<li class="list-item-justify">
-		<span>Geluk</span>
-		<span>{{character.happiness}}</span>
-	</li>
-</ul>
-
-<h2>⭐ Voorkeuren</h2>
-<ul class="list-compact">
-	<li class="list-item-justify">
-		<span>{{character.job_preference_1}}</span>
-		<span>★★★</span>
-	</li>
-	<li class="list-item-justify">
-		<span>{{character.job_preference_2}}</span>
-		<span>★★</span>
-	</li>
-	<li class="list-item-justify">
-		<span>{{character.job_preference_3}}</span>
-		<span>★</span>
-	</li>
-	<li class="list-item-justify">
-		<span>{{character.recreation_preference}}</span>
-		<span>★★★</span>
-	</li>
-</ul>
-
-<h2>🎓 Opleiding</h2>
-{{#if (gt character.education 0)}}
+<div class="container-compact">
+	<h1>{{character.first_name}} {{character.last_name}}</h1>
+	
+	<h2>💖 Welzijn</h2>
 	<ul class="list-compact">
 		<li class="list-item-justify">
-			<span>Niveau</span>
-			<span>{{character.education_label}}</span>
+			<span>Leeftijd</span>
+			<span>{{character.age}} jaar</span>
+		</li>
+		<li class="list-item-justify">
+			<span>Levensverwachting</span>
+			<span>{{character.life_expectancy}} jaar</span>
+		</li>
+		<li class="list-item-justify">
+			<span>Gezondheid</span>
+			<span>{{character.health}} %</span>
+		</li>
+		<li class="list-item-justify">
+			<span>Geluk</span>
+			<span>{{character.happiness}}</span>
 		</li>
 	</ul>
-{{else}}
-	<p>Je hebt nog geen opleiding gevolgd.</p>
-{{/if}}
 
-<h2>🛠️ Werkervaring</h2>
-{{#if character.job_experience.length}}
+	<h2>⭐ Voorkeuren</h2>
 	<ul class="list-compact">
-		{{#each character.job_experience}}
-			<li class="list-item-justify">
-				<span>{{this.job_name}}</span>
-				<span>{{this.experience_years}} jaar</span>
-			</li>
-		{{/each}}
+		<li class="list-item-justify">
+			<span>{{character.job_preference_1}}</span>
+			<span>★★★</span>
+		</li>
+		<li class="list-item-justify">
+			<span>{{character.job_preference_2}}</span>
+			<span>★★</span>
+		</li>
+		<li class="list-item-justify">
+			<span>{{character.job_preference_3}}</span>
+			<span>★</span>
+		</li>
+		<li class="list-item-justify">
+			<span>{{character.recreation_preference}}</span>
+			<span>★★★</span>
+		</li>
 	</ul>
-{{else}}
-	<p>Je hebt nog geen werkervaring.</p>
-{{/if}}
 
-<div class="container-compact">
+	<h2>🎓 Opleiding</h2>
+	{{#if (gt character.education 0)}}
+		<ul class="list-compact">
+			<li class="list-item-justify">
+				<span>Niveau</span>
+				<span>{{character.education_label}}</span>
+			</li>
+		</ul>
+	{{else}}
+		<p>Je hebt nog geen opleiding gevolgd.</p>
+	{{/if}}
+
+	<h2>🛠️ Werkervaring</h2>
+	{{#if character.job_experience.length}}
+		<ul class="list-compact">
+			{{#each character.job_experience}}
+				<li class="list-item-justify">
+					<span>{{this.job_name}}</span>
+					<span>{{this.experience_years}} jaar</span>
+				</li>
+			{{/each}}
+		</ul>
+	{{else}}
+		<p>Je hebt nog geen werkervaring.</p>
+	{{/if}}
+
 	<a class="button-back" href="/game/menu">← Spelmenu</a>
 </div>

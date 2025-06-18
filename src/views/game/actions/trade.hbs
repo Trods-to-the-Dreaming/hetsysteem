@@ -1,11 +1,53 @@
-{{#block "title"}}Het Systeem - Handel drijven{{/block}}
-
-<h1>Handel drijven</h1>
+{{#block "title"}}Handel drijven{{/block}}
 
 <div class="container-compact">
-	<button id="create-order-button" class="button-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#create-order-window">
-		Order maken
-	</button>
+	<h1>Handel drijven</h1>
+	
+	<div id="orders-confirmed-section" {{#unless has_orders}}class="d-none"{{/unless}}>
+		<p class="success">Uw orders zijn bevestigd.</p>
+		
+		<button id="edit-orders-button" type="button" class="button-1">Wijzigen</button>
+	</div>
+	
+	<div id="orders-overview-section" {{#if has_orders}}class="d-none"{{/if}}>
+		<button id="create-order-button" class="button-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#create-order-window">
+			Order maken
+		</button>
+		
+		<form id="game-trade-form" method="POST" action="/game/actions/trade">
+			<h2>🛒 Kopen</h2>
+			
+			<h3>Producten</h3>
+			<input id="product-buy-orders-input" type="hidden" name="productBuyOrders">
+			<div id="product-buy-orders">
+				<!-- list is added via JS -->
+			</div>
+			
+			<h3>Gebouwen</h3>
+			<input id="building-buy-orders-input" type="hidden" name="buildingBuyOrders">
+			<div id="building-buy-orders">
+				<!-- list is added via JS -->
+			</div>
+			
+			<h2>💰 Verkopen</h2>
+			
+			<h3>Producten</h3>
+			<input id="product-sell-orders-input" type="hidden" name="productSellOrders">
+			<div id="product-sell-orders">
+				<!-- list is added via JS -->
+			</div>
+			
+			<h3>Gebouwen</h3>
+			<input id="building-sell-orders-input" type="hidden" name="buildingSellOrders">
+			<div id="building-sell-orders">
+				<!-- list is added via JS -->
+			</div>
+			
+			<button class="button-1" type="submit">Bevestigen</button>
+		</form>
+	</div>
+	
+	<a class="button-back" href="/game/actions">← Acties</a>
 </div>
 
 <div id="create-order-window" class="offcanvas offcanvas-start" data-bs-backdrop="true" data-bs-scroll="false" tabindex="-1">
@@ -57,51 +99,20 @@
 	</div>
 </div>
 
-<form id="game-trade-form" method="POST" action="/game/actions/trade">
-	<h2>🛒 Kopen</h2>
-	
-	<h3>Producten</h3>
-	<input id="product-buy-orders-input" type="hidden" name="productBuyOrders">
-	<div id="product-buy-orders">
-		<!-- list is added via JS -->
-	</div>
-	
-	<h3>Gebouwen</h3>
-	<input id="building-buy-orders-input" type="hidden" name="buildingBuyOrders">
-	<div id="building-buy-orders">
-		<!-- list is added via JS -->
-	</div>
-	
-	<h2>💰 Verkopen</h2>
-	
-	<h3>Producten</h3>
-	<input id="product-sell-orders-input" type="hidden" name="productSellOrders">
-	<div id="product-sell-orders">
-		<!-- list is added via JS -->
-	</div>
-	
-	<h3>Gebouwen</h3>
-	<input id="building-sell-orders-input" type="hidden" name="buildingSellOrders">
-	<div id="building-sell-orders">
-		<!-- list is added via JS -->
-	</div>
-	
-	<div class="container-compact">
-		<button type="submit" class="button-1">Bevestigen</button>
-		
-		<p id="success-trade" class="success">{{success_trade}}</p>
-	</div>
-</form>
-
-<div class="container-compact">
-	<a class="button-back" href="/game/actions">← Acties</a>
-</div>
-
 <script src="/js/shared-ui.js"></script>
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+	// Elements
+	const ordersConfirmedSection = document.getElementById("orders-confirmed-section");
+	const editOrdersButton = document.getElementById("edit-orders-button");
+	const ordersOverviewSection = document.getElementById("orders-overview-section");
 	const createOrderButton = document.getElementById("create-order-button");
+	const form = document.getElementById("game-trade-form");
+	const productBuyOrdersInput = document.getElementById("product-buy-orders-input");
+	const productSellOrdersInput = document.getElementById("product-sell-orders-input");
+	const buildingBuyOrdersInput = document.getElementById("building-buy-orders-input");
+	const buildingSellOrdersInput = document.getElementById("building-sell-orders-input");
 	const createOrderWindow = document.getElementById("create-order-window");
 	const createOrderSection = document.getElementById("create-order-section");
 	const typeSelect = document.getElementById("type");
@@ -117,60 +128,61 @@ document.addEventListener("DOMContentLoaded", () => {
 	const unitPriceInput = document.getElementById("unit-price");
 	const placeOrderButton = document.getElementById("place-order-button");
 	
-	const form = document.getElementById("game-trade-form");
-	const productBuyOrdersInput = document.getElementById("product-buy-orders-input");
-	const productSellOrdersInput = document.getElementById("product-sell-orders-input");
-	const buildingBuyOrdersInput = document.getElementById("building-buy-orders-input");
-	const buildingSellOrdersInput = document.getElementById("building-sell-orders-input");
-	
+	// Event listeners
+	editOrdersButton.addEventListener("click", editOrders);
 	createOrderButton.addEventListener("click", createOrder);
+	form.addEventListener("submit", confirmOrders);
 	typeSelect.addEventListener("change", changeType);
 	categorySelect.addEventListener("change", changeCategory);
 	itemSelect.addEventListener("change", changeItem);
 	quantityInput.addEventListener("input", validateInputs);
 	unitPriceInput.addEventListener("input", validateInputs);
 	placeOrderButton.addEventListener("click", placeOrder);
-	form.addEventListener("submit", confirmOrders);
 	
+	// Other variables
 	let bsOffcanvas = bootstrap.Offcanvas.getInstance(createOrderWindow);
 	if (!bsOffcanvas) {
 		bsOffcanvas = new bootstrap.Offcanvas(createOrderWindow);
 	}
-	
+
 	const productBuyOrders = {{{json product_buy_orders}}};
 	const productSellOrders = {{{json product_sell_orders}}};
 	const buildingBuyOrders = {{{json building_buy_orders}}};
 	const buildingSellOrders = {{{json building_sell_orders}}};
+
+	const buyableProducts = {{{json buyable_products}}};
+	const sellableProducts = {{{json sellable_products}}};
+	const buyableBuildings = {{{json buyable_buildings}}};
+	const sellableBuildings = {{{json sellable_buildings}}};
 	
 	const orderMap = {
 		"buy-products": {	list: productBuyOrders,
 							id: "product-buy-orders",
 							type: "koop",
 							category: "producten",
-							limit: "hoogstens" },
+							limit: "hoogstens",
+							nextOrderId: productBuyOrders.length + 1 },
 		"sell-products": { 	list: productSellOrders,
 							id: "product-sell-orders",
 							type: "verkoop",
 							category: "producten",
-							limit: "minstens" },
+							limit: "minstens",
+							nextOrderId: productSellOrders.length + 1 },
 		"buy-buildings": { 	list: buildingBuyOrders,
 							id: "building-buy-orders",
 							type: "koop",
 							category: "gebouwen",
-							limit: "hoogstens" },
+							limit: "hoogstens",
+							nextOrderId: buildingBuyOrders.length + 1 },
 		"sell-buildings": {	list: buildingSellOrders,
 							id: "building-sell-orders",
 							type: "verkoop",
 							category: "gebouwen",
-							limit: "minstens" },
+							limit: "minstens",
+							nextOrderId: buildingSellOrders.length + 1 },
 	};
-	
-	const buyableProducts = {{{json buyable_products}}};
-	const sellableProducts = {{{json sellable_products}}};
-	const buyableBuildings = {{{json buyable_buildings}}};
-	const sellableBuildings = {{{json sellable_buildings}}};
 
-	// Add sell option only if the player owns something
+	// Add sell option only if the player has something to sell
 	if (sellableProducts.length > 0 || sellableBuildings.length > 0) {
 		const sellOption = document.createElement("option");
 		sellOption.value = "sell";
@@ -178,12 +190,23 @@ document.addEventListener("DOMContentLoaded", () => {
 		typeSelect.appendChild(sellOption);
 	}
 	
-	// Handle create order
+	// Event handlers
+	function editOrders() {
+		ordersConfirmedSection.classList.add("d-none");
+		ordersOverviewSection.classList.remove("d-none");
+	};
+	//----------------------------------------
 	function createOrder() {
 		validateInputs();
 	};
-	
-	// Handle type change
+	//----------------------------------------
+	function confirmOrders() {
+		productBuyOrdersInput.value = JSON.stringify(productBuyOrders);
+		productSellOrdersInput.value = JSON.stringify(productSellOrders);
+		buildingBuyOrdersInput.value = JSON.stringify(buildingBuyOrders);
+		buildingSellOrdersInput.value = JSON.stringify(buildingSellOrders);
+	};
+	//----------------------------------------
 	function changeType() {
 		const selectedType = typeSelect.value;
 
@@ -209,8 +232,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		categorySelect.value = "";
 		categorySelect.dispatchEvent(new Event("change"));
 	};
-
-	// Handle category change
+	//----------------------------------------
 	function changeCategory() {
 		const selectedType = typeSelect.value;
 		const selectedCategory = categorySelect.value;
@@ -245,8 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		// Make item visible
 		itemField.classList.remove("d-none");
 	};
-	
-	// Handle item change
+	//----------------------------------------
 	function changeItem() {
 		const selectedType = typeSelect.value;
 		const selectedCategory = categorySelect.value;
@@ -274,8 +295,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		unitPriceField.classList.remove("d-none");
 		validateInputs();
 	};
-	
-	// Handle quantity and unit price change
+	//----------------------------------------
 	function validateInputs() {
 		const quantityValue = quantityInput.value.trim();
 		const unitPriceValue = unitPriceInput.value.trim();
@@ -285,39 +305,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
 		placeOrderButton.disabled = !(isQuantityValid && isUnitPriceValid);
 	}
-	
-	// Handle place order
+	//----------------------------------------
 	function placeOrder() {
 		const type = typeSelect.value;
 		const category = categorySelect.value;
-		/*const itemId = itemSelect.value;
-		const quantity = parseInt(quantityInput.value, 10);
-		const unitPrice = parseFloat(unitPriceInput.value);
 
-		if (!itemId || quantity < 1 || unitPrice < 0.01) return;
-
-		// Zoek het item op in de juiste bronlijst
-		let sourceList;
-		if (category === "products") {
-			sourceList = (type === "buy") ? buyableProducts : sellableProducts;
-		} else {
-			sourceList = (type === "buy") ? buyableBuildings : sellableBuildings;
-		}
-		const item = sourceList.find(i => i.id === itemId);
-		if (!item) return;*/
-
-		// Create order object
+		const config = orderMap[`${type}-${category}`];
 		const order = {
-			id: itemSelect.value,
+			orderId: config.nextOrderId,
+			itemId: itemSelect.value,
 			name: itemSelect.options[itemSelect.selectedIndex].textContent,
 			quantity: quantityInput.valueAsNumber,
 			unitPrice: unitPriceInput.valueAsNumber
 		};
-
-		const config = orderMap[`${type}-${category}`];
 		config.list.push(order);
+		config.nextOrderId++;
 		
-		// Reset type
 		typeSelect.value = "";
 		typeSelect.dispatchEvent(new Event("change"));
 		
@@ -344,6 +347,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		updateOrderDisplay();*/
 	}
 
+	// Helper functions
 	function updateOrderDisplay(config) {
 		const div = document.getElementById(config.id);
 		div.innerHTML = "";
@@ -379,6 +383,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			deleteBtn.type = "button";
 			deleteBtn.addEventListener("click", () => {
 				li.remove();
+				config.list = config.list.filter(o => o.orderId !== order.orderId);
 			});
 			
 			li.append(
@@ -394,36 +399,5 @@ document.addEventListener("DOMContentLoaded", () => {
 	updateOrderDisplay(orderMap["sell-products"]);
 	updateOrderDisplay(orderMap["buy-buildings"]);
 	updateOrderDisplay(orderMap["sell-buildings"]);
-	
-	function confirmOrders() {
-		productBuyOrdersInput.value = JSON.stringify(productBuyOrders);
-		productSellOrdersInput.value = JSON.stringify(productSellOrders);
-		buildingBuyOrdersInput.value = JSON.stringify(buildingBuyOrders);
-		buildingSellOrdersInput.value = JSON.stringify(buildingSellOrders);
-	};
 });
 </script>
-
-<!--
-	{{#if buy_orders.length}}
-		{{#each buy_orders}}
-			<div class="card-border">
-				<div class="card-body">
-					<p class="card-p">{{this.item_name}}</p>
-					<div class="card-field">
-						<label for="buy-orders-{{this.id}}" class="card-label">Hoeveelheid:</label>
-						<input type="number" class="form-control" id="buy-orders-{{this.id}}-quantity" name="buyOrders[{{this.id}}].quantity"
-						min="1" step="1" required pattern="\d+">
-					</div>
-					<div class="card-field">
-						<label for="buy-orders-{{this.id}}" class="card-label">Limietprijs: € </label>
-						<input type="number" class="form-control" id="buy-orders-{{this.id}}-limit-price" name="buyOrders[{{this.id}}].limit_price"
-						min="1" step="1" required pattern="\d+">
-					</div>
-				</div>
-			</div>
-		{{/each}}
-	{{else}}
-		<p>Je hebt geen kooporders geplaatst.</p>
-	{{/if}}
-	-->

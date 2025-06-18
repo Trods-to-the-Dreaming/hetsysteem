@@ -1,7 +1,8 @@
-import GAME_ERRORS from "../constants/game.errors.js";
+import GAME_MSG from "../constants/game.messages.js";
 import GAME_RULES from "../constants/game.rules.js";
 import { 
-	replaceOrders	
+	replaceOrders,
+	addFrontendIds	
 } from "../utils/game.helpers.js";
 import db from "../utils/db.js";
 import saveSession from "../utils/session.js";
@@ -9,7 +10,7 @@ import saveSession from "../utils/session.js";
 //--- Show actions page ---//
 export const showActions = async (req, res, next) => {
 	try {
-		res.render("game/actions/actions");
+		return res.render("game/actions/actions");
 	} catch (err) {
 		next(err);
 	}
@@ -46,7 +47,7 @@ export const showSurvive = async (req, res, next) => {
 		const medicalCareDefault = Math.min(medicalCareAvailable, GAME_RULES.MEDICAL_CARE.NEEDED);
 		const medicalCareSelectable = Math.min(medicalCareAvailable, GAME_RULES.MEDICAL_CARE.MAX);
 
-		res.render("game/actions/survive", {
+		return res.render("game/actions/survive", {
 			food_available: foodAvailable,
 			food_default: foodDefault,
 			food_selectable: foodSelectable,
@@ -66,53 +67,55 @@ export const showTrade = async (req, res, next) => {
 	try {
 		const { characterId } = req.session;
 		
-		// Orders
-		const [productBuyOrders] = await db.execute(
-			`SELECT 
-			 pbo.product_id AS id,
-			 p.name AS name,
-			 pbo.quantity AS quantity,
-			 pbo.max_unit_price AS unitPrice
+		// Get existing orders
+		const [productBuyOrdersRaw] = await db.execute(
+			`SELECT pbo.product_id AS itemId,
+					p.name AS name,
+					pbo.quantity AS quantity,
+					pbo.max_unit_price AS unitPrice
 			 FROM product_buy_orders pbo
 			 JOIN products p ON pbo.product_id = p.id
 			 WHERE pbo.character_id = ?`,
 			[characterId]
 		);
-		const [productSellOrders] = await db.execute(
-			`SELECT 
-			 pso.product_id AS id,
-			 p.name AS name,
-			 pso.quantity AS quantity,
-			 pso.min_unit_price AS unitPrice
+		const [productSellOrdersRaw] = await db.execute(
+			`SELECT pso.product_id AS itemId,
+					p.name AS name,
+					pso.quantity AS quantity,
+					pso.min_unit_price AS unitPrice
 			 FROM product_sell_orders pso
 			 JOIN products p ON pso.product_id = p.id
 			 WHERE pso.character_id = ?`,
 			[characterId]
 		);
-		const [buildingBuyOrders] = await db.execute(
-			`SELECT 
-			 bbo.building_id AS id,
-			 b.name AS name,
-			 bbo.quantity AS quantity,
-			 bbo.max_unit_price AS unitPrice
+		const [buildingBuyOrdersRaw] = await db.execute(
+			`SELECT bbo.building_id AS itemId,
+					b.name AS name,
+					bbo.quantity AS quantity,
+					bbo.max_unit_price AS unitPrice
 			 FROM building_buy_orders bbo
 			 JOIN buildings b ON bbo.building_id = b.id
 			 WHERE bbo.character_id = ?`,
 			[characterId]
 		);
-		const [buildingSellOrders] = await db.execute(
-			`SELECT 
-			 bso.building_id AS id,
-			 b.name AS name,
-			 bso.quantity AS quantity,
-			 bso.min_unit_price AS unitPrice
+		const [buildingSellOrdersRaw] = await db.execute(
+			`SELECT bso.building_id AS itemId,
+					b.name AS name,
+					bso.quantity AS quantity,
+					bso.min_unit_price AS unitPrice
 			 FROM building_sell_orders bso
 			 JOIN buildings b ON bso.building_id = b.id
 			 WHERE bso.character_id = ?`,
 			[characterId]
 		);
 		
-		// Products and buildings
+		// Add frontend id's
+		const productBuyOrders = addFrontendIds(productBuyOrdersRaw);
+		const productSellOrders = addFrontendIds(productSellOrdersRaw);
+		const buildingBuyOrders = addFrontendIds(buildingBuyOrdersRaw);
+		const buildingSellOrders = addFrontendIds(buildingSellOrdersRaw);
+		
+		// Get possible products and buildings
 		const [buyableProducts] = await db.execute(
 			`SELECT id,
 					name
@@ -124,23 +127,34 @@ export const showTrade = async (req, res, next) => {
 			 FROM buildings`
 		);
 		const [sellableProducts] = await db.execute(
-			`SELECT p.name, cp.quantity
+			`SELECT p.name, 
+					cp.quantity
 			 FROM character_products cp
 			 JOIN products p ON cp.product_id = p.id
-			 WHERE cp.character_id = ? AND cp.quantity > 0
+			 WHERE cp.character_id = ? AND 
+				   cp.quantity > 0
 			 ORDER BY p.id`,
 			[characterId]
 		);
 		const [sellableBuildings] = await db.execute(
-			`SELECT b.name, cb.quantity
+			`SELECT b.name,
+					cb.quantity
 			 FROM character_buildings cb
 			 JOIN buildings b ON cb.building_id = b.id
-			 WHERE cb.character_id = ? AND cb.quantity > 0
+			 WHERE cb.character_id = ? AND
+				   cb.quantity > 0
 			 ORDER BY b.id`,
 			[characterId]
 		);
 
-		res.render("game/actions/trade", {
+		// Check if the character has already placed orders
+		const hasOrders = productBuyOrders.length > 0 || 
+						  productSellOrders.length > 0 || 
+						  buildingBuyOrders.length > 0 || 
+						  buildingSellOrders.length > 0;
+
+		return res.render("game/actions/trade", {
+			has_orders: hasOrders,
 			product_buy_orders: productBuyOrders,
 			product_sell_orders: productSellOrders,
 			building_buy_orders: buildingBuyOrders,
@@ -158,8 +172,6 @@ export const showTrade = async (req, res, next) => {
 //--- Handle trade request ---//
 export const handleTrade = async (req, res, next) => {
 	try {
-		console.log("load request...");
-		
 		const { characterId } = req.session;
 		
 		const productBuyOrders = JSON.parse(req.body.productBuyOrders || "[]");
@@ -167,7 +179,7 @@ export const handleTrade = async (req, res, next) => {
 		const buildingBuyOrders = JSON.parse(req.body.buildingBuyOrders || "[]");
 		const buildingSellOrders = JSON.parse(req.body.buildingSellOrders || "[]");
 		
-		console.log("handle request...");
+		console.log(characterId, productBuyOrders);
 		
 		// Remove existing orders and add new orders for this character
 		await replaceOrders(db, characterId, "buy", "product", productBuyOrders);
@@ -175,7 +187,11 @@ export const handleTrade = async (req, res, next) => {
 		await replaceOrders(db, characterId, "buy", "building", buildingBuyOrders);
 		await replaceOrders(db, characterId, "sell", "building", buildingSellOrders);
 		
-		console.log("finishing...");
+		//req.session.tradeConfirmed = true;
+		//req.session.tradeMessage = GAME_MSG.ORDERS_CONFIRMED;
+		//await saveSession(req);
+
+		return res.redirect("/game/actions/trade");
 	} catch (err) {
 		next(err);
 	}
@@ -205,7 +221,7 @@ export const showSpendTime = async (req, res, next) => {
 		);
 		const hours_available = character.hours_available;
 
-		res.render("game/actions/spend-time", {
+		return res.render("game/actions/spend-time", {
 			contracts,
 			hours_available
 		});
@@ -217,7 +233,7 @@ export const showSpendTime = async (req, res, next) => {
 //--- Show apply page ---//
 export const showApply = async (req, res, next) => {
 	try {
-		res.render("game/actions/apply");
+		return res.render("game/actions/apply");
 	} catch (err) {
 		next(err);
 	}
@@ -226,7 +242,7 @@ export const showApply = async (req, res, next) => {
 //--- Show resign page ---//
 export const showResign = async (req, res, next) => {
 	try {
-		res.render("game/actions/resign");
+		return res.render("game/actions/resign");
 	} catch (err) {
 		next(err);
 	}
@@ -235,7 +251,7 @@ export const showResign = async (req, res, next) => {
 //--- Show recruit page ---//
 export const showRecruit = async (req, res, next) => {
 	try {
-		res.render("game/actions/recruit");
+		return res.render("game/actions/recruit");
 	} catch (err) {
 		next(err);
 	}
@@ -244,7 +260,7 @@ export const showRecruit = async (req, res, next) => {
 //--- Show fire page ---//
 export const showFire = async (req, res, next) => {
 	try {
-		res.render("game/actions/fire");
+		return res.render("game/actions/fire");
 	} catch (err) {
 		next(err);
 	}

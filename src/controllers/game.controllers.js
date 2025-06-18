@@ -1,4 +1,4 @@
-import GAME_ERRORS from "../constants/game.errors.js";
+import GAME_MSG from "../constants/game.messages.js";
 import GAME_RULES from "../constants/game.rules.js";
 import { 
 	convertHoursToYears,
@@ -16,7 +16,8 @@ export const showChooseWorld = async (req, res, next) => {
 			 FROM worlds 
 			 ORDER BY id`
 		);
-		res.render("game/choose-world", {
+		
+		return res.render("game/choose-world", {
 			worlds
 		});
 	} catch (err) {
@@ -50,7 +51,7 @@ export const handleChooseWorld = async (req, res, next) => {
 			await connection.rollback();
 			return res.render("game/choose-world", {
 				worlds,
-				error_chosen_world: GAME_ERRORS.INVALID_WORLD
+				error_chosen_world: GAME_MSG.INVALID_WORLD
 			});
 		}
 		const world = worldsWithId[0];
@@ -113,7 +114,7 @@ export const handleChooseWorld = async (req, res, next) => {
 			await connection.rollback();
 			return res.render("game/choose-world", {
 				worlds,
-				error_chosen_world: GAME_ERRORS.NO_NEW_CHARACTERS,
+				error_chosen_world: GAME_MSG.NO_NEW_CHARACTERS,
 				selected_world_id: parseInt(worldId)
 			});
 		}
@@ -178,7 +179,8 @@ export const showCustomizeCharacter = async (req, res, next) => {
 			 JOIN products ON recreations.product_id = products.id
 			 ORDER BY recreations.id;`
 		);
-		res.render("game/customize-character", {
+		
+		return res.render("game/customize-character", {
 			jobs,
 			recreations
 		});
@@ -224,7 +226,7 @@ export const handleCustomizeCharacter = async (req, res, next) => {
 			return res.render("game/customize-character", {
 				jobs,
 				recreations,
-				error_job_preference: GAME_ERRORS.INVALID_JOB_PREFERENCE,
+				error_job_preference: GAME_MSG.INVALID_JOB_PREFERENCE,
 				first_name: firstName,
 				last_name: lastName
 			});
@@ -236,7 +238,7 @@ export const handleCustomizeCharacter = async (req, res, next) => {
 			return res.render("game/customize-character", {
 				jobs,
 				recreations,
-				error_job_preference: GAME_ERRORS.IDENTICAL_JOB_PREFERENCES,
+				error_job_preference: GAME_MSG.IDENTICAL_JOB_PREFERENCES,
 				first_name: firstName,
 				last_name: lastName
 			});
@@ -247,7 +249,7 @@ export const handleCustomizeCharacter = async (req, res, next) => {
 			return res.render("game/customize-character", {
 				jobs,
 				recreations,
-				error_recreation_preference: GAME_ERRORS.INVALID_RECREATION_PREFERENCE,
+				error_recreation_preference: GAME_MSG.INVALID_RECREATION_PREFERENCE,
 				first_name: firstName,
 				last_name: lastName
 			});
@@ -302,7 +304,7 @@ export const handleCustomizeCharacter = async (req, res, next) => {
 //--- Show menu page ---//
 export const showMenu = async (req, res, next) => {
 	try {
-		res.render("game/menu");
+		return res.render("game/menu");
 	} catch (err) {
 		next(err);
 	}
@@ -363,7 +365,7 @@ export const showCharacter = async (req, res, next) => {
 			experience_years: convertHoursToYears(row.experience_hours),
 		}));
 
-		res.render("game/character", { 
+		return res.render("game/character", { 
 			character
 		});
 	} catch (err) {
@@ -374,7 +376,7 @@ export const showCharacter = async (req, res, next) => {
 //--- Show statistics page ---//
 export const showStatistics = async (req, res, next) => {
 	try {
-		res.render("game/statistics");
+		return res.render("game/statistics");
 	} catch (err) {
 		next(err);
 	}

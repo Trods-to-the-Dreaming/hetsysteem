@@ -1,7 +1,7 @@
 //--- Show index page ---//
 export const showIndex = (req, res, next) => {
 	try {
-		res.redirect("/about");
+		return res.redirect("/about");
 	} catch (err) {
 		next(err); 
 	}
@@ -10,7 +10,7 @@ export const showIndex = (req, res, next) => {
 //--- Show about page ---//
 export const showAbout = (req, res, next) => {
 	try {
-		res.render("about");
+		return res.render("about");
 	} catch (err) {
 		next(err);  
 	}
@@ -19,7 +19,7 @@ export const showAbout = (req, res, next) => {
 //--- Show game rules page ---//
 export const showRules = (req, res, next) => {
 	try {
-		res.render("rules");
+		return res.render("rules");
 	} catch (err) {
 		next(err); 
 	}
