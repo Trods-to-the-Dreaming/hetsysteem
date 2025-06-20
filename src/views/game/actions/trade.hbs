@@ -313,7 +313,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		const config = orderMap[`${type}-${category}`];
 		const order = {
 			orderId: config.nextOrderId,
-			itemId: itemSelect.value,
+			itemId: Number(itemSelect.value),
 			name: itemSelect.options[itemSelect.selectedIndex].textContent,
 			quantity: quantityInput.valueAsNumber,
 			unitPrice: unitPriceInput.valueAsNumber
@@ -383,7 +383,10 @@ document.addEventListener("DOMContentLoaded", () => {
 			deleteBtn.type = "button";
 			deleteBtn.addEventListener("click", () => {
 				li.remove();
-				config.list = config.list.filter(o => o.orderId !== order.orderId);
+				const index = config.list.findIndex(o => o.orderId === order.orderId);
+				if (index !== -1) {
+					config.list.splice(index, 1);  // wijzigt de originele array in plaats van te vervangen
+				}
 			});
 			
 			li.append(

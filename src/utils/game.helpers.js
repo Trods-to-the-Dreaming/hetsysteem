@@ -29,20 +29,16 @@ export async function replaceOrders(db, characterId, type, category, orders) {
 		`DELETE FROM ${category}_${type}_orders WHERE character_id = ?`,
 		[characterId]
 	);
-	
-	console.log("na DELETE");
 
 	if (orders.length === 0) return;
 
 	const valuePlaceholders = orders.map(() => "(?, ?, ?, ?)").join(", ");
 	const valueParams = orders.flatMap(order => [
 		characterId,
-		order.id,
+		order.itemId,
 		order.quantity,
 		order.unitPrice,
 	]);
-	
-	console.log("na orders.map");
 
 	await db.execute(
 		`INSERT INTO ${category}_${type}_orders
@@ -50,8 +46,6 @@ export async function replaceOrders(db, characterId, type, category, orders) {
 		 VALUES ${valuePlaceholders}`,
 		valueParams
 	);
-	
-	console.log("na INSERT");
 }
 
 export function addFrontendIds(orders) {

@@ -126,8 +126,10 @@ export const showTrade = async (req, res, next) => {
 					name
 			 FROM buildings`
 		);
+		
 		const [sellableProducts] = await db.execute(
-			`SELECT p.name, 
+			`SELECT p.id,
+					p.name, 
 					cp.quantity
 			 FROM character_products cp
 			 JOIN products p ON cp.product_id = p.id
@@ -137,7 +139,8 @@ export const showTrade = async (req, res, next) => {
 			[characterId]
 		);
 		const [sellableBuildings] = await db.execute(
-			`SELECT b.name,
+			`SELECT b.id,
+					b.name,
 					cb.quantity
 			 FROM character_buildings cb
 			 JOIN buildings b ON cb.building_id = b.id
@@ -179,7 +182,11 @@ export const handleTrade = async (req, res, next) => {
 		const buildingBuyOrders = JSON.parse(req.body.buildingBuyOrders || "[]");
 		const buildingSellOrders = JSON.parse(req.body.buildingSellOrders || "[]");
 		
-		console.log(characterId, productBuyOrders);
+		console.log(characterId);
+		console.log(productBuyOrders);
+		console.log(productSellOrders);
+		console.log(buildingBuyOrders);
+		console.log(buildingSellOrders);
 		
 		// Remove existing orders and add new orders for this character
 		await replaceOrders(db, characterId, "buy", "product", productBuyOrders);
