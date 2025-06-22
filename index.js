@@ -124,19 +124,6 @@ app.use((err, req, res, next) => {
 		message: err.expose ? err.message : null
 	});
 });
-/*app.use((err, req, res, next) => {
-	console.error(err.stack);
-	const status = err.status || 500;
-
-	if ([403, 404, 500].includes(status)) {
-		return res.status(status).render(`errors/${status}`);
-	}
-
-	res.status(status).send("Er ging iets mis.");
-});
-app.use((req, res) => {
-	res.status(404).render("errors/404");
-});*/
 
 //--- Start server ---//
 app.listen(process.env.APP_PORT, () => {

@@ -3,14 +3,15 @@
 <div class="container-compact">
 	<h1>Handel drijven</h1>
 	
-	<div id="orders-confirmed-section" {{#unless has_orders}}class="d-none"{{/unless}}>
+	<div id="orders-confirmed-section" {{#unless has_confirmed}}class="d-none"{{/unless}}>
 		<p class="success">Uw orders zijn bevestigd.</p>
 		
 		<button id="edit-orders-button" type="button" class="button-1">Wijzigen</button>
 	</div>
 	
-	<div id="orders-overview-section" {{#if has_orders}}class="d-none"{{/if}}>
-		<button id="create-order-button" class="button-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#create-order-window">
+	<div id="orders-overview-section" {{#if has_confirmed}}class="d-none"{{/if}}>
+		<button id="create-order-button" class="button-2" type="button" 
+				data-bs-toggle="offcanvas" data-bs-target="#create-order-window">
 			Order maken
 		</button>
 		
@@ -54,7 +55,7 @@
 	<div class="offcanvas-header">
 		<h2>📈 Order maken</h2>
 		
-		<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Sluiten"></button>
+		<button class="btn-close" type="button" data-bs-dismiss="offcanvas" aria-label="Sluiten"></button>
 	</div>
 	
 	<div class="offcanvas-body">
@@ -63,15 +64,17 @@
 				<label for="type">Type:</label>
 				<select id="type" class="list-select">
 					<option value="">-- Kies --</option>
-					<option value="buy">Kopen</option>
-					<!-- option "sell" is added via JS -->
+					<option id="buy-option" value="buy">Kopen</option>
+					<option id="sell-option" value="sell">Verkopen</option>
 				</select>
 			</li>
 			
 			<li id="category-field" class="list-item-justify d-none">
 				<label for="category">Categorie:</label>
 				<select id="category" class="list-select">
-					<!-- options are added via JS -->
+					<option value="">-- Kies --</option>
+					<option id="products-option" value="products">Producten</option>
+					<option id="buildings-option" value="buildings">Gebouwen</option>
 				</select>
 			</li>
 			
@@ -116,8 +119,12 @@ document.addEventListener("DOMContentLoaded", () => {
 	const createOrderWindow = document.getElementById("create-order-window");
 	const createOrderSection = document.getElementById("create-order-section");
 	const typeSelect = document.getElementById("type");
+	const buyOption = document.getElementById("buy-option");
+	const sellOption = document.getElementById("sell-option");
 	const categoryField = document.getElementById("category-field");
 	const categorySelect = document.getElementById("category");
+	const productsOption = document.getElementById("products-option");
+	const buildingsOption = document.getElementById("buildings-option");
 	const itemField = document.getElementById("item-field");
 	const itemLabel = document.getElementById("item-label");
 	const itemSelect = document.getElementById("item");
@@ -156,39 +163,49 @@ document.addEventListener("DOMContentLoaded", () => {
 	const sellableBuildings = {{{json sellable_buildings}}};
 	
 	const orderMap = {
-		"buy-products": {	list: productBuyOrders,
-							id: "product-buy-orders",
-							type: "koop",
-							category: "producten",
-							limit: "hoogstens",
-							nextOrderId: productBuyOrders.length + 1 },
-		"sell-products": { 	list: productSellOrders,
-							id: "product-sell-orders",
-							type: "verkoop",
-							category: "producten",
-							limit: "minstens",
-							nextOrderId: productSellOrders.length + 1 },
-		"buy-buildings": { 	list: buildingBuyOrders,
-							id: "building-buy-orders",
-							type: "koop",
-							category: "gebouwen",
-							limit: "hoogstens",
-							nextOrderId: buildingBuyOrders.length + 1 },
-		"sell-buildings": {	list: buildingSellOrders,
-							id: "building-sell-orders",
-							type: "verkoop",
-							category: "gebouwen",
-							limit: "minstens",
-							nextOrderId: buildingSellOrders.length + 1 },
+		"products": {
+			"buy": {
+				list: productBuyOrders,
+				availableItems: buyableProducts,
+				elementId: "product-buy-orders",
+				typeText: "koop",
+				categoryText: "producten",
+				limitText: "hoogstens",
+				nextOrderId: productBuyOrders.length + 1
+			},
+			"sell": {
+				list: productSellOrders,
+				availableItems: sellableProducts,
+				elementId: "product-sell-orders",
+				typeText: "verkoop",
+				categoryText: "producten",
+				limitText: "minstens",
+				nextOrderId: productSellOrders.length + 1
+			}
+		},
+		"buildings": {
+			"buy": {
+				list: buildingBuyOrders,
+				availableItems: buyableBuildings,
+				elementId: "building-buy-orders",
+				typeText: "koop",
+				categoryText: "gebouwen",
+				limitText: "hoogstens",
+				nextOrderId: buildingBuyOrders.length + 1
+			},
+			"sell": {
+				list: buildingSellOrders,
+				availableItems: sellableBuildings,
+				elementId: "building-sell-orders",
+				typeText: "verkoop",
+				categoryText: "gebouwen",
+				limitText: "minstens",
+				nextOrderId: buildingSellOrders.length + 1
+			}
+		}
 	};
 
-	// Add sell option only if the player has something to sell
-	if (sellableProducts.length > 0 || sellableBuildings.length > 0) {
-		const sellOption = document.createElement("option");
-		sellOption.value = "sell";
-		sellOption.textContent = "Verkopen";
-		typeSelect.appendChild(sellOption);
-	}
+	enrichOrders(orderMap);	
 	
 	// Event handlers
 	function editOrders() {
@@ -197,7 +214,8 @@ document.addEventListener("DOMContentLoaded", () => {
 	};
 	//----------------------------------------
 	function createOrder() {
-		validateInputs();
+		typeSelect.value = "";
+		typeSelect.dispatchEvent(new Event("change"));
 	};
 	//----------------------------------------
 	function confirmOrders() {
@@ -208,92 +226,67 @@ document.addEventListener("DOMContentLoaded", () => {
 	};
 	//----------------------------------------
 	function changeType() {
-		const selectedType = typeSelect.value;
-
-		// Reset category
-		categoryField.classList.add("d-none");
-		categorySelect.innerHTML = "";
-		categorySelect.dispatchEvent(new Event("change"));
-		
-		// Hide category when no type is selected
-		if (selectedType === "") return;
-
-		// Create category options
-		categorySelect.innerHTML = `<option value="">-- Kies --</option>`;
-		if (selectedType === "buy" || sellableProducts.length > 0) {
-			categorySelect.innerHTML += `<option value="products">Producten</option>`;
-		}
-		if (selectedType === "buy" || sellableBuildings.length > 0) {
-			categorySelect.innerHTML += `<option value="buildings">Gebouwen</option>`;
-		}
-
-		// Make category visible
-		categoryField.classList.remove("d-none");
 		categorySelect.value = "";
+		
+		const type = typeSelect.value;
+		if (type === "") {
+			categoryField.classList.add("d-none");
+		} else {
+			categoryField.classList.remove("d-none");
+		}
+		
 		categorySelect.dispatchEvent(new Event("change"));
 	};
 	//----------------------------------------
 	function changeCategory() {
-		const selectedType = typeSelect.value;
-		const selectedCategory = categorySelect.value;
-		
-		// Reset item
-		itemField.classList.add("d-none");
-		itemSelect.innerHTML = "";
-		itemSelect.dispatchEvent(new Event("change"));
-		
-		// Hide item when no category is selected
-		if (selectedCategory  === "") return;
-
-		// Create item label and options
-		let labelText = "";
-		let options = [];
-		if (selectedCategory === "products") {
-			labelText = "Product";
-			options = selectedType === "buy" ? buyableProducts : sellableProducts;
-		} else if (selectedCategory === "buildings") {
-			labelText = "Gebouw";
-			options = selectedType === "buy" ? buyableBuildings : sellableBuildings;
-		}
-		itemLabel.textContent = labelText + ":";
 		itemSelect.innerHTML = `<option value="">-- Kies --</option>`;
-		options.forEach(item => {
-			const option = document.createElement("option");
-			option.value = item.id;
-			option.textContent = item.name;
-			itemSelect.appendChild(option);
-		});
-
-		// Make item visible
-		itemField.classList.remove("d-none");
+		itemSelect.value = "";
+		
+		const category = categorySelect.value;
+		if (category === "") {
+			itemField.classList.add("d-none");
+		} else {
+			const labelText = category === "products" ? 
+							  "Product" : 
+							  "Gebouw";
+			itemLabel.textContent = labelText + ":";
+			
+			const type = typeSelect.value;
+			const options = orderMap[category][type].availableItems;
+			options.forEach(item => {
+				if (item.show) {
+					const option = document.createElement("option");
+					option.value = item.id;
+					option.textContent = item.name;
+					itemSelect.appendChild(option);
+				}
+			});
+			
+			itemField.classList.remove("d-none");
+		}
+		
+		itemSelect.dispatchEvent(new Event("change"));
 	};
 	//----------------------------------------
 	function changeItem() {
-		const selectedType = typeSelect.value;
-		const selectedCategory = categorySelect.value;
-		const selectedItem = itemSelect.value;
-		
-		// Reset quantity and unit price
-		quantityField.classList.add("d-none");
 		quantityInput.value = 0;
-		unitPriceField.classList.add("d-none");
 		unitPriceInput.value = 0;
-		placeOrderButton.disabled = true;
 		
-		// Hide quantity and unit price when no item is selected
-		if (selectedItem  === "") return;
-
-		// Create unit price label
-		if (selectedType === "buy") {
-			unitPriceLabel.textContent = "Maximale eenheidsprijs:";
-		} else if (selectedType === "sell") {
-			unitPriceLabel.textContent = "Minimale eenheidsprijs:";
+		const item = itemSelect.value;
+		if (item === "") {
+			quantityField.classList.add("d-none");
+			unitPriceField.classList.add("d-none");
+		} else {
+			const type = typeSelect.value;
+			unitPriceLabel.textContent = type === "buy" ?
+										 "Maximale eenheidsprijs:" :
+										 "Minimale eenheidsprijs:";
+			
+			quantityField.classList.remove("d-none");
+			unitPriceField.classList.remove("d-none");
 		}
-
-		// Make quantity and unit price visible
-		quantityField.classList.remove("d-none");
-		unitPriceField.classList.remove("d-none");
-		validateInputs();
+		
+		placeOrderButton.disabled = true;
 	};
 	//----------------------------------------
 	function validateInputs() {
@@ -310,13 +303,24 @@ document.addEventListener("DOMContentLoaded", () => {
 		const type = typeSelect.value;
 		const category = categorySelect.value;
 
-		const config = orderMap[`${type}-${category}`];
+		const config = orderMap[category][type];
+		
+		const itemId = Number(itemSelect.value);
+		
+		const buyItems = orderMap[category]["buy"].availableItems;
+		const sellItems = orderMap[category]["sell"].availableItems;
+		
+		const buyRef = setItemVisibility(buyItems, itemId, false);
+		const sellRef = setItemVisibility(sellItems, itemId, false);
+		
 		const order = {
 			orderId: config.nextOrderId,
-			itemId: Number(itemSelect.value),
+			itemId,
 			name: itemSelect.options[itemSelect.selectedIndex].textContent,
 			quantity: quantityInput.valueAsNumber,
-			unitPrice: unitPriceInput.valueAsNumber
+			unitPrice: unitPriceInput.valueAsNumber,
+			buyRef,
+			sellRef
 		};
 		config.list.push(order);
 		config.nextOrderId++;
@@ -325,36 +329,19 @@ document.addEventListener("DOMContentLoaded", () => {
 		typeSelect.dispatchEvent(new Event("change"));
 		
 		updateOrderDisplay(config);
+		updateOrderButtonsVisibility();
 		
 		bsOffcanvas.hide();
-
-		/*// Verwijder item uit bronlijsten
-		removeItemFromList(buyableProducts, item.id);
-		removeItemFromList(sellableProducts, item.id);
-		removeItemFromList(buyableBuildings, item.id);
-		removeItemFromList(sellableBuildings, item.id);
-
-		// Reset formulier
-		typeSelect.value = "";
-		categorySelect.innerHTML = "";
-		itemSelect.innerHTML = "";
-		categoryField.classList.add("d-none");
-		itemField.classList.add("d-none");
-		quantityField.classList.add("d-none");
-		unitPriceField.classList.add("d-none");
-		placeOrderButton.disabled = true;
-
-		updateOrderDisplay();*/
 	}
 
 	// Helper functions
 	function updateOrderDisplay(config) {
-		const div = document.getElementById(config.id);
+		const div = document.getElementById(config.elementId);
 		div.innerHTML = "";
 
 		if (config.list.length === 0) {
 			const p = document.createElement("p");
-			p.textContent = `Je hebt geen ${config.type}orders voor ${config.category} geplaatst.`;
+			p.textContent = `Je hebt geen ${config.typeText}orders voor ${config.categoryText} geplaatst.`;
 			div.appendChild(p);
 			return;
 		}
@@ -362,6 +349,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		const formatter = new Intl.NumberFormat('nl-NL');
 		const ul = document.createElement("ul");
 		ul.classList.add("list-compact");
+		
 		config.list.forEach(order => {
 			const pieces = order.quantity === 1 ? "stuk" : "stuks";
 			const formattedUnitPrice = formatter.format(order.unitPrice);
@@ -373,7 +361,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			text.append(
 				`${order.name}:`,
 				document.createElement("br"),
-				`${order.quantity} ${pieces} aan ${config.limit} ${formattedUnitPrice} `,
+				`${order.quantity} ${pieces} aan ${config.limitText} ${formattedUnitPrice} `,
 				createCurrencySymbol(),
 				"/stuk"
 			);
@@ -383,10 +371,15 @@ document.addEventListener("DOMContentLoaded", () => {
 			deleteBtn.type = "button";
 			deleteBtn.addEventListener("click", () => {
 				li.remove();
+				
 				const index = config.list.findIndex(o => o.orderId === order.orderId);
-				if (index !== -1) {
-					config.list.splice(index, 1);  // wijzigt de originele array in plaats van te vervangen
-				}
+				if (index !== -1) config.list.splice(index, 1);
+				
+				if (order.buyRef) order.buyRef.show = true;
+				if (order.sellRef) order.sellRef.show = true;
+				
+				updateOrderDisplay(config);
+				updateOrderButtonsVisibility();
 			});
 			
 			li.append(
@@ -397,10 +390,83 @@ document.addEventListener("DOMContentLoaded", () => {
 		});
 		div.appendChild(ul);
 	}
+	//----------------------------------------
+	function updateOrderButtonsVisibility() {
+		const canBuy = buyableProducts.length > 0 || buyableBuildings.length > 0;
+		const canSell = sellableProducts.length > 0 || sellableBuildings.length > 0;
 
-	updateOrderDisplay(orderMap["buy-products"]);
-	updateOrderDisplay(orderMap["sell-products"]);
-	updateOrderDisplay(orderMap["buy-buildings"]);
-	updateOrderDisplay(orderMap["sell-buildings"]);
+		if (canBuy || canSell) {
+		  createOrderButton.classList.remove("d-none");
+		} else {
+		  createOrderButton.classList.add("d-none");
+		}
+
+		if (canSell) {
+		  sellOption.classList.remove("d-none");
+		} else {
+		  sellOption.classList.add("d-none");
+		}
+
+		if (canBuy) {
+		  buyOption.classList.remove("d-none");
+		} else {
+		  buyOption.classList.add("d-none");
+		}
+	}
+	//----------------------------------------
+	function addShowFlag(items) {
+		return items.map(item => ({
+			...item,
+			show: true
+		}));
+	}
+	//----------------------------------------
+	function enrichOrders(orderMap) {
+		const categories = ["products", "buildings"];
+		const types = ["buy", "sell"];
+
+		categories.forEach(category => {
+			types.forEach(type => {
+				const items = orderMap[category][type].availableItems;
+				orderMap[category][type].availableItems = addShowFlag(items);
+			});
+		});
+
+		categories.forEach(category => {
+			const buyItems = orderMap[category]["buy"].availableItems;
+			const sellItems = orderMap[category]["sell"].availableItems;
+
+			types.forEach(type => {
+				const config = orderMap[category][type];
+
+				config.list = config.list.map((order, index) => {
+					const buyRef = setItemVisibility(buyItems, order.itemId, true);
+					const sellRef = setItemVisibility(sellItems, order.itemId, true);
+
+					return {
+						...order,
+						orderId: index + 1,
+						buyRef,
+						sellRef
+					};
+				});
+
+				config.nextOrderId = config.list.length + 1;
+			});
+		});
+	}
+	//----------------------------------------
+	function setItemVisibility(list, itemId, visible) {
+		const ref = list.find(item => item.id === itemId);
+		if (ref) ref.show = visible;
+		return ref;
+	}
+
+	// Execute when DOM content is loaded
+	updateOrderDisplay(orderMap["products"]["buy"]);
+	updateOrderDisplay(orderMap["products"]["sell"]);
+	updateOrderDisplay(orderMap["buildings"]["buy"]);
+	updateOrderDisplay(orderMap["buildings"]["sell"]);
+	updateOrderButtonsVisibility();
 });
 </script>

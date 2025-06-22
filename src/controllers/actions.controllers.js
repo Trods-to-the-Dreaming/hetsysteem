@@ -68,7 +68,7 @@ export const showTrade = async (req, res, next) => {
 		const { characterId } = req.session;
 		
 		// Get existing orders
-		const [productBuyOrdersRaw] = await db.execute(
+		const [productBuyOrders] = await db.execute(
 			`SELECT pbo.product_id AS itemId,
 					p.name AS name,
 					pbo.quantity AS quantity,
@@ -78,7 +78,7 @@ export const showTrade = async (req, res, next) => {
 			 WHERE pbo.character_id = ?`,
 			[characterId]
 		);
-		const [productSellOrdersRaw] = await db.execute(
+		const [productSellOrders] = await db.execute(
 			`SELECT pso.product_id AS itemId,
 					p.name AS name,
 					pso.quantity AS quantity,
@@ -88,7 +88,7 @@ export const showTrade = async (req, res, next) => {
 			 WHERE pso.character_id = ?`,
 			[characterId]
 		);
-		const [buildingBuyOrdersRaw] = await db.execute(
+		const [buildingBuyOrders] = await db.execute(
 			`SELECT bbo.building_id AS itemId,
 					b.name AS name,
 					bbo.quantity AS quantity,
@@ -98,7 +98,7 @@ export const showTrade = async (req, res, next) => {
 			 WHERE bbo.character_id = ?`,
 			[characterId]
 		);
-		const [buildingSellOrdersRaw] = await db.execute(
+		const [buildingSellOrders] = await db.execute(
 			`SELECT bso.building_id AS itemId,
 					b.name AS name,
 					bso.quantity AS quantity,
@@ -110,21 +110,23 @@ export const showTrade = async (req, res, next) => {
 		);
 		
 		// Add frontend id's
-		const productBuyOrders = addFrontendIds(productBuyOrdersRaw);
+		/*const productBuyOrders = addFrontendIds(productBuyOrdersRaw);
 		const productSellOrders = addFrontendIds(productSellOrdersRaw);
 		const buildingBuyOrders = addFrontendIds(buildingBuyOrdersRaw);
-		const buildingSellOrders = addFrontendIds(buildingSellOrdersRaw);
+		const buildingSellOrders = addFrontendIds(buildingSellOrdersRaw);*/
 		
 		// Get possible products and buildings
 		const [buyableProducts] = await db.execute(
 			`SELECT id,
 					name
-			 FROM products`
+			 FROM products
+			 ORDER BY id`
 		);
 		const [buyableBuildings] = await db.execute(
 			`SELECT id,
 					name
-			 FROM buildings`
+			 FROM buildings
+			 ORDER BY id`
 		);
 		
 		const [sellableProducts] = await db.execute(
@@ -150,14 +152,17 @@ export const showTrade = async (req, res, next) => {
 			[characterId]
 		);
 
-		// Check if the character has already placed orders
-		const hasOrders = productBuyOrders.length > 0 || 
-						  productSellOrders.length > 0 || 
-						  buildingBuyOrders.length > 0 || 
-						  buildingSellOrders.length > 0;
+		// Check if the character has confirmed trade
+		const [confirmation] = await db.execute(
+			`SELECT has_confirmed_trade
+			 FROM characters
+			 WHERE id = ?`,
+			[characterId]
+		);
+		const hasConfirmed = confirmation[0].has_confirmed_trade;
 
 		return res.render("game/actions/trade", {
-			has_orders: hasOrders,
+			has_confirmed: hasConfirmed,
 			product_buy_orders: productBuyOrders,
 			product_sell_orders: productSellOrders,
 			building_buy_orders: buildingBuyOrders,
@@ -182,21 +187,21 @@ export const handleTrade = async (req, res, next) => {
 		const buildingBuyOrders = JSON.parse(req.body.buildingBuyOrders || "[]");
 		const buildingSellOrders = JSON.parse(req.body.buildingSellOrders || "[]");
 		
-		console.log(characterId);
-		console.log(productBuyOrders);
-		console.log(productSellOrders);
-		console.log(buildingBuyOrders);
-		console.log(buildingSellOrders);
-		
 		// Remove existing orders and add new orders for this character
 		await replaceOrders(db, characterId, "buy", "product", productBuyOrders);
 		await replaceOrders(db, characterId, "sell", "product", productSellOrders);
 		await replaceOrders(db, characterId, "buy", "building", buildingBuyOrders);
 		await replaceOrders(db, characterId, "sell", "building", buildingSellOrders);
 		
-		//req.session.tradeConfirmed = true;
-		//req.session.tradeMessage = GAME_MSG.ORDERS_CONFIRMED;
-		//await saveSession(req);
+		// Orders controleren
+		// indien OK --> characters.has_confirmed_trade op TRUE zetten
+		await db.execute(
+			`UPDATE characters
+			 SET has_confirmed_trade = TRUE
+			 WHERE id = ?`,
+			[characterId]
+		);
+		// indien niet OK --> characters.has_confirmed_trade op FALSE zetten
 
 		return res.redirect("/game/actions/trade");
 	} catch (err) {

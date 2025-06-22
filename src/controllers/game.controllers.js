@@ -326,8 +326,8 @@ export const showCharacter = async (req, res, next) => {
 			 JOIN jobs j1 ON c.job_preference_1_id = j1.id
 			 JOIN jobs j2 ON c.job_preference_2_id = j2.id
 			 JOIN jobs j3 ON c.job_preference_3_id = j3.id
-			 JOIN recreations l ON c.recreation_preference_id = l.id
-			 JOIN products p ON l.product_id = p.id
+			 JOIN recreations r ON c.recreation_preference_id = r.id
+			 JOIN products p ON r.product_id = p.id
 			 WHERE c.user_id = ? AND 
 			       c.world_id = ?`,
 			[userId, 
