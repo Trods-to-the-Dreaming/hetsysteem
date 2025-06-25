@@ -70,7 +70,7 @@ export const showTrade = async (req, res, next) => {
 		// Get existing orders
 		const [productBuyOrders] = await db.execute(
 			`SELECT pbo.product_id AS itemId,
-					p.name AS name,
+					p.name AS itemName,
 					pbo.quantity AS quantity,
 					pbo.max_unit_price AS unitPrice
 			 FROM product_buy_orders pbo
@@ -80,7 +80,7 @@ export const showTrade = async (req, res, next) => {
 		);
 		const [productSellOrders] = await db.execute(
 			`SELECT pso.product_id AS itemId,
-					p.name AS name,
+					p.name AS itemName,
 					pso.quantity AS quantity,
 					pso.min_unit_price AS unitPrice
 			 FROM product_sell_orders pso
@@ -90,7 +90,7 @@ export const showTrade = async (req, res, next) => {
 		);
 		const [buildingBuyOrders] = await db.execute(
 			`SELECT bbo.building_id AS itemId,
-					b.name AS name,
+					b.name AS itemName,
 					bbo.quantity AS quantity,
 					bbo.max_unit_price AS unitPrice
 			 FROM building_buy_orders bbo
@@ -100,7 +100,7 @@ export const showTrade = async (req, res, next) => {
 		);
 		const [buildingSellOrders] = await db.execute(
 			`SELECT bso.building_id AS itemId,
-					b.name AS name,
+					b.name AS itemName,
 					bso.quantity AS quantity,
 					bso.min_unit_price AS unitPrice
 			 FROM building_sell_orders bso
@@ -117,21 +117,21 @@ export const showTrade = async (req, res, next) => {
 		
 		// Get possible products and buildings
 		const [buyableProducts] = await db.execute(
-			`SELECT id,
-					name
+			`SELECT id AS itemId,
+					name AS itemName
 			 FROM products
 			 ORDER BY id`
 		);
 		const [buyableBuildings] = await db.execute(
-			`SELECT id,
-					name
+			`SELECT id AS itemId,
+					name AS itemName
 			 FROM buildings
 			 ORDER BY id`
 		);
 		
 		const [sellableProducts] = await db.execute(
-			`SELECT p.id,
-					p.name, 
+			`SELECT p.id AS itemId,
+					p.name AS itemName, 
 					cp.quantity
 			 FROM character_products cp
 			 JOIN products p ON cp.product_id = p.id
@@ -141,8 +141,8 @@ export const showTrade = async (req, res, next) => {
 			[characterId]
 		);
 		const [sellableBuildings] = await db.execute(
-			`SELECT b.id,
-					b.name,
+			`SELECT b.id AS itemId,
+					b.name AS itemName,
 					cb.quantity
 			 FROM character_buildings cb
 			 JOIN buildings b ON cb.building_id = b.id

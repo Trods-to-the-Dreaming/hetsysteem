@@ -20,29 +20,33 @@
 			
 			<h3>Producten</h3>
 			<input id="product-buy-orders-input" type="hidden" name="productBuyOrders">
-			<div id="product-buy-orders">
-				<!-- list is added via JS -->
-			</div>
+			<p id="no-product-buy-orders">Je hebt geen kooporders voor producten geplaatst.</p>
+			<ul id="product-buy-orders-list" class="list-compact d-none">
+				<!-- options are added via script -->
+			</ul>
 			
 			<h3>Gebouwen</h3>
 			<input id="building-buy-orders-input" type="hidden" name="buildingBuyOrders">
-			<div id="building-buy-orders">
-				<!-- list is added via JS -->
-			</div>
+			<p id="no-building-buy-orders">Je hebt geen kooporders voor gebouwen geplaatst.</p>
+			<ul id="building-buy-orders-list" class="list-compact d-none">
+				<!-- options are added via script -->
+			</ul>
 			
 			<h2>💰 Verkopen</h2>
 			
 			<h3>Producten</h3>
 			<input id="product-sell-orders-input" type="hidden" name="productSellOrders">
-			<div id="product-sell-orders">
-				<!-- list is added via JS -->
-			</div>
+			<p id="no-product-sell-orders">Je hebt geen verkooporders voor producten geplaatst.</p>
+			<ul id="product-sell-orders-list" class="list-compact d-none">
+				<!-- options are added via script -->
+			</ul>
 			
 			<h3>Gebouwen</h3>
 			<input id="building-sell-orders-input" type="hidden" name="buildingSellOrders">
-			<div id="building-sell-orders">
-				<!-- list is added via JS -->
-			</div>
+			<p id="no-building-sell-orders">Je hebt geen verkooporders voor gebouwen geplaatst.</p>
+			<ul id="building-sell-orders-list" class="list-compact d-none">
+				<!-- options are added via script -->
+			</ul>
 			
 			<button class="button-1" type="submit">Bevestigen</button>
 		</form>
@@ -64,8 +68,8 @@
 				<label for="type">Type:</label>
 				<select id="type" class="list-select">
 					<option value="">-- Kies --</option>
-					<option id="buy-option" value="buy">Kopen</option>
-					<option id="sell-option" value="sell">Verkopen</option>
+					<option id="buy-option" value="buy">Koop</option>
+					<option id="sell-option" value="sell">Verkoop</option>
 				</select>
 			</li>
 			
@@ -73,15 +77,15 @@
 				<label for="category">Categorie:</label>
 				<select id="category" class="list-select">
 					<option value="">-- Kies --</option>
-					<option id="products-option" value="products">Producten</option>
-					<option id="buildings-option" value="buildings">Gebouwen</option>
+					<option id="product-option" value="product">Product</option>
+					<option id="building-option" value="building">Gebouw</option>
 				</select>
 			</li>
 			
 			<li id="item-field" class="list-item-justify d-none">
-				<label for="item" id="item-label"><!-- label is added via JS --></label>
+				<label for="item" id="item-label"><!-- label is added via script --></label>
 				<select id="item" class="list-select">
-					<!-- options are added via JS -->
+					<!-- options are added via script -->
 				</select>
 			</li>
 			
@@ -91,7 +95,7 @@
 			</li>
 			
 			<li id="unit-price-field" class="list-item-justify d-none">
-				<label for="unit-price" id="unit-price-label"><!-- label is added via JS --></label>
+				<label for="unit-price" id="unit-price-label"><!-- label is added via script --></label>
 				<input id="unit-price" class="list-input-price" type="number" min="1" step="1" value="0">
 			</li>
 		</ul>
@@ -123,8 +127,8 @@ document.addEventListener("DOMContentLoaded", () => {
 	const sellOption = document.getElementById("sell-option");
 	const categoryField = document.getElementById("category-field");
 	const categorySelect = document.getElementById("category");
-	const productsOption = document.getElementById("products-option");
-	const buildingsOption = document.getElementById("buildings-option");
+	const productsOption = document.getElementById("product-option");
+	const buildingsOption = document.getElementById("building-option");
 	const itemField = document.getElementById("item-field");
 	const itemLabel = document.getElementById("item-label");
 	const itemSelect = document.getElementById("item");
@@ -136,93 +140,141 @@ document.addEventListener("DOMContentLoaded", () => {
 	const placeOrderButton = document.getElementById("place-order-button");
 	
 	// Event listeners
-	editOrdersButton.addEventListener("click", editOrders);
-	createOrderButton.addEventListener("click", createOrder);
-	form.addEventListener("submit", confirmOrders);
+	editOrdersButton.addEventListener("click", clickEditOrders);
+	createOrderButton.addEventListener("click", clickCreateOrder);
+	form.addEventListener("submit", submitForm);
 	typeSelect.addEventListener("change", changeType);
 	categorySelect.addEventListener("change", changeCategory);
 	itemSelect.addEventListener("change", changeItem);
 	quantityInput.addEventListener("input", validateInputs);
 	unitPriceInput.addEventListener("input", validateInputs);
-	placeOrderButton.addEventListener("click", placeOrder);
+	placeOrderButton.addEventListener("click", clickPlaceOrder);
 	
-	// Other variables
+	// Classes
+	class Order {
+		constructor(id, 
+					itemId, 
+					itemName, 
+					quantity, 
+					unitPrice, 
+					buyOption, 
+					sellOption) {
+			this.id = id;
+			this.itemId = itemId;
+			this.itemName = itemName;
+			this.quantity = quantity;
+			this.unitPrice = unitPrice;
+			this.buyOption = buyOption;
+			this.sellOption = sellOption;
+		}
+
+		getFormattedUnitPrice(locale = "nl-NL") {
+			const formatter = new Intl.NumberFormat(locale);
+			return formatter.format(this.unitPrice);
+		}
+	}
+	
+	class OrderConfig {
+		constructor(initialOrders,
+					options, 
+					elementId) {
+			this.orders = [];
+			this.initialOrders = initialOrders;
+			this.options = options.map(option => ({
+				...option, 
+				isVisible: true
+			}));
+			this.elementId = elementId;
+			this.nextOrderId = 1;
+		}
+
+		addOrder(itemId,
+				 itemName,
+				 quantity,
+				 unitPrice,
+				 buyOption,
+				 sellOption) {
+			const order = new Order(this.nextOrderId++,
+									itemId,
+									itemName,
+									quantity,
+									unitPrice,
+									buyOption,
+									sellOption);
+			this.orders.push(order);
+			return order;
+		}
+		
+		removeOrder(order) {
+			const index = this.orders.findIndex(o => o.id === order.id);
+			if (index !== -1) this.orders.splice(index, 1);
+		}
+		
+		showOption(itemId) {
+			const option = this.options.find(option => option.itemId === itemId);
+			if (option) option.isVisible = true;
+			return option;
+		}
+		
+		hideOption(itemId) {
+			const option = this.options.find(option => option.itemId === itemId);
+			if (option) option.isVisible = false;
+			return option;
+		}
+		
+		hasVisibleOptions() {
+			return this.options.some(option => option.isVisible);
+		}
+	}
+
+	// Storage object for the orders
+	const orderConfig  = {
+		"product": {
+			"buy": new OrderConfig({{{json product_buy_orders}}},
+								   {{{json buyable_products}}},
+								   "product-buy-orders"),
+			"sell": new OrderConfig({{{json product_sell_orders}}},
+								    {{{json sellable_products}}},
+								    "product-sell-orders")
+		},
+		"building": {
+			"buy": new OrderConfig({{{json building_buy_orders}}},
+								   {{{json buyable_buildings}}},
+								   "building-buy-orders"),
+			"sell": new OrderConfig({{{json building_sell_orders}}},
+								    {{{json sellable_buildings}}},
+								    "building-sell-orders")
+		}
+	};
+	
+	// Offcanvas
 	let bsOffcanvas = bootstrap.Offcanvas.getInstance(createOrderWindow);
 	if (!bsOffcanvas) {
 		bsOffcanvas = new bootstrap.Offcanvas(createOrderWindow);
 	}
-
-	const productBuyOrders = {{{json product_buy_orders}}};
-	const productSellOrders = {{{json product_sell_orders}}};
-	const buildingBuyOrders = {{{json building_buy_orders}}};
-	const buildingSellOrders = {{{json building_sell_orders}}};
-
-	const buyableProducts = {{{json buyable_products}}};
-	const sellableProducts = {{{json sellable_products}}};
-	const buyableBuildings = {{{json buyable_buildings}}};
-	const sellableBuildings = {{{json sellable_buildings}}};
 	
-	const orderMap = {
-		"products": {
-			"buy": {
-				list: productBuyOrders,
-				availableItems: buyableProducts,
-				elementId: "product-buy-orders",
-				typeText: "koop",
-				categoryText: "producten",
-				limitText: "hoogstens",
-				nextOrderId: productBuyOrders.length + 1
-			},
-			"sell": {
-				list: productSellOrders,
-				availableItems: sellableProducts,
-				elementId: "product-sell-orders",
-				typeText: "verkoop",
-				categoryText: "producten",
-				limitText: "minstens",
-				nextOrderId: productSellOrders.length + 1
-			}
-		},
-		"buildings": {
-			"buy": {
-				list: buildingBuyOrders,
-				availableItems: buyableBuildings,
-				elementId: "building-buy-orders",
-				typeText: "koop",
-				categoryText: "gebouwen",
-				limitText: "hoogstens",
-				nextOrderId: buildingBuyOrders.length + 1
-			},
-			"sell": {
-				list: buildingSellOrders,
-				availableItems: sellableBuildings,
-				elementId: "building-sell-orders",
-				typeText: "verkoop",
-				categoryText: "gebouwen",
-				limitText: "minstens",
-				nextOrderId: buildingSellOrders.length + 1
-			}
-		}
-	};
-
-	enrichOrders(orderMap);	
+	// Executed when the DOM content is loaded
+	placeInitialOrders();
 	
 	// Event handlers
-	function editOrders() {
+	function clickEditOrders() {
 		ordersConfirmedSection.classList.add("d-none");
 		ordersOverviewSection.classList.remove("d-none");
 	};
 	//----------------------------------------
-	function createOrder() {
+	function clickCreateOrder() {
+		buyOption.disabled = !canPlaceOrder("buy");
+		sellOption.disabled = !canPlaceOrder("sell");
+		
 		typeSelect.value = "";
 		typeSelect.dispatchEvent(new Event("change"));
 	};
 	//----------------------------------------
-	function confirmOrders() {
-		productBuyOrdersInput.value = JSON.stringify(productBuyOrders);
-		productSellOrdersInput.value = JSON.stringify(productSellOrders);
-		buildingBuyOrdersInput.value = JSON.stringify(buildingBuyOrders);
-		buildingSellOrdersInput.value = JSON.stringify(buildingSellOrders);
+	function submitForm() {
+		productBuyOrdersInput.value = JSON.stringify(orderConfig["product"]["buy"].orders);
+		productSellOrdersInput.value = JSON.stringify(orderConfig["product"]["sell"].orders);
+		buildingBuyOrdersInput.value = JSON.stringify(orderConfig["building"]["buy"].orders);
+		buildingSellOrdersInput.value = JSON.stringify(orderConfig["building"]["sell"].orders);
 	};
 	//----------------------------------------
 	function changeType() {
@@ -232,6 +284,9 @@ document.addEventListener("DOMContentLoaded", () => {
 		if (type === "") {
 			categoryField.classList.add("d-none");
 		} else {
+			productsOption.disabled = !canPlaceOrder(type, "product");
+			buildingsOption.disabled = !canPlaceOrder(type, "building");
+			
 			categoryField.classList.remove("d-none");
 		}
 		
@@ -246,21 +301,25 @@ document.addEventListener("DOMContentLoaded", () => {
 		if (category === "") {
 			itemField.classList.add("d-none");
 		} else {
-			const labelText = category === "products" ? 
+			const type = typeSelect.value;
+			const options = orderConfig[category][type].options;
+			
+			options.forEach(option => {
+				if (option.isVisible) {
+					const itemOption = document.createElement("option");
+					itemOption.value = option.itemId;
+					itemOption.textContent = option.itemName;
+					if (type === "sell") {
+						itemOption.dataset.max = option.quantity;
+					}
+					itemSelect.appendChild(itemOption);
+				}
+			});
+			
+			const labelText = category === "product" ? 
 							  "Product" : 
 							  "Gebouw";
 			itemLabel.textContent = labelText + ":";
-			
-			const type = typeSelect.value;
-			const options = orderMap[category][type].availableItems;
-			options.forEach(item => {
-				if (item.show) {
-					const option = document.createElement("option");
-					option.value = item.id;
-					option.textContent = item.name;
-					itemSelect.appendChild(option);
-				}
-			});
 			
 			itemField.classList.remove("d-none");
 		}
@@ -268,7 +327,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		itemSelect.dispatchEvent(new Event("change"));
 	};
 	//----------------------------------------
-	function changeItem() {
+	function changeItem() {	
 		quantityInput.value = 0;
 		unitPriceInput.value = 0;
 		
@@ -278,11 +337,19 @@ document.addEventListener("DOMContentLoaded", () => {
 			unitPriceField.classList.add("d-none");
 		} else {
 			const type = typeSelect.value;
+			const selectedOption = itemSelect.options[itemSelect.selectedIndex];
+
+			if (selectedOption.dataset.max) {
+				quantityInput.max = selectedOption.dataset.max;
+			} else {
+				quantityInput.removeAttribute("max");
+			}
+			quantityField.classList.remove("d-none");
+			
 			unitPriceLabel.textContent = type === "buy" ?
 										 "Maximale eenheidsprijs:" :
 										 "Minimale eenheidsprijs:";
 			
-			quantityField.classList.remove("d-none");
 			unitPriceField.classList.remove("d-none");
 		}
 		
@@ -292,181 +359,137 @@ document.addEventListener("DOMContentLoaded", () => {
 	function validateInputs() {
 		const quantityValue = quantityInput.value.trim();
 		const unitPriceValue = unitPriceInput.value.trim();
-
-		const isQuantityValid = /^[1-9]\d*$/.test(quantityValue);
-		const isUnitPriceValid = /^[1-9]\d*$/.test(unitPriceValue);
+		
+		const isPositiveInteger = /^[1-9]\d*$/;
+		
+		const isQuantityValid = isPositiveInteger.test(quantityValue) &&
+			(quantityInput.max === "" || 
+			 parseInt(quantityValue) <= parseInt(quantityInput.max));
+		const isUnitPriceValid = isPositiveInteger.test(unitPriceValue);
 
 		placeOrderButton.disabled = !(isQuantityValid && isUnitPriceValid);
 	}
 	//----------------------------------------
-	function placeOrder() {
+	function clickPlaceOrder() {
 		const type = typeSelect.value;
 		const category = categorySelect.value;
-
-		const config = orderMap[category][type];
-		
 		const itemId = Number(itemSelect.value);
+		const itemName = itemSelect.options[itemSelect.selectedIndex].textContent;
+		const quantity = quantityInput.valueAsNumber;
+		const unitPrice = unitPriceInput.valueAsNumber;
 		
-		const buyItems = orderMap[category]["buy"].availableItems;
-		const sellItems = orderMap[category]["sell"].availableItems;
-		
-		const buyRef = setItemVisibility(buyItems, itemId, false);
-		const sellRef = setItemVisibility(sellItems, itemId, false);
-		
-		const order = {
-			orderId: config.nextOrderId,
-			itemId,
-			name: itemSelect.options[itemSelect.selectedIndex].textContent,
-			quantity: quantityInput.valueAsNumber,
-			unitPrice: unitPriceInput.valueAsNumber,
-			buyRef,
-			sellRef
-		};
-		config.list.push(order);
-		config.nextOrderId++;
-		
-		typeSelect.value = "";
-		typeSelect.dispatchEvent(new Event("change"));
-		
-		updateOrderDisplay(config);
-		updateOrderButtonsVisibility();
+		placeOrder(type,
+				   category,
+				   itemId,
+				   itemName,
+				   quantity,
+				   unitPrice);
 		
 		bsOffcanvas.hide();
 	}
-
+	
 	// Helper functions
-	function updateOrderDisplay(config) {
-		const div = document.getElementById(config.elementId);
-		div.innerHTML = "";
-
-		if (config.list.length === 0) {
-			const p = document.createElement("p");
-			p.textContent = `Je hebt geen ${config.typeText}orders voor ${config.categoryText} geplaatst.`;
-			div.appendChild(p);
-			return;
-		}
+	function placeOrder(type,
+						category,
+						itemId,
+						itemName,
+						quantity,
+						unitPrice) {
+		// Add order
+		const config = orderConfig[category][type];
 		
-		const formatter = new Intl.NumberFormat('nl-NL');
-		const ul = document.createElement("ul");
-		ul.classList.add("list-compact");
+		const configBuy = orderConfig[category]["buy"];
+		const configSell = orderConfig[category]["sell"];
 		
-		config.list.forEach(order => {
-			const pieces = order.quantity === 1 ? "stuk" : "stuks";
-			const formattedUnitPrice = formatter.format(order.unitPrice);
+		const buyOption = configBuy.hideOption(itemId);
+		const sellOption = configSell.hideOption(itemId);
+		
+		const order = config.addOrder(itemId,
+									  itemName,
+									  quantity,
+									  unitPrice,
+									  buyOption,
+									  sellOption);
+		
+		// Update page
+		const p = document.getElementById("no-" + config.elementId);
+		p.classList.add("d-none");
+		
+		const ul = document.getElementById(config.elementId + "-list");
+		ul.classList.remove("d-none");
+		
+		const li = document.createElement("li");
+		li.classList.add("list-item-justify");
+		ul.appendChild(li);
+		
+		const pieces = order.quantity === 1 ? "stuk" : "stuks";
+		const minmax = type === "buy" ? "hoogstens" : "minstens";
+		const text = document.createElement("span");
+		text.append(
+			`${order.itemName}:`,
+			document.createElement("br"),
+			`${order.quantity} ${pieces} aan ${minmax} ${order.getFormattedUnitPrice()} `,
+			createCurrencySymbol(),
+			"/stuk"
+		);
+		
+		const deleteBtn = document.createElement("button");
+		deleteBtn.classList.add("btn-close");
+		deleteBtn.type = "button";
+		deleteBtn.addEventListener("click", () => {
+			// Remove order
+			configBuy.showOption(order.itemId);
+			configSell.showOption(order.itemId);
 			
-			const li = document.createElement("li");
-			li.classList.add("list-item-justify");
+			config.removeOrder(order);
 			
-			const text = document.createElement("span");
-			text.append(
-				`${order.name}:`,
-				document.createElement("br"),
-				`${order.quantity} ${pieces} aan ${config.limitText} ${formattedUnitPrice} `,
-				createCurrencySymbol(),
-				"/stuk"
-			);
-			
-			const deleteBtn = document.createElement("button");
-			deleteBtn.classList.add("btn-close");
-			deleteBtn.type = "button";
-			deleteBtn.addEventListener("click", () => {
-				li.remove();
-				
-				const index = config.list.findIndex(o => o.orderId === order.orderId);
-				if (index !== -1) config.list.splice(index, 1);
-				
-				if (order.buyRef) order.buyRef.show = true;
-				if (order.sellRef) order.sellRef.show = true;
-				
-				updateOrderDisplay(config);
-				updateOrderButtonsVisibility();
-			});
-			
-			li.append(
-				text,
-				deleteBtn
-			);
-			ul.appendChild(li);
+			// Udate page
+			li.remove();
+			if (ul.children.length === 0) {
+				ul.classList.add("d-none");
+				p.classList.remove("d-none");
+			}
 		});
-		div.appendChild(ul);
+		
+		li.append(
+			text,
+			deleteBtn
+		);
+		
+		placeOrderButton.disabled = !canPlaceOrder();
 	}
 	//----------------------------------------
-	function updateOrderButtonsVisibility() {
-		const canBuy = buyableProducts.length > 0 || buyableBuildings.length > 0;
-		const canSell = sellableProducts.length > 0 || sellableBuildings.length > 0;
-
-		if (canBuy || canSell) {
-		  createOrderButton.classList.remove("d-none");
-		} else {
-		  createOrderButton.classList.add("d-none");
-		}
-
-		if (canSell) {
-		  sellOption.classList.remove("d-none");
-		} else {
-		  sellOption.classList.add("d-none");
-		}
-
-		if (canBuy) {
-		  buyOption.classList.remove("d-none");
-		} else {
-		  buyOption.classList.add("d-none");
-		}
-	}
-	//----------------------------------------
-	function addShowFlag(items) {
-		return items.map(item => ({
-			...item,
-			show: true
-		}));
-	}
-	//----------------------------------------
-	function enrichOrders(orderMap) {
-		const categories = ["products", "buildings"];
+	function placeInitialOrders() {
+		const categories = ["product", "building"];
 		const types = ["buy", "sell"];
 
 		categories.forEach(category => {
 			types.forEach(type => {
-				const items = orderMap[category][type].availableItems;
-				orderMap[category][type].availableItems = addShowFlag(items);
-			});
-		});
-
-		categories.forEach(category => {
-			const buyItems = orderMap[category]["buy"].availableItems;
-			const sellItems = orderMap[category]["sell"].availableItems;
-
-			types.forEach(type => {
-				const config = orderMap[category][type];
-
-				config.list = config.list.map((order, index) => {
-					const buyRef = setItemVisibility(buyItems, order.itemId, true);
-					const sellRef = setItemVisibility(sellItems, order.itemId, true);
-
-					return {
-						...order,
-						orderId: index + 1,
-						buyRef,
-						sellRef
-					};
+				const config = orderConfig[category][type];
+				config.initialOrders.forEach(order => {
+					placeOrder(
+						type,
+						category,
+						order.itemId,
+						order.itemName,
+						order.quantity,
+						order.unitPrice
+					);
 				});
-
-				config.nextOrderId = config.list.length + 1;
 			});
 		});
 	}
 	//----------------------------------------
-	function setItemVisibility(list, itemId, visible) {
-		const ref = list.find(item => item.id === itemId);
-		if (ref) ref.show = visible;
-		return ref;
-	}
+	function canPlaceOrder(type = "",
+						   category = "") {
+		const types = type ? [type] : ["buy", "sell"];
+		const categories = category ? [category] : ["product", "building"];
 
-	// Execute when DOM content is loaded
-	updateOrderDisplay(orderMap["products"]["buy"]);
-	updateOrderDisplay(orderMap["products"]["sell"]);
-	updateOrderDisplay(orderMap["buildings"]["buy"]);
-	updateOrderDisplay(orderMap["buildings"]["sell"]);
-	updateOrderButtonsVisibility();
+		return types.some(t =>
+			categories.some(c =>
+				orderConfig[c][t].hasVisibleOptions()
+			)
+		);
+	}
 });
 </script>
