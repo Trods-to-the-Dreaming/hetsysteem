@@ -6,9 +6,9 @@ import { pathToFileURL } from "url";
 // --- Environmental variables ---//
 dotenv.config({ path: path.join(process.cwd(), ".env")});
 
-const { default: db } = await import("./src/utils/db.js");
-
 async function processOrders() {
+	const { default: db } = await import("./src/utils/db.js");
+	
 	const newQuantity = 5;
 	const characterId = 1;
 	const productId = 4;
@@ -24,6 +24,8 @@ async function processOrders() {
 	);
 }
 
-processOrders().catch(err => {
-  console.error("Fout bij verwerken van orders:", err);
-});
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+	processOrders().catch(err => {
+		console.error("Fout bij verwerken van orders:", err);
+	});
+}
