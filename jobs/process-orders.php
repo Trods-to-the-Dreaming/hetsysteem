@@ -1,4 +1,28 @@
-//--- Load dependencies ---//
+<?php
+// URL naar je beveiligde cron-route
+$url = 'https://www.hetsysteem.site/cron/process-orders'; //'http://localhost:3000/cron/process-orders'; //
+
+$options = [
+  'http' => [
+    'method' => 'GET',
+    'header' => "Authorization: Bearer 4321\r\n"
+  ]
+];
+
+$context = stream_context_create($options);
+$result = file_get_contents($url, false, $context);
+
+if ($result === FALSE) {
+  http_response_code(500);
+  echo "Cron job mislukt.";
+} else {
+  echo "Cron job succesvol uitgevoerd.";
+}
+?>
+
+
+
+<!--//--- Load dependencies ---//
 import dotenv from "dotenv";
 import path from "path";
 import { pathToFileURL } from "url";
@@ -28,4 +52,4 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 	processOrders().catch(err => {
 		console.error("Fout bij verwerken van orders:", err);
 	});
-}
+}-->
