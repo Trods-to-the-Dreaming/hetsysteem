@@ -25,7 +25,8 @@ export const showSurvive = async (req, res, next) => {
 			`SELECT COALESCE(
 				(SELECT quantity 
 				FROM character_products 
-				WHERE character_id = ? AND product_id = 1),
+				WHERE character_id = ? AND
+					  product_id = 1),
 				0
 			) AS quantity;`,
 			[characterId]
@@ -37,8 +38,9 @@ export const showSurvive = async (req, res, next) => {
 		const [medicalCare] = await db.execute(
 			`SELECT COALESCE(
 				(SELECT quantity 
-				FROM character_products 
-				WHERE character_id = ? AND product_id = 2),
+				 FROM character_products 
+				 WHERE character_id = ? AND
+					   product_id = 2),
 				0
 			) AS quantity;`,
 			[characterId]
@@ -216,14 +218,14 @@ export const showSpendTime = async (req, res, next) => {
 		
 		const [contracts] = await db.execute(
 			`SELECT ec.id, ec.hours, ec.hourly_wage, 
-			emp.first_name AS employer_first_name, 
-			emp.last_name AS employer_last_name, 
-			j.name AS job_name
-			FROM employment_contracts ec
-			JOIN characters emp ON ec.employer_id = emp.id
-			JOIN jobs j ON ec.job_id = j.id
-			WHERE ec.employee_id = ?
-			ORDER BY ec.hourly_wage DESC`,
+			 emp.first_name AS employer_first_name, 
+			 emp.last_name AS employer_last_name, 
+			 j.name AS job_name
+			 FROM employment_contracts ec
+			 JOIN characters emp ON ec.employer_id = emp.id
+			 JOIN jobs j ON ec.job_id = j.id
+			 WHERE ec.employee_id = ?
+			 ORDER BY ec.hourly_wage DESC`,
 			[characterId]
 		);
 		

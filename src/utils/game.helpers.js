@@ -15,8 +15,6 @@ export function calculateLifeExpectancy(age,
 }
 
 export async function replaceOrders(db, characterId, type, category, orders) {
-	//console.log(orders);
-	
 	const validTypes = ["buy", "sell"];
 	if (!validTypes.includes(type)) {
 		throw new BadRequestError(`Ongeldig order type: ${type}`);
@@ -49,10 +47,10 @@ export async function replaceOrders(db, characterId, type, category, orders) {
 		valueParams
 	);
 }
-
+/*
 export function addFrontendIds(orders) {
 	return orders.map((order, index) => ({
 		...order,
 		orderId: index + 1
 	}));
-}
+}*/

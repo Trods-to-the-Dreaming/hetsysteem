@@ -74,8 +74,8 @@ export const handleChangeUsername = async (req, res, next) => {
 		// Update username
 		await db.execute(
 			`UPDATE users 
-			SET name = ? 
-			WHERE id = ?`, 
+			 SET name = ? 
+			 WHERE id = ?`, 
 			[newUsername, 
 			 userId]
 		);
