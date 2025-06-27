@@ -7,9 +7,9 @@ import { pathToFileURL } from "url";
 dotenv.config({ path: path.join(process.cwd(), ".env")});
 
 async function processOrders() {
-	const { default: db } = await import("./src/utils/db.js");
+	const { default: db } = await import("../src/utils/db.js");
 	
-	const newQuantity = 5;
+	const newQuantity = 3;
 	const characterId = 1;
 	const productId = 4;
   
