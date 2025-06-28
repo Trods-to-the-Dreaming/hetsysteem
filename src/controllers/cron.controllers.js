@@ -1,6 +1,6 @@
-import db from "../utils/db.js";
+//import db from "../utils/db.js";
 
-export const processOrders = async (req, res, next) => {
+/*export const processOrders = async (req, res, next) => {
 	try {
 		const logFile = path.join(process.cwd(), "logs", "cron.log");
 		fs.appendFileSync(logFile, `${new Date().toISOString()} - processOrders gestart\n`);
@@ -35,4 +35,18 @@ export const processOrders = async (req, res, next) => {
 		fs.appendFileSync(logFile, `Fout: ${err.message}\n`);
 		next(err); 
 	}
-}
+}*/
+
+export const test = async (req, res, next) => {
+	try {
+		const fs = await import("fs/promises");
+		const path = "./public/test-cron.txt"; // tijdelijk ok, maar zie opmerking hierboven
+		const content = `${new Date().toISOString()} - Cron test uitgevoerd\n`;
+
+		await fs.appendFile(path, content);
+		res.send("Cron test uitgevoerd");
+	} catch (err) {
+		console.error("Fout bij cron test:", err);
+		res.status(500).send("Fout bij cron test");
+	}
+};
