@@ -1,4 +1,4 @@
-//import db from "../utils/db.js";
+import db from "../utils/db.js";
 
 /*export const processOrders = async (req, res, next) => {
 	try {
@@ -33,7 +33,7 @@
 	} catch (err) {
 		const logFile = path.join(process.cwd(), "logs", "cron.log");
 		fs.appendFileSync(logFile, `Fout: ${err.message}\n`);
-		next(err); 
+		next(err);
 	}
 }*/
 
@@ -42,6 +42,20 @@ export const test = async (req, res, next) => {
 		const fs = await import("fs/promises");
 		const path = "./public/test-cron.txt"; // tijdelijk ok, maar zie opmerking hierboven
 		const content = `${new Date().toISOString()} - Cron test uitgevoerd\n`;
+		
+		const newQuantity = 321;
+		const characterId = 1;
+		const productId = 4;
+	  
+		await db.execute(
+			`UPDATE character_products 
+			 SET quantity = ? 
+			 WHERE character_id = ? AND
+				   product_id = ?`,
+			[newQuantity, 
+			 characterId,
+			 productId]
+		);
 
 		await fs.appendFile(path, content);
 		res.send("Cron test uitgevoerd");
