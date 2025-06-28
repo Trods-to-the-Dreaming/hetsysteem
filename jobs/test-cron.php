@@ -1,5 +1,5 @@
 <?php
-$logFile = __DIR__ . '/test-cron.txt';
+$logFile = $_SERVER['DOCUMENT_ROOT'] . '/test-cron.txt';
 file_put_contents($logFile, date('Y-m-d H:i:s') . " - Cron job uitgevoerd\n", FILE_APPEND);
 
 // Toon laatste regel als feedback
