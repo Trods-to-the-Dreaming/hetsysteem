@@ -22,11 +22,12 @@ export async function replaceOrders(db, characterId, type, category, orders) {
 	
 	const validCategories = ["product", "building"];
 	if (!validCategories.includes(category)) {
-		throw new BadRequestError(`Ongeldige categorie: ${category}`);
+		throw new BadRequestError(`Ongeldige order categorie: ${category}`);
 	}
 
 	await db.execute(
-		`DELETE FROM ${category}_${type}_orders WHERE character_id = ?`,
+		`DELETE FROM ${category}_${type}_orders
+		 WHERE character_id = ?`,
 		[characterId]
 	);
 
@@ -42,15 +43,115 @@ export async function replaceOrders(db, characterId, type, category, orders) {
 
 	await db.execute(
 		`INSERT INTO ${category}_${type}_orders
-		 (character_id, ${category}_id, quantity, ${type === "buy" ? "max" : "min"}_unit_price)
+		 (character_id, 
+		  ${category}_id, 
+		  ${type === "buy" ? "demand" : "supply"}, 
+		  ${type === "buy" ? "max" : "min"}_unit_price)
 		 VALUES ${valuePlaceholders}`,
 		valueParams
 	);
 }
-/*
-export function addFrontendIds(orders) {
-	return orders.map((order, index) => ({
-		...order,
-		orderId: index + 1
-	}));
+
+/*export const getAffordableBuyOrders = async (category, id) => {
+	const validCategories = ["product", "building"];
+	if (!validCategories.includes(category)) {
+		throw new BadRequestError(`Ongeldige order categorie: ${category}`);
+	}
+
+	const table = `${category}_buy_orders`;
+	const itemId = `${category}_id`;
+
+	const [orders] = await db.execute(
+	`SELECT cbo.character_id,
+		    cbo.${itemId} AS item_id,
+		    cbo.quantity,
+		    cbo.max_unit_price,
+		    c.balance
+	 FROM ${table} cbo
+	 JOIN characters c ON cbo.character_id = c.id
+	 WHERE cbo.${itemId} = ? AND 
+		   (cbo.quantity * cbo.max_unit_price) <= c.balance`,
+	[id]);
+
+	return orders;
+};
+
+export const getSellOrders = async (category, id) => {
+	const validCategories = ["product", "building"];
+	if (!validCategories.includes(category)) {
+		throw new BadRequestError(`Ongeldige order categorie: ${category}`);
+	}
+
+	const table = `${category}_sell_orders`;
+	const itemId = `${category}_id`;
+
+	const [orders] = await db.execute(
+	`SELECT cso.character_id,
+		    cso.${itemId} AS item_id,
+		    cso.quantity,
+		    cso.min_unit_price
+	 FROM ${table} cso
+	 WHERE cso.${itemId} = ?`,
+	[id]);
+
+	return orders;
+};
+
+
+export const matchOrders = async (category, id) => {
+	const validCategories = ["product", "building"];
+	if (!validCategories.includes(category)) {
+		throw new BadRequestError(`Ongeldige order categorie: ${category}`);
+	}
+
+	const buyTable = `${category}_buy_orders`;
+	const sellTable = `${category}_sell_orders`;
+	const itemId = `${category}_id`;
+
+	const [buyOrders] = await db.execute(
+	`SELECT cbo.character_id,
+		    cbo.${itemId} AS item_id,
+		    cbo.quantity,
+		    cbo.max_unit_price,
+		    c.balance
+	 FROM ${table} cbo
+	 JOIN characters c ON cbo.character_id = c.id
+	 WHERE cbo.${itemId} = ? AND 
+		   (cbo.quantity * cbo.max_unit_price) <= c.balance`,
+	[id]);
+	
+	const [sellOrders] = await db.execute(
+	`SELECT cso.character_id,
+		    cso.${itemId} AS item_id,
+		    cso.quantity,
+		    cso.min_unit_price
+	 FROM ${table} cso
+	 WHERE cso.${itemId} = ?`,
+	[id]);
+
+	
+
+	return orders;
+};
+
+
+
+function isCompleteMatch(sellOrders, buyOrders) {
+	//////////////////////////////////////////////////////
+	// sellOrders: sorted by ascending unit price order //
+	// buyOrders: sorted by descending unit price order //
+	//////////////////////////////////////////////////////
+	
+	// Start with highest sell order
+	for (let s = sellOrders.length - 1; s >= 0; s--) {
+	
+		// Start with highest buy order
+		for (let b = 0; b < buyOrders.length; b++) {
+		}
+	}
+	
+	return { match: true };
+	
+	return { match: false,
+			 reason: };
 }*/

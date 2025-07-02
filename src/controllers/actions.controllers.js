@@ -72,7 +72,7 @@ export const showTrade = async (req, res, next) => {
 		const [productBuyOrders] = await db.execute(
 			`SELECT pbo.product_id AS itemId,
 					p.name AS itemName,
-					pbo.quantity AS quantity,
+					pbo.demand AS quantity,
 					pbo.max_unit_price AS unitPrice
 			 FROM product_buy_orders pbo
 			 JOIN products p ON pbo.product_id = p.id
@@ -82,7 +82,7 @@ export const showTrade = async (req, res, next) => {
 		const [productSellOrders] = await db.execute(
 			`SELECT pso.product_id AS itemId,
 					p.name AS itemName,
-					pso.quantity AS quantity,
+					pso.supply AS quantity,
 					pso.min_unit_price AS unitPrice
 			 FROM product_sell_orders pso
 			 JOIN products p ON pso.product_id = p.id
@@ -92,7 +92,7 @@ export const showTrade = async (req, res, next) => {
 		const [buildingBuyOrders] = await db.execute(
 			`SELECT bbo.building_id AS itemId,
 					b.name AS itemName,
-					bbo.quantity AS quantity,
+					bbo.demand AS quantity,
 					bbo.max_unit_price AS unitPrice
 			 FROM building_buy_orders bbo
 			 JOIN buildings b ON bbo.building_id = b.id
@@ -102,19 +102,13 @@ export const showTrade = async (req, res, next) => {
 		const [buildingSellOrders] = await db.execute(
 			`SELECT bso.building_id AS itemId,
 					b.name AS itemName,
-					bso.quantity AS quantity,
+					bso.supply AS quantity,
 					bso.min_unit_price AS unitPrice
 			 FROM building_sell_orders bso
 			 JOIN buildings b ON bso.building_id = b.id
 			 WHERE bso.character_id = ?`,
 			[characterId]
 		);
-		
-		// Add frontend id's
-		/*const productBuyOrders = addFrontendIds(productBuyOrdersRaw);
-		const productSellOrders = addFrontendIds(productSellOrdersRaw);
-		const buildingBuyOrders = addFrontendIds(buildingBuyOrdersRaw);
-		const buildingSellOrders = addFrontendIds(buildingSellOrdersRaw);*/
 		
 		// Get possible products and buildings
 		const [buyableProducts] = await db.execute(
@@ -129,7 +123,6 @@ export const showTrade = async (req, res, next) => {
 			 FROM buildings
 			 ORDER BY id`
 		);
-		
 		const [sellableProducts] = await db.execute(
 			`SELECT p.id AS itemId,
 					p.name AS itemName, 

@@ -1,0 +1,116 @@
+Je kunt je het algoritme dat ik bedoel, voorstellen als volgt. Dit zijn de koop- en verkooporders, allebei gesorteerd van hoge prijs naar lage prijs.
+
+Buyer	quantity	max_unit_price
+character_A	2	100
+character_B	5	80
+character_C	3	70
+
+Seller	quantity	min_unit_price
+character_D	4	90
+character_E	3	75
+character_F	5	60
+
+Nu schuif je de kooporders van onder langs de verkooporders zo ver als je kan (d.w.z. zolang max_unit_price >= min_unit_price). Dit werkt:
+
+Seller	quantity	min_unit_price	|	Buyer	quantity	max_unit_price
+character_D	4	90
+character_E	3	75
+character_F	5	60	|	character_A	2	100
+
+Maar je kunt nog verder schuiven:
+
+Seller	quantity	min_unit_price	|	Buyer	quantity	max_unit_price
+character_D	4	90
+character_E	3	75	|	character_A	2	100
+character_F	5	60	|	character_B	5	80
+
+En zelfs nog verder schuiven (het hoeft geen 1-op-1 match te zijn van characters):
+
+Seller	quantity	min_unit_price	|	Buyer	quantity	max_unit_price
+character_D	4	90	|	character_A	2	100
+character_E	3	75	|	character_B	3	80
+character_F	5	60	|	character_B	2	80	+	character_F	3	70
+
+Begrijp je? Zo maximaliseer je het aantal transacties.
+
+------------------
+
+Dus met dit voorbeeld:
+
+Buyer	quantity	max_unit_price
+character_A	2	100
+character_B	5	55
+character_C	3	50
+
+Seller	quantity	min_unit_price
+character_F	5	60
+character_E	3	75
+character_D	4	90
+
+geeft het algoritme dan:
+
+Seller	quantity	min_unit_price	|	Buyer	quantity	max_unit_price
+character_D	4	90	|	
+character_E	3	75	|	
+character_F	5	60	|	character_A	2	100
+
+------------------
+
+Buyer	quantity	max_unit_price
+character_A	2	100
+character_B	5	90
+character_C	3	50
+
+Seller	quantity	min_unit_price
+character_D	4	90
+character_E	2	75
+character_F	4	60
+
+Matching stap 1:
+
+Seller	quantity	min_unit_price	|	Buyer	quantity	max_unit_price
+character_D	4	90	|	character_A	2	100	+	character_B	2	90
+character_E	2	75	|	character_B	2	90
+character_F	4	60	|	character_B	1	90	+	character_C	3	50
+
+Matching stap 2:
+
+Seller	quantity	min_unit_price	|	Buyer	quantity	max_unit_price
+character_D	4	90	|	character_A	2	100
+character_E	3	75	|	character_B	3	90
+character_F	5	60	|	character_B	2	90	+	character_C	3	50
+
+
+Nu schuif je de kooporders van onder langs de verkooporders zo ver als je kan (d.w.z. zolang max_unit_price >= min_unit_price). Dit werkt:
+
+Seller	quantity	min_unit_price	|	Buyer	quantity	max_unit_price
+character_D	4	90
+character_E	3	75
+character_F	5	60	|	character_A	2	100
+
+Maar je kunt nog verder schuiven:
+
+Seller	quantity	min_unit_price	|	Buyer	quantity	max_unit_price
+character_D	4	90
+character_E	3	75	|	character_A	2	100
+character_F	5	60	|	character_B	5	80
+
+En zelfs nog verder schuiven (het hoeft geen 1-op-1 match te zijn van characters):
+
+Seller	quantity	min_unit_price	|	Buyer	quantity	max_unit_price
+character_D	4	90	|	character_A	2	100
+character_E	3	75	|	character_B	3	80
+character_F	5	60	|	character_B	2	80	+	character_F	3	70
+
+Begrijp je? Zo maximaliseer je het aantal transacties.
+
+------------------
+
+Deze functie moet true of false teruggeven, maar als het false is, zou ik extra informatie willen teruggeven. Hoe doe ik dat? Of is dat slechte code? 
+
+
+
+Stel dat je twee trapfuncties hebt, f1(x) en f2(x). Bijvoorbeeld:
+f1(x) = 50 voor x = 0 tot 3, f1(x) = 90 voor x = 3 tot 8, f1(x) = 100 voor x = 8 tot 10
+f2(x) = 60 voor x = 0 tot 4, f2(x) = 75 voor x = 4 tot 6, f2(x) = 90 voor x = 6 tot 10
+Kun je mij een algoritme geven om te bepalen hoeveel f2 langs de x-as moet worden verschoven, zodat overal f1 >= f2?

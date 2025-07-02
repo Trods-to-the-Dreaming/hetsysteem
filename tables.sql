@@ -160,7 +160,7 @@ CREATE TABLE employment_contracts (
 CREATE TABLE product_buy_orders (
 	character_id INT NOT NULL,
 	product_id INT NOT NULL,
-	quantity INT NOT NULL,
+	demand INT NOT NULL,
 	max_unit_price INT NOT NULL,
 	PRIMARY KEY (character_id, product_id),
 	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
@@ -170,7 +170,7 @@ CREATE TABLE product_buy_orders (
 CREATE TABLE product_sell_orders (
 	character_id INT NOT NULL,
 	product_id INT NOT NULL,
-	quantity INT NOT NULL,
+	supply INT NOT NULL,
 	min_unit_price INT NOT NULL,
 	PRIMARY KEY (character_id, product_id),
 	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
@@ -180,7 +180,7 @@ CREATE TABLE product_sell_orders (
 CREATE TABLE building_buy_orders (
 	character_id INT NOT NULL,
 	building_id INT NOT NULL,
-	quantity INT NOT NULL,
+	demand INT NOT NULL,
 	max_unit_price INT NOT NULL,
 	PRIMARY KEY (character_id, building_id),
 	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
@@ -190,7 +190,7 @@ CREATE TABLE building_buy_orders (
 CREATE TABLE building_sell_orders (
 	character_id INT NOT NULL,
 	building_id INT NOT NULL,
-	quantity INT NOT NULL,
+	supply INT NOT NULL,
 	min_unit_price INT NOT NULL,
 	PRIMARY KEY (character_id, building_id),
 	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
