@@ -1,45 +1,27 @@
-import db from "../utils/db.js";
+import {
+	processCategoryOrders
+} from "../utils/game.helpers.js";
 
-/*export const processOrders = async (req, res, next) => {
+export const processOrders = async (req, res, next) => {
 	try {
-		const logFile = path.join(process.cwd(), "logs", "cron.log");
-		fs.appendFileSync(logFile, `${new Date().toISOString()} - processOrders gestart\n`);
+		await processCategoryOrders("product");
+		await processCategoryOrders("building");
+		
+		const html = `<html>
+					  <body>
+					  <h1>Gelukt?</h1>
+					  </body>
+					  </html>`;
 	
-		const authHeader = req.headers.authorization;
-		const token = authHeader?.split(" ")[1];
-		fs.appendFileSync(logFile, `Token ontvangen: ${token}\n`);
-
-		if (token !== process.env.CRON_TOKEN) {
-			fs.appendFileSync(logFile, `Toegang geweigerd\n`);
-			return res.status(403).send("Toegang geweigerd");
-		}
-		
-		const newQuantity = 321;
-		const characterId = 1;
-		const productId = 4;
-	  
-		await db.execute(
-			`UPDATE character_products 
-			 SET quantity = ? 
-			 WHERE character_id = ? AND
-				   product_id = ?`,
-			[newQuantity, 
-			 characterId,
-			 productId]
-		);
-		
-		fs.appendFileSync(logFile, `Query uitgevoerd\n`);
-		res.status(200).send("Cron job succesvol uitgevoerd");
+		res.send(html);
 	} catch (err) {
-		const logFile = path.join(process.cwd(), "logs", "cron.log");
-		fs.appendFileSync(logFile, `Fout: ${err.message}\n`);
 		next(err);
 	}
-}*/
+}
 
 
 
-export const test = async (req, res, next) => {
+/*export const test = async (req, res, next) => {
 	const productId = 1;
 	
 	const buyers = [
@@ -63,7 +45,7 @@ export const test = async (req, res, next) => {
 		  supply: 4,
 		  min_unit_price: 90 }];
 	
-	// Reduce the demand of buyers with insufficient money
+	
 	
 	
 	
@@ -200,7 +182,44 @@ export const test = async (req, res, next) => {
 		</html>`;
 	
 	res.send(html);
-}
+}*/
+
+/*export const processOrders = async (req, res, next) => {
+	try {
+		const logFile = path.join(process.cwd(), "logs", "cron.log");
+		fs.appendFileSync(logFile, `${new Date().toISOString()} - processOrders gestart\n`);
+	
+		const authHeader = req.headers.authorization;
+		const token = authHeader?.split(" ")[1];
+		fs.appendFileSync(logFile, `Token ontvangen: ${token}\n`);
+
+		if (token !== process.env.CRON_TOKEN) {
+			fs.appendFileSync(logFile, `Toegang geweigerd\n`);
+			return res.status(403).send("Toegang geweigerd");
+		}
+		
+		const newQuantity = 321;
+		const characterId = 1;
+		const productId = 4;
+	  
+		await db.execute(
+			`UPDATE character_products 
+			 SET quantity = ? 
+			 WHERE character_id = ? AND
+				   product_id = ?`,
+			[newQuantity, 
+			 characterId,
+			 productId]
+		);
+		
+		fs.appendFileSync(logFile, `Query uitgevoerd\n`);
+		res.status(200).send("Cron job succesvol uitgevoerd");
+	} catch (err) {
+		const logFile = path.join(process.cwd(), "logs", "cron.log");
+		fs.appendFileSync(logFile, `Fout: ${err.message}\n`);
+		next(err);
+	}
+}*/
 
 /*export const test = async (req, res, next) => {
 	try {	

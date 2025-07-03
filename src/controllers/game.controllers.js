@@ -176,7 +176,7 @@ export const showCustomizeCharacter = async (req, res, next) => {
 			`SELECT recreations.id, 
 			        products.name
 			 FROM recreations
-			 JOIN products ON recreations.product_id = products.id
+			 INNER JOIN products ON recreations.product_id = products.id
 			 ORDER BY recreations.id;`
 		);
 		
@@ -212,7 +212,7 @@ export const handleCustomizeCharacter = async (req, res, next) => {
 			`SELECT recreations.id, 
 			        products.name
 			 FROM recreations
-			 JOIN products ON recreations.product_id = products.id
+			 INNER JOIN products ON recreations.product_id = products.id
 			 ORDER BY recreations.id;`
 		);
 		
@@ -323,11 +323,11 @@ export const showCharacter = async (req, res, next) => {
 					j3.name AS job_preference_3,
 					p.name AS recreation_preference
 			 FROM characters c
-			 JOIN jobs j1 ON c.job_preference_1_id = j1.id
-			 JOIN jobs j2 ON c.job_preference_2_id = j2.id
-			 JOIN jobs j3 ON c.job_preference_3_id = j3.id
-			 JOIN recreations r ON c.recreation_preference_id = r.id
-			 JOIN products p ON r.product_id = p.id
+			 INNER JOIN jobs j1 ON c.job_preference_1_id = j1.id
+			 INNER JOIN jobs j2 ON c.job_preference_2_id = j2.id
+			 INNER JOIN jobs j3 ON c.job_preference_3_id = j3.id
+			 INNER JOIN recreations r ON c.recreation_preference_id = r.id
+			 INNER JOIN products p ON r.product_id = p.id
 			 WHERE c.user_id = ? AND 
 			       c.world_id = ?`,
 			[userId, 
@@ -356,7 +356,7 @@ export const showCharacter = async (req, res, next) => {
 			`SELECT j.name AS job_name,
 				    e.experience AS experience_hours
 			 FROM character_job_experience e
-			 JOIN jobs j ON e.job_id = j.id
+			 INNER JOIN jobs j ON e.job_id = j.id
 			 WHERE e.character_id = ?`,
 			[character.id]
 		);

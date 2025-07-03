@@ -6,8 +6,10 @@ CREATE TABLE users (
 
 DROP TABLE applications;
 DROP TABLE vacancies;
+DROP TABLE building_transactions;
 DROP TABLE building_sell_orders;
 DROP TABLE building_buy_orders;
+DROP TABLE product_transactions;
 DROP TABLE product_sell_orders;
 DROP TABLE product_buy_orders;
 DROP TABLE employment_contracts;
@@ -177,6 +179,18 @@ CREATE TABLE product_sell_orders (
 	FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
+CREATE TABLE product_transactions (
+	buyer_id INT NOT NULL,
+	seller_id INT NOT NULL,
+	product_id INT NOT NULL,
+	quantity INT NOT NULL,
+	price INT NOT NULL,
+	PRIMARY KEY (buyer_id, seller_id, product_id),
+	FOREIGN KEY (buyer_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (seller_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
 CREATE TABLE building_buy_orders (
 	character_id INT NOT NULL,
 	building_id INT NOT NULL,
@@ -194,6 +208,18 @@ CREATE TABLE building_sell_orders (
 	min_unit_price INT NOT NULL,
 	PRIMARY KEY (character_id, building_id),
 	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (building_id) REFERENCES buildings(id)
+);
+
+CREATE TABLE building_transactions (
+	buyer_id INT NOT NULL,
+	seller_id INT NOT NULL,
+	building_id INT NOT NULL,
+	quantity INT NOT NULL,
+	price INT NOT NULL,
+	PRIMARY KEY (buyer_id, seller_id, building_id),
+	FOREIGN KEY (buyer_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (seller_id) REFERENCES characters(id) ON DELETE CASCADE,
 	FOREIGN KEY (building_id) REFERENCES buildings(id)
 );
 
@@ -289,25 +315,6 @@ INSERT INTO buildings
 ('Recyclagecentrum',    1,       40), -- id = 19
 ('Woning',              1,       40), -- id = 20
 ('Magazijn',            1,       40); -- id = 21
-
-CREATE TABLE jobs (
-	id INT PRIMARY KEY AUTO_INCREMENT,
-	name VARCHAR(32) NOT NULL UNIQUE,
-	building_id INT NOT NULL,
-	input_id INT,
-	output_id INT NOT NULL,
-	booster_id INT NOT NULL,
-	worn_booster_id INT,
-	input_per_output INT,
-	boosted_working_hours_per_booster INT NOT NULL,
-	base_factor DECIMAL(3,2),
-	boost_factor DECIMAL(3,1),
-	FOREIGN KEY (building_id) REFERENCES buildings(id),
-	FOREIGN KEY (input_id) REFERENCES products(id),
-	FOREIGN KEY (output_id) REFERENCES products(id),
-	FOREIGN KEY (booster_id) REFERENCES products(id),
-	FOREIGN KEY (worn_booster_id) REFERENCES products(id)
-);
 
 INSERT INTO jobs
 (name,                    building_id, input_id, output_id, booster_id, worn_booster_id, input_per_output, boosted_working_hours_per_booster, base_factor, boost_factor) VALUES

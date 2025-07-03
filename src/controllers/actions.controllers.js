@@ -23,9 +23,9 @@ export const showSurvive = async (req, res, next) => {
 		const [food] = await db.execute(
 			`SELECT COALESCE(
 				(SELECT quantity 
-				FROM character_products 
-				WHERE character_id = ? AND
-					  product_id = 1),
+				 FROM character_products 
+				 WHERE character_id = ? AND
+					   product_id = 1),
 				0
 			) AS quantity;`,
 			[characterId]
@@ -75,7 +75,7 @@ export const showTrade = async (req, res, next) => {
 					pbo.demand AS quantity,
 					pbo.max_unit_price AS unitPrice
 			 FROM product_buy_orders pbo
-			 JOIN products p ON pbo.product_id = p.id
+			 INNER JOIN products p ON pbo.product_id = p.id
 			 WHERE pbo.character_id = ?`,
 			[characterId]
 		);
@@ -85,7 +85,7 @@ export const showTrade = async (req, res, next) => {
 					pso.supply AS quantity,
 					pso.min_unit_price AS unitPrice
 			 FROM product_sell_orders pso
-			 JOIN products p ON pso.product_id = p.id
+			 INNER JOIN products p ON pso.product_id = p.id
 			 WHERE pso.character_id = ?`,
 			[characterId]
 		);
@@ -95,7 +95,7 @@ export const showTrade = async (req, res, next) => {
 					bbo.demand AS quantity,
 					bbo.max_unit_price AS unitPrice
 			 FROM building_buy_orders bbo
-			 JOIN buildings b ON bbo.building_id = b.id
+			 INNER JOIN buildings b ON bbo.building_id = b.id
 			 WHERE bbo.character_id = ?`,
 			[characterId]
 		);
@@ -105,7 +105,7 @@ export const showTrade = async (req, res, next) => {
 					bso.supply AS quantity,
 					bso.min_unit_price AS unitPrice
 			 FROM building_sell_orders bso
-			 JOIN buildings b ON bso.building_id = b.id
+			 INNER JOIN buildings b ON bso.building_id = b.id
 			 WHERE bso.character_id = ?`,
 			[characterId]
 		);
@@ -128,7 +128,7 @@ export const showTrade = async (req, res, next) => {
 					p.name AS itemName, 
 					cp.quantity
 			 FROM character_products cp
-			 JOIN products p ON cp.product_id = p.id
+			 INNER JOIN products p ON cp.product_id = p.id
 			 WHERE cp.character_id = ? AND 
 				   cp.quantity > 0
 			 ORDER BY p.id`,
@@ -139,7 +139,7 @@ export const showTrade = async (req, res, next) => {
 					b.name AS itemName,
 					cb.quantity
 			 FROM character_buildings cb
-			 JOIN buildings b ON cb.building_id = b.id
+			 INNER JOIN buildings b ON cb.building_id = b.id
 			 WHERE cb.character_id = ? AND
 				   cb.quantity > 0
 			 ORDER BY b.id`,
@@ -214,8 +214,8 @@ export const showSpendTime = async (req, res, next) => {
 			 emp.last_name AS employer_last_name, 
 			 j.name AS job_name
 			 FROM employment_contracts ec
-			 JOIN characters emp ON ec.employer_id = emp.id
-			 JOIN jobs j ON ec.job_id = j.id
+			 INNER JOIN characters emp ON ec.employer_id = emp.id
+			 INNER JOIN jobs j ON ec.job_id = j.id
 			 WHERE ec.employee_id = ?
 			 ORDER BY ec.hourly_wage DESC`,
 			[characterId]

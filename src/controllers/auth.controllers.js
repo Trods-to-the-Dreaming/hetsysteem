@@ -95,8 +95,8 @@ export const handleRegister = async (req, res, next) => {
 		const hashedPassword = await bcrypt.hash(password, 8);
 		const [user] = await db.execute(
 			`INSERT INTO users
-			 (name, 
-			  password) 
+				(name, 
+				 password) 
 			 VALUES (?, ?)`, 
 			[username, 
 			 hashedPassword]
