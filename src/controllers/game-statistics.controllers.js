@@ -1,25 +1,21 @@
-//=== Imports ===================================================================================//
-import saveSession from "../utils/session.js";
+import GAME_MSG from "../constants/game.messages.js";
+import GAME_RULES from "../constants/game.rules.js";
 import { 
 	convertHoursToYears,
 	calculateLifeExpectancy	
 } from "../utils/game.helpers.js";
+import db from "../utils/db.js";
+import saveSession from "../utils/session.js";
 
-import GAME_RULES from "../constants/game.rules.js";
-
-//=== Constants =================================================================================//
-const MSG_INVALID_WORLD					= "Ongeldige wereld geselecteerd.";
-const MSG_NO_NEW_CHARACTERS				= "Er is geen plaats meer voor nieuwe personages.";
-const MSG_INVALID_JOB_PREFERENCE		= "Ongeldige job geselecteerd.";
-const MSG_INVALID_RECREATION_PREFERENCE	= "Ongeldige ontspanning geselecteerd.";
-const MSG_IDENTICAL_JOB_PREFERENCES		= "Kies drie verschillende jobs.";
-
-//=== Main ======================================================================================//
-
-//--- Show choose world page --------------------------------------------------------------------//
+//--- Show choose world page ---//
 export const showChooseWorld = async (req, res, next) => {
 	try {
-		const worlds = await getAllWorlds();
+		const [worlds] = await db.execute(
+			`SELECT id, 
+			        name 
+			 FROM worlds 
+			 ORDER BY id`
+		);
 		
 		return res.render("game/choose-world", {
 			worlds
@@ -29,7 +25,7 @@ export const showChooseWorld = async (req, res, next) => {
 	}
 };
 
-//--- Handle choose world request ---------------------------------------------------------------//
+//--- Handle choose world request ---//
 export const handleChooseWorld = async (req, res, next) => {
 	const connection = await db.getConnection();
 	try {
@@ -38,28 +34,47 @@ export const handleChooseWorld = async (req, res, next) => {
 		const { userId } = req.session;
 		const { worldId } = req.body;
 
-		// Find world
-		const world = await findWorldById(worldId, connection);
-		if (!world) {
-			const worlds = await getAllWorlds(connection);
+		// Fetch world
+		const [worldsWithId] = await connection.execute(
+			`SELECT * 
+			 FROM worlds 
+			 WHERE id = ?`,
+			[worldId]
+		);
+		if (worldsWithId.length === 0) {
+			const [worlds] = await connection.execute(
+				`SELECT id, 
+				        name 
+				 FROM worlds 
+				 ORDER BY id`
+			);
 			await connection.rollback();
-			
 			return res.render("game/choose-world", {
 				worlds,
-				error_chosen_world: MSG_INVALID_WORLD
+				error_chosen_world: GAME_MSG.INVALID_WORLD
 			});
 		}
+		const world = worldsWithId[0];
 
-		// Find user's character in this world
-		const myCharacter = await findUserCharacterInWorld(userId, worldId, connection);
-		if (myCharacter) {
-			if (!myCharacter.is_customized) {
+		// Fetch user's character in this world
+		const [myCharacters] = await connection.execute(
+			`SELECT * 
+			 FROM characters 
+			 WHERE user_id = ? AND 
+			       world_id = ?`,
+			[userId, 
+			 worldId]
+		);
+		if (myCharacters.length > 0) {
+			const character = myCharacters[0];
+
+			if (!character.is_customized) {
 				await connection.commit();
 
 				// Save session
 				req.session.worldId = world.id;
 				req.session.worldName = world.name;
-				req.session.characterId = myCharacter.id;
+				req.session.characterId = character.id;
 				await saveSession(req);
 
 				// Finish character customization before entering world
@@ -71,29 +86,40 @@ export const handleChooseWorld = async (req, res, next) => {
 			// Save session
 			req.session.worldId = world.id;
 			req.session.worldName = world.name;
-			req.session.characterId = myCharacter.id;
-			req.session.characterFirstName = myCharacter.first_name;
-			req.session.characterLastName = myCharacter.last_name;
+			req.session.characterId = character.id;
+			req.session.characterFirstName = character.first_name;
+			req.session.characterLastName = character.last_name;
 			await saveSession(req);
 
 			// Enter world
-			return res.redirect("/game");
+			return res.redirect("/game/menu");
 		}
 		
-		// Get an AI-character
-		const aiCharacter = await getAICharacterInWorld(worldId, connection);
-		if (!aiCharacter) {
-			const worlds = await getAllWorlds(connection);
+		// Fetch an AI-character to claim
+		const [aiCharacter] = await connection.execute(
+			`SELECT id 
+			 FROM characters 
+			 WHERE user_id IS NULL AND 
+			       world_id = ? 
+			 LIMIT 1`,
+			[worldId]
+		);
+		if (aiCharacter.length === 0) {
+			const [worlds] = await connection.execute(
+				`SELECT id, 
+				        name 
+				 FROM worlds 
+				 ORDER BY id`
+			);
 			await connection.rollback();
-			
 			return res.render("game/choose-world", {
 				worlds,
-				error_chosen_world: MSG_NO_NEW_CHARACTERS,
+				error_chosen_world: GAME_MSG.NO_NEW_CHARACTERS,
 				selected_world_id: parseInt(worldId)
 			});
 		}
 
-		// Claim the AI-character
+		// Claim the character
 		const characterId = aiCharacter[0].id;
 		const [updateResult] = await connection.execute(
 			`UPDATE characters
@@ -137,7 +163,7 @@ export const handleChooseWorld = async (req, res, next) => {
 	}
 };
 
-//--- Show customize character page -------------------------------------------------------------//
+//--- Show customize character page ---//
 export const showCustomizeCharacter = async (req, res, next) => {
 	try {
 		const [jobs] = await db.execute(
@@ -163,7 +189,7 @@ export const showCustomizeCharacter = async (req, res, next) => {
 	}
 };
 
-//--- Handle customize character request --------------------------------------------------------//
+//--- Handle customize character request ---//
 export const handleCustomizeCharacter = async (req, res, next) => {
 	try {
 		const { userId,
@@ -200,7 +226,7 @@ export const handleCustomizeCharacter = async (req, res, next) => {
 			return res.render("game/customize-character", {
 				jobs,
 				recreations,
-				error_job_preference: MSG_INVALID_JOB_PREFERENCE,
+				error_job_preference: GAME_MSG.INVALID_JOB_PREFERENCE,
 				first_name: firstName,
 				last_name: lastName
 			});
@@ -212,7 +238,7 @@ export const handleCustomizeCharacter = async (req, res, next) => {
 			return res.render("game/customize-character", {
 				jobs,
 				recreations,
-				error_job_preference: MSG_IDENTICAL_JOB_PREFERENCES,
+				error_job_preference: GAME_MSG.IDENTICAL_JOB_PREFERENCES,
 				first_name: firstName,
 				last_name: lastName
 			});
@@ -223,7 +249,7 @@ export const handleCustomizeCharacter = async (req, res, next) => {
 			return res.render("game/customize-character", {
 				jobs,
 				recreations,
-				error_recreation_preference: MSG_INVALID_RECREATION_PREFERENCE,
+				error_recreation_preference: GAME_MSG.INVALID_RECREATION_PREFERENCE,
 				first_name: firstName,
 				last_name: lastName
 			});
@@ -275,10 +301,82 @@ export const handleCustomizeCharacter = async (req, res, next) => {
 	}
 };
 
-//--- Show menu page ----------------------------------------------------------------------------//
+//--- Show menu page ---//
 export const showMenu = async (req, res, next) => {
 	try {
 		return res.render("game/menu");
+	} catch (err) {
+		next(err);
+	}
+};
+
+//--- Show character page ---//
+export const showCharacter = async (req, res, next) => {
+	try {
+		const { userId, 
+				worldId } = req.session;
+
+		const [characters] = await db.execute(
+			`SELECT c.*,
+					j1.name AS job_preference_1,
+					j2.name AS job_preference_2,
+					j3.name AS job_preference_3,
+					p.name AS recreation_preference
+			 FROM characters c
+			 INNER JOIN jobs j1 ON c.job_preference_1_id = j1.id
+			 INNER JOIN jobs j2 ON c.job_preference_2_id = j2.id
+			 INNER JOIN jobs j3 ON c.job_preference_3_id = j3.id
+			 INNER JOIN recreations r ON c.recreation_preference_id = r.id
+			 INNER JOIN products p ON r.product_id = p.id
+			 WHERE c.user_id = ? AND 
+			       c.world_id = ?`,
+			[userId, 
+			 worldId]
+		);
+
+		if (characters.length === 0) {
+			return res.status(404).render("errors/404");
+		}
+		const character = characters[0];
+		
+		// Life expectancy
+		character.life_expectancy = calculateLifeExpectancy(
+			character.age,
+			character.cumulative_health_loss,
+			character.cumulative_health_gain
+		);
+		
+		// Education
+		if (character.education > 0) {
+			character.education_label = GAME_RULES.EDUCATION_LABELS[character.education];
+		}
+		
+		// Job experience
+		const [jobExperience] = await db.execute(
+			`SELECT j.name AS job_name,
+				    e.experience AS experience_hours
+			 FROM character_job_experience e
+			 INNER JOIN jobs j ON e.job_id = j.id
+			 WHERE e.character_id = ?`,
+			[character.id]
+		);
+		character.job_experience = jobExperience.map((row) => ({
+			job_name: row.job_name,
+			experience_years: convertHoursToYears(row.experience_hours),
+		}));
+
+		return res.render("game/character", { 
+			character
+		});
+	} catch (err) {
+		next(err);
+	}
+};
+
+//--- Show statistics page ---//
+export const showStatistics = async (req, res, next) => {
+	try {
+		return res.render("game/statistics");
 	} catch (err) {
 		next(err);
 	}

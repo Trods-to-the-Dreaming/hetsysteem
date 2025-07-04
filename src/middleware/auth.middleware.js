@@ -1,4 +1,5 @@
-export const requireAuth = (req, res, next) => {
+//=== Main ======================================================================================//
+export const requireAuthenticated = (req, res, next) => {
 	if (req.session.userId && 
 		req.session.username) {
 		res.locals.authenticated = true;

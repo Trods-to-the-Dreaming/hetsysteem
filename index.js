@@ -1,34 +1,32 @@
-//--- Load dependencies ---//
+//=== Imports ===================================================================================//
 import dotenv from "dotenv";
-import path from "path";
 import express from "express";
 import expressSession from "express-session";
 import expressHandlebars from "express-handlebars";
+import Knex from "knex";
+import { ConnectSessionKnexStore } from "connect-session-knex";
+
+import path from "path";
 import fs from "fs";
 import { pathToFileURL } from "url";
-import Knex from "knex";
-import { ConnectSessionKnexStore  } from "connect-session-knex";
 
-//--- Error messages ---//
+//=== Constants =================================================================================//
 const MSG_SERVER_STARTED = "Server gestart via poort ";
 const MSG_MYSQLSTORE_READY = "Knex MySQL store klaar voor gebruik";
 
-// --- Environmental variables ---//
+//=== Environment setup =========================================================================//
 dotenv.config({ path: path.join(process.cwd(), ".env")});
 
-//--- Initialize server ---//
+//=== Initialization ============================================================================//
 const app = express();
 
-//--- Middlewares ---//
-// Express
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Public directory
 const publicDir = path.join(process.cwd(), "public");
 app.use(express.static(publicDir));
 
-// MySQL connection setup with Knex
+//=== Session setup =============================================================================//
 const knex = Knex({
 	client: "mysql2",
 	connection: {
@@ -39,22 +37,22 @@ const knex = Knex({
 		password: process.env.DB_PASSWORD,
 	},
 });
+
 const sessionStore = new ConnectSessionKnexStore ({
-	knex: knex,
-	tablename: "sessions",
+	knex:        knex,
+	tablename:   "sessions",
 	createtable: false
 });
 await sessionStore.ready;
 
-// Express Session with Knex Store
 app.set("trust proxy", 1);
 app.use(expressSession({
-	name: "systeem_session_cookie",
-	secret: process.env.SESSION_SECRET,
-	store: sessionStore,
-	resave: false,
+	name:              "systeem_session_cookie",
+	secret:            process.env.SESSION_SECRET,
+	store:             sessionStore,
+	resave:            false,
 	saveUninitialized: false,
-	rolling: true,
+	rolling:           true,
 	cookie: {
 		secure: process.env.NODE_ENV === "production",
 		httpOnly: true,
@@ -62,7 +60,7 @@ app.use(expressSession({
 	}
 }));
 
-// Express Handlebars
+//=== View engine ===============================================================================//
 app.engine("hbs",
 	expressHandlebars.engine({
 		helpers: {
@@ -83,16 +81,16 @@ app.engine("hbs",
 			},
 			json: context => JSON.stringify(context)
 		},
-		extname: "hbs",
+		extname:       "hbs",
 		defaultLayout: "main",
-		layoutsDir: path.join(process.cwd(), "src/views/layouts"),
-		partialsDir: path.join(process.cwd(), "src/views/partials")
+		layoutsDir:    path.join(process.cwd(), "src/views/layouts"),
+		partialsDir:   path.join(process.cwd(), "src/views/partials")
 	})
 );
 app.set("view engine", "hbs");
 app.set("views", path.join(process.cwd(), "src/views"));
 
-// Local variables for the navigation bar
+//=== View locals ===============================================================================//
 app.use((req, res, next) => {
 	if (req.session && req.session.username) {
 		res.locals.authenticated = true;
@@ -103,7 +101,7 @@ app.use((req, res, next) => {
 	next();
 });
 
-// Routers
+//=== Routing ===================================================================================//
 const routersPath = path.join(process.cwd(), "src/routes");
 const routerImports = fs.readdirSync(routersPath).map(async (file) => {
 	if (file.endsWith(".js")) {
@@ -115,7 +113,7 @@ const routerImports = fs.readdirSync(routersPath).map(async (file) => {
 });
 await Promise.all(routerImports);
 
-// Errors
+//=== Error handling ============================================================================//
 app.use((err, req, res, next) => {
 	console.error(err);
 
@@ -125,7 +123,7 @@ app.use((err, req, res, next) => {
 	});
 });
 
-//--- Start server ---//
+//=== Start server ==============================================================================//
 app.listen(process.env.APP_PORT, () => {
 	console.log(MSG_SERVER_STARTED + process.env.APP_PORT);
 	console.log(MSG_MYSQLSTORE_READY);

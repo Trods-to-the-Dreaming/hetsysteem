@@ -12,20 +12,10 @@ import {
 } from "../middleware/game.middleware.js";
 
 import {
-	showChooseWorld,
-	handleChooseWorld,
-	showCustomizeCharacter,
-	handleCustomizeCharacter,
-	showMenu
-} from "../controllers/game.controllers.js";
+	showStatistics
+} from "../controllers/game-statistics.controllers.js";
 
 //=== Constants =================================================================================//
-const requireAuthenticatedAndSelected = [
-	requireAuthenticated,
-	requireWorldSelected,
-	requireCharacterSelected
-];
-
 const requireAuthenticatedAndCustomized = [
 	requireAuthenticated,
 	requireWorldSelected,
@@ -36,19 +26,11 @@ const requireAuthenticatedAndCustomized = [
 //=== Main ======================================================================================//
 const router = express.Router();
 
-// Choose world
-router.get( "/choose-world", requireAuthenticated, showChooseWorld);
-router.post("/choose-world", requireAuthenticated, handleChooseWorld);
-
-// Customize character
-router.get( "/customize-character", requireAuthenticatedAndSelected, showCustomizeCharacter);
-router.post("/customize-character", requireAuthenticatedAndSelected, handleCustomizeCharacter);
-
-// Game menu
-router.get("/", requireAuthenticatedAndCustomized, showMenu);
+// Statistics
+router.get("/", requireAuthenticatedAndCustomized, showStatistics);
 
 //=== Export ====================================================================================//
 export default {
-	path: "/game",
+	path: "/game/statistics",
 	router
 };

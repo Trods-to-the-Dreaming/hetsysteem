@@ -1,9 +1,13 @@
+//=== Imports ===================================================================================//
 import mysql from "mysql2";
 import path from "path";
 
+//=== Constants =================================================================================//
 const MSG_CONNECTION_SUCCESS = "MySQL pool created successfully.";
 const MSG_CONNECTION_FAILED = "Failed to create MySQL pool: ";
 
+//=== Main ======================================================================================//
+// DB pool
 const pool = mysql.createPool({
     connectionLimit: 20,
     host: process.env.DB_HOST,
@@ -13,21 +17,19 @@ const pool = mysql.createPool({
     waitForConnections: true,
     queueLimit: 0
 });
-
-// Wrap the pool with promise-based methods
 const db = pool.promise();
 
-// Test the connection
+// Test connection (once)
 async function testConnection() {
     try {
         const connection = await db.getConnection();
         console.log(MSG_CONNECTION_SUCCESS);
-        connection.release(); // Free up the connection
+        connection.release();
     } catch (err) {
         console.error(MSG_CONNECTION_FAILED + err.stack);
     }
 }
-
 testConnection();
 
+//=== Export ====================================================================================//
 export default db;

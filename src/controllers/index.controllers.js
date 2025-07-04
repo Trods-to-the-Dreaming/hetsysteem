@@ -1,4 +1,6 @@
-//--- Show index page ---//
+//=== Main ======================================================================================//
+
+//--- Show index page ---------------------------------------------------------------------------//
 export const showIndex = (req, res, next) => {
 	try {
 		return res.redirect("/about");
@@ -7,7 +9,7 @@ export const showIndex = (req, res, next) => {
 	}
 };
 
-//--- Show about page ---//
+//--- Show about page ---------------------------------------------------------------------------//
 export const showAbout = (req, res, next) => {
 	try {
 		return res.render("about");
@@ -16,7 +18,7 @@ export const showAbout = (req, res, next) => {
 	}
 };
 
-//--- Show game rules page ---//
+//--- Show game rules page ----------------------------------------------------------------------//
 export const showRules = (req, res, next) => {
 	try {
 		return res.render("rules");

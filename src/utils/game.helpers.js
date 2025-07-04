@@ -1,5 +1,204 @@
-import GAME_RULES from "../constants/game.rules.js";
+//=== Imports ===================================================================================//
 import db from "./db.js";
+
+import GAME_RULES from "../constants/game.rules.js";
+
+//=== Main ======================================================================================//
+
+//--- Get all worlds ----------------------------------------------------------------------------//
+export const getAllWorlds = async (connection = db) => {
+	const [worlds] = await connection.execute(
+		`SELECT id, 
+		        name 
+		 FROM worlds 
+		 ORDER BY id`
+	);
+	return worlds;
+};
+
+//--- Find world by id --------------------------------------------------------------------------//
+export const findWorldById = async (id, connection = db) => {
+	const [worlds] = await connection.execute(
+		`SELECT * 
+		 FROM worlds 
+		 WHERE id = ?`,
+		[id]
+	);
+	return worlds[0] || null;
+};
+
+//--- Find user's character ---------------------------------------------------------------------//
+export const findUserCharacter = async (userId, worldId, connection = db) => {
+	const [characters] = await connection.execute(
+		`SELECT * 
+		 FROM characters 
+		 WHERE user_id = ? AND 
+		       world_id = ?`,
+		[userId, 
+		 worldId]
+	);
+	return characters[0] || null;
+};
+
+//--- Claim an AI-character ---------------------------------------------------------------------//
+export const claimAICharacter = async (userId, worldId, connection = db) => {
+	// Find an AI-character
+	const [freeCharacters] = await connection.execute(
+		`SELECT id 
+		 FROM characters 
+		 WHERE user_id IS NULL AND 
+			   world_id = ? 
+		 LIMIT 1`,
+		[worldId]
+	);
+	if (freeCharacters.length === 0) {
+		return null;
+	}
+	const characterId = freeCharacters[0].id;
+
+	// Claim the character
+	const [updateResult] = await connection.execute(
+		`UPDATE characters 
+		 SET user_id = ? 
+		 WHERE id = ?`,
+		[userId, 
+		 characterId]
+	);
+	if (updateResult.affectedRows !== 1) {
+		throw new ConflictError("Er kon geen personage worden aangemaakt. Probeer het opnieuw.");
+	}
+
+	// Retrieve the claimed character
+	const [characters] = await connection.execute(
+		`SELECT * 
+		 FROM characters 
+		 WHERE id = ? AND 
+			   user_id = ? AND 
+			   is_customized = false`,
+		[characterId, 
+		 userId]
+	);
+	return characters[0] || null;
+};
+
+
+
+//--- Get AI character --------------------------------------------------------------------------//
+export const getAICharacter = async (worldId, connection = db) => {
+	const [characters] = await connection.execute(
+		`SELECT id 
+		 FROM characters 
+		 WHERE user_id IS NULL AND 
+		       world_id = ? 
+		 LIMIT 1`,
+		[worldId]
+	);
+	return characters[0] || null;
+};
+
+//--- Claim character ---------------------------------------------------------------------------//
+export const claimCharacter = async (characterId, userId, connection = db) => {
+	const [result] = await connection.execute(
+		`UPDATE characters
+		 SET user_id = ?
+		 WHERE id = ?`,
+		[userId, 
+		 characterId]
+	);
+	return result.affectedRows === 1;
+};
+
+//--- Find uncategorized character of user in world ---------------------------------------------//
+export const findUncustomizedCharacterInWorld = async (userId, worldId, connection = db) => {
+	const [characters] = await connection.execute(
+		`SELECT * 
+		 FROM characters
+		 WHERE user_id = ? AND 
+		       world_id = ? AND 
+		       is_customized = false`,
+		[userId, worldId]
+	);
+	return characters[0] || null;
+};
+
+//--- Get all jobs -----------------------------------------------------------------------------//
+export const getAllJobs = async (connection = db) => {
+	const [jobs] = await connection.execute(
+		`SELECT id, 
+		        name 
+		 FROM jobs 
+		 ORDER BY id`
+	);
+	return jobs;
+};
+
+//--- Get all recreations -----------------------------------------------------------------------//
+export const getAllRecreations = async (connection = db) => {
+	const [recreations] = await connection.execute(
+		`SELECT recreations.id, 
+		        products.name
+		 FROM recreations
+		 INNER JOIN products ON recreations.product_id = products.id
+		 ORDER BY recreations.id`
+	);
+	return recreations;
+};
+
+//--- Find character by id, user and customization status ----------------------------------------//
+export const findUncustomizedCharacterByIdAndUser = async (characterId, userId, connection = db) => {
+	const [characters] = await connection.execute(
+		`SELECT * 
+		 FROM characters 
+		 WHERE id = ? AND 
+		       user_id = ? AND 
+		       is_customized = false`,
+		[characterId, userId]
+	);
+	return characters[0] || null;
+};
+
+//--- Update character customization ------------------------------------------------------------//
+export const updateCharacterCustomization = async (
+	characterId,
+	firstName,
+	lastName,
+	jobPreference1,
+	jobPreference2,
+	jobPreference3,
+	recreationPreference,
+	connection = db
+) => {
+	await connection.execute(
+		`UPDATE characters
+		 SET first_name = ?, 
+		     last_name = ?, 
+		     job_preference_1_id = ?, 
+		     job_preference_2_id = ?, 
+		     job_preference_3_id = ?, 
+		     recreation_preference_id = ?, 
+		     is_customized = true
+		 WHERE id = ?`,
+		[
+			firstName,
+			lastName,
+			jobPreference1,
+			jobPreference2,
+			jobPreference3,
+			recreationPreference,
+			characterId
+		]
+	);
+};
+
+
+
+
+
+
+
+
+
+
 
 export function convertHoursToYears(hours) {
 	return Math.round((hours / GAME_RULES.HOURS_FULLTIME) * 10) / 10;

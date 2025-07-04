@@ -1,3 +1,4 @@
+//=== Main ======================================================================================//
 const saveSession = (req) => {
 	return new Promise((resolve, reject) => {
 		req.session.save((err) => {
@@ -10,4 +11,5 @@ const saveSession = (req) => {
 	});
 };
 
+//=== Export ====================================================================================//
 export default saveSession;

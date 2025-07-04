@@ -1,3 +1,4 @@
+//=== Main ======================================================================================//
 export const requireWorldSelected = (req, res, next) => {
 	if (req.session.worldId && 
 		req.session.worldName) {
