@@ -181,13 +181,15 @@ export const handleTrade = async (req, res, next) => {
 		const buildingBuyOrders = JSON.parse(req.body.buildingBuyOrders || "[]");
 		const buildingSellOrders = JSON.parse(req.body.buildingSellOrders || "[]");
 		
+		// Orders controleren
+		// OK check: één order per product, genoeg voorraad, prijs minstes 1 $, ...
+		
 		// Remove existing orders and add new orders for this character
 		await replaceOrders(db, characterId, "buy", "product", productBuyOrders);
 		await replaceOrders(db, characterId, "sell", "product", productSellOrders);
 		await replaceOrders(db, characterId, "buy", "building", buildingBuyOrders);
 		await replaceOrders(db, characterId, "sell", "building", buildingSellOrders);
 		
-		// Orders controleren
 		// indien OK --> characters.has_confirmed_trade op TRUE zetten
 		await db.execute(
 			`UPDATE characters

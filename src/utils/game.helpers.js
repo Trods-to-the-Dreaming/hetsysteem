@@ -92,6 +92,12 @@ export async function processCategoryOrders(category) {
 	await db.execute(
 		`TRUNCATE ${category}_sell_orders`
 	);
+	
+	// Reset trade confirmation
+	await db.execute(
+		`UPDATE characters 
+		 SET has_confirmed_trade = FALSE`
+	);
 }
 
 async function processCategoryItemOrder(category,
@@ -137,15 +143,15 @@ async function processCategoryItemOrder(category,
 			const key = `${seller.character_id}-${id}`;
 			const stock = stockMap.get(key) || 0;
 			seller.supply = Math.min(seller.supply, stock);
-		}		
+		}
 		
 		// In a chart with quantity on the horizontal axis and
 		// unit price on the vertical axis, buyers and sellers 
 		// represent the demand curve and the supply curve.
 		// Both curves look like ascending stairs. Each buyer 
 		// or seller is a step of the stairs. The width of the 
-		// step is given by the quantity. The height of the
-		// step is given by the unit price.
+		// step is given by the demanded or supplied quantity. 
+		// The height of the step is given by the unit price.
 		
 		// We want to maximize the trading volume. That is
 		// accomplished by sliding the demand curve over the 
@@ -188,6 +194,9 @@ async function processCategoryItemOrder(category,
 			// Calculate the demand higher than the buyer's unit price
 			higherDemand += buyer.demand;
 		}
+		// There is always demand at zero unit price
+		if (higherDemand < tradingVolume)
+			tradingVolume = higherDemand;
 		
 		// Now that we know the trading volume, we can create transactions
 		if (Number.isFinite(tradingVolume)) {
@@ -318,110 +327,3 @@ async function processCategoryItemOrder(category,
 		connection.release();
 	}
 }
-
-
-
-
-/*export const getAffordableBuyOrders = async (category, id) => {
-	const validCategories = ["product", "building"];
-	if (!validCategories.includes(category)) {
-		throw new BadRequestError(`Ongeldige order categorie: ${category}`);
-	}
-
-	const table = `${category}_buy_orders`;
-	const itemId = `${category}_id`;
-
-	const [orders] = await db.execute(
-	`SELECT cbo.character_id,
-		    cbo.${itemId} AS item_id,
-		    cbo.quantity,
-		    cbo.max_unit_price,
-		    c.balance
-	 FROM ${table} cbo
-	 JOIN characters c ON cbo.character_id = c.id
-	 WHERE cbo.${itemId} = ? AND 
-		   (cbo.quantity * cbo.max_unit_price) <= c.balance`,
-	[id]);
-
-	return orders;
-};
-
-export const getSellOrders = async (category, id) => {
-	const validCategories = ["product", "building"];
-	if (!validCategories.includes(category)) {
-		throw new BadRequestError(`Ongeldige order categorie: ${category}`);
-	}
-
-	const table = `${category}_sell_orders`;
-	const itemId = `${category}_id`;
-
-	const [orders] = await db.execute(
-	`SELECT cso.character_id,
-		    cso.${itemId} AS item_id,
-		    cso.quantity,
-		    cso.min_unit_price
-	 FROM ${table} cso
-	 WHERE cso.${itemId} = ?`,
-	[id]);
-
-	return orders;
-};
-
-
-export const matchOrders = async (category, id) => {
-	const validCategories = ["product", "building"];
-	if (!validCategories.includes(category)) {
-		throw new BadRequestError(`Ongeldige order categorie: ${category}`);
-	}
-
-	const buyTable = `${category}_buy_orders`;
-	const sellTable = `${category}_sell_orders`;
-	const itemId = `${category}_id`;
-
-	const [buyOrders] = await db.execute(
-	`SELECT cbo.character_id,
-		    cbo.${itemId} AS item_id,
-		    cbo.quantity,
-		    cbo.max_unit_price,
-		    c.balance
-	 FROM ${table} cbo
-	 JOIN characters c ON cbo.character_id = c.id
-	 WHERE cbo.${itemId} = ? AND 
-		   (cbo.quantity * cbo.max_unit_price) <= c.balance`,
-	[id]);
-	
-	const [sellOrders] = await db.execute(
-	`SELECT cso.character_id,
-		    cso.${itemId} AS item_id,
-		    cso.quantity,
-		    cso.min_unit_price
-	 FROM ${table} cso
-	 WHERE cso.${itemId} = ?`,
-	[id]);
-
-	
-
-	return orders;
-};
-
-
-
-function isCompleteMatch(sellOrders, buyOrders) {
-	//////////////////////////////////////////////////////
-	// sellOrders: sorted by ascending unit price order //
-	// buyOrders: sorted by descending unit price order //
-	//////////////////////////////////////////////////////
-	
-	// Start with highest sell order
-	for (let s = sellOrders.length - 1; s >= 0; s--) {
-	
-		// Start with highest buy order
-		for (let b = 0; b < buyOrders.length; b++) {
-		}
-	}
-	
-	return { match: true };
-	
-	return { match: false,
-			 reason: };
-}*/
