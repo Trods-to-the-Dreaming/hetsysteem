@@ -8,7 +8,7 @@ import {
 	registerUser,
 	updateUsername,
 	updatePassword
-} from "../utils/account.helpers.js";
+} from "../helpers/account.helpers.js";
 
 //=== Constants =================================================================================//
 const MSG_INVALID_LOGIN		= "Ongeldige gebruikersnaam of wachtwoord.";
@@ -99,8 +99,8 @@ export const handleRegister = async (req, res, next) => {
 		const user = await registerUser(username, password);
 
 		// Start session
-		req.session.userId = user.insertId;
-		req.session.username = username
+		req.session.userId = user.id;
+		req.session.username = user.name
 		await saveSession(req);
 		
 		return res.redirect("/game/choose-world");

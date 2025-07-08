@@ -3,13 +3,13 @@
 <div class="container-compact">
 	<h1>Handel drijven</h1>
 	
-	<div id="orders-confirmed-section" {{#unless has_confirmed}}class="d-none"{{/unless}}>
+	<div id="orders-confirmed-section" {{#unless has_confirmed_orders}}class="d-none"{{/unless}}>
 		<p class="success">Uw orders zijn bevestigd.</p>
 		
 		<button id="edit-orders-button" type="button" class="button-1">Wijzigen</button>
 	</div>
 	
-	<div id="orders-overview-section" {{#if has_confirmed}}class="d-none"{{/if}}>
+	<div id="orders-overview-section" {{#if has_confirmed_orders}}class="d-none"{{/if}}>
 		<button id="create-order-button" class="button-2" type="button" 
 				data-bs-toggle="offcanvas" data-bs-target="#create-order-window">
 			Order maken
@@ -211,19 +211,19 @@ document.addEventListener("DOMContentLoaded", () => {
 		}
 		
 		showOption(itemId) {
-			const option = this.options.find(option => option.itemId === itemId);
+			const option = this.options.find(o => o.itemId === itemId);
 			if (option) option.isVisible = true;
 			return option;
 		}
 		
 		hideOption(itemId) {
-			const option = this.options.find(option => option.itemId === itemId);
+			const option = this.options.find(o => o.itemId === itemId);
 			if (option) option.isVisible = false;
 			return option;
 		}
 		
 		hasVisibleOptions() {
-			return this.options.some(option => option.isVisible);
+			return this.options.some(o => o.isVisible);
 		}
 	}
 

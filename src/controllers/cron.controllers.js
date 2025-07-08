@@ -1,7 +1,13 @@
+//=== Imports ===================================================================================//
 import {
 	processCategoryOrders
-} from "../utils/game.helpers.js";
+} from "../helpers/cron.helpers.js";
 
+//=== Constants =================================================================================//
+
+//=== Main ======================================================================================//
+
+//--- Process orders ----------------------------------------------------------------------------//
 export const processOrders = async (req, res, next) => {
 	try {
 		await processCategoryOrders("product");
@@ -17,4 +23,4 @@ export const processOrders = async (req, res, next) => {
 	} catch (err) {
 		next(err);
 	}
-}
+};

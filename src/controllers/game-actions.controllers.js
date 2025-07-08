@@ -1,12 +1,31 @@
-import GAME_MSG from "../constants/game.messages.js";
-import GAME_RULES from "../constants/game.rules.js";
-import { 
-	replaceOrders	
-} from "../utils/game.helpers.js";
+//=== Imports ===================================================================================//
 import db from "../utils/db.js";
 import saveSession from "../utils/session.js";
+import { 
+	getFoodInfo,
+	getMedicalCareInfo,
+	getProductBuyOrders,
+	getProductSellOrders,
+	getBuildingBuyOrders,
+	getBuildingSellOrders,
+	getBuyableProducts,
+	getSellableProducts,
+	getBuyableBuildings,
+	getSellableBuildings,
+	getOrderConfirmation,
+	validateOrders,
+	updateOrders,
+	confirmOrders,
+	getAvailableHours,
+	getContracts
+} from "../helpers/game-actions.helpers.js";
 
-//--- Show actions page ---//
+//=== Constants =================================================================================//
+
+
+//=== Main ======================================================================================//
+
+//--- Show actions page -------------------------------------------------------------------------//
 export const showActions = async (req, res, next) => {
 	try {
 		return res.render("game/actions/actions");
@@ -15,148 +34,57 @@ export const showActions = async (req, res, next) => {
 	}
 };
 
-//--- Show survive page ---//
+//--- Show survive page -------------------------------------------------------------------------//
 export const showSurvive = async (req, res, next) => {
 	try {
 		const { characterId } = req.session;
 
-		const [food] = await db.execute(
-			`SELECT COALESCE(
-				(SELECT quantity 
-				 FROM character_products 
-				 WHERE character_id = ? AND
-					   product_id = 1),
-				0
-			) AS quantity;`,
-			[characterId]
-		);
-		const foodAvailable = food[0].quantity;
-		const foodDefault = Math.min(foodAvailable, GAME_RULES.FOOD.NEEDED);
-		const foodSelectable = Math.min(foodAvailable, GAME_RULES.FOOD.MAX);
-
-		const [medicalCare] = await db.execute(
-			`SELECT COALESCE(
-				(SELECT quantity 
-				 FROM character_products 
-				 WHERE character_id = ? AND
-					   product_id = 2),
-				0
-			) AS quantity;`,
-			[characterId]
-		);
-		const medicalCareAvailable = medicalCare[0].quantity;
-		const medicalCareDefault = Math.min(medicalCareAvailable, GAME_RULES.MEDICAL_CARE.NEEDED);
-		const medicalCareSelectable = Math.min(medicalCareAvailable, GAME_RULES.MEDICAL_CARE.MAX);
+		const food = await getFoodInfo(characterId);
+		const medicalCare = await getMedicalCareInfo(characterId);
 
 		return res.render("game/actions/survive", {
-			food_available: foodAvailable,
-			food_default: foodDefault,
-			food_selectable: foodSelectable,
-			food_needed: GAME_RULES.FOOD.NEEDED,
-			medical_care_available: medicalCareAvailable,
-			medical_care_default: medicalCareDefault,
-			medical_care_selectable: medicalCareSelectable,
-			medical_care_needed: GAME_RULES.MEDICAL_CARE.NEEDED
+			food_available: food.available,
+			food_default: food.default,
+			food_selectable: food.selectable,
+			food_needed: food.needed,
+			medical_care_available: medicalCare.available,
+			medical_care_default: medicalCare.default,
+			medical_care_selectable: medicalCare.selectable,
+			medical_care_needed: medicalCare.needed
 		});
 	} catch (err) {
 		next(err);
 	}
 };
 
-//--- Show trade page ---//
+//--- Show trade page ---------------------------------------------------------------------------//
 export const showTrade = async (req, res, next) => {
 	try {
 		const { characterId } = req.session;
 		
-		// Get existing orders
-		const [productBuyOrders] = await db.execute(
-			`SELECT pbo.product_id AS itemId,
-					p.name AS itemName,
-					pbo.demand AS quantity,
-					pbo.max_unit_price AS unitPrice
-			 FROM product_buy_orders pbo
-			 INNER JOIN products p ON pbo.product_id = p.id
-			 WHERE pbo.character_id = ?`,
-			[characterId]
-		);
-		const [productSellOrders] = await db.execute(
-			`SELECT pso.product_id AS itemId,
-					p.name AS itemName,
-					pso.supply AS quantity,
-					pso.min_unit_price AS unitPrice
-			 FROM product_sell_orders pso
-			 INNER JOIN products p ON pso.product_id = p.id
-			 WHERE pso.character_id = ?`,
-			[characterId]
-		);
-		const [buildingBuyOrders] = await db.execute(
-			`SELECT bbo.building_id AS itemId,
-					b.name AS itemName,
-					bbo.demand AS quantity,
-					bbo.max_unit_price AS unitPrice
-			 FROM building_buy_orders bbo
-			 INNER JOIN buildings b ON bbo.building_id = b.id
-			 WHERE bbo.character_id = ?`,
-			[characterId]
-		);
-		const [buildingSellOrders] = await db.execute(
-			`SELECT bso.building_id AS itemId,
-					b.name AS itemName,
-					bso.supply AS quantity,
-					bso.min_unit_price AS unitPrice
-			 FROM building_sell_orders bso
-			 INNER JOIN buildings b ON bso.building_id = b.id
-			 WHERE bso.character_id = ?`,
-			[characterId]
-		);
+		const [
+			productBuyOrders,
+			productSellOrders,
+			buildingBuyOrders,
+			buildingSellOrders,
+			buyableProducts,
+			sellableProducts,
+			buyableBuildings,
+			sellableBuildings,
+			hasConfirmedOrders
+		] = await Promise.all([
+			getProductBuyOrders(characterId),
+			getProductSellOrders(characterId),
+			getBuildingBuyOrders(characterId),
+			getBuildingSellOrders(characterId),
+			getBuyableProducts(),
+			getSellableProducts(characterId),
+			getBuyableBuildings(),
+			getSellableBuildings(characterId),
+			getOrderConfirmation(characterId)
+		]);
 		
-		// Get possible products and buildings
-		const [buyableProducts] = await db.execute(
-			`SELECT id AS itemId,
-					name AS itemName
-			 FROM products
-			 ORDER BY id`
-		);
-		const [buyableBuildings] = await db.execute(
-			`SELECT id AS itemId,
-					name AS itemName
-			 FROM buildings
-			 ORDER BY id`
-		);
-		const [sellableProducts] = await db.execute(
-			`SELECT p.id AS itemId,
-					p.name AS itemName, 
-					cp.quantity
-			 FROM character_products cp
-			 INNER JOIN products p ON cp.product_id = p.id
-			 WHERE cp.character_id = ? AND 
-				   cp.quantity > 0
-			 ORDER BY p.id`,
-			[characterId]
-		);
-		const [sellableBuildings] = await db.execute(
-			`SELECT b.id AS itemId,
-					b.name AS itemName,
-					cb.quantity
-			 FROM character_buildings cb
-			 INNER JOIN buildings b ON cb.building_id = b.id
-			 WHERE cb.character_id = ? AND
-				   cb.quantity > 0
-			 ORDER BY b.id`,
-			[characterId]
-		);
-
-		// Check if the character has confirmed trade
-		const [confirmation] = await db.execute(
-			`SELECT has_confirmed_trade
-			 FROM characters
-			 WHERE id = ?`,
-			[characterId]
-		);
-		const hasConfirmed = confirmation[0].has_confirmed_trade;
-
 		return res.render("game/actions/trade", {
-			has_confirmed: hasConfirmed,
 			product_buy_orders: productBuyOrders,
 			product_sell_orders: productSellOrders,
 			building_buy_orders: buildingBuyOrders,
@@ -164,81 +92,69 @@ export const showTrade = async (req, res, next) => {
 			buyable_products: buyableProducts,
 			sellable_products: sellableProducts,
 			buyable_buildings: buyableBuildings,
-			sellable_buildings: sellableBuildings
+			sellable_buildings: sellableBuildings,
+			has_confirmed_orders: hasConfirmedOrders
 		});
 	} catch (err) {
 		next(err);
 	}
 };
 
-//--- Handle trade request ---//
+//--- Handle trade request ----------------------------------------------------------------------//
 export const handleTrade = async (req, res, next) => {
+	const connection = await db.getConnection();
 	try {
 		const { characterId } = req.session;
 		
-		const productBuyOrders = JSON.parse(req.body.productBuyOrders || "[]");
-		const productSellOrders = JSON.parse(req.body.productSellOrders || "[]");
-		const buildingBuyOrders = JSON.parse(req.body.buildingBuyOrders || "[]");
+		const productBuyOrders   = JSON.parse(req.body.productBuyOrders   || "[]");
+		const productSellOrders  = JSON.parse(req.body.productSellOrders  || "[]");
+		const buildingBuyOrders  = JSON.parse(req.body.buildingBuyOrders  || "[]");
 		const buildingSellOrders = JSON.parse(req.body.buildingSellOrders || "[]");
 		
-		// Orders controleren
-		// OK check: één order per product, genoeg voorraad, prijs minstes 1 $, ...
+		await validateOrders(productBuyOrders, productSellOrders);
+		await validateOrders(buildingBuyOrders, buildingSellOrders);
 		
-		// Remove existing orders and add new orders for this character
-		await replaceOrders(db, characterId, "buy", "product", productBuyOrders);
-		await replaceOrders(db, characterId, "sell", "product", productSellOrders);
-		await replaceOrders(db, characterId, "buy", "building", buildingBuyOrders);
-		await replaceOrders(db, characterId, "sell", "building", buildingSellOrders);
+		await connection.beginTransaction();
 		
-		// indien OK --> characters.has_confirmed_trade op TRUE zetten
-		await db.execute(
-			`UPDATE characters
-			 SET has_confirmed_trade = TRUE
-			 WHERE id = ?`,
-			[characterId]
-		);
-		// indien niet OK --> characters.has_confirmed_trade op FALSE zetten
-
+		await updateOrders(characterId, "buy",  "product",  productBuyOrders,   connection);
+		await updateOrders(characterId, "sell", "product",  productSellOrders,  connection);
+		await updateOrders(characterId, "buy",  "building", buildingBuyOrders,  connection);
+		await updateOrders(characterId, "sell", "building", buildingSellOrders, connection);
+		
+		await confirmOrders(characterId, connection);
+		
+		await connection.commit();
+		
 		return res.redirect("/game/actions/trade");
 	} catch (err) {
+		await connection.rollback(); 
 		next(err);
 	}
 };
 
-//--- Show spend time page ---//
+//--- Show spend time page ----------------------------------------------------------------------//
 export const showSpendTime = async (req, res, next) => {
 	try {
 		const { characterId } = req.session;
 		
-		const [contracts] = await db.execute(
-			`SELECT ec.id, ec.hours, ec.hourly_wage, 
-			 emp.first_name AS employer_first_name, 
-			 emp.last_name AS employer_last_name, 
-			 j.name AS job_name
-			 FROM employment_contracts ec
-			 INNER JOIN characters emp ON ec.employer_id = emp.id
-			 INNER JOIN jobs j ON ec.job_id = j.id
-			 WHERE ec.employee_id = ?
-			 ORDER BY ec.hourly_wage DESC`,
-			[characterId]
-		);
+		const [
+			availableHours,
+			contracts
+		] = await Promise.all([
+			getAvailableHours(characterId),
+			getContracts(characterId)
+		]);
 		
-		const [[character]] = await db.execute(
-			`SELECT hours_available FROM characters WHERE id = ?`,
-			[characterId]
-		);
-		const hours_available = character.hours_available;
-
 		return res.render("game/actions/spend-time", {
-			contracts,
-			hours_available
+			hours_available: availableHours,
+			contracts
 		});
 	} catch (err) {
 		next(err);
 	}
 };
 
-//--- Show apply page ---//
+//--- Show apply page ---------------------------------------------------------------------------//
 export const showApply = async (req, res, next) => {
 	try {
 		return res.render("game/actions/apply");
@@ -247,7 +163,7 @@ export const showApply = async (req, res, next) => {
 	}
 };
 
-//--- Show resign page ---//
+//--- Show resign page --------------------------------------------------------------------------//
 export const showResign = async (req, res, next) => {
 	try {
 		return res.render("game/actions/resign");
@@ -256,7 +172,7 @@ export const showResign = async (req, res, next) => {
 	}
 };
 
-//--- Show recruit page ---//
+//--- Show recruit page -------------------------------------------------------------------------//
 export const showRecruit = async (req, res, next) => {
 	try {
 		return res.render("game/actions/recruit");
@@ -265,7 +181,7 @@ export const showRecruit = async (req, res, next) => {
 	}
 };
 
-//--- Show fire page ---//
+//--- Show fire page ----------------------------------------------------------------------------//
 export const showFire = async (req, res, next) => {
 	try {
 		return res.render("game/actions/fire");

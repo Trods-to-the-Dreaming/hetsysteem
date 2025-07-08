@@ -25,7 +25,7 @@
 						<li><a class="dropdown-item" href="/account">Mijn account</a></li>
 						<li class="nav-item"><hr class="dropdown-divider"></li>
 						<li>
-							<form id="logoutExpanded" method="POST" action="/auth/logout">
+							<form id="logoutExpanded" method="POST" action="/account/logout">
 								<button class="dropdown-item btn w-100 text-start" type="submit">
 									Afmelden
 								</button>
@@ -39,7 +39,7 @@
 					<li class="nav-item"><a class="nav-link" href="/game/choose-world">Spelen</a></li>
 					<li class="nav-item"><a class="nav-link" href="/account">Mijn account</a></li>
 					<li class="nav-item">
-						<form id="logoutCollapsed" method="POST" action="/auth/logout">
+						<form id="logoutCollapsed" method="POST" action="/account/logout">
 							<button class="nav-link btn w-100 text-start" type="submit">
 								Afmelden
 							</button>
@@ -50,12 +50,12 @@
 			{{else}}
 				<!-- Expanded navbar -->
 				<div class="dropdown d-none d-sm-block">
-					<a class="btn btn-outline-light" href="/auth/login">Aanmelden</a>
+					<a class="btn btn-outline-light" href="/account/login">Aanmelden</a>
 				</div>
 				
 				<!-- Collapsed navbar -->
 				<ul class="navbar-nav d-sm-none">
-					<li class="nav-item"><a class="nav-link" href="/auth/login">Aanmelden</a></li>     
+					<li class="nav-item"><a class="nav-link" href="/account/login">Aanmelden</a></li>     
 				</ul>
 			{{/if}}
 		</div>

@@ -1,7 +1,7 @@
 //=== Imports ===================================================================================//
 import bcrypt from "bcrypt";
 
-import db from "./db.js";
+import db from "../utils/db.js";
 
 //=== Main ======================================================================================//
 
@@ -39,12 +39,14 @@ export const isUsernameTaken = async (username) => {
 };
 
 //--- Is password correct? ----------------------------------------------------------------------//
-export const isPasswordCorrect = async (user, password) => {
+export const isPasswordCorrect = async (user, 
+										password) => {
 	return await bcrypt.compare(password, user.password);
 };
 
 //--- Register user -----------------------------------------------------------------------------//
-export const registerUser = async (username, password) => {
+export const registerUser = async (username, 
+								   password) => {
 	const hashedPassword = await bcrypt.hash(password, 8);
 	const [result] = await db.execute(
 		`INSERT INTO users
@@ -60,7 +62,8 @@ export const registerUser = async (username, password) => {
 };
 
 //--- Update username ---------------------------------------------------------------------------//
-export const updateUsername = async (userId, newUsername) => {
+export const updateUsername = async (userId, 
+									 newUsername) => {
 	await db.execute(
 		`UPDATE users 
 		 SET name = ? 
@@ -71,7 +74,8 @@ export const updateUsername = async (userId, newUsername) => {
 };
 
 //--- Update password ---------------------------------------------------------------------------//
-export const updatePassword = async (userId, newPassword) => {
+export const updatePassword = async (userId, 
+									 newPassword) => {
 	const hashedPassword = await bcrypt.hash(newPassword, 8);
 	await db.execute(
 		`UPDATE users 

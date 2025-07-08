@@ -252,27 +252,27 @@ INSERT INTO worlds
 ('De tijd brengt raad',  'growing_limits', 3,            10);
 
 INSERT INTO products 
-(name,                 volume) VALUES
-('Voedsel',            1), -- id = 1
-('Medische zorg',      1), -- id = 2
-('Onderwijs',          1), -- id = 3
-('Procedures',         1), -- id = 4
-('Energie',            1), -- id = 5
-('Informatie',         1), -- id = 6
-('Concert',            1), -- id = 7
-('Videospel',          1), -- id = 8
-('Modeshow',           1), -- id = 9
-('Infrastructuur',     1), -- id = 10
-('Vuilnis',            1), -- id = 11
-('Grondstoffen',       1), -- id = 12
-('Gereedschap',        1), -- id = 13
-('Machines',           1), -- id = 14
-('Halffabricaten',     1), -- id = 15
-('Muziekinstrumenten', 1), -- id = 16
-('Elektronica',        1), -- id = 17
-('Kleding',            1), -- id = 18
-('Ertsen',             1), -- id = 19
-('Zwerfvuil',          1); -- id = 20
+(name,                 slug,             volume) VALUES
+('Voedsel',            'food',           1), -- id = 1
+('Medische zorg',      'medical-care',   1), -- id = 2
+('Onderwijs',          'education',      1), -- id = 3
+('Procedures',         'procedures',     1), -- id = 4
+('Energie',            'energy',         1), -- id = 5
+('Informatie',         'information',    1), -- id = 6
+('Concert',            'concert',        1), -- id = 7
+('Videospel',          'video-game',     1), -- id = 8
+('Modeshow',           'fashion-show',   1), -- id = 9
+('Infrastructuur',     'infrastructure', 1), -- id = 10
+('Vuilnis',            'trash',          1), -- id = 11
+('Grondstoffen',       'raw-materials',  1), -- id = 12
+('Gereedschap',        'tools',          1), -- id = 13
+('Machines',           'machines',       1), -- id = 14
+('Halffabricaten',     'intermediates',  1), -- id = 15
+('Muziekinstrumenten', 'instruments',    1), -- id = 16
+('Elektronica',        'electronics',    1), -- id = 17
+('Kleding',            'clothing',       1), -- id = 18
+('Ertsen',             'ores',           1), -- id = 19
+('Zwerfvuil',          'litter',         1); -- id = 20
 
 INSERT INTO global_resources
 (world_id, product_id, quantity) VALUES
@@ -293,28 +293,28 @@ INSERT INTO recreations
 (9); -- Modeshow
 
 INSERT INTO buildings
-(name,                  n_tiles, max_working_hours) VALUES
-('Boerderij',           1,       40), -- id = 1
-('Ziekenhuis',          1,       40), -- id = 2
-('School',              1,       40), -- id = 3
-('Kwaliteitslab',       1,       40), -- id = 4
-('Windmolenpark',       1,       40), -- id = 5
-('Onderzoekscentrum',   1,       40), -- id = 6
-('Concertzaal',         1,       40), -- id = 7
-('Spelstudio',          1,       40), -- id = 8
-('Modezaal',            1,       40), -- id = 9
-('Onderhoudsdepot',     1,       40), -- id = 10
-('Vuilniscentrale',     1,       40), -- id = 11
-('Mijn',                1,       40), -- id = 12
-('Gereedschapsfabriek', 1,       40), -- id = 13
-('Machinefabriek',      1,       40), -- id = 14
-('Verwerkingsfabriek',  1,       40), -- id = 15
-('Instrumentenatelier', 1,       40), -- id = 16
-('Elektronicafabriek',  1,       40), -- id = 17
-('Kledingfabriek',      1,       40), -- id = 18
-('Recyclagecentrum',    1,       40), -- id = 19
-('Woning',              1,       40), -- id = 20
-('Magazijn',            1,       40); -- id = 21
+(name,                  slug,                  n_tiles, max_working_hours) VALUES
+('Boerderij',           'farm',                1,       40), -- id = 1
+('Ziekenhuis',          'hospital',            1,       40), -- id = 2
+('School',              'school',              1,       40), -- id = 3
+('Kwaliteitslab',       'quality-lab',         1,       40), -- id = 4
+('Windmolenpark',       'wind-park',           1,       40), -- id = 5
+('Onderzoekscentrum',   'research-center',     1,       40), -- id = 6
+('Concertzaal',         'concert-hall',        1,       40), -- id = 7
+('Spelstudio',          'game-studio',         1,       40), -- id = 8
+('Modezaal',            'fashion-hall',        1,       40), -- id = 9
+('Onderhoudsdepot',     'maintenance-depot',   1,       40), -- id = 10
+('Vuilniscentrale',     'waste-center',        1,       40), -- id = 11
+('Mijn',                'mine',                1,       40), -- id = 12
+('Gereedschapsfabriek', 'tool-factory',        1,       40), -- id = 13
+('Machinefabriek',      'machine-factory',     1,       40), -- id = 14
+('Verwerkingsfabriek',  'processing-plant',    1,       40), -- id = 15
+('Instrumentenatelier', 'instrument-workshop', 1,       40), -- id = 16
+('Elektronicafabriek',  'electronics-factory', 1,       40), -- id = 17
+('Kledingfabriek',      'clothing-factory',    1,       40), -- id = 18
+('Recyclagecentrum',    'recycling-center',    1,       40), -- id = 19
+('Woning',              'house',               1,       40), -- id = 20
+('Magazijn',            'warehouse',           1,       40); -- id = 21
 
 INSERT INTO jobs
 (name,                    building_id, input_id, output_id, booster_id, worn_booster_id, input_per_output, boosted_working_hours_per_booster, base_factor, boost_factor) VALUES

@@ -3,7 +3,7 @@
 <div class="container-compact">
 	<h1>Registreren</h1>
 	
-	<form id="auth-register-form" method="POST" action="/auth/register">
+	<form id="account-register-form" method="POST" action="/account/register">
 		<div class="field">
 			<label for="username" class="form-label">Gebruikersnaam:</label>
 			<input id="username" class="form-control" type="text" name="username" value="{{username}}" required>
@@ -26,11 +26,11 @@
 		<button class="button-1" type="submit">Registreren</button>
 	</form>
 	
-	<p>Reeds lid? <a href="/auth/login">Aanmelden</a>.</p>
+	<p>Reeds lid? <a href="/account/login">Aanmelden</a>.</p>
 </div>
 
 <script>
-document.getElementById("auth-register-form").addEventListener("submit", function (e) {
+document.getElementById("account-register-form").addEventListener("submit", function (e) {
 	const password = document.getElementById("password");
 	const passwordConfirm = document.getElementById("password-confirm");
 	if (password.value !== passwordConfirm.value) {

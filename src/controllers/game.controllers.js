@@ -1,14 +1,18 @@
 //=== Imports ===================================================================================//
+import db from "../utils/db.js";
 import saveSession from "../utils/session.js";
 import { 
-	convertHoursToYears,
-	calculateLifeExpectancy	
-} from "../utils/game.helpers.js";
-
-import GAME_RULES from "../constants/game.rules.js";
+	getAllWorlds,
+	getAllJobs,
+	getAllRecreations,
+	getWorld,
+	getCharacter,
+	findUserCharacter,
+	claimAICharacter,
+	customizeCharacter
+} from "../helpers/game.helpers.js";
 
 //=== Constants =================================================================================//
-const MSG_INVALID_WORLD					= "Ongeldige wereld geselecteerd.";
 const MSG_NO_NEW_CHARACTERS				= "Er is geen plaats meer voor nieuwe personages.";
 const MSG_INVALID_JOB_PREFERENCE		= "Ongeldige job geselecteerd.";
 const MSG_INVALID_RECREATION_PREFERENCE	= "Ongeldige ontspanning geselecteerd.";
@@ -38,86 +42,39 @@ export const handleChooseWorld = async (req, res, next) => {
 		const { userId } = req.session;
 		const { worldId } = req.body;
 
-		// Find world
-		const world = await findWorldById(worldId, connection);
-		if (!world) {
-			const worlds = await getAllWorlds(connection);
-			await connection.rollback();
+		const world = await getWorld(worldId, connection);
+
+		// Find the user's character
+		let character = await findUserCharacter(userId, worldId, connection);
+		if (!character) {
+			character = await claimAICharacter(userId, worldId, connection);
 			
-			return res.render("game/choose-world", {
-				worlds,
-				error_chosen_world: MSG_INVALID_WORLD
-			});
-		}
-
-		// Find user's character in this world
-		const myCharacter = await findUserCharacterInWorld(userId, worldId, connection);
-		if (myCharacter) {
-			if (!myCharacter.is_customized) {
-				await connection.commit();
-
-				// Save session
-				req.session.worldId = world.id;
-				req.session.worldName = world.name;
-				req.session.characterId = myCharacter.id;
-				await saveSession(req);
-
-				// Finish character customization before entering world
-				return res.redirect("/game/customize-character");
+			if (!character) {
+				const worlds = await getAllWorlds(connection);
+				await connection.rollback();
+				
+				// All AI-characters have been claimed
+				return res.render("game/choose-world", {
+					worlds,
+					error_chosen_world: MSG_NO_NEW_CHARACTERS,
+					selected_world_id: parseInt(worldId)
+				});
 			}
-
+		}
+		
+		// Check if the user has already customized his character 
+		if (!character.is_customized) {
 			await connection.commit();
 
 			// Save session
 			req.session.worldId = world.id;
 			req.session.worldName = world.name;
-			req.session.characterId = myCharacter.id;
-			req.session.characterFirstName = myCharacter.first_name;
-			req.session.characterLastName = myCharacter.last_name;
+			req.session.characterId = character.id;
 			await saveSession(req);
-
-			// Enter world
-			return res.redirect("/game");
-		}
-		
-		// Get an AI-character
-		const aiCharacter = await getAICharacterInWorld(worldId, connection);
-		if (!aiCharacter) {
-			const worlds = await getAllWorlds(connection);
-			await connection.rollback();
 			
-			return res.render("game/choose-world", {
-				worlds,
-				error_chosen_world: MSG_NO_NEW_CHARACTERS,
-				selected_world_id: parseInt(worldId)
-			});
+			// Customize character
+			return res.redirect("/game/customize-character");
 		}
-
-		// Claim the AI-character
-		const characterId = aiCharacter[0].id;
-		const [updateResult] = await connection.execute(
-			`UPDATE characters
-			 SET user_id = ?
-			 WHERE id = ?`,
-			[userId, 
-			 characterId]
-		);
-		if (updateResult.affectedRows !== 1) {
-			await connection.rollback();
-			return res.status(403).render("errors/403");
-		}
-
-		// Search for the claimed character
-		const [characters] = await connection.execute(
-			`SELECT * 
-			 FROM characters
-			 WHERE user_id = ? AND 
-			       world_id = ? AND 
-				   is_customized = false`,
-			[userId, 
-			 worldId]
-		);
-		const character = characters[0];
 		
 		await connection.commit();
 
@@ -125,10 +82,12 @@ export const handleChooseWorld = async (req, res, next) => {
 		req.session.worldId = world.id;
 		req.session.worldName = world.name;
 		req.session.characterId = character.id;
+		req.session.characterFirstName = character.first_name;
+		req.session.characterLastName = character.last_name;
 		await saveSession(req);
 
-		// Customize the claimed character
-		return res.redirect("/game/customize-character");
+		// Enter world
+		return res.redirect("/game");
 	} catch (err) {
 		await connection.rollback();
 		next(err);
@@ -140,19 +99,8 @@ export const handleChooseWorld = async (req, res, next) => {
 //--- Show customize character page -------------------------------------------------------------//
 export const showCustomizeCharacter = async (req, res, next) => {
 	try {
-		const [jobs] = await db.execute(
-			`SELECT id, 
-			        name 
-			 FROM jobs 
-			 ORDER BY id`
-		);
-		const [recreations] = await db.execute(
-			`SELECT recreations.id, 
-			        products.name
-			 FROM recreations
-			 INNER JOIN products ON recreations.product_id = products.id
-			 ORDER BY recreations.id;`
-		);
+		const jobs = await getAllJobs();
+		const recreations = await getAllRecreations();
 		
 		return res.render("game/customize-character", {
 			jobs,
@@ -174,27 +122,16 @@ export const handleCustomizeCharacter = async (req, res, next) => {
 				jobPreference2, 
 				jobPreference3, 
 				recreationPreference } = req.body;
+				
+		const character = await getCharacter(characterId);
 
-		// Fetch jobs and recreations
-		const [jobs] = await db.execute(
-			`SELECT id, 
-			        name 
-			 FROM jobs 
-			 ORDER BY id`
-		);
-		const [recreations] = await db.execute(
-			`SELECT recreations.id, 
-			        products.name
-			 FROM recreations
-			 INNER JOIN products ON recreations.product_id = products.id
-			 ORDER BY recreations.id;`
-		);
+		const jobs = await getAllJobs();
+		const recreations = await getAllRecreations();
 		
-		// Fetch valid IDs
 		const validJobIds = jobs.map(job => job.id);
 		const validRecreationIds = recreations.map(recreation => recreation.id);
 
-		// Validate job preferences
+		// Check job preference existence
 		const jobIds = [jobPreference1, jobPreference2, jobPreference3].map(id => parseInt(id));
 		if (!jobIds.every(id => validJobIds.includes(id))) {
 			return res.render("game/customize-character", {
@@ -206,7 +143,7 @@ export const handleCustomizeCharacter = async (req, res, next) => {
 			});
 		}
 		
-		// Validate job preference uniqueness
+		// Check job preference uniqueness
 		const uniqueJobs = new Set(jobIds);
 		if (uniqueJobs.size !== 3) {
 			return res.render("game/customize-character", {
@@ -218,7 +155,7 @@ export const handleCustomizeCharacter = async (req, res, next) => {
 			});
 		}
 		
-		// Validate recreation preference
+		// Check recreation preference existence
 		if (!validRecreationIds.includes(parseInt(recreationPreference))) {
 			return res.render("game/customize-character", {
 				jobs,
@@ -228,48 +165,23 @@ export const handleCustomizeCharacter = async (req, res, next) => {
 				last_name: lastName
 			});
 		}
-
-		// Validate character
-		const [characters] = await db.execute(
-			`SELECT * 
-			 FROM characters 
-			 WHERE id = ? AND 
-			       user_id = ? AND 
-				   is_customized = false`,
-			[characterId, 
-			 userId]
-		);
-		if (characters.length === 0) {
-			return res.status(403).render("errors/403");
-		}
-
-		// Update character
-		await db.execute(
-			`UPDATE characters
-			 SET first_name = ?, 
-			     last_name = ?, 
-			     job_preference_1_id = ?, 
-			     job_preference_2_id = ?, 
-			     job_preference_3_id = ?, 
-			     recreation_preference_id = ?, 
-			     is_customized = true
-			 WHERE id = ?`,
-			[firstName,
-			 lastName,
-			 jobPreference1,
-			 jobPreference2,
-			 jobPreference3,
-			 recreationPreference,
-			 characterId]
-		);
-
+		
+		// Customize character
+		await customizeCharacter(characterId,
+								 firstName,
+								 lastName,
+								 jobPreference1,
+								 jobPreference2,
+								 jobPreference3,
+								 recreationPreference);
+		
 		// Save session
 		req.session.characterFirstName = firstName;
 		req.session.characterLastName = lastName;
 		await saveSession(req);
 		
 		// Enter world
-		return res.redirect("/game/menu");
+		return res.redirect("/game");
 	} catch (err) {
 		next(err);
 	}
