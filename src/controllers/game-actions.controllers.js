@@ -2,8 +2,13 @@
 import db from "../utils/db.js";
 import saveSession from "../utils/session.js";
 import { 
+	validateCharacterId,
+	hasConfirmedAction,
+	confirmAction,
 	getFoodInfo,
 	getMedicalCareInfo,
+	validateConsumption,
+	updateConsumption,
 	getProductBuyOrders,
 	getProductSellOrders,
 	getBuildingBuyOrders,
@@ -12,16 +17,14 @@ import {
 	getSellableProducts,
 	getBuyableBuildings,
 	getSellableBuildings,
-	getConsumptionConfirmation,
-	getOrderConfirmation,
-	validateConsumption,
-	updateConsumption,
-	confirmConsumption,
 	validateOrders,
 	updateOrders,
-	confirmOrders,
 	getAvailableHours,
-	getContracts
+	getContracts,
+	validateHours,
+	updateJobHours,
+	updateCourseHours,
+	updateActivityHours
 } from "../helpers/game-actions.helpers.js";
 
 //=== Constants =================================================================================//
@@ -46,23 +49,23 @@ export const showSurvive = async (req, res, next) => {
 		const [
 			food,
 			medicalCare,
-			hasConfirmedConsumption
+			hasConfirmed
 		] = await Promise.all([
 			getFoodInfo(characterId),
 			getMedicalCareInfo(characterId),
-			getConsumptionConfirmation(characterId)
+			hasConfirmedAction(characterId, "survive")
 		]);
 
 		return res.render("game/actions/survive", {
-			food_available: food.available,
-			food_default: food.default,
-			food_selectable: food.selectable,
-			food_needed: food.needed,
-			medical_care_available: medicalCare.available,
-			medical_care_default: medicalCare.default,
+			food_available: 		 food.available,
+			food_default: 			 food.default,
+			food_selectable: 		 food.selectable,
+			food_needed: 			 food.needed,
+			medical_care_available:  medicalCare.available,
+			medical_care_default: 	 medicalCare.default,
 			medical_care_selectable: medicalCare.selectable,
-			medical_care_needed: medicalCare.needed,
-			has_confirmed_consumption: hasConfirmedConsumption
+			medical_care_needed: 	 medicalCare.needed,
+			has_confirmed: 			 hasConfirmed
 		});
 	} catch (err) {
 		next(err);
@@ -77,13 +80,13 @@ export const handleSurvive = async (req, res, next) => {
 
 		const foodConsumed = Number(req.body.foodConsumed);
 		const medicalCareConsumed = Number(req.body.medicalCareConsumed);
-		
 		await validateConsumption(foodConsumed, medicalCareConsumed);
 		
 		await connection.beginTransaction();
 		
+		await validateCharacterId(characterId);
 		await updateConsumption(characterId, foodConsumed, medicalCareConsumed, connection);
-		await confirmConsumption(characterId, connection);
+		await confirmAction(characterId, "survive", connection);
 		
 		await connection.commit();
 		
@@ -110,7 +113,7 @@ export const showTrade = async (req, res, next) => {
 			sellableProducts,
 			buyableBuildings,
 			sellableBuildings,
-			hasConfirmedOrders
+			hasConfirmed
 		] = await Promise.all([
 			getProductBuyOrders(characterId),
 			getProductSellOrders(characterId),
@@ -120,19 +123,19 @@ export const showTrade = async (req, res, next) => {
 			getSellableProducts(characterId),
 			getBuyableBuildings(),
 			getSellableBuildings(characterId),
-			getOrderConfirmation(characterId)
+			hasConfirmedAction(characterId, "trade")
 		]);
 		
 		return res.render("game/actions/trade", {
-			product_buy_orders: productBuyOrders,
-			product_sell_orders: productSellOrders,
-			building_buy_orders: buildingBuyOrders,
+			product_buy_orders:   productBuyOrders,
+			product_sell_orders:  productSellOrders,
+			building_buy_orders:  buildingBuyOrders,
 			building_sell_orders: buildingSellOrders,
-			buyable_products: buyableProducts,
-			sellable_products: sellableProducts,
-			buyable_buildings: buyableBuildings,
-			sellable_buildings: sellableBuildings,
-			has_confirmed_orders: hasConfirmedOrders
+			buyable_products: 	  buyableProducts,
+			sellable_products: 	  sellableProducts,
+			buyable_buildings: 	  buyableBuildings,
+			sellable_buildings:   sellableBuildings,
+			has_confirmed: 		  hasConfirmed
 		});
 	} catch (err) {
 		next(err);
@@ -149,18 +152,17 @@ export const handleTrade = async (req, res, next) => {
 		const productSellOrders  = JSON.parse(req.body.productSellOrders  || "[]");
 		const buildingBuyOrders  = JSON.parse(req.body.buildingBuyOrders  || "[]");
 		const buildingSellOrders = JSON.parse(req.body.buildingSellOrders || "[]");
-		
 		await validateOrders(productBuyOrders, productSellOrders);
 		await validateOrders(buildingBuyOrders, buildingSellOrders);
 		
 		await connection.beginTransaction();
 		
+		await validateCharacterId(characterId);
 		await updateOrders(characterId, "buy",  "product",  productBuyOrders,   connection);
 		await updateOrders(characterId, "sell", "product",  productSellOrders,  connection);
 		await updateOrders(characterId, "buy",  "building", buildingBuyOrders,  connection);
 		await updateOrders(characterId, "sell", "building", buildingSellOrders, connection);
-		
-		await confirmOrders(characterId, connection);
+		await confirmAction(characterId, "trade", connection);
 		
 		await connection.commit();
 		
@@ -180,18 +182,52 @@ export const showSpendTime = async (req, res, next) => {
 		
 		const [
 			availableHours,
-			contracts
+			contracts,
+			hasConfirmed
 		] = await Promise.all([
 			getAvailableHours(characterId),
-			getContracts(characterId)
+			getContracts(characterId),
+			hasConfirmedAction(characterId, "spend_time")
 		]);
 		
 		return res.render("game/actions/spend-time", {
 			hours_available: availableHours,
-			contracts
+			contracts,
+			has_confirmed:	 hasConfirmed
 		});
 	} catch (err) {
 		next(err);
+	}
+};
+
+//--- Handle spend time request -----------------------------------------------------------------//
+export const handleSpendTime = async (req, res, next) => {
+	const connection = await db.getConnection();
+	try {
+		const { characterId } = req.session;
+		
+		const jobHours = req.body.jobHours || {};
+		const courseHours = req.body.courseHours || {};
+		const activityHours = req.body.activityHours || {};
+		
+		await validateHours(jobHours, courseHours, activityHours);
+		
+		await connection.beginTransaction();
+		
+		await validateCharacterId(characterId);
+		await updateJobHours(characterId, jobHours, connection);
+		await updateCourseHours(characterId, courseHours, connection);
+		await updateActivityHours(characterId, activityHours, connection);
+		await confirmAction(characterId, "spend_time", connection);
+		
+		await connection.commit();
+		
+		return res.redirect("/game/actions/spend-time");
+	} catch (err) {
+		await connection.rollback(); 
+		next(err);
+	} finally {
+		connection.release();
 	}
 };
 

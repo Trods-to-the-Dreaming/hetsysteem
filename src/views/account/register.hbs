@@ -3,7 +3,7 @@
 <div class="container-compact">
 	<h1>Registreren</h1>
 	
-	<form id="account-register-form" method="POST" action="/account/register">
+	<form id="register-form" method="POST" action="/account/register">
 		<div class="field">
 			<label for="username" class="form-label">Gebruikersnaam:</label>
 			<input id="username" class="form-control" type="text" name="username" value="{{username}}" required>
@@ -30,14 +30,21 @@
 </div>
 
 <script>
-document.getElementById("account-register-form").addEventListener("submit", function (e) {
+document.addEventListener("DOMContentLoaded", () => {
 	const password = document.getElementById("password");
 	const passwordConfirm = document.getElementById("password-confirm");
-	if (password.value !== passwordConfirm.value) {
-		document.getElementById("error-confirm").textContent = "De wachtwoorden komen niet overeen.";
-		e.preventDefault();
-	} else {
-		document.getElementById("error-confirm").textContent = "";
-	}
+	
+	const errorConfirm = document.getElementById("error-confirm");
+	
+	const form = document.getElementById("register-form");
+
+	form.addEventListener("submit", function (e) {
+		if (password.value !== passwordConfirm.value) {
+			errorConfirm.textContent = "De wachtwoorden komen niet overeen.";
+			e.preventDefault();
+		} else {
+			errorConfirm.textContent = "";
+		}
+	});
 });
 </script>

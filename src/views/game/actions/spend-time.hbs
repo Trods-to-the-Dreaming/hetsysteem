@@ -3,103 +3,130 @@
 <div class="container-compact">
 	<h1>Tijd besteden</h1>
 
-	<p id="hours-available"></p>
+	<div id="confirmed-section" {{#unless has_confirmed}}class="d-none"{{/unless}}>
+		<p class="success">Uw acties zijn bevestigd.</p>
+		
+		<button id="edit-button" type="button" class="button-1">Wijzigen</button>
+	</div>
+	
+	<div id="overview-section" {{#if has_confirmed}}class="d-none"{{/if}}>
+		<p id="hours-available"></p>
 
-	<form id="game-spend-time-form" method="POST" action="/game/world/actions/spend-time/job">
-		<h2>🛠 Job</h2>
-		{{#if contracts.length}}
-			{{#each contracts}}
-				<ul class="list-compact">
-					<li class="list-item-justify">
-						<span>Werkgever:</span>
-						<span>{{this.employer_first_name}} {{this.employer_last_name}}</span>
-					</li>
-					<li class="list-item-justify">
-						<span>Job:</span>
-						<span>{{this.job_name}}</span>
-					</li>
-					<li class="list-item-justify">
-						<span>Uurloon:</span>
-						<span>€ {{this.hourly_wage}}</span>
-					</li>
-					<li class="list-item-justify">
-						<span>Uren afgesproken:</span>
-						<span class="list-fake-select">{{this.hours}}</span>
-					</li>
-					<li class="list-item-justify">
-						<span>Uren presteren:</span>
-						<select id="job-hours-{{this.id}}" class="list-select" name="jobHours[{{this.id}}]">
-							{{#range 0 this.hours}}
-								<option value="{{this}}" {{#if (eq this ../this.hours)}}selected{{/if}}>{{this}}</option>
-							{{/range}}
-						</select>
-					</li>
-				</ul>
-			{{/each}}
-		{{else}}
-			<p>Je hebt geen lopend arbeidscontract.</p>
-		{{/if}}
-		
-		<h2>🎓 Opleiding</h2>
-		{{#if courses.length}}
-			{{#each courses}}
-				<ul class="list-compact">
-					<li class="list-item-justify">
-						<span>Leraar:</span>
-						<span>{{this.teacher_first_name}} {{this.teacher_last_name}}</span>
-					</li>
-					<li class="list-item-justify">
-						<span>Uren volgen:</span>
-						<select id="course-hours-{{this.id}}" class="list-select" name="courseHours[{{this.id}}]">
-							<option value="0" selected>0</option>
-							<option value="{{this.hours}}">{{this.hours}}</option>
-						</select>
-					</li>
-				</ul>
-			{{/each}}
-		{{else}}
-			<p>Je bent niet ingeschreven voor een opleiding.</p>
-		{{/if}}
-		
-		<h2>🎭 Ontspanning</h2>
-		{{#if activities.length}}
-			{{#each activities}}
-				<ul class="list-compact">
-					<li class="list-item-justify">
-						<span>Organisator:</span>
-						<span>{{this.organizer_first_name}} {{this.organizer_last_name}}</span>
-					</li>
-					<li class="list-item-justify">
-						<span>Uren deelnemen:</span>
-						<select id="activity-hours-{{this.id}}" class="list-select" name="activityHours[{{this.id}}]">
-							<option value="0" selected>0</option>
-							<option value="{{this.hours}}">{{this.hours}}</option>
-						</select>
-					</li>
-				</ul>
-			{{/each}}
-		{{else}}
-			<p>Je bent niet ingeschreven voor een ontspannende activiteit.</p>
-		{{/if}}
-		
-		<button class="button-1" type="submit">Bevestigen</button>
-	</form>
+		<form id="spend-time-form" method="POST" action="/game/actions/spend-time">
+			<h2>🛠 Job</h2>
+			{{#if contracts.length}}
+				{{#each contracts}}
+					<ul class="list-compact">
+						<li class="list-item-justify">
+							<span>Werkgever:</span>
+							<span>{{this.employer_first_name}} {{this.employer_last_name}}</span>
+						</li>
+						<li class="list-item-justify">
+							<span>Job:</span>
+							<span>{{this.job_name}}</span>
+						</li>
+						<li class="list-item-justify">
+							<span>Uurloon:</span>
+							<span>€ {{this.hourly_wage}}</span>
+						</li>
+						<li class="list-item-justify">
+							<span>Uren afgesproken:</span>
+							<span class="list-fake-select">{{this.hours}}</span>
+						</li>
+						<li class="list-item-justify">
+							<span>Uren presteren:</span>
+							<select id="job-hours-{{this.id}}" class="list-select" name="jobHours[{{this.id}}]">
+								{{#range 0 this.hours}}
+									<option value="{{this}}" {{#if (eq this ../this.hours)}}selected{{/if}}>{{this}}</option>
+								{{/range}}
+							</select>
+						</li>
+					</ul>
+				{{/each}}
+			{{else}}
+				<p>Je hebt geen lopend arbeidscontract.</p>
+			{{/if}}
+			
+			<h2>🎓 Opleiding</h2>
+			{{#if courses.length}}
+				{{#each courses}}
+					<ul class="list-compact">
+						<li class="list-item-justify">
+							<span>Leraar:</span>
+							<span>{{this.teacher_first_name}} {{this.teacher_last_name}}</span>
+						</li>
+						<li class="list-item-justify">
+							<span>Uren volgen:</span>
+							<select id="course-hours-{{this.id}}" class="list-select" name="courseHours[{{this.id}}]">
+								<option value="0" selected>0</option>
+								<option value="{{this.hours}}">{{this.hours}}</option>
+							</select>
+						</li>
+					</ul>
+				{{/each}}
+			{{else}}
+				<p>Je bent niet ingeschreven voor een opleiding.</p>
+			{{/if}}
+			
+			<h2>🎭 Ontspanning</h2>
+			{{#if activities.length}}
+				{{#each activities}}
+					<ul class="list-compact">
+						<li class="list-item-justify">
+							<span>Organisator:</span>
+							<span>{{this.organizer_first_name}} {{this.organizer_last_name}}</span>
+						</li>
+						<li class="list-item-justify">
+							<span>Uren deelnemen:</span>
+							<select id="activity-hours-{{this.id}}" class="list-select" name="activityHours[{{this.id}}]">
+								<option value="0" selected>0</option>
+								<option value="{{this.hours}}">{{this.hours}}</option>
+							</select>
+						</li>
+					</ul>
+				{{/each}}
+			{{else}}
+				<p>Je bent niet ingeschreven voor een ontspannende activiteit.</p>
+			{{/if}}
+			
+			<button class="button-1" type="submit">Bevestigen</button>
+		</form>
+	</div>
 
 	<a class="button-back" href="/game/actions">← Acties</a>
 </div>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-	let totalHoursToSpend = parseInt("{{hours_available}}", 10);
+	// Elements
+	const confirmedSection = document.getElementById("confirmed-section");
+	const editButton = document.getElementById("edit-button");
+	const overviewSection = document.getElementById("actions-section");
 	let hoursAvailableElement = document.getElementById("hours-available");
-
 	const allSelects = document.querySelectorAll("select.list-select");
-
+	
+	// Variables
+	const totalHoursToSpend = parseInt("{{hours_available}}", 10);
+	
+	// Event listeners
+	editButton.addEventListener("click", clickEdit);
+	allSelects.forEach(select => {
+		select.addEventListener("change", updateHoursAvailable);
+	});
+	
+	// Executed when the DOM content is loaded
+	updateHoursAvailable();
 	allSelects.forEach(select => {
 		const max = select.options.length - 1;
 		select.setAttribute("data-max", max);
 	});
-
+	
+	// Event handlers
+	function clickEdit() {
+		confirmedSection.classList.add("d-none");
+		overviewSection.classList.remove("d-none");
+	};
+	//----------------------------------------
 	function updateHoursAvailable() {
 		let spentHours = 0;
 		allSelects.forEach(select => {
@@ -129,13 +156,5 @@ document.addEventListener("DOMContentLoaded", function () {
 			}
 		});
 	}
-
-	// Voeg change-event toe aan alle select-elementen
-	allSelects.forEach(select => {
-		select.addEventListener("change", updateHoursAvailable);
-	});
-
-	// Initiele update bij laden van de pagina
-	updateHoursAvailable();
 });
 </script>

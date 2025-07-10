@@ -3,14 +3,14 @@
 <div class="container-compact">
 	<h1>Overleven</h1>
 	
-	<div id="consumption-confirmed-section" {{#unless has_confirmed_consumption}}class="d-none"{{/unless}}>
+	<div id="confirmed-section" {{#unless has_confirmed}}class="d-none"{{/unless}}>
 		<p class="success">Uw voedsel- en medische zorgconsumptie is bevestigd.</p>
 		
-		<button id="edit-consumption-button" type="button" class="button-1">Wijzigen</button>
+		<button id="edit-button" type="button" class="button-1">Wijzigen</button>
 	</div>
 	
-	<div id="consumption-overview-section" {{#if has_confirmed_consumption}}class="d-none"{{/if}}>
-		<form id="game-survive-form" method="POST" action="/game/actions/survive">
+	<div id="overview-section" {{#if has_confirmed}}class="d-none"{{/if}}>
+		<form id="survive-form" method="POST" action="/game/actions/survive">
 			<h2>🍎 Voedsel</h2>
 			{{#if (gt food_available 0)}}
 				<ul class="list-compact">
@@ -64,9 +64,9 @@
 
 <script>
 	// Elements
-	const consumptionConfirmedSection = document.getElementById("consumption-confirmed-section");
-	const editConsumptionButton = document.getElementById("edit-consumption-button");
-	const consumptionOverviewSection = document.getElementById("consumption-overview-section");
+	const confirmedSection = document.getElementById("confirmed-section");
+	const editButton = document.getElementById("edit-button");
+	const overviewSection = document.getElementById("overview-section");
 	const foodConsumed = document.getElementById("food-consumed");
 	const warningFood = document.getElementById("warning-food");
 	const medicalCareConsumed = document.getElementById("medical-care-consumed");
@@ -79,7 +79,7 @@
 	const medicalCareSelectable = {{medical_care_selectable}};
 	
 	// Event listeners
-	editConsumptionButton.addEventListener("click", clickEditConsumption);
+	editButton.addEventListener("click", clickEdit);
 	foodConsumed.addEventListener("change", checkFoodWarning);
 	medicalCareConsumed.addEventListener("change", checkMedicalCareWarning);
 	
@@ -88,9 +88,9 @@
 	checkMedicalCareWarning();
 	
 	// Event handlers
-	function clickEditConsumption() {
-		consumptionConfirmedSection.classList.add("d-none");
-		consumptionOverviewSection.classList.remove("d-none");
+	function clickEdit() {
+		confirmedSection.classList.add("d-none");
+		overviewSection.classList.remove("d-none");
 	};
 	//----------------------------------------
 	function checkFoodWarning() {

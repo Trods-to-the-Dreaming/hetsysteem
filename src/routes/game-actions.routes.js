@@ -18,6 +18,7 @@ import {
 	showTrade,
 	handleTrade,
 	showSpendTime,
+	handleSpendTime,
 	showApply,
 	showResign,
 	showRecruit,
@@ -47,7 +48,8 @@ router.get( "/trade", requireAuthenticatedAndCustomized, showTrade);
 router.post("/trade", requireAuthenticatedAndCustomized, handleTrade);
 
 // Spend time
-router.get("/spend-time", requireAuthenticatedAndCustomized, showSpendTime);
+router.get( "/spend-time", requireAuthenticatedAndCustomized, showSpendTime);
+router.post("/spend-time", requireAuthenticatedAndCustomized, handleSpendTime);
 
 // (to do)
 router.get("/apply", requireAuthenticatedAndCustomized, showApply);

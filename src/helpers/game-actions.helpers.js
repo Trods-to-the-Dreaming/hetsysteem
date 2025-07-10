@@ -1,3 +1,11 @@
+/*Nog te doen op Combell:
+ALTER TABLE `hetsysteem`.`characters` 
+CHANGE COLUMN `has_confirmed_consumption` `has_confirmed_survive` TINYINT(1) NOT NULL DEFAULT '0' ,
+CHANGE COLUMN `has_confirmed_orders` `has_confirmed_trade` TINYINT(1) NOT NULL DEFAULT '0' ,
+CHANGE COLUMN `has_confirmed_hours` `has_confirmed_spend_time` TINYINT(1) NOT NULL DEFAULT '0' ;
+*/
+
+
 //=== Imports ===================================================================================//
 import db from "../utils/db.js";
 import { 
@@ -10,16 +18,71 @@ import { getProductIds } from "./game-products.helpers.js";
 import GAME_RULES from "../constants/game.rules.js";
 
 //=== Constants =================================================================================//
-const MSG_INVALID_TYPE		   = "Het gevraagde ordertype bestaat niet.";
-const MSG_INVALID_CATEGORY     = "De gevraagde ordercategorie bestaat niet.";
-const MSG_INVALID_CHARACTER	   = "Het gevraagde personage bestaat niet.";
+const MSG_INVALID_CHARACTER	   = "Dat personage bestaat niet.";
+const MSG_INVALID_ACTION	   = "Die te bevestigen actie bestaat niet.";
+const MSG_INVALID_TYPE		   = "Dat ordertype bestaat niet.";
+const MSG_INVALID_CATEGORY     = "Die ordercategorie bestaat niet.";
 const MSG_MULTIPLE_ORDERS	   = "Voor ieder product of gebouw is slechts één order toegestaan.";
 const MSG_INVALID_QUANTITY	   = "De ingegeven hoeveelheid van het order is ongeldig.";
 const MSG_INVALID_UNIT_PRICE   = "De ingegeven eenheidsprijs van het order is ongeldig.";
 const MSG_INVALID_FOOD	 	   = "De ingegeven voedselconsumptie is ongeldig.";
 const MSG_INVALID_MEDICAL_CARE = "De ingegeven consumptie van medische zorg is ongeldig.";
 
+export const ACTIONS = ["survive", "trade", "spend_time"];
+export const TYPES = ["buy", "sell"];
+export const CATEGORIES = ["product", "building"];
+
 //=== Main ======================================================================================//
+
+//--- Validate character id ---------------------------------------------------------------------//
+export const validateCharacterId = async (characterId, 
+										  connection = db) => {
+	const [character] = await connection.execute(
+		`SELECT id
+		 FROM characters
+		 WHERE id = ?`,
+		[characterId]
+	);
+	if (character.length === 0) {
+		throw new NotFoundError(MSG_INVALID_CHARACTER);
+	}
+};
+
+//--- Has the character confirmed the action? ---------------------------------------------------//
+export const hasConfirmedAction = async (characterId, 
+										 action,
+										 connection = db) => {
+	if (!ACTIONS.includes(action)) {
+		throw new BadRequestError(MSG_INVALID_ACTION);
+	}
+	
+	const [character] = await connection.execute(
+		`SELECT \`has_confirmed_${action}\`
+		 FROM characters
+		 WHERE id = ?`,
+		[characterId]
+	);
+	if (character.length === 0) {
+		throw new NotFoundError(MSG_INVALID_CHARACTER);
+	}
+	return character[0][`has_confirmed_${action}`];
+};
+
+//--- Confirm the action ------------------------------------------------------------------------//
+export const confirmAction = async (characterId, 
+									action,
+									connection = db) => {
+	if (!ACTIONS.includes(action)) {
+		throw new BadRequestError(MSG_INVALID_ACTION);
+	}
+	
+	await connection.execute(
+		`UPDATE characters
+		 SET \`has_confirmed_${action}\` = TRUE
+		 WHERE id = ?`,
+		[characterId]
+	);
+};
 
 //--- Get food information ----------------------------------------------------------------------//
 export const getFoodInfo = async (characterId, 
@@ -42,9 +105,9 @@ export const getFoodInfo = async (characterId,
 	
 	return {
 		available,
-		default: Math.min(available, GAME_RULES.FOOD.NEEDED),
+		default: 	Math.min(available, GAME_RULES.FOOD.NEEDED),
 		selectable: Math.min(available, GAME_RULES.FOOD.MAX),
-		needed: GAME_RULES.FOOD.NEEDED
+		needed: 	GAME_RULES.FOOD.NEEDED
 	};
 };
 
@@ -69,10 +132,46 @@ export const getMedicalCareInfo = async (characterId,
 	
 	return {
 		available,
-		default: Math.min(available, GAME_RULES.MEDICAL_CARE.NEEDED),
+		default: 	Math.min(available, GAME_RULES.MEDICAL_CARE.NEEDED),
 		selectable: Math.min(available, GAME_RULES.MEDICAL_CARE.MAX),
-		needed: GAME_RULES.MEDICAL_CARE.NEEDED
+		needed: 	GAME_RULES.MEDICAL_CARE.NEEDED
 	};
+};
+
+//--- Validate consumption ----------------------------------------------------------------------//
+export const validateConsumption = async (foodConsumed, 
+										  medicalCareConsumed) => {
+	if (typeof foodConsumed !== "number" || 
+		foodConsumed < 0 ||
+		foodConsumed > GAME_RULES.FOOD.MAX) {
+		throw new BadRequestError(MSG_INVALID_FOOD);
+	}
+	
+	if (typeof medicalCareConsumed !== "number" || 
+		medicalCareConsumed < 0 ||
+		medicalCareConsumed > GAME_RULES.MEDICAL_CARE.MAX) {
+		throw new BadRequestError(MSG_INVALID_MEDICAL_CARE);
+	}
+};
+
+//--- Update consumption ------------------------------------------------------------------------//
+export const updateConsumption = async (characterId,
+										foodConsumed, 
+										medicalCareConsumed, 
+										connection = db) => {
+	await connection.execute(
+		`INSERT INTO character_survive 
+			(character_id, 
+			 food_consumed, 
+			 medical_care_consumed)
+		 VALUES (?, ?, ?)
+		 ON DUPLICATE KEY 
+		 UPDATE food_consumed = VALUES(food_consumed),
+				medical_care_consumed = VALUES(medical_care_consumed)`,
+		[characterId, 
+		 foodConsumed, 
+		 medicalCareConsumed]
+	);
 };
 
 //--- Get product buy orders --------------------------------------------------------------------//
@@ -195,83 +294,6 @@ export const getSellableBuildings = async (characterId,
 	return sellableBuildings;
 };
 
-//--- Get consumption confirmation --------------------------------------------------------------//
-export const getConsumptionConfirmation = async (characterId, 
-												 connection = db) => {
-	const [character] = await connection.execute(
-		`SELECT has_confirmed_consumption
-		 FROM characters
-		 WHERE id = ?`,
-		[characterId]
-	);
-	if (character.length === 0) {
-		throw new NotFoundError(MSG_INVALID_CHARACTER);
-	}
-	return character[0].has_confirmed_consumption;
-};
-
-//--- Get order confirmation --------------------------------------------------------------------//
-export const getOrderConfirmation = async (characterId, 
-										   connection = db) => {
-	const [character] = await connection.execute(
-		`SELECT has_confirmed_orders
-		 FROM characters
-		 WHERE id = ?`,
-		[characterId]
-	);
-	if (character.length === 0) {
-		throw new NotFoundError(MSG_INVALID_CHARACTER);
-	}
-	return character[0].has_confirmed_orders;
-};
-
-//--- Validate consumption ----------------------------------------------------------------------//
-export const validateConsumption = async (foodConsumed, 
-										  medicalCareConsumed) => {
-	if (typeof foodConsumed !== "number" || 
-		foodConsumed < 0 ||
-		foodConsumed > GAME_RULES.FOOD.MAX) {
-		throw new BadRequestError(MSG_INVALID_FOOD);
-	}
-	
-	if (typeof medicalCareConsumed !== "number" || 
-		medicalCareConsumed < 0 ||
-		medicalCareConsumed > GAME_RULES.MEDICAL_CARE.MAX) {
-		throw new BadRequestError(MSG_INVALID_MEDICAL_CARE);
-	}
-};
-
-//--- Update consumption ------------------------------------------------------------------------//
-export const updateConsumption = async (characterId,
-										foodConsumed, 
-										medicalCareConsumed, 
-										connection = db) => {
-	await connection.execute(
-		`INSERT INTO character_consumption 
-			(character_id, 
-			 food_consumed, 
-			 medical_care_consumed)
-		 VALUES (?, ?, ?)
-		 ON DUPLICATE KEY 
-		 UPDATE food_consumed = VALUES(food_consumed),
-				medical_care_consumed = VALUES(medical_care_consumed)`,
-		[characterId, 
-		 foodConsumed, 
-		 medicalCareConsumed]
-	);
-};
-
-//--- Confirm consumption -----------------------------------------------------------------------//
-export const confirmConsumption = async (characterId, 
-										 connection = db) => {
-	await connection.execute(
-		`UPDATE characters
-		 SET has_confirmed_consumption = TRUE
-		 WHERE id = ?`,
-		[characterId]
-	);
-};
-
 //--- Validate orders ---------------------------------------------------------------------------//
 export const validateOrders = async (buyOrders,
 									 sellOrders) => {
@@ -303,18 +325,16 @@ export const updateOrders = async (characterId,
 								   category, 
 								   orders,
 								   connection = db) => {
-	const validTypes = ["buy", "sell"];
-	if (!validTypes.includes(type)) {
+	if (!TYPES.includes(type)) {
 		throw new BadRequestError(MSG_INVALID_TYPE);
 	}
 	
-	const validCategories = ["product", "building"];
-	if (!validCategories.includes(category)) {
+	if (!CATEGORIES.includes(category)) {
 		throw new BadRequestError(MSG_INVALID_CATEGORY);
 	}
 	
 	await connection.execute(
-		`DELETE FROM ${category}_${type}_orders
+		`DELETE FROM \`${category}_${type}_orders\`
 		 WHERE character_id = ?`,
 		[characterId]
 	);
@@ -332,24 +352,13 @@ export const updateOrders = async (characterId,
 	]);
 
 	await connection.execute(
-		`INSERT INTO ${category}_${type}_orders
+		`INSERT INTO \`${category}_${type}_orders\`
 		 (character_id, 
-		  ${category}_id, 
-		  ${type === "buy" ? "demand" : "supply"}, 
-		  ${type === "buy" ? "max" : "min"}_unit_price)
+		  \`${category}_id\`, 
+		  \`${type === "buy" ? "demand" : "supply"}\`, 
+		  \`${type === "buy" ? "max" : "min"}_unit_price\`)
 		 VALUES ${valuePlaceholders}`,
 		valueParams
-	);
-};
-
-//--- Confirm orders ----------------------------------------------------------------------------//
-export const confirmOrders = async (characterId, 
-								    connection = db) => {
-	await connection.execute(
-		`UPDATE characters
-		 SET has_confirmed_orders = TRUE
-		 WHERE id = ?`,
-		[characterId]
 	);
 };
 
@@ -386,4 +395,52 @@ export const getContracts = async (characterId,
 		[characterId]
 	);
 	return contracts;
+};
+
+//--- Validate hours ----------------------------------------------------------------------------//
+export const validateHours = async (jobHours, 
+									courseHours, 
+									activityHours) => {
+	// to do
+};
+
+//--- Update job hours --------------------------------------------------------------------------//
+export const updateJobHours = async (characterId, 
+									 jobHours,
+									 connection = db) => {
+	// to do
+	
+	/*await connection.execute(
+		`DELETE FROM job_hours WHERE character_id = ?`,
+		[characterId]
+	);
+
+	const entries = Object.entries(jobHours)
+		.map(([contractId, hours]) => [characterId, parseInt(contractId), parseInt(hours)])
+		.filter(([, , h]) => h > 0); // sla 0 over
+
+	if (entries.length === 0) return;
+
+	const placeholders = entries.map(() => "(?, ?, ?)").join(", ");
+	const values = entries.flat();
+
+	await connection.execute(
+		`INSERT INTO job_hours (character_id, contract_id, hours)
+		 VALUES ${placeholders}`,
+		values
+	);*/
+};
+
+//--- Update course hours -----------------------------------------------------------------------//
+export const updateCourseHours = async (characterId, 
+										courseHours,
+										connection = db) => {
+	// to do
+};
+
+//--- Update activity hours ---------------------------------------------------------------------//
+export const updateActivityHours = async (characterId, 
+										  activityHours,
+										  connection = db) => {
+	// to do
 };

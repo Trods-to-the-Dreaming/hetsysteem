@@ -6,7 +6,7 @@
 	{{#if change_saved}}
 		<p id="change-saved" class="success">{{change_message}}</p>
 	{{else}}
-		<form id="account-change-username-form" method="POST" action="/account/change-username">
+		<form id="change-username-form" method="POST" action="/account/change-username">
 			<div class="field">
 				<label for="current-username" class="form-label">Huidige gebruikersnaam:</label>
 				<input id="current-username" class="form-control" type="text" value="{{username}}" readonly>

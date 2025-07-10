@@ -3,19 +3,19 @@
 <div class="container-compact">
 	<h1>Handel drijven</h1>
 	
-	<div id="orders-confirmed-section" {{#unless has_confirmed_orders}}class="d-none"{{/unless}}>
+	<div id="confirmed-section" {{#unless has_confirmed}}class="d-none"{{/unless}}>
 		<p class="success">Uw orders zijn bevestigd.</p>
 		
-		<button id="edit-orders-button" type="button" class="button-1">Wijzigen</button>
+		<button id="edit-button" type="button" class="button-1">Wijzigen</button>
 	</div>
 	
-	<div id="orders-overview-section" {{#if has_confirmed_orders}}class="d-none"{{/if}}>
+	<div id="overview-section" {{#if has_confirmed}}class="d-none"{{/if}}>
 		<button id="create-order-button" class="button-2" type="button" 
 				data-bs-toggle="offcanvas" data-bs-target="#create-order-window">
 			Order maken
 		</button>
 		
-		<form id="game-trade-form" method="POST" action="/game/actions/trade">
+		<form id="trade-form" method="POST" action="/game/actions/trade">
 			<h2>🛒 Kopen</h2>
 			
 			<h3>Producten</h3>
@@ -111,11 +111,11 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 	// Elements
-	const ordersConfirmedSection = document.getElementById("orders-confirmed-section");
-	const editOrdersButton = document.getElementById("edit-orders-button");
-	const ordersOverviewSection = document.getElementById("orders-overview-section");
+	const confirmedSection = document.getElementById("confirmed-section");
+	const editButton = document.getElementById("edit-button");
+	const overviewSection = document.getElementById("overview-section");
 	const createOrderButton = document.getElementById("create-order-button");
-	const form = document.getElementById("game-trade-form");
+	const form = document.getElementById("trade-form");
 	const productBuyOrdersInput = document.getElementById("product-buy-orders-input");
 	const productSellOrdersInput = document.getElementById("product-sell-orders-input");
 	const buildingBuyOrdersInput = document.getElementById("building-buy-orders-input");
@@ -140,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	const placeOrderButton = document.getElementById("place-order-button");
 	
 	// Event listeners
-	editOrdersButton.addEventListener("click", clickEditOrders);
+	editButton.addEventListener("click", clickEdit);
 	createOrderButton.addEventListener("click", clickCreateOrder);
 	form.addEventListener("submit", submitForm);
 	typeSelect.addEventListener("change", changeType);
@@ -257,9 +257,9 @@ document.addEventListener("DOMContentLoaded", () => {
 	placeInitialOrders();
 	
 	// Event handlers
-	function clickEditOrders() {
-		ordersConfirmedSection.classList.add("d-none");
-		ordersOverviewSection.classList.remove("d-none");
+	function clickEdit() {
+		confirmedSection.classList.add("d-none");
+		overviewSection.classList.remove("d-none");
 	};
 	//----------------------------------------
 	function clickCreateOrder() {
