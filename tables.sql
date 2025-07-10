@@ -15,6 +15,7 @@ DROP TABLE product_buy_orders;
 DROP TABLE employment_contracts;
 DROP TABLE employer_boosts;
 DROP TABLE character_job_experience;
+DROP TABLE character_consumption;
 DROP TABLE character_buildings;
 DROP TABLE character_products;
 DROP TABLE characters;
@@ -100,7 +101,9 @@ CREATE TABLE characters (
 	job_preference_2_id INT NOT NULL DEFAULT 2,
 	job_preference_3_id INT NOT NULL DEFAULT 3,
 	recreation_preference_id INT NOT NULL DEFAULT 1,
-	has_confirmed_trade BOOLEAN NOT NULL DEFAULT FALSE,
+	has_confirmed_consumption BOOLEAN NOT NULL DEFAULT FALSE,
+	has_confirmed_orders BOOLEAN NOT NULL DEFAULT FALSE,
+	has_confirmed_actions BOOLEAN NOT NULL DEFAULT FALSE,
 	UNIQUE (world_id, user_id),
 	UNIQUE (world_id, first_name, last_name),
 	FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE,
@@ -127,6 +130,14 @@ CREATE TABLE character_buildings (
 	PRIMARY KEY (character_id, building_id),
 	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
 	FOREIGN KEY (building_id) REFERENCES buildings(id)
+);
+
+CREATE TABLE character_consumption (
+	character_id INT NOT NULL,
+	food_consumed INT NOT NULL,
+	medical_care_consumed INT NOT NULL,
+	PRIMARY KEY (character_id),
+	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE
 );
 
 CREATE TABLE character_job_experience (

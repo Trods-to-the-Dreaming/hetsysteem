@@ -12,7 +12,11 @@ import {
 	getSellableProducts,
 	getBuyableBuildings,
 	getSellableBuildings,
+	getConsumptionConfirmation,
 	getOrderConfirmation,
+	validateConsumption,
+	updateConsumption,
+	confirmConsumption,
 	validateOrders,
 	updateOrders,
 	confirmOrders,
@@ -39,8 +43,15 @@ export const showSurvive = async (req, res, next) => {
 	try {
 		const { characterId } = req.session;
 
-		const food = await getFoodInfo(characterId);
-		const medicalCare = await getMedicalCareInfo(characterId);
+		const [
+			food,
+			medicalCare,
+			hasConfirmedConsumption
+		] = await Promise.all([
+			getFoodInfo(characterId),
+			getMedicalCareInfo(characterId),
+			getConsumptionConfirmation(characterId)
+		]);
 
 		return res.render("game/actions/survive", {
 			food_available: food.available,
@@ -50,10 +61,38 @@ export const showSurvive = async (req, res, next) => {
 			medical_care_available: medicalCare.available,
 			medical_care_default: medicalCare.default,
 			medical_care_selectable: medicalCare.selectable,
-			medical_care_needed: medicalCare.needed
+			medical_care_needed: medicalCare.needed,
+			has_confirmed_consumption: hasConfirmedConsumption
 		});
 	} catch (err) {
 		next(err);
+	}
+};
+
+//--- Handle survive request --------------------------------------------------------------------//
+export const handleSurvive = async (req, res, next) => {
+	const connection = await db.getConnection();
+	try {
+		const { characterId } = req.session;
+
+		const foodConsumed = Number(req.body.foodConsumed);
+		const medicalCareConsumed = Number(req.body.medicalCareConsumed);
+		
+		await validateConsumption(foodConsumed, medicalCareConsumed);
+		
+		await connection.beginTransaction();
+		
+		await updateConsumption(characterId, foodConsumed, medicalCareConsumed, connection);
+		await confirmConsumption(characterId, connection);
+		
+		await connection.commit();
+		
+		return res.redirect("/game/actions/survive");
+	} catch (err) {
+		await connection.rollback(); 
+		next(err);
+	} finally {
+		connection.release();
 	}
 };
 
@@ -129,6 +168,8 @@ export const handleTrade = async (req, res, next) => {
 	} catch (err) {
 		await connection.rollback(); 
 		next(err);
+	} finally {
+		connection.release();
 	}
 };
 

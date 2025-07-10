@@ -14,6 +14,7 @@ import {
 import {
 	showActions,
 	showSurvive,
+	handleSurvive,
 	showTrade,
 	handleTrade,
 	showSpendTime,
@@ -38,7 +39,8 @@ const router = express.Router();
 router.get("/", requireAuthenticatedAndCustomized, showActions);
 
 // Survive
-router.get("/survive", requireAuthenticatedAndCustomized, showSurvive);
+router.get( "/survive", requireAuthenticatedAndCustomized, showSurvive);
+router.post("/survive", requireAuthenticatedAndCustomized, handleSurvive);
 
 // Trade
 router.get( "/trade", requireAuthenticatedAndCustomized, showTrade);

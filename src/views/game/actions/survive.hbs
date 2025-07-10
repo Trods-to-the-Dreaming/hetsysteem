@@ -2,63 +2,97 @@
 
 <div class="container-compact">
 	<h1>Overleven</h1>
-
-	<form id="game-survive-form" method="POST" action="/game/actions/survive">
-		<h2>🍎 Voedsel</h2>
-		{{#if (gt food_available 0)}}
-			<ul class="list-compact">
-				<li class="list-item-justify">
-					<span>Beschikbaar:</span>
-					<span class="list-fake-select">{{food_available}}</span>
-				</li>
-				<li class="list-item-justify">
-					<span>Opeten:</span>
-					<select id="food-consumed" class="list-select" name="foodConsumed">
-						{{#range 0 food_selectable}}
-							<option value="{{this}}" {{#if (eq this ../food_default)}}selected{{/if}}>{{this}}</option>
-						{{/range}}
-					</select>
-				</li>
-			</ul>
-		{{else}}
-			<p>Je hebt geen voedsel.</p>
-		{{/if}}
+	
+	<div id="consumption-confirmed-section" {{#unless has_confirmed_consumption}}class="d-none"{{/unless}}>
+		<p class="success">Uw voedsel- en medische zorgconsumptie is bevestigd.</p>
 		
-		<p id="warning-food" class="warning">{{warning_food}}</p>
-		
-		<h2>💊 Medische zorg</h2>
-		{{#if (gt medical_care_available 0)}}
-			<ul class="list-compact">
-				<li class="list-item-justify">
-					<span>Beschikbaar:</span>
-					<span class="list-fake-select">{{medical_care_available}}</span>
-				</li>
-				<li class="list-item-justify">
-					<span>Benutten:</span>
-					<select id="medical-care-consumed" class="list-select" name="medicalCareConsumed">
-						{{#range 0 medical_care_selectable}}
-							<option value="{{this}}" {{#if (eq this ../medical_care_default)}}selected{{/if}}>{{this}}</option>
-						{{/range}}
-					</select>
-				</li>
-			</ul>
-		{{else}}
-			<p>Je hebt geen toegang tot medische zorg.</p>
-		{{/if}}
-		
-		<p id="warning-medical-care" class="warning">{{warning_medical_care}}</p>
-		
-		<button class="button-1" type="submit">Bevestigen</button>
-	</form>
+		<button id="edit-consumption-button" type="button" class="button-1">Wijzigen</button>
+	</div>
+	
+	<div id="consumption-overview-section" {{#if has_confirmed_consumption}}class="d-none"{{/if}}>
+		<form id="game-survive-form" method="POST" action="/game/actions/survive">
+			<h2>🍎 Voedsel</h2>
+			{{#if (gt food_available 0)}}
+				<ul class="list-compact">
+					<li class="list-item-justify">
+						<span>Beschikbaar:</span>
+						<span class="list-fake-select">{{food_available}}</span>
+					</li>
+					<li class="list-item-justify">
+						<span>Opeten:</span>
+						<select id="food-consumed" class="list-select" name="foodConsumed">
+							{{#range 0 food_selectable}}
+								<option value="{{this}}" {{#if (eq this ../food_default)}}selected{{/if}}>{{this}}</option>
+							{{/range}}
+						</select>
+					</li>
+				</ul>
+			{{else}}
+				<p>Je hebt geen voedsel.</p>
+			{{/if}}
+			
+			<p id="warning-food" class="warning">{{warning_food}}</p>
+			
+			<h2>💊 Medische zorg</h2>
+			{{#if (gt medical_care_available 0)}}
+				<ul class="list-compact">
+					<li class="list-item-justify">
+						<span>Beschikbaar:</span>
+						<span class="list-fake-select">{{medical_care_available}}</span>
+					</li>
+					<li class="list-item-justify">
+						<span>Benutten:</span>
+						<select id="medical-care-consumed" class="list-select" name="medicalCareConsumed">
+							{{#range 0 medical_care_selectable}}
+								<option value="{{this}}" {{#if (eq this ../medical_care_default)}}selected{{/if}}>{{this}}</option>
+							{{/range}}
+						</select>
+					</li>
+				</ul>
+			{{else}}
+				<p>Je hebt geen toegang tot medische zorg.</p>
+			{{/if}}
+			
+			<p id="warning-medical-care" class="warning">{{warning_medical_care}}</p>
+			
+			<button class="button-1" type="submit">Bevestigen</button>
+		</form>
+	</div>
 
 	<a class="button-back" href="/game/actions">← Acties</a>
 </div>
 
 <script>
-	const foodNeeded = {{food_needed}};
-	const foodSelectable = {{food_selectable}};
+	// Elements
+	const consumptionConfirmedSection = document.getElementById("consumption-confirmed-section");
+	const editConsumptionButton = document.getElementById("edit-consumption-button");
+	const consumptionOverviewSection = document.getElementById("consumption-overview-section");
 	const foodConsumed = document.getElementById("food-consumed");
 	const warningFood = document.getElementById("warning-food");
+	const medicalCareConsumed = document.getElementById("medical-care-consumed");
+	const warningMedicalCare = document.getElementById("warning-medical-care");
+	
+	// Variables
+	const foodNeeded = {{food_needed}};
+	const foodSelectable = {{food_selectable}};
+	const medicalCareNeeded = {{medical_care_needed}};
+	const medicalCareSelectable = {{medical_care_selectable}};
+	
+	// Event listeners
+	editConsumptionButton.addEventListener("click", clickEditConsumption);
+	foodConsumed.addEventListener("change", checkFoodWarning);
+	medicalCareConsumed.addEventListener("change", checkMedicalCareWarning);
+	
+	// Executed when the DOM content is loaded
+	checkFoodWarning();
+	checkMedicalCareWarning();
+	
+	// Event handlers
+	function clickEditConsumption() {
+		consumptionConfirmedSection.classList.add("d-none");
+		consumptionOverviewSection.classList.remove("d-none");
+	};
+	//----------------------------------------
 	function checkFoodWarning() {
 		const selectedValue = parseInt(foodConsumed.value, 10);
 		if (selectedValue < foodNeeded && foodSelectable >= foodNeeded) {
@@ -67,13 +101,7 @@
 			warningFood.textContent = "";
 		}
 	}
-	checkFoodWarning();
-	foodConsumed.addEventListener("change", checkFoodWarning);
-	
-	const medicalCareNeeded = {{medical_care_needed}};
-	const medicalCareSelectable = {{medical_care_selectable}};
-	const medicalCareConsumed = document.getElementById("medical-care-consumed");
-	const warningMedicalCare = document.getElementById("warning-medical-care");
+	//----------------------------------------
 	function checkMedicalCareWarning() {
 		const selectedValue = parseInt(medicalCareConsumed.value, 10);
 		if (selectedValue < medicalCareNeeded && medicalCareSelectable >= medicalCareNeeded) {
@@ -82,6 +110,4 @@
 			warningMedicalCare.textContent = "";
 		}
 	}
-	checkMedicalCareWarning();
-	medicalCareConsumed.addEventListener("change", checkMedicalCareWarning);
 </script>

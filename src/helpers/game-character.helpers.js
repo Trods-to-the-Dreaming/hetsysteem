@@ -7,7 +7,7 @@ import {
 import GAME_RULES from "../constants/game.rules.js";
 
 //=== Constants =================================================================================//
-const MSG_INVALID_CHARACTER	   = "Het gevraagde personage bestaat niet.";
+const MSG_INVALID_CHARACTER = "Het gevraagde personage bestaat niet.";
 
 //=== Main ======================================================================================//
 

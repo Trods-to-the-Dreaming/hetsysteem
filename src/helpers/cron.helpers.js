@@ -320,3 +320,64 @@ const processCategoryItemOrder = async (category,
 		}
 	} 
 };
+
+
+
+
+
+//--- Update health -----------------------------------------------------------------------------//
+export const updateHealth = async (characterId,
+								   foodConsumed, 
+								   medicalCareConsumed, 
+								   connection = db) => {
+	const [character] = await connection.execute(
+		`SELECT health,
+				cumulative_health_loss,
+				cumulative_health_gain
+		 FROM characters
+		 WHERE id = ?`,
+		[characterId]
+	);
+	if (character.length === 0) {
+		throw new NotFoundError(MSG_INVALID_CHARACTER);
+	}
+	
+	let { health,
+		  cumulative_health_loss,
+		  cumulative_health_gain } = character[0];
+	
+	const deltaFood = foodConsumed - GAME_RULES.FOOD.NEEDED;
+	const deltaMedicalCare = medicalCareConsumed - GAME_RULES.MEDICAL_CARE.NEEDED;
+	
+	if (deltaFood < 0) {
+		const loss = deltaFood * deltaFood;
+		health -= loss;
+		cumulative_health_loss += loss;
+	} else if (deltaFood > 0) {
+		health += deltaFood;
+		cumulative_health_gain += deltaFood;
+	}
+	
+	if (deltaMedicalCare < 0) {
+		const loss = deltaMedicalCare * deltaMedicalCare;
+		health -= loss;
+		cumulative_health_loss += loss;
+	} else if (deltaMedicalCare > 0) {
+		health += deltaMedicalCare;
+		cumulative_health_gain += deltaMedicalCare;
+	}
+	
+	health = Math.min(Math.max(health, 0), 100);
+	
+	await connection.execute(
+		`UPDATE characters
+		 SET health = ?,
+			 cumulative_health_loss = ?,
+			 cumulative_health_gain = ?
+		 WHERE id = ?`,
+		[health,
+		 cumulative_health_loss,
+		 cumulative_health_gain,
+		 characterId]
+	);
+};

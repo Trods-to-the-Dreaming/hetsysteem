@@ -10,12 +10,14 @@ import { getProductIds } from "./game-products.helpers.js";
 import GAME_RULES from "../constants/game.rules.js";
 
 //=== Constants =================================================================================//
-const MSG_INVALID_TYPE		 = "Het gevraagde ordertype bestaat niet.";
-const MSG_INVALID_CATEGORY   = "De gevraagde ordercategorie bestaat niet.";
-const MSG_INVALID_CHARACTER	 = "Het gevraagde personage bestaat niet.";
-const MSG_MULTIPLE_ORDERS	 = "Voor ieder product of gebouw is slechts één order toegestaan.";
-const MSG_INVALID_QUANTITY	 = "De hoeveelheid moet een positief getal zijn.";
-const MSG_INVALID_UNIT_PRICE = "De eenheidsprijs moet een positief getal zijn.";
+const MSG_INVALID_TYPE		   = "Het gevraagde ordertype bestaat niet.";
+const MSG_INVALID_CATEGORY     = "De gevraagde ordercategorie bestaat niet.";
+const MSG_INVALID_CHARACTER	   = "Het gevraagde personage bestaat niet.";
+const MSG_MULTIPLE_ORDERS	   = "Voor ieder product of gebouw is slechts één order toegestaan.";
+const MSG_INVALID_QUANTITY	   = "De ingegeven hoeveelheid van het order is ongeldig.";
+const MSG_INVALID_UNIT_PRICE   = "De ingegeven eenheidsprijs van het order is ongeldig.";
+const MSG_INVALID_FOOD	 	   = "De ingegeven voedselconsumptie is ongeldig.";
+const MSG_INVALID_MEDICAL_CARE = "De ingegeven consumptie van medische zorg is ongeldig.";
 
 //=== Main ======================================================================================//
 
@@ -193,6 +195,21 @@ export const getSellableBuildings = async (characterId,
 	return sellableBuildings;
 };
 
+//--- Get consumption confirmation --------------------------------------------------------------//
+export const getConsumptionConfirmation = async (characterId, 
+												 connection = db) => {
+	const [character] = await connection.execute(
+		`SELECT has_confirmed_consumption
+		 FROM characters
+		 WHERE id = ?`,
+		[characterId]
+	);
+	if (character.length === 0) {
+		throw new NotFoundError(MSG_INVALID_CHARACTER);
+	}
+	return character[0].has_confirmed_consumption;
+};
+
 //--- Get order confirmation --------------------------------------------------------------------//
 export const getOrderConfirmation = async (characterId, 
 										   connection = db) => {
@@ -203,9 +220,56 @@ export const getOrderConfirmation = async (characterId,
 		[characterId]
 	);
 	if (character.length === 0) {
-		throw new NotFoundError("Personage niet gevonden.");
+		throw new NotFoundError(MSG_INVALID_CHARACTER);
 	}
 	return character[0].has_confirmed_orders;
+};
+
+//--- Validate consumption ----------------------------------------------------------------------//
+export const validateConsumption = async (foodConsumed, 
+										  medicalCareConsumed) => {
+	if (typeof foodConsumed !== "number" || 
+		foodConsumed < 0 ||
+		foodConsumed > GAME_RULES.FOOD.MAX) {
+		throw new BadRequestError(MSG_INVALID_FOOD);
+	}
+	
+	if (typeof medicalCareConsumed !== "number" || 
+		medicalCareConsumed < 0 ||
+		medicalCareConsumed > GAME_RULES.MEDICAL_CARE.MAX) {
+		throw new BadRequestError(MSG_INVALID_MEDICAL_CARE);
+	}
+};
+
+//--- Update consumption ------------------------------------------------------------------------//
+export const updateConsumption = async (characterId,
+										foodConsumed, 
+										medicalCareConsumed, 
+										connection = db) => {
+	await connection.execute(
+		`INSERT INTO character_consumption 
+			(character_id, 
+			 food_consumed, 
+			 medical_care_consumed)
+		 VALUES (?, ?, ?)
+		 ON DUPLICATE KEY 
+		 UPDATE food_consumed = VALUES(food_consumed),
+				medical_care_consumed = VALUES(medical_care_consumed)`,
+		[characterId, 
+		 foodConsumed, 
+		 medicalCareConsumed]
+	);
+};
+
+//--- Confirm consumption -----------------------------------------------------------------------//
+export const confirmConsumption = async (characterId, 
+										 connection = db) => {
+	await connection.execute(
+		`UPDATE characters
+		 SET has_confirmed_consumption = TRUE
+		 WHERE id = ?`,
+		[characterId]
+	);
 };
 
 //--- Validate orders ---------------------------------------------------------------------------//
