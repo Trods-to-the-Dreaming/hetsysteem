@@ -94,7 +94,7 @@
 	};
 	//----------------------------------------
 	function checkFoodWarning() {
-		const selectedValue = parseInt(foodConsumed.value, 10);
+		const selectedValue = Number(foodConsumed.value);
 		if (selectedValue < foodNeeded && foodSelectable >= foodNeeded) {
 			warningFood.textContent = "⚠️ Je eet minder dan nodig, terwijl je genoeg voedsel hebt!";
 		} else {
@@ -103,7 +103,7 @@
 	}
 	//----------------------------------------
 	function checkMedicalCareWarning() {
-		const selectedValue = parseInt(medicalCareConsumed.value, 10);
+		const selectedValue = Number(medicalCareConsumed.value);
 		if (selectedValue < medicalCareNeeded && medicalCareSelectable >= medicalCareNeeded) {
 			warningMedicalCare.textContent = "⚠️ Je benut minder medische zorg dan nodig, terwijl je toegang tot genoeg medische zorg hebt!";
 		} else {

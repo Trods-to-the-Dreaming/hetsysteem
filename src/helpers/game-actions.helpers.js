@@ -1,11 +1,3 @@
-/*Nog te doen op Combell:
-ALTER TABLE `hetsysteem`.`characters` 
-CHANGE COLUMN `has_confirmed_consumption` `has_confirmed_survive` TINYINT(1) NOT NULL DEFAULT '0' ,
-CHANGE COLUMN `has_confirmed_orders` `has_confirmed_trade` TINYINT(1) NOT NULL DEFAULT '0' ,
-CHANGE COLUMN `has_confirmed_hours` `has_confirmed_spend_time` TINYINT(1) NOT NULL DEFAULT '0' ;
-*/
-
-
 //=== Imports ===================================================================================//
 import db from "../utils/db.js";
 import { 
@@ -18,15 +10,14 @@ import { getProductIds } from "./game-products.helpers.js";
 import GAME_RULES from "../constants/game.rules.js";
 
 //=== Constants =================================================================================//
-const MSG_INVALID_CHARACTER	   = "Dat personage bestaat niet.";
-const MSG_INVALID_ACTION	   = "Die te bevestigen actie bestaat niet.";
-const MSG_INVALID_TYPE		   = "Dat ordertype bestaat niet.";
-const MSG_INVALID_CATEGORY     = "Die ordercategorie bestaat niet.";
-const MSG_MULTIPLE_ORDERS	   = "Voor ieder product of gebouw is slechts één order toegestaan.";
-const MSG_INVALID_QUANTITY	   = "De ingegeven hoeveelheid van het order is ongeldig.";
-const MSG_INVALID_UNIT_PRICE   = "De ingegeven eenheidsprijs van het order is ongeldig.";
-const MSG_INVALID_FOOD	 	   = "De ingegeven voedselconsumptie is ongeldig.";
-const MSG_INVALID_MEDICAL_CARE = "De ingegeven consumptie van medische zorg is ongeldig.";
+const MSG_INVALID_CHARACTER	 = "Onbestaand personage.";
+const MSG_INVALID_ACTION	 = "Ongeldige actie.";
+const MSG_INVALID_TYPE		 = "Ongeldig ordertype.";
+const MSG_INVALID_CATEGORY   = "Ongeldige ordercategorie.";
+const MSG_MULTIPLE_ORDERS	 = "Meer dan één order voor een product of gebouw.";
+const MSG_INVALID_QUANTITY	 = "Ongeldige hoeveelheid.";
+const MSG_INVALID_UNIT_PRICE = "Ongeldige eenheidsprijs.";
+const MSG_INVALID_HOURS		 = "Ongeldig aantal uren.";
 
 export const ACTIONS = ["survive", "trade", "spend_time"];
 export const TYPES = ["buy", "sell"];
@@ -90,7 +81,7 @@ export const getFoodInfo = async (characterId,
 	const productIds = await getProductIds(connection);
 	const foodId = productIds["food"];
 	
-	const [result] = await connection.execute(
+	const [[{ quantity: available }]] = await connection.execute(
 		`SELECT COALESCE(
 			(SELECT quantity 
 			 FROM character_products 
@@ -101,11 +92,20 @@ export const getFoodInfo = async (characterId,
 		[characterId,
 		 foodId]
 	);
-	const available = result[0].quantity;
+	
+	const [[{ food_consumed }]] = await connection.execute(
+		`SELECT food_consumed 
+		 FROM character_consumption 
+		 WHERE character_id = ?`,
+		[characterId]
+	);
+	
+	const defaultAmount = food_consumed ?? 
+						  Math.min(available, GAME_RULES.FOOD.NEEDED);
 	
 	return {
 		available,
-		default: 	Math.min(available, GAME_RULES.FOOD.NEEDED),
+		default: 	defaultAmount,
 		selectable: Math.min(available, GAME_RULES.FOOD.MAX),
 		needed: 	GAME_RULES.FOOD.NEEDED
 	};
@@ -117,7 +117,7 @@ export const getMedicalCareInfo = async (characterId,
 	const productIds = await getProductIds(connection);
 	const medicalCareId = productIds["medical-care"];
 	
-	const [result] = await connection.execute(
+	const [[{ quantity: available }]] = await connection.execute(
 		`SELECT COALESCE(
 			(SELECT quantity 
 			 FROM character_products 
@@ -128,11 +128,20 @@ export const getMedicalCareInfo = async (characterId,
 		[characterId,
 		 medicalCareId]
 	);
-	const available = result[0].quantity;
+	
+	const [[{ medical_care_consumed }]] = await connection.execute(
+		`SELECT medical_care_consumed 
+		 FROM character_consumption 
+		 WHERE character_id = ?`,
+		[characterId]
+	);
+	
+	const defaultAmount = medical_care_consumed ?? 
+						  Math.min(available, GAME_RULES.MEDICAL_CARE.NEEDED);
 	
 	return {
 		available,
-		default: 	Math.min(available, GAME_RULES.MEDICAL_CARE.NEEDED),
+		default: 	defaultAmount,
 		selectable: Math.min(available, GAME_RULES.MEDICAL_CARE.MAX),
 		needed: 	GAME_RULES.MEDICAL_CARE.NEEDED
 	};
@@ -141,16 +150,12 @@ export const getMedicalCareInfo = async (characterId,
 //--- Validate consumption ----------------------------------------------------------------------//
 export const validateConsumption = async (foodConsumed, 
 										  medicalCareConsumed) => {
-	if (typeof foodConsumed !== "number" || 
-		foodConsumed < 0 ||
-		foodConsumed > GAME_RULES.FOOD.MAX) {
-		throw new BadRequestError(MSG_INVALID_FOOD);
+	if (!isValidInteger(foodConsumed, 0, GAME_RULES.FOOD.MAX) {
+		throw new BadRequestError(MSG_INVALID_QUANTITY);
 	}
 	
-	if (typeof medicalCareConsumed !== "number" || 
-		medicalCareConsumed < 0 ||
-		medicalCareConsumed > GAME_RULES.MEDICAL_CARE.MAX) {
-		throw new BadRequestError(MSG_INVALID_MEDICAL_CARE);
+	if (!isValidInteger(medicalCareConsumed, 0, GAME_RULES.MEDICAL_CARE.MAX) {
+		throw new BadRequestError(MSG_INVALID_QUANTITY);
 	}
 };
 
@@ -160,7 +165,7 @@ export const updateConsumption = async (characterId,
 										medicalCareConsumed, 
 										connection = db) => {
 	await connection.execute(
-		`INSERT INTO character_survive 
+		`INSERT INTO character_consumption 
 			(character_id, 
 			 food_consumed, 
 			 medical_care_consumed)
@@ -309,11 +314,11 @@ export const validateOrders = async (buyOrders,
 		}
 		seenIds.add(itemId);
 		
-		if (typeof quantity !== "number" || quantity <= 0) {
+		if (!isValidInteger(quantity, 1)) {
 			throw new BadRequestError(MSG_INVALID_QUANTITY);
 		}
 		
-		if (typeof unitPrice !== "number" || unitPrice <= 0) {
+		if (!isValidInteger(unitPrice, 1)) {
 			throw new BadRequestError(MSG_INVALID_UNIT_PRICE);
 		}
 	}
@@ -372,7 +377,7 @@ export const getAvailableHours = async (characterId,
 		[characterId]
 	);
 	if (character.length === 0) {
-		throw new NotFoundError("Personage niet gevonden.");
+		throw new NotFoundError(MSG_INVALID_CHARACTER);
 	}
 	return character[0].hours_available;
 };
@@ -398,10 +403,43 @@ export const getContracts = async (characterId,
 };
 
 //--- Validate hours ----------------------------------------------------------------------------//
-export const validateHours = async (jobHours, 
+export const validateHours = async (characterId, 
+									jobHours, 
 									courseHours, 
-									activityHours) => {
-	// to do
+									activityHours, 
+									connection = db) => {
+	let totalHours = 0;
+	
+	const contracts = await getContracts(characterId, connection);
+	const contractMap = new Map(contracts.map(c => [String(c.id), c.hours]));
+
+	for (const [key, value] of Object.entries(jobHours)) {
+		const maxHours = contractMap.get(key);
+		if (!isValidInteger(value, 0, maxHours)) {
+			throw new BadRequestError(MSG_INVALID_HOURS);
+		}
+		totalHours += value;
+	}
+
+	for (const [key, value] of Object.entries(courseHours)) {
+		if (!isValidInteger(value)) {
+			throw new BadRequestError(MSG_INVALID_HOURS);
+		}
+		totalHours += value;
+	}
+
+	for (const [key, value] of Object.entries(activityHours)) {
+		if (!isValidInteger(value)) {
+			throw new BadRequestError(MSG_INVALID_HOURS);
+		}
+		totalHours += value;
+	}
+
+	const availableHours = await getAvailableHours(characterId, connection);
+
+	if (totalHours > availableHours) {
+		throw new BadRequestError(MSG_INVALID_HOURS);
+	}
 };
 
 //--- Update job hours --------------------------------------------------------------------------//
@@ -443,4 +481,16 @@ export const updateActivityHours = async (characterId,
 										  activityHours,
 										  connection = db) => {
 	// to do
+};
+
+//=== Extra =====================================================================================//
+
+//--- Is valid integer? -------------------------------------------------------------------------//
+function isValidInteger(value,
+						min = 0,
+						max = Number.POSITIVE_INFINITY) {	
+	return (typeof value === "number" &&
+			Number.isInteger(value) &&
+			value >= min &&
+			value <= max);
 };

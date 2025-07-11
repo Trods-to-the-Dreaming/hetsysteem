@@ -1,3 +1,12 @@
+/*Nog te doen op Combell:
+ALTER TABLE `hetsysteem`.`characters` 
+CHANGE COLUMN `has_confirmed_consumption` `has_confirmed_survive` TINYINT(1) NOT NULL DEFAULT '0' ,
+CHANGE COLUMN `has_confirmed_orders` `has_confirmed_trade` TINYINT(1) NOT NULL DEFAULT '0' ,
+CHANGE COLUMN `has_confirmed_hours` `has_confirmed_spend_time` TINYINT(1) NOT NULL DEFAULT '0' ;
+*/
+
+// Nog te doen op beide: employment_contracts koppelen aan gebouw?
+
 CREATE TABLE users (
 	id INT PRIMARY KEY AUTO_INCREMENT,
 	name VARCHAR(32) NOT NULL UNIQUE,

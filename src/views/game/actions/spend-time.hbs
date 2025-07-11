@@ -106,7 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	const allSelects = document.querySelectorAll("select.list-select");
 	
 	// Variables
-	const totalHoursToSpend = parseInt("{{hours_available}}", 10);
+	const totalHoursToSpend = Number("{{hours_available}}");
 	
 	// Event listeners
 	editButton.addEventListener("click", clickEdit);
@@ -130,15 +130,15 @@ document.addEventListener("DOMContentLoaded", function () {
 	function updateHoursAvailable() {
 		let spentHours = 0;
 		allSelects.forEach(select => {
-			spentHours += parseInt(select.value, 10) || 0;
+			spentHours += Number(select.value) || 0;
 		});
 
 		const remaining = totalHoursToSpend - spentHours;
 		hoursAvailableElement.innerText = `Uren te besteden: ${remaining}`;
 
 		allSelects.forEach(select => {
-			const max = parseInt(select.getAttribute("data-max"), 10);
-			const currentVal = parseInt(select.value, 10) || 0;
+			const max = Number(select.getAttribute("data-max"));
+			const currentVal = Number(select.value) || 0;
 			const available = remaining + currentVal;
 
 			const previousValue = select.value;
@@ -149,7 +149,7 @@ document.addEventListener("DOMContentLoaded", function () {
 				const option = document.createElement("option");
 				option.value = i;
 				option.textContent = i;
-				if (i === parseInt(previousValue, 10)) {
+				if (i === Number(previousValue)) {
 					option.selected = true;
 				}
 				select.appendChild(option);

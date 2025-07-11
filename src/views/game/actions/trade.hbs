@@ -357,15 +357,17 @@ document.addEventListener("DOMContentLoaded", () => {
 	};
 	//----------------------------------------
 	function validateInputs() {
-		const quantityValue = quantityInput.value.trim();
-		const unitPriceValue = unitPriceInput.value.trim();
+		const quantityValue = quantityInput.valueAsNumber;
+		const unitPriceValue = unitPriceInput.valueAsNumber;
 		
-		const isPositiveInteger = /^[1-9]\d*$/;
+		const hasMax = quantityInput.max !== "";
+		const max = hasMax ? Number(quantityInput.max) : Number.POSITIVE_INFINITY;
 		
-		const isQuantityValid = isPositiveInteger.test(quantityValue) &&
-			(quantityInput.max === "" || 
-			 parseInt(quantityValue) <= parseInt(quantityInput.max));
-		const isUnitPriceValid = isPositiveInteger.test(unitPriceValue);
+		const isQuantityValid = Number.isInteger(quantity) && 
+								quantity > 0 && 
+								quantity <= max;
+		const isUnitPriceValid = Number.isInteger(unitPrice) && 
+								 unitPrice > 0;
 
 		placeOrderButton.disabled = !(isQuantityValid && isUnitPriceValid);
 	}
