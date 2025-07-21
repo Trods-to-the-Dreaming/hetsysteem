@@ -1,0 +1,101 @@
+{{#block "title"}}Gebouwen beheren{{/block}}
+
+<div class="container-compact">
+	<h1>Gebouwen beheren</h1>
+	
+	<form id="manage-buildings-form" method="POST" action="/game/actions/manage-buildings">
+		<h2>💥 Slopen</h2>
+		{{#if buildings.length}}
+			{{#each buildings}}
+				<ul class="list-compact">
+					<li class="list-item-justify">
+						<span>Werkgever:</span>
+						<span>{{this.employer_first_name}} {{this.employer_last_name}}</span>
+					</li>
+					<li class="list-item-justify">
+						<span>Job:</span>
+						<span>{{this.job_name}}</span>
+					</li>
+					<li class="list-item-justify">
+						<span>Uurloon:</span>
+						<span>€ {{this.hourly_wage}}</span>
+					</li>
+					<li class="list-item-justify">
+						<span>Uren afgesproken:</span>
+						<span class="list-fake-select">{{this.hours}}</span>
+					</li>
+					<li class="list-item-justify">
+						<span>Uren presteren:</span>
+						<select id="job-hours-{{this.id}}" class="list-select">
+							<option value="0" selected>0</option>
+							{{#range 1 this.hours}}
+								<option value="{{this}}">{{this}}</option>
+							{{/range}}
+						</select>
+					</li>
+				</ul>
+			{{/each}}
+		{{else}}
+			<p>Je hebt geen gebouwen om te slopen.</p>
+		{{/if}}
+		<p id="warning-demolition" class="warning"></p>
+		
+		<h2>🏗️ Bouwen</h2>
+		
+		<h2>🚀 Productie opvoeren</h2>
+		
+		<button class="button-1" type="submit" {{#if not isCurrentAction}}disabled {{/if}}>Bevestigen</button>
+	</form>
+
+	<a class="button-back" href="/game">← Spelmenu</a>
+</div>
+
+<script>
+	// Elements
+	const confirmedSection = document.getElementById("confirmed-section");
+	const editButton = document.getElementById("edit-button");
+	const overviewSection = document.getElementById("overview-section");
+	const foodConsumed = document.getElementById("food-consumed");
+	const warningFood = document.getElementById("warning-food");
+	const medicalCareConsumed = document.getElementById("medical-care-consumed");
+	const warningMedicalCare = document.getElementById("warning-medical-care");
+	
+	// Variables
+	const foodNeeded = {{food_needed}};
+	const foodSelectable = {{food_selectable}};
+	const medicalCareNeeded = {{medical_care_needed}};
+	const medicalCareSelectable = {{medical_care_selectable}};
+	
+	// Event listeners
+	editButton.addEventListener("click", clickEdit);
+	foodConsumed.addEventListener("change", checkFoodWarning);
+	medicalCareConsumed.addEventListener("change", checkMedicalCareWarning);
+	
+	// Executed when the DOM content is loaded
+	checkFoodWarning();
+	checkMedicalCareWarning();
+	
+	// Event handlers
+	function clickEdit() {
+		confirmedSection.classList.add("d-none");
+		overviewSection.classList.remove("d-none");
+	};
+	//----------------------------------------
+	function checkFoodWarning() {
+		const selectedValue = Number(foodConsumed.value);
+		if (selectedValue < foodNeeded && foodSelectable >= foodNeeded) {
+			warningFood.textContent = "⚠️ Je eet minder dan nodig, terwijl je genoeg voedsel hebt!";
+		} else {
+			warningFood.textContent = "";
+		}
+	}
+	//----------------------------------------
+	function checkMedicalCareWarning() {
+		const selectedValue = Number(medicalCareConsumed.value);
+		if (selectedValue < medicalCareNeeded && medicalCareSelectable >= medicalCareNeeded) {
+			warningMedicalCare.textContent = "⚠️ Je benut minder medische zorg dan nodig, terwijl je toegang tot genoeg medische zorg hebt!";
+		} else {
+			warningMedicalCare.textContent = "";
+		}
+	}
+</script>

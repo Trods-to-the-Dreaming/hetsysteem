@@ -36,16 +36,13 @@ const requireAuthenticatedAndCustomized = [
 //=== Main ======================================================================================//
 const router = express.Router();
 
-// Choose world
 router.get( "/choose-world", requireAuthenticated, showChooseWorld);
 router.post("/choose-world", requireAuthenticated, handleChooseWorld);
 
-// Customize character
 router.get( "/customize-character", requireAuthenticatedAndSelected, showCustomizeCharacter);
 router.post("/customize-character", requireAuthenticatedAndSelected, handleCustomizeCharacter);
 
-// Game menu
-router.get("/", requireAuthenticatedAndCustomized, showMenu);
+router.get( "/", requireAuthenticatedAndCustomized, showMenu);
 
 //=== Export ====================================================================================//
 export default {

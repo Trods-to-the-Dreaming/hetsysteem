@@ -13,7 +13,8 @@
 		<p id="hours-available"></p>
 
 		<form id="spend-time-form" method="POST" action="/game/actions/spend-time">
-			<h2>🛠 Job</h2>
+			<h2>🏭💼🛠 Job</h2>
+			<input id="job-hours-input" type="hidden" name="jobHours">
 			{{#if contracts.length}}
 				{{#each contracts}}
 					<ul class="list-compact">
@@ -35,9 +36,10 @@
 						</li>
 						<li class="list-item-justify">
 							<span>Uren presteren:</span>
-							<select id="job-hours-{{this.id}}" class="list-select" name="jobHours[{{this.id}}]">
-								{{#range 0 this.hours}}
-									<option value="{{this}}" {{#if (eq this ../this.hours)}}selected{{/if}}>{{this}}</option>
+							<select id="job-hours-{{this.id}}" class="list-select">
+								<option value="0" selected>0</option>
+								{{#range 1 this.hours}}
+									<option value="{{this}}">{{this}}</option>
 								{{/range}}
 							</select>
 						</li>
@@ -48,6 +50,7 @@
 			{{/if}}
 			
 			<h2>🎓 Opleiding</h2>
+			<input id="course-hours-input" type="hidden" name="courseHours">
 			{{#if courses.length}}
 				{{#each courses}}
 					<ul class="list-compact">
@@ -57,7 +60,7 @@
 						</li>
 						<li class="list-item-justify">
 							<span>Uren volgen:</span>
-							<select id="course-hours-{{this.id}}" class="list-select" name="courseHours[{{this.id}}]">
+							<select id="course-hours-{{this.id}}" class="list-select">
 								<option value="0" selected>0</option>
 								<option value="{{this.hours}}">{{this.hours}}</option>
 							</select>
@@ -69,6 +72,7 @@
 			{{/if}}
 			
 			<h2>🎭 Ontspanning</h2>
+			<input id="activity-hours-input" type="hidden" name="activityHours">
 			{{#if activities.length}}
 				{{#each activities}}
 					<ul class="list-compact">
@@ -78,7 +82,7 @@
 						</li>
 						<li class="list-item-justify">
 							<span>Uren deelnemen:</span>
-							<select id="activity-hours-{{this.id}}" class="list-select" name="activityHours[{{this.id}}]">
+							<select id="activity-hours-{{this.id}}" class="list-select">
 								<option value="0" selected>0</option>
 								<option value="{{this.hours}}">{{this.hours}}</option>
 							</select>
@@ -101,7 +105,11 @@ document.addEventListener("DOMContentLoaded", function () {
 	// Elements
 	const confirmedSection = document.getElementById("confirmed-section");
 	const editButton = document.getElementById("edit-button");
-	const overviewSection = document.getElementById("actions-section");
+	const overviewSection = document.getElementById("overview-section");
+	const form = document.getElementById("spend-time-form");
+	const jobHoursInput = document.getElementById("job-hours-input");
+	const courseHoursInput = document.getElementById("course-hours-input");
+	const activityHoursInput = document.getElementById("activity-hours-input");
 	let hoursAvailableElement = document.getElementById("hours-available");
 	const allSelects = document.querySelectorAll("select.list-select");
 	
@@ -114,12 +122,110 @@ document.addEventListener("DOMContentLoaded", function () {
 		select.addEventListener("change", updateHoursAvailable);
 	});
 	
+	
+	// Classes
+	class Hours {
+		constructor(id, 
+					itemId, 
+					itemName, 
+					quantity, 
+					unitPrice, 
+					buyOption, 
+					sellOption) {
+			this.id = id;
+			this.itemId = itemId;
+			this.itemName = itemName;
+			this.quantity = quantity;
+			this.unitPrice = unitPrice;
+			this.buyOption = buyOption;
+			this.sellOption = sellOption;
+		}
+
+		getFormattedUnitPrice(locale = "nl-NL") {
+			const formatter = new Intl.NumberFormat(locale);
+			return formatter.format(this.unitPrice);
+		}
+	}
+	
+	class HoursConfig {
+		constructor(initialOrders,
+					options, 
+					elementId) {
+			this.orders = [];
+			this.initialOrders = initialOrders;
+			this.options = options.map(option => ({
+				...option, 
+				isVisible: true
+			}));
+			this.elementId = elementId;
+			this.nextOrderId = 1;
+		}
+
+		addOrder(itemId,
+				 itemName,
+				 quantity,
+				 unitPrice,
+				 buyOption,
+				 sellOption) {
+			const order = new Order(this.nextOrderId++,
+									itemId,
+									itemName,
+									quantity,
+									unitPrice,
+									buyOption,
+									sellOption);
+			this.orders.push(order);
+			return order;
+		}
+		
+		removeOrder(order) {
+			const index = this.orders.findIndex(o => o.id === order.id);
+			if (index !== -1) this.orders.splice(index, 1);
+		}
+		
+		showOption(itemId) {
+			const option = this.options.find(o => o.itemId === itemId);
+			if (option) option.isVisible = true;
+			return option;
+		}
+		
+		hideOption(itemId) {
+			const option = this.options.find(o => o.itemId === itemId);
+			if (option) option.isVisible = false;
+			return option;
+		}
+		
+		hasVisibleOptions() {
+			return this.options.some(o => o.isVisible);
+		}
+	}
+
+	// Storage object for the hours
+	const hoursConfig  = {
+		"job": new HoursConfig({{{json product_buy_orders}}},
+								   {{{json buyable_products}}},
+								   "product-buy-orders"),
+			"sell": new OrderConfig({{{json product_sell_orders}}},
+								    {{{json sellable_products}}},
+								    "product-sell-orders")
+		},
+		"building": {
+			"buy": new OrderConfig({{{json building_buy_orders}}},
+								   {{{json buyable_buildings}}},
+								   "building-buy-orders"),
+			"sell": new OrderConfig({{{json building_sell_orders}}},
+								    {{{json sellable_buildings}}},
+								    "building-sell-orders")
+		}
+	};
+	
+	
 	// Executed when the DOM content is loaded
-	updateHoursAvailable();
 	allSelects.forEach(select => {
 		const max = select.options.length - 1;
 		select.setAttribute("data-max", max);
 	});
+	updateHoursAvailable();
 	
 	// Event handlers
 	function clickEdit() {
@@ -127,11 +233,18 @@ document.addEventListener("DOMContentLoaded", function () {
 		overviewSection.classList.remove("d-none");
 	};
 	//----------------------------------------
+	function submitForm() {
+		jobHoursInput.value = JSON.stringify(hoursConfig["job"].hours);
+		courseHoursInput.value = JSON.stringify(hoursConfig["course"].hours);
+		activityHoursInput.value = JSON.stringify(hoursConfig["activity"].hours);
+	};
+	//----------------------------------------
 	function updateHoursAvailable() {
 		let spentHours = 0;
 		allSelects.forEach(select => {
 			spentHours += Number(select.value) || 0;
 		});
+		console.log("bestede uren: " + spentHours);
 
 		const remaining = totalHoursToSpend - spentHours;
 		hoursAvailableElement.innerText = `Uren te besteden: ${remaining}`;
@@ -142,6 +255,8 @@ document.addEventListener("DOMContentLoaded", function () {
 			const available = remaining + currentVal;
 
 			const previousValue = select.value;
+			
+			console.log("select " + select.id + " max: " + max);
 
 			// Herbouw opties
 			select.innerHTML = "";

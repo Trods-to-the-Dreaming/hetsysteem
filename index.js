@@ -118,8 +118,11 @@ app.use((err, req, res, next) => {
 	console.error(err);
 
 	const status = err.status || 500;
+	const redirect = err.redirect || req.get("Referer") || "/";
+	
 	res.status(status).render(`errors/${status}`, {
-		message: err.expose ? err.message : null
+		message: err.expose ? err.message : null,
+		redirect
 	});
 });
 

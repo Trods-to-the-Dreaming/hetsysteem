@@ -17,14 +17,14 @@
 				<input id="new-username" class="form-control" type="text" name="newUsername" value="{{new_username}}" required>
 			</div>
 			
-			<p id="error-username" class="error">{{error_username}}</p>
+			<p id="username-error" class="error">{{username_error}}</p>
 			
 			<div class="field">
 				<label for="password" class="form-label">Wachtwoord:</label>
 				<input id="password" class="form-control" type="password" name="password" required>
 			</div>
 			
-			<p id="error-password" class="error">{{error_password}}</p>
+			<p id="password-error" class="error">{{password_error}}</p>
 			
 			<button class="button-1" type="submit">Bewaren</button>
 		</form>
@@ -35,18 +35,24 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-	const newUsername = document.getElementById("new-username");
-	const password = document.getElementById("password");
+	//--- Elements ------------------------------------------------------------------------------//
+	const newUsernameInput = document.getElementById("new-username");
+	const passwordInput = document.getElementById("password");
 	
-	const errorUsername = document.getElementById("error-username");
-	const errorPassword = document.getElementById("error-password");
+	const usernameError = document.getElementById("username-error");
+	const passwordError = document.getElementById("password-error");
 	
-	newUsername.addEventListener("input", function () {
-		errorUsername.textContent = "";
-	});
+	//--- Event listeners -----------------------------------------------------------------------//
+	newUsernameInput.addEventListener("input", changeNewUsername);
+	passwordInput.addEventListener("input", changePassword);
 	
-	password.addEventListener("input", function () {
-		errorPassword.textContent = "";
-	});
+	//--- Event handlers ------------------------------------------------------------------------//
+	function changeNewUsername() {
+		usernameError.textContent = "";
+	}
+	
+	function changePassword() {
+		passwordError.textContent = "";
+	}
 });
 </script>

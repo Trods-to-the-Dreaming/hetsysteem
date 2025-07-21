@@ -1,13 +1,17 @@
 //=== Imports ===================================================================================//
 import db from "../utils/db.js";
 import { 
-	NotFoundError, 
+	BadRequestError, 
 	ConflictError 
 } from "../utils/errors.js";
 
+import { getValidIds } from "./game-ids.helpers.js";
+
 //=== Constants =================================================================================//
-const MSG_INVALID_WORLD		   = "De gevraagde wereld bestaat niet.";
-const MSG_INVALID_CHARACTER	   = "Het gevraagde personage bestaat niet.";
+const MSG_INVALID_WORLD		   = "Onbestaande wereld.";
+const MSG_INVALID_CHARACTER	   = "Onbestaand personage.";
+const MSG_INVALID_JOB		   = "Ongeldige job.";
+const MSG_INVALID_RECREATION   = "Ongeldige ontspanning.";
 const MSG_NO_CHARACTER_CLAIMED = "Er kon geen personage worden aangemaakt. Probeer het opnieuw.";
 const MSG_ALREADY_CUSTOMIZED   = "Je personage is al aangepast of bestaat niet meer.";
 
@@ -51,13 +55,14 @@ export const getAllRecreations = async (connection = db) => {
 export const getWorld = async (id, 
 							   connection = db) => {
 	const [worlds] = await connection.execute(
-		`SELECT * 
+		`SELECT id, 
+		        name 
 		 FROM worlds 
 		 WHERE id = ?`,
 		[id]
 	);
 	if (worlds.length === 0) {
-		throw new NotFoundError(MSG_INVALID_WORLD);
+		throw new BadRequestError(MSG_INVALID_WORLD);
 	}
 	return worlds[0];
 };
@@ -72,7 +77,7 @@ export const getCharacter = async (id,
 		[id]
 	);
 	if (characters.length === 0) {
-		throw new NotFoundError(MSG_INVALID_CHARACTER);
+		throw new BadRequestError(MSG_INVALID_CHARACTER);
 	}
 	return characters[0];
 };
@@ -82,7 +87,10 @@ export const findUserCharacter = async (userId,
 										worldId, 
 										connection = db) => {
 	const [characters] = await connection.execute(
-		`SELECT * 
+		`SELECT id,
+				first_name,
+				last_name,
+				is_customized
 		 FROM characters 
 		 WHERE user_id = ? AND
 			   world_id = ?`,
@@ -102,7 +110,8 @@ export const claimAICharacter = async (userId,
 		 FROM characters 
 		 WHERE user_id IS NULL AND
 			   world_id = ? 
-		 LIMIT 1`,
+		 LIMIT 1
+		 FOR UPDATE`,
 		[worldId]
 	);
 	if (freeCharacters.length === 0) {
@@ -126,6 +135,30 @@ export const claimAICharacter = async (userId,
 
 	const character = await getCharacter(characterId, connection);
 	return character;
+};
+
+//--- Validate job preference -------------------------------------------------------------------//
+export const validateJobPreferences = async (jobPreference1,
+											 jobPreference2,
+											 jobPreference3,
+											 connection = db) => {
+	const validJobIds = await getValidIds("jobs");
+	
+	const jobPreferences = [jobPreference1, jobPreference2, jobPreference3];
+	for (const jobPreference of jobPreferences) {
+		if (!validJobIds.has(Number(jobPreference))) {
+			throw new BadRequestError(MSG_INVALID_JOB);
+		}
+	}
+};
+
+//--- Validate recreation preference ------------------------------------------------------------//
+export const validateRecreationPreference = async (recreationPreference) => {
+	const validRecreationIds = await getValidIds("recreations");
+	
+	if (!validRecreationIds.has(Number(recreationPreference))) {
+		throw new BadRequestError(MSG_INVALID_RECREATION);
+	}
 };
 
 //--- Customize character -----------------------------------------------------------------------//

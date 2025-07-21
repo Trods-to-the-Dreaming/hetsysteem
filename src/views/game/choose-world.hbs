@@ -3,7 +3,7 @@
 <div class="container-compact">
 	<h1>Wereld kiezen</h1>
 	
-	<form id="game-choose-world-form" method="POST" action="/game/choose-world">
+	<form id="choose-world-form" method="POST" action="/game/choose-world">
 		<div class="field">
 			<label for="world" class="form-label">Wereld:</label>
 			<select id="world" class="form-select" name="worldId">
@@ -15,8 +15,25 @@
 			</select>
 		</div>
 		
-		<p id="error-chosen-world" class="error">{{error_chosen_world}}</p>
+		<p id="world-error" class="error">{{world_error}}</p>
 		
 		<button class="button-1" type="submit">Volgende</button>
 	</form>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+	//--- Elements ------------------------------------------------------------------------------//
+	const worldSelect = document.getElementById("world");
+	
+	const worldError = document.getElementById("world-error");
+	
+	//--- Event listeners -----------------------------------------------------------------------//
+	worldSelect.addEventListener("change", changeWorld);
+	
+	//--- Event handlers ------------------------------------------------------------------------//
+	function changeWorld() {
+		worldError.textContent = "";
+	}
+});
+</script>

@@ -11,7 +11,9 @@ import {
 const router = express.Router();
 
 router.get("/", showIndex);
+
 router.get("/about", showAbout);
+
 router.get("/rules", showRules);
 
 //=== Export ====================================================================================//

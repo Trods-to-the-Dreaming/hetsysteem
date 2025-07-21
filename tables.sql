@@ -5,7 +5,61 @@ CHANGE COLUMN `has_confirmed_orders` `has_confirmed_trade` TINYINT(1) NOT NULL D
 CHANGE COLUMN `has_confirmed_hours` `has_confirmed_spend_time` TINYINT(1) NOT NULL DEFAULT '0' ;
 */
 
-// Nog te doen op beide: employment_contracts koppelen aan gebouw?
+// Nog te doen op beide: job_contracts koppelen aan gebouw?
+
+// Dagelijkse invoer:
+// 1/ overleven: 
+//		invoeren in action_survive
+// 2/ handel drijven: 
+//		invoeren in action_buy_product, action_sell_product, action_buy_building en action_sell_building
+// 3/ tijd besteden:
+//		beperkt door characters (hours_available) en door contracts, courses en recreation
+//		invoeren in action_work, action_learn en action_relax
+// 4/ contracten beheren:
+//		ontslag nemen en ontslaan beperkt door contracts
+//		invoeren in action_apply, action_recruit, action_resign, action_dismiss
+// 5/ gebouwen beheren:
+//		invoeren in action_build, action_boost
+// 6/ giften:
+//		geld of producten
+//		updaten in characters (balance) en character_products
+
+// Nachtelijke verwerking:
+// 1/ produceren:
+//		uitvoeren op basis van action_work en characters (balance)
+//		beïnvloed door characters (education), character_job_experience, employer_boosts, global_resources (litter)
+//		updaten in characters (balance) en character_products
+//		bijhouden hoeveel zwerfvuil wordt geproduceerd en pas op einde updaten
+// 2/ consumeren:
+//		uitvoeren op basis van action_survive, action_learn en action_relax
+
+
+// 1/ consumptie van voedsel en medische zorg:
+//		op basis van action_survive
+//		verwijderen uit character_products
+//		updaten characters
+// 2/ consumptie van opleiding en ontspanning:
+//		op basis van action_learn en action_relax
+//		verwijderen uit courses en recreation (hoe dan ook)
+//		updaten characters
+// 3/ handel:
+//		op basis van action_buy_product, action_sell_product, action_buy_building en action_sell_building
+//		verwijderen uit character_products (education, concert, video-game en fashion-show)
+//		toevoegen aan action_learn en action_relax
+//		updaten character_products en character_buildings
+// 4/ tijd besteden:
+// 5/ contracten sluiten:
+// 6/ bederfbare producten, opleidingen en activiteiten verwijderen.
+
+
+// Geproduceerde opleidingen en activiteiten komen in character_products terecht. Daarin wordt gekeken bij het verkopen.
+// Aangekochte opleidingen en activiteiten komen in courses en activities terecht (met leraar of organisator, op basis van seller_id). Daarin wordt gekeken bij het tijd besteden.
+
+
+
+
+//		aankoop invoeren in character_products en character_buildings (behalve education in character_education, en concert, video-game en fashion-show in character_recreation)
+
 
 CREATE TABLE users (
 	id INT PRIMARY KEY AUTO_INCREMENT,
@@ -21,7 +75,7 @@ DROP TABLE building_buy_orders;
 DROP TABLE product_transactions;
 DROP TABLE product_sell_orders;
 DROP TABLE product_buy_orders;
-DROP TABLE employment_contracts;
+DROP TABLE job_contracts;
 DROP TABLE employer_boosts;
 DROP TABLE character_job_experience;
 DROP TABLE character_consumption;
@@ -100,7 +154,7 @@ CREATE TABLE characters (
 	is_customized BOOLEAN NOT NULL DEFAULT FALSE,
 	balance INT NOT NULL DEFAULT 0,
 	age INT NOT NULL DEFAULT 18,
-	hours_available INT NOT NULL DEFAULT 8,
+	hours_available INT NOT NULL DEFAULT 13,
 	health INT NOT NULL DEFAULT 100,
 	cumulative_health_loss INT NOT NULL DEFAULT 0,
 	cumulative_health_gain INT NOT NULL DEFAULT 0,
@@ -167,7 +221,7 @@ CREATE TABLE employer_boosts (
 	FOREIGN KEY (job_id) REFERENCES jobs(id)
 );
 
-CREATE TABLE employment_contracts (
+CREATE TABLE job_contracts (
 	id INT PRIMARY KEY AUTO_INCREMENT,
 	employer_id INT NOT NULL,
 	employee_id INT NOT NULL,
@@ -178,6 +232,19 @@ CREATE TABLE employment_contracts (
 	FOREIGN KEY (employee_id) REFERENCES characters(id) ON DELETE CASCADE,
 	FOREIGN KEY (job_id) REFERENCES jobs(id)
 );
+
+CREATE TABLE courses (
+	id INT PRIMARY KEY AUTO_INCREMENT,
+	teacher_id INT NOT NULL,
+	student_id INT NOT NULL,
+	hours INT NOT NULL,
+	FOREIGN KEY (employer_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (employee_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (job_id) REFERENCES jobs(id)
+);
+
+
+
 
 CREATE TABLE product_buy_orders (
 	character_id INT NOT NULL,
@@ -242,6 +309,38 @@ CREATE TABLE building_transactions (
 	FOREIGN KEY (seller_id) REFERENCES characters(id) ON DELETE CASCADE,
 	FOREIGN KEY (building_id) REFERENCES buildings(id)
 );
+
+
+
+CREATE TABLE job_hours (
+	employee_id INT NOT NULL,
+	contract_id INT NOT NULL,
+	hours INT NOT NULL,
+	PRIMARY KEY (employee_id, contract_id),
+	FOREIGN KEY (employee_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (contract_id) REFERENCES job_contracts(id)
+);
+
+CREATE TABLE course_hours (
+	student_id INT NOT NULL,
+	course_id INT NOT NULL,
+	hours INT NOT NULL,
+	PRIMARY KEY (student_id, contract_id),
+	FOREIGN KEY (student_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (course_id) REFERENCES courses(id)
+);
+
+CREATE TABLE activity_hours (
+	participant_id INT NOT NULL,
+	activity_id INT NOT NULL,
+	hours INT NOT NULL,
+	PRIMARY KEY (participant_id, contract_id),
+	FOREIGN KEY (participant_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (activity_id) REFERENCES activities(id)
+);
+
+
+
 
 CREATE TABLE vacancies (
 	character_id INT NOT NULL,

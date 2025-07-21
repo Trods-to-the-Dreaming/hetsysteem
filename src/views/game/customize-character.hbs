@@ -15,7 +15,7 @@
 		</div>
 		
 		<div class="field">
-			<label for="job-preference-1" class="form-label">Voorkeursjob (★★★):</label>
+			<label for="job-preference-1" class="form-label">Job voorkeur (★★★):</label>
 			<select id="job-preference-1" class="form-select" name="jobPreference1" required>
 				{{#each jobs}}
 				<option value="{{this.id}}">{{this.name}}</option>
@@ -24,7 +24,7 @@
 		</div>
 		
 		<div class="field">
-			<label for="job-preference-2" class="form-label">Voorkeursjob (★★):</label>
+			<label for="job-preference-2" class="form-label">Job voorkeur (★★):</label>
 			<select id="job-preference-2" class="form-select" name="jobPreference2" required>
 				{{#each jobs}}
 				<option value="{{this.id}}">{{this.name}}</option>
@@ -33,7 +33,7 @@
 		</div>
 		
 		<div class="field">
-			<label for="job-preference-3" class="form-label">Voorkeursjob (★):</label>
+			<label for="job-preference-3" class="form-label">Job voorkeur (★):</label>
 			<select id="job-preference-3" class="form-select" name="jobPreference3" required>
 				{{#each jobs}}
 				<option value="{{this.id}}">{{this.name}}</option>
@@ -41,10 +41,10 @@
 			</select>
 		</div>
 		
-		<p id="error-job-preference" class="error">{{error_job_preference}}</p>
+		<p id="job-preference-error" class="error">{{job_preference_error}}</p>
 		
 		<div class="field">
-			<label for="recreation-preference" class="form-label">Voorkeursactiviteit (★★★):</label>
+			<label for="recreation-preference" class="form-label">Ontspanning voorkeur (★★★):</label>
 			<select id="recreation-preference" class="form-select" name="recreationPreference" required>
 				{{#each recreations}}
 				<option value="{{this.id}}">{{this.name}}</option>
@@ -52,13 +52,34 @@
 			</select>
 		</div>
 		
-		<p id="error-recreation-preference" class="error">{{error_recreation_preference}}</p>
+		<p id="recreation-preference-error" class="error">{{recreation_preference_error}}</p>
 		
 		<button class="button-1" type="submit">Volgende</button>
 	</form>
 		
 	<a class="button-back" href="/game/choose-world">Terug</a>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+	//--- Elements ------------------------------------------------------------------------------//
+	const jobPreference1Select = document.getElementById("job-preference-1");
+	const jobPreference2Select = document.getElementById("job-preference-2");
+	const jobPreference3Select = document.getElementById("job-preference-3");
+	
+	const jobPreferenceError = document.getElementById("job-preference-error");
+	const recreationPreferenceError = document.getElementById("recreation-preference-error");
+	
+	//--- Event listeners -----------------------------------------------------------------------//
+	worldSelect.addEventListener("change", changeWorld);
+	
+	//--- Event handlers ------------------------------------------------------------------------//
+	function changeWorld() {
+		worldError.textContent = "";
+	}
+});
+</script>
+
 
 <script>
 document.getElementById("game-customize-character-form").addEventListener("submit", function (e) {

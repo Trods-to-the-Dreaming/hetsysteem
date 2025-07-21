@@ -2,50 +2,55 @@
 
 //--- Bad request (400) -------------------------------------------------------------------------//
 export class BadRequestError extends Error {
-	constructor(message) {
+	constructor(message, redirect = "/") {
 		super(message);
 		this.name = "BadRequestError";
-		this.statusCode = 400;
+		this.status = 400;
 		this.expose = true;
+		this.redirect = redirect;
 	}
 }
 
 //--- Unauthorized (401) ------------------------------------------------------------------------//
 export class UnauthorizedError extends Error {
-	constructor(message) {
+	constructor(message, redirect = "/") {
 		super(message);
 		this.name = "UnauthorizedError";
-		this.statusCode = 401;
+		this.status = 401;
 		this.expose = true;
+		this.redirect = redirect;
 	}
 }
 
 //--- Forbidden (403) ---------------------------------------------------------------------------//
 export class ForbiddenError extends Error {
-	constructor(message) {
+	constructor(message, redirect = "/") {
 		super(message);
 		this.name = "ForbiddenError";
-		this.statusCode = 403;
+		this.status = 403;
 		this.expose = true;
+		this.redirect = redirect;
 	}
 }
 
 //--- Not found (404) ---------------------------------------------------------------------------//
 export class NotFoundError extends Error {
-	constructor(message) {
+	constructor(message, redirect = "/") {
 		super(message);
 		this.name = "NotFoundError";
-		this.statusCode = 404;
+		this.status = 404;
 		this.expose = true;
+		this.redirect = redirect;
 	}
 }
 
 //--- Conflict (409) ----------------------------------------------------------------------------//
 export class ConflictError extends Error {
-	constructor(message) {
+	constructor(message, redirect = "/") {
 		super(message);
 		this.name = "ConflictError";
-		this.statusCode = 409;
+		this.status = 409;
 		this.expose = true;
+		this.redirect = redirect;
 	}
 }

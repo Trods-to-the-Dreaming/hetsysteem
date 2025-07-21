@@ -1,9 +1,6 @@
 //=== Imports ===================================================================================//
 import db from "../utils/db.js";
-import { 
-	BadRequestError,
-	NotFoundError 
-} from "../utils/errors.js";
+import { BadRequestError } from "../utils/errors.js";
 
 import { getProductIds } from "./game-products.helpers.js";
 
@@ -22,8 +19,16 @@ const MSG_INVALID_HOURS		 = "Ongeldig aantal uren.";
 export const ACTIONS = ["survive", "trade", "spend_time"];
 export const TYPES = ["buy", "sell"];
 export const CATEGORIES = ["product", "building"];
+export const CONTRACTS = ["job", "course", "activity"];
 
 //=== Main ======================================================================================//
+
+
+
+
+
+
+
 
 //--- Validate character id ---------------------------------------------------------------------//
 export const validateCharacterId = async (characterId, 
@@ -35,7 +40,7 @@ export const validateCharacterId = async (characterId,
 		[characterId]
 	);
 	if (character.length === 0) {
-		throw new NotFoundError(MSG_INVALID_CHARACTER);
+		throw new BadRequestError(MSG_INVALID_CHARACTER);
 	}
 };
 
@@ -54,7 +59,7 @@ export const hasConfirmedAction = async (characterId,
 		[characterId]
 	);
 	if (character.length === 0) {
-		throw new NotFoundError(MSG_INVALID_CHARACTER);
+		throw new BadRequestError(MSG_INVALID_CHARACTER);
 	}
 	return character[0][`has_confirmed_${action}`];
 };
@@ -150,11 +155,11 @@ export const getMedicalCareInfo = async (characterId,
 //--- Validate consumption ----------------------------------------------------------------------//
 export const validateConsumption = async (foodConsumed, 
 										  medicalCareConsumed) => {
-	if (!isValidInteger(foodConsumed, 0, GAME_RULES.FOOD.MAX) {
+	if (!isValidInteger(foodConsumed, 0, GAME_RULES.FOOD.MAX)) {
 		throw new BadRequestError(MSG_INVALID_QUANTITY);
 	}
 	
-	if (!isValidInteger(medicalCareConsumed, 0, GAME_RULES.MEDICAL_CARE.MAX) {
+	if (!isValidInteger(medicalCareConsumed, 0, GAME_RULES.MEDICAL_CARE.MAX)) {
 		throw new BadRequestError(MSG_INVALID_QUANTITY);
 	}
 };
@@ -349,11 +354,11 @@ export const updateOrders = async (characterId,
 	}
 
 	const valuePlaceholders = orders.map(() => "(?, ?, ?, ?)").join(", ");
-	const valueParams = orders.flatMap(order => [
+	const valueParams = orders.flatMap(o => [
 		characterId,
-		order.itemId,
-		order.quantity,
-		order.unitPrice,
+		o.itemId,
+		o.quantity,
+		o.unitPrice
 	]);
 
 	await connection.execute(
@@ -377,7 +382,7 @@ export const getAvailableHours = async (characterId,
 		[characterId]
 	);
 	if (character.length === 0) {
-		throw new NotFoundError(MSG_INVALID_CHARACTER);
+		throw new BadRequestError(MSG_INVALID_CHARACTER);
 	}
 	return character[0].hours_available;
 };
@@ -410,15 +415,24 @@ export const validateHours = async (characterId,
 									connection = db) => {
 	let totalHours = 0;
 	
+	//console.log("jobHours: ");
+	//console.log(jobHours);
 	const contracts = await getContracts(characterId, connection);
+	//console.log("contracts: ");
+	//console.log(contracts);
 	const contractMap = new Map(contracts.map(c => [String(c.id), c.hours]));
+	//console.log("contractMap: ");
+	//console.log(contractMap);
 
 	for (const [key, value] of Object.entries(jobHours)) {
 		const maxHours = contractMap.get(key);
+		//console.log("key: " + key);
+		//console.log("maxHours: " + maxHours);
 		if (!isValidInteger(value, 0, maxHours)) {
 			throw new BadRequestError(MSG_INVALID_HOURS);
 		}
 		totalHours += value;
+		//console.log("totalHours: " + totalHours);
 	}
 
 	for (const [key, value] of Object.entries(courseHours)) {
@@ -426,6 +440,7 @@ export const validateHours = async (characterId,
 			throw new BadRequestError(MSG_INVALID_HOURS);
 		}
 		totalHours += value;
+		//console.log("totalHours: " + totalHours);
 	}
 
 	for (const [key, value] of Object.entries(activityHours)) {
@@ -433,19 +448,54 @@ export const validateHours = async (characterId,
 			throw new BadRequestError(MSG_INVALID_HOURS);
 		}
 		totalHours += value;
+		//console.log("totalHours: " + totalHours);
 	}
 
 	const availableHours = await getAvailableHours(characterId, connection);
+	//console.log("availableHours: " + availableHours);
 
 	if (totalHours > availableHours) {
 		throw new BadRequestError(MSG_INVALID_HOURS);
 	}
 };
 
-//--- Update job hours --------------------------------------------------------------------------//
-export const updateJobHours = async (characterId, 
-									 jobHours,
-									 connection = db) => {
+//--- Update hours ------------------------------------------------------------------------------//
+export const updateHours = async (characterId, 
+								  contract,
+								  hours,
+								  connection = db) => {
+	if (!CONTRACTS.includes(type)) {
+		throw new BadRequestError(MSG_INVALID_CONTRACT);
+	}
+	
+	await connection.execute(
+		`DELETE FROM \`${contract}_hours\`
+		 WHERE character_id = ?`,
+		[characterId]
+	);
+
+	if (hours.length === 0) {
+		return;
+	}
+
+	const valuePlaceholders = hours.map(() => "(?, ?, ?)").join(", ");
+	const valueParams = hours.flatMap(h => [
+		characterId,
+		h.contractId,
+		h.hours
+	]);
+
+	await connection.execute(
+		`INSERT INTO \`${contract}_hours\`
+		 (character_id, 
+		  \`${contract}_id\`, 
+		  hours)
+		 VALUES ${valuePlaceholders}`,
+		valueParams
+	);
+	
+	
+	
 	// to do
 	
 	/*await connection.execute(
@@ -467,20 +517,6 @@ export const updateJobHours = async (characterId,
 		 VALUES ${placeholders}`,
 		values
 	);*/
-};
-
-//--- Update course hours -----------------------------------------------------------------------//
-export const updateCourseHours = async (characterId, 
-										courseHours,
-										connection = db) => {
-	// to do
-};
-
-//--- Update activity hours ---------------------------------------------------------------------//
-export const updateActivityHours = async (characterId, 
-										  activityHours,
-										  connection = db) => {
-	// to do
 };
 
 //=== Extra =====================================================================================//

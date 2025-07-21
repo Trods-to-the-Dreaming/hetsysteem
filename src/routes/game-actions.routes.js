@@ -11,19 +11,18 @@ import {
 	requireCharacterCustomized
 } from "../middleware/game.middleware.js";
 
-import {
-	showActions,
-	showSurvive,
-	handleSurvive,
-	showTrade,
-	handleTrade,
+/*import {
+	showManageBuildings,
+	handleManageBuildings,
+	showManageContracts,
+	handleManageContracts
 	showSpendTime,
 	handleSpendTime,
-	showApply,
-	showResign,
-	showRecruit,
-	showFire
-} from "../controllers/game-actions.controllers.js";
+	showTrade,
+	handleTrade,
+	showSurvive,
+	handleSurvive,
+} from "../controllers/game-actions.controllers.js";*/
 
 //=== Constants =================================================================================//
 const requireAuthenticatedAndCustomized = [
@@ -36,26 +35,17 @@ const requireAuthenticatedAndCustomized = [
 //=== Main ======================================================================================//
 const router = express.Router();
 
-// Actions menu
-router.get("/", requireAuthenticatedAndCustomized, showActions);
-
-// Survive
-router.get( "/survive", requireAuthenticatedAndCustomized, showSurvive);
-router.post("/survive", requireAuthenticatedAndCustomized, handleSurvive);
-
-// Trade
-router.get( "/trade", requireAuthenticatedAndCustomized, showTrade);
-router.post("/trade", requireAuthenticatedAndCustomized, handleTrade);
-
-// Spend time
-router.get( "/spend-time", requireAuthenticatedAndCustomized, showSpendTime);
-router.post("/spend-time", requireAuthenticatedAndCustomized, handleSpendTime);
-
-// (to do)
-router.get("/apply", requireAuthenticatedAndCustomized, showApply);
-router.get("/resign", requireAuthenticatedAndCustomized, showResign);
-router.get("/recruit", requireAuthenticatedAndCustomized, showRecruit);
-router.get("/fire", requireAuthenticatedAndCustomized, showFire);
+/*router.get( "/",				 requireAuthenticatedAndCustomized, showCurrentAction);
+router.get( "/manage-buildings", requireAuthenticatedAndCustomized, showManageBuildings);
+router.post("/manage-buildings", requireAuthenticatedAndCustomized, handleManageBuildings);
+router.get( "/manage-contracts", requireAuthenticatedAndCustomized, showManageContracts);
+router.post("/manage-contracts", requireAuthenticatedAndCustomized, handleManageContracts);
+router.get( "/spend-time", 		 requireAuthenticatedAndCustomized, showSpendTime);
+router.post("/spend-time", 		 requireAuthenticatedAndCustomized, handleSpendTime);
+router.get( "/trade", 			 requireAuthenticatedAndCustomized, showTrade);
+router.post("/trade", 			 requireAuthenticatedAndCustomized, handleTrade);
+router.get( "/survive", 		 requireAuthenticatedAndCustomized, showSurvive);
+router.post("/survive", 		 requireAuthenticatedAndCustomized, handleSurvive);*/
 
 //=== Export ====================================================================================//
 export default {

@@ -21,25 +21,19 @@ import {
 //=== Main ======================================================================================//
 const router = express.Router();
 
-// Log in
 router.get( "/login", showLogin);
 router.post("/login", handleLogin);
 
-// Register
 router.get( "/register", showRegister);
 router.post("/register", handleRegister);
 
-// Log out
 router.post("/logout", handleLogout);
 
-// Account
-router.get("/", requireAuthenticated, showAccount);
+router.get( "/", requireAuthenticated, showAccount);
 
-// Change username
 router.get( "/change-username", requireAuthenticated, showChangeUsername);
 router.post("/change-username",	requireAuthenticated, handleChangeUsername);
 
-// Change password
 router.get( "/change-password", requireAuthenticated, showChangePassword);
 router.post("/change-password", requireAuthenticated, handleChangePassword);
 

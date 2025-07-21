@@ -14,10 +14,33 @@
 			<input id="password" class="form-control" type="password" name="password" required>
 		</div>
 		
-		<p id="error-login" class="error">{{error_login}}</p>
+		<p id="login-error" class="error">{{login_error}}</p>
 		
 		<button class="button-1" type="submit">Aanmelden</button>
 	</form>
 	
 	<p>Nog geen lid? <a href="/account/register">Registreren</a>.</p>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+	//--- Elements ------------------------------------------------------------------------------//
+	const usernameInput = document.getElementById("username");
+	const passwordInput = document.getElementById("password");
+	
+	const loginError = document.getElementById("login-error");
+	
+	//--- Event listeners -----------------------------------------------------------------------//
+	usernameInput.addEventListener("input", changeUsername);
+	passwordInput.addEventListener("input", changePassword);
+	
+	//--- Event handlers ------------------------------------------------------------------------//
+	function changeUsername() {
+		loginError.textContent = "";
+	}
+	
+	function changePassword() {
+		loginError.textContent = "";
+	}
+});
+</script>

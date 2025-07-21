@@ -12,7 +12,6 @@ import {
 
 //=== Constants =================================================================================//
 const MSG_INVALID_LOGIN		= "Ongeldige gebruikersnaam of wachtwoord.";
-const MSG_PASSWORD_MISMATCH = "De wachtwoorden komen niet overeen.";
 const MSG_USERNAME_TAKEN	= "Deze gebruikersnaam is al in gebruik.";
 const MSG_PASSWORD_WRONG	= "Dit is niet uw wachtwoord.";
 const MSG_USERNAME_CHANGED	= "Uw gebruikersnaam is gewijzigd.";
@@ -20,7 +19,7 @@ const MSG_PASSWORD_CHANGED	= "Uw wachtwoord is gewijzigd.";
 
 //=== Main ======================================================================================//
 
-//--- Show login page ---------------------------------------------------------------------------//
+//--- Log in ------------------------------------------------------------------------------------//
 export const showLogin = (req, res, next) => {
 	try {
 		return res.render("account/login");
@@ -29,7 +28,6 @@ export const showLogin = (req, res, next) => {
 	}
 };
 
-//--- Handle login request ----------------------------------------------------------------------//
 export const handleLogin = async (req, res, next) => {
 	try {
 		const { username, 
@@ -39,16 +37,16 @@ export const handleLogin = async (req, res, next) => {
 		const user = await findUserByName(username);
 		if (!user) {
 			return res.render("account/login", {
-				error_login: MSG_INVALID_LOGIN,
-				username
+				username,
+				login_error: MSG_INVALID_LOGIN
 			});
 		}
 
 		// Verify password
 		if (!(await isPasswordCorrect(user, password))) {
 			return res.render("account/login", {
-				error_login: MSG_INVALID_LOGIN,
-				username
+				username,
+				login_error: MSG_INVALID_LOGIN
 			});
 		}
 
@@ -63,7 +61,7 @@ export const handleLogin = async (req, res, next) => {
 	}
 };
 
-//--- Show registration page --------------------------------------------------------------------//
+//--- Register ----------------------------------------------------------------------------------//
 export const showRegister = (req, res, next) => {
 	try {
 		return res.render("account/register");
@@ -72,17 +70,15 @@ export const showRegister = (req, res, next) => {
 	}
 };
 
-//--- Handle registration request ---------------------------------------------------------------//
 export const handleRegister = async (req, res, next) => {
 	try {
 		const { username, 
 				password, 
-				passwordConfirm } = req.body;
+				passwordConfirmation } = req.body;
 
 		// Check if passwords are the same
-		if (password !== passwordConfirm) {
+		if (password !== passwordConfirmation) {
 			return res.render("account/register", {
-				error_confirm: MSG_PASSWORD_MISMATCH,
 				username
 			});
 		}
@@ -90,8 +86,8 @@ export const handleRegister = async (req, res, next) => {
 		// Check if username is taken
 		if (await isUsernameTaken(username)) {
 			return res.render("account/register", {
-				error_username: MSG_USERNAME_TAKEN,
-				username
+				username,
+				username_error: MSG_USERNAME_TAKEN
 			});
 		}
 
@@ -109,7 +105,7 @@ export const handleRegister = async (req, res, next) => {
 	}
 };
 
-//--- Handle logout request ---------------------------------------------------------------------//
+//--- Log out -----------------------------------------------------------------------------------//
 export const handleLogout = (req, res, next) => {
 	try {
 		req.session.destroy((error) => {
@@ -125,7 +121,7 @@ export const handleLogout = (req, res, next) => {
 	}
 };
 
-//--- Show account page -------------------------------------------------------------------------//
+//--- Account -----------------------------------------------------------------------------------//
 export const showAccount = (req, res, next) => {
 	try {
 		return res.render("account/my-account");
@@ -134,10 +130,11 @@ export const showAccount = (req, res, next) => {
 	}
 };
 
-//--- Show change username page -----------------------------------------------------------------//
+//--- Change username ---------------------------------------------------------------------------//
 export const showChangeUsername = async (req, res, next) => {
 	try {
-		const { changeSaved, 
+		const { username,
+				changeSaved, 
 				changeMessage } = req.session;
 
 		delete req.session.changeSaved;
@@ -145,8 +142,8 @@ export const showChangeUsername = async (req, res, next) => {
 		await saveSession(req);
 		
 		return res.render("account/change-username", {
-			username: req.session.username,
-			change_saved: !!changeSaved,
+			username,
+			change_saved: 	!!changeSaved,
 			change_message: changeMessage
 		});
 	} catch (err) {
@@ -154,18 +151,19 @@ export const showChangeUsername = async (req, res, next) => {
 	}
 };
 
-//--- Handle change username request ------------------------------------------------------------//
 export const handleChangeUsername = async (req, res, next) => {
 	try {
-		const { userId } = req.session;
+		const { userId,
+				username} = req.session;
 		const { newUsername, 
 				password } = req.body;
 		
 		// Check if new username is taken
 		if (await isUsernameTaken(newUsername)) {
 			return res.render("account/change-username", {
-				error_username: MSG_USERNAME_TAKEN,
-				new_username: newUsername
+				username,
+				new_username: 	newUsername,
+				username_error: MSG_USERNAME_TAKEN
 			});
 		}
 
@@ -175,8 +173,9 @@ export const handleChangeUsername = async (req, res, next) => {
 		// Verify password
 		if (!(await isPasswordCorrect(user, password))) {
 			return res.render("account/change-username", {
-				error_password: MSG_PASSWORD_WRONG,
-				new_username: newUsername
+				username,
+				new_username: 	newUsername,
+				password_error: MSG_PASSWORD_WRONG
 			});
 		}
 
@@ -195,7 +194,7 @@ export const handleChangeUsername = async (req, res, next) => {
 	}
 };
 
-//--- Show change password page -----------------------------------------------------------------//
+//--- Change password ---------------------------------------------------------------------------//
 export const showChangePassword = async (req, res, next) => {
 	try {
 		const { changeSaved, 
@@ -206,8 +205,7 @@ export const showChangePassword = async (req, res, next) => {
 		await saveSession(req);
 		
 		return res.render("account/change-password", {
-			username: req.session.username,
-			change_saved: !!changeSaved,
+			change_saved: 	!!changeSaved,
 			change_message: changeMessage
 		});
 	} catch (err) {
@@ -215,19 +213,16 @@ export const showChangePassword = async (req, res, next) => {
 	}
 };
 
-//--- Handle change password request ------------------------------------------------------------//
 export const handleChangePassword = async (req, res, next) => {
 	try {
 		const { userId } = req.session;
 		const { currentPassword, 
 				newPassword, 
-				passwordConfirm } = req.body;
+				passwordConfirmation } = req.body;
 
 		// Check if passwords are the same
-		if (newPassword !== passwordConfirm) {
-			return res.render("account/change-password", {
-				error_confirm: MSG_PASSWORD_MISMATCH
-			});
+		if (newPassword !== passwordConfirmation) {
+			return res.render("account/change-password");
 		}
 		
 		// Find user
@@ -236,7 +231,7 @@ export const handleChangePassword = async (req, res, next) => {
 		// Verify current password
 		if (!(await isPasswordCorrect(user, password))) {
 			return res.render("account/change-password", {
-				error_password: MSG_PASSWORD_WRONG
+				password_error: MSG_PASSWORD_WRONG
 			});
 		}
 
