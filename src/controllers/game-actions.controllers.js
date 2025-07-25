@@ -2,6 +2,8 @@
 import db from "../utils/db.js";
 import saveSession from "../utils/session.js";
 import { 
+	/*getOwnedTiles,
+	getOwnedBuildings
 	validateCharacterId,
 	hasConfirmedAction,
 	confirmAction,
@@ -24,16 +26,21 @@ import {
 	validateHours,
 	updateJobHours,
 	updateCourseHours,
-	updateActivityHours
+	updateActivityHours*/
 } from "../helpers/game-actions.helpers.js";
 
 //=== Constants =================================================================================//
-const ACTIONS = ["manage-buildings", "manage-contracts", "spend_time", "trade", "survive"];
+const ACTIONS = ["manage-buildings",  
+				 "manage-contracts",
+				 "boost-production", 
+				 "spend_time", 
+				 "trade", 
+				 "survive"];
 
 //=== Main ======================================================================================//
 
 //--- Show current action page ------------------------------------------------------------------//
-export const showCurrentAction = async (req, res, next) => {
+/*export const showCurrentAction = async (req, res, next) => {
 	try {
 		const { characterId } = req.session;
 		
@@ -58,21 +65,20 @@ export const showManageBuildings = async (req, res, next) => {
 		}
 		
 		const [
-			buildings,
-			products,
-			boosts
+			ownedTiles,
+			ownedBuildings,
+			buildings
 		] = await Promise.all([
-			getBuildings(characterId),
-			getProducts(characterId),
-			getBoosts(characterId)
+			getOwnedTiles(characterId),
+			getOwnedBuildings(characterId),
+			
 		]);
 		
 		const isConfirmed = currentActionIndex > expectedActionIndex;
 		
 		return res.render("game/actions/manage-buildings", {
+			tiles,
 			buildings,
-			products,
-			boosts,
 			isConfirmed
 		});
 	} catch (err) {
@@ -477,4 +483,4 @@ export const showFire = async (req, res, next) => {
 	} catch (err) {
 		next(err);
 	}
-};
+};*/

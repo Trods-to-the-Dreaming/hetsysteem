@@ -1,4 +1,4 @@
-//=== Imports ===================================================================================//
+/*//=== Imports ===================================================================================//
 import db from "../utils/db.js";
 import { BadRequestError } from "../utils/errors.js";
 
@@ -23,6 +23,52 @@ export const CONTRACTS = ["job", "course", "activity"];
 
 //=== Main ======================================================================================//
 
+//--- Get owned tiles ---------------------------------------------------------------------------//
+export const getOwnedTiles = async (characterId, 
+									connection = db) => {
+	const [[character]] = await connection.execute(
+		`SELECT owned_tiles
+		 FROM characters
+		 WHERE id = ?`,
+		[characterId]
+	);
+	if (!character) {
+		throw new BadRequestError(MSG_INVALID_CHARACTER);
+	}
+	return character.owned_tiles;
+};
+
+//--- Get owned buildings -----------------------------------------------------------------------//
+export const getOwnedBuildings = async (characterId, 
+										connection = db) => {
+	const [ownedBuildings] = await connection.execute(
+		`SELECT cb.id,
+				cb.name,
+				b.name,
+				cb.size
+		 FROM characters_buildings cb
+		 INNER JOIN buildings b ON cb.building_id = b.id
+		 WHERE owner_id = ?`,
+		[characterId]
+	);
+	return ownedBuildings;
+};
+
+//--- Get all buildings -------------------------------------------------------------------------//
+export const getAllBuildings = async (characterId, 
+										connection = db) => {
+	const [ownedBuildings] = await connection.execute(
+		`SELECT cb.id,
+				cb.name,
+				b.name,
+				cb.size
+		 FROM characters_buildings cb
+		 INNER JOIN buildings b ON cb.building_id = b.id
+		 WHERE owner_id = ?`,
+		[characterId]
+	);
+	return ownedBuildings;
+};
 
 
 
@@ -498,7 +544,7 @@ export const updateHours = async (characterId,
 	
 	// to do
 	
-	/*await connection.execute(
+	await connection.execute(
 		`DELETE FROM job_hours WHERE character_id = ?`,
 		[characterId]
 	);
@@ -516,7 +562,7 @@ export const updateHours = async (characterId,
 		`INSERT INTO job_hours (character_id, contract_id, hours)
 		 VALUES ${placeholders}`,
 		values
-	);*/
+	);
 };
 
 //=== Extra =====================================================================================//
@@ -529,4 +575,4 @@ function isValidInteger(value,
 			Number.isInteger(value) &&
 			value >= min &&
 			value <= max);
-};
+};*/

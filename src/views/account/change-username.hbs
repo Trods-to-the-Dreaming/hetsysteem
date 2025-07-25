@@ -43,15 +43,15 @@ document.addEventListener("DOMContentLoaded", () => {
 	const passwordError = document.getElementById("password-error");
 	
 	//--- Event listeners -----------------------------------------------------------------------//
-	newUsernameInput.addEventListener("input", changeNewUsername);
-	passwordInput.addEventListener("input", changePassword);
+	newUsernameInput.addEventListener("input", handleNewUsernameInput);
+	passwordInput.addEventListener("input", handlePasswordinput);
 	
 	//--- Event handlers ------------------------------------------------------------------------//
-	function changeNewUsername() {
+	function handleNewUsernameInput() {
 		usernameError.textContent = "";
 	}
 	
-	function changePassword() {
+	function handlePasswordinput() {
 		passwordError.textContent = "";
 	}
 });

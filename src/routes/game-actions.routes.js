@@ -11,18 +11,18 @@ import {
 	requireCharacterCustomized
 } from "../middleware/game.middleware.js";
 
-/*import {
-	showManageBuildings,
+import {
+	/*showManageBuildings,
 	handleManageBuildings,
 	showManageContracts,
-	handleManageContracts
+	handleManageContracts,
 	showSpendTime,
 	handleSpendTime,
 	showTrade,
 	handleTrade,
 	showSurvive,
-	handleSurvive,
-} from "../controllers/game-actions.controllers.js";*/
+	handleSurvive*/
+} from "../controllers/game-actions.controllers.js";
 
 //=== Constants =================================================================================//
 const requireAuthenticatedAndCustomized = [

@@ -31,15 +31,15 @@ document.addEventListener("DOMContentLoaded", () => {
 	const loginError = document.getElementById("login-error");
 	
 	//--- Event listeners -----------------------------------------------------------------------//
-	usernameInput.addEventListener("input", changeUsername);
-	passwordInput.addEventListener("input", changePassword);
+	usernameInput.addEventListener("input", handleUsernameInput);
+	passwordInput.addEventListener("input", handlePasswordInput);
 	
 	//--- Event handlers ------------------------------------------------------------------------//
-	function changeUsername() {
+	function handleUsernameInput() {
 		loginError.textContent = "";
 	}
 	
-	function changePassword() {
+	function handlePasswordInput() {
 		loginError.textContent = "";
 	}
 });

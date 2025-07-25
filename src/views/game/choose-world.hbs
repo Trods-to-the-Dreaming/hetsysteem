@@ -29,10 +29,10 @@ document.addEventListener("DOMContentLoaded", () => {
 	const worldError = document.getElementById("world-error");
 	
 	//--- Event listeners -----------------------------------------------------------------------//
-	worldSelect.addEventListener("change", changeWorld);
+	worldSelect.addEventListener("change", handleWorldChange);
 	
 	//--- Event handlers ------------------------------------------------------------------------//
-	function changeWorld() {
+	function handleWorldChange() {
 		worldError.textContent = "";
 	}
 });

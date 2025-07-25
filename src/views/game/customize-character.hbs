@@ -3,7 +3,7 @@
 <div class="container-compact">
 	<h1>Personage aanpassen</h1>
 	
-	<form id="game-customize-character-form" method="POST" action="/game/customize-character">
+	<form id="customize-character-form" method="POST" action="/game/customize-character">
 		<div class="field">
 			<label for="first-name" class="form-label">Voornaam:</label>
 			<input id="first-name" class="form-control" type="text" name="firstName" value="{{first_name}}" required>
@@ -15,7 +15,7 @@
 		</div>
 		
 		<div class="field">
-			<label for="job-preference-1" class="form-label">Job voorkeur (★★★):</label>
+			<label for="job-preference-1" class="form-label">Jobvoorkeur (★★★):</label>
 			<select id="job-preference-1" class="form-select" name="jobPreference1" required>
 				{{#each jobs}}
 				<option value="{{this.id}}">{{this.name}}</option>
@@ -24,7 +24,7 @@
 		</div>
 		
 		<div class="field">
-			<label for="job-preference-2" class="form-label">Job voorkeur (★★):</label>
+			<label for="job-preference-2" class="form-label">Jobvoorkeur (★★):</label>
 			<select id="job-preference-2" class="form-select" name="jobPreference2" required>
 				{{#each jobs}}
 				<option value="{{this.id}}">{{this.name}}</option>
@@ -33,7 +33,7 @@
 		</div>
 		
 		<div class="field">
-			<label for="job-preference-3" class="form-label">Job voorkeur (★):</label>
+			<label for="job-preference-3" class="form-label">Jobvoorkeur (★):</label>
 			<select id="job-preference-3" class="form-select" name="jobPreference3" required>
 				{{#each jobs}}
 				<option value="{{this.id}}">{{this.name}}</option>
@@ -44,7 +44,7 @@
 		<p id="job-preference-error" class="error">{{job_preference_error}}</p>
 		
 		<div class="field">
-			<label for="recreation-preference" class="form-label">Ontspanning voorkeur (★★★):</label>
+			<label for="recreation-preference" class="form-label">Ontspanningsvoorkeur (★★★):</label>
 			<select id="recreation-preference" class="form-select" name="recreationPreference" required>
 				{{#each recreations}}
 				<option value="{{this.id}}">{{this.name}}</option>
@@ -66,31 +66,42 @@ document.addEventListener("DOMContentLoaded", () => {
 	const jobPreference1Select = document.getElementById("job-preference-1");
 	const jobPreference2Select = document.getElementById("job-preference-2");
 	const jobPreference3Select = document.getElementById("job-preference-3");
+	const recreationPreferenceSelect = document.getElementById("recreation-preference");
+	
+	const form = document.getElementById("customize-character-form");
 	
 	const jobPreferenceError = document.getElementById("job-preference-error");
 	const recreationPreferenceError = document.getElementById("recreation-preference-error");
 	
 	//--- Event listeners -----------------------------------------------------------------------//
-	worldSelect.addEventListener("change", changeWorld);
+	jobPreference1Select.addEventListener("change", handleJobPreferenceChange);
+	jobPreference2Select.addEventListener("change", handleJobPreferenceChange);
+	jobPreference3Select.addEventListener("change", handleJobPreferenceChange);
+	recreationPreferenceSelect.addEventListener("change", handleRecreationPreferenceChange);
+	
+	form.addEventListener("submit", handleFormSubmit);
 	
 	//--- Event handlers ------------------------------------------------------------------------//
-	function changeWorld() {
-		worldError.textContent = "";
+	function handleJobPreferenceChange() {
+		jobPreferenceError.textContent = "";
 	}
-});
-</script>
-
-
-<script>
-document.getElementById("game-customize-character-form").addEventListener("submit", function (e) {
-	const job1 = document.getElementById('job-preference-1').value;
-	const job2 = document.getElementById('job-preference-2').value;
-	const job3 = document.getElementById('job-preference-3').value;
-	if (job1 === job2 || job1 === job3 || job2 === job3) {
-		document.getElementById("error-job-preference").textContent = "Kies drie verschillende jobs.";
-		e.preventDefault();
-	} else {
-		document.getElementById("error-job-preference").textContent = "";
+	
+	function handleRecreationPreferenceChange() {
+		recreationPreferenceError.textContent = "";
+	}
+	
+	function handleFormSubmit(e) {
+		// Check if the job preferences are unique
+		const selectedJobPreferences = [jobPreference1Select.value,
+										jobPreference2Select.value,
+										jobPreference3Select.value];		
+		const uniqueJobPreferences = new Set(selectedJobPreferences);
+		if (uniqueJobPreferences.size === selectedJobPreferences.length) {
+			jobPreferenceError.textContent = "";
+		} else {
+			jobPreferenceError.textContent = "Kies drie verschillende jobvoorkeuren.";
+			e.preventDefault();
+		}
 	}
 });
 </script>

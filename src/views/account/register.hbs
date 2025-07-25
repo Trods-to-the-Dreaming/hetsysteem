@@ -36,32 +36,36 @@ document.addEventListener("DOMContentLoaded", () => {
 	const passwordInput = document.getElementById("password");
 	const passwordConfirmationInput = document.getElementById("password-confirmation");
 	
+	const form = document.getElementById("register-form");
+	
 	const usernameError = document.getElementById("username-error");
 	const confirmationError = document.getElementById("confirmation-error");
 	
-	const form = document.getElementById("register-form");
-	
 	//--- Event listeners -----------------------------------------------------------------------//
-	usernameInput.addEventListener("input", changeUsername);
-	passwordInput.addEventListener("input", changePassword);
-	passwordConfirmationInput.addEventListener("input", changePasswordConfirmation);
-	form.addEventListener("submit", submitForm);
+	usernameInput.addEventListener("input", handleUsernameInput);
+	passwordInput.addEventListener("input", handlePasswordInput);
+	passwordConfirmationInput.addEventListener("input", handlePasswordConfirmationInput);
+	
+	form.addEventListener("submit", handleFormSubmit);
 	
 	//--- Event handlers ------------------------------------------------------------------------//
-	function changeUsername() {
+	function handleUsernameInput() {
 		usernameError.textContent = "";
 	}
 	
-	function changePassword() {
+	function handlePasswordInput() {
 		confirmationError.textContent = "";
 	}
 	
-	function changePasswordConfirmation() {
+	function handlePasswordConfirmationInput() {
 		confirmationError.textContent = "";
 	}
 	
-	function submitForm(e) {
-		if (passwordInput.value !== passwordConfirmationInput.value) {
+	function handleFormSubmit(e) {
+		// Check if the password is confirmed correctly
+		if (passwordInput.value === passwordConfirmationInput.value) {
+			confirmationError.textContent = "";
+		} else {
 			confirmationError.textContent = "De wachtwoorden komen niet overeen.";
 			e.preventDefault();
 		}

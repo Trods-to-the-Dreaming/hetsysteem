@@ -5,7 +5,11 @@ import {
 	ConflictError 
 } from "../utils/errors.js";
 
-import { getValidIds } from "./game-ids.helpers.js";
+import { 
+	getAllWorlds,
+	getAllJobs,
+	getAllRecreations
+} from "./game-static.helpers.js";
 
 //=== Constants =================================================================================//
 const MSG_INVALID_WORLD		   = "Onbestaande wereld.";
@@ -17,76 +21,36 @@ const MSG_ALREADY_CUSTOMIZED   = "Je personage is al aangepast of bestaat niet m
 
 //=== Main ======================================================================================//
 
-//--- Get all worlds ----------------------------------------------------------------------------//
-export const getAllWorlds = async (connection = db) => {
-	const [worlds] = await connection.execute(
-		`SELECT id, 
-		        name 
-		 FROM worlds 
-		 ORDER BY id`
-	);
-	return worlds;
-};
-
-//--- Get all jobs -----------------------------------------------------------------------------//
-export const getAllJobs = async (connection = db) => {
-	const [jobs] = await connection.execute(
-		`SELECT id, 
-		        name 
-		 FROM jobs 
-		 ORDER BY id`
-	);
-	return jobs;
-};
-
-//--- Get all recreations -----------------------------------------------------------------------//
-export const getAllRecreations = async (connection = db) => {
-	const [recreations] = await connection.execute(
-		`SELECT recreations.id AS id, 
-		        products.name AS name
-		 FROM recreations
-		 INNER JOIN products ON recreations.product_id = products.id
-		 ORDER BY recreations.id`
-	);
-	return recreations;
-};
-
 //--- Get world ---------------------------------------------------------------------------------//
 export const getWorld = async (id, 
 							   connection = db) => {
-	const [worlds] = await connection.execute(
-		`SELECT id, 
-		        name 
-		 FROM worlds 
-		 WHERE id = ?`,
-		[id]
-	);
-	if (worlds.length === 0) {
+	const world = (await getAllWorlds(connection)).get(id);
+	if (!world) {
 		throw new BadRequestError(MSG_INVALID_WORLD);
 	}
-	return worlds[0];
+	return world;
 };
 
 //--- Get character -----------------------------------------------------------------------------//
 export const getCharacter = async (id, 
 								   connection = db) => {
-	const [characters] = await connection.execute(
+	const [[character]] = await connection.execute(
 		`SELECT * 
 		 FROM characters 
 		 WHERE id = ?`,
 		[id]
 	);
-	if (characters.length === 0) {
+	if (!character) {
 		throw new BadRequestError(MSG_INVALID_CHARACTER);
 	}
-	return characters[0];
+	return character;
 };
 
 //--- Find the user's character -----------------------------------------------------------------//
 export const findUserCharacter = async (userId, 
 										worldId, 
 										connection = db) => {
-	const [characters] = await connection.execute(
+	const [[character]] = await connection.execute(
 		`SELECT id,
 				first_name,
 				last_name,
@@ -97,7 +61,7 @@ export const findUserCharacter = async (userId,
 		[userId, 
 		 worldId]
 	);
-	return characters[0] || null;
+	return character || null;
 };
 
 //--- Claim an AI-character ---------------------------------------------------------------------//
@@ -105,7 +69,7 @@ export const claimAICharacter = async (userId,
 									   worldId, 
 									   connection = db) => {
 	// Find an AI-character
-	const [freeCharacters] = await connection.execute(
+	const [[freeCharacter]] = await connection.execute(
 		`SELECT id 
 		 FROM characters 
 		 WHERE user_id IS NULL AND
@@ -114,10 +78,10 @@ export const claimAICharacter = async (userId,
 		 FOR UPDATE`,
 		[worldId]
 	);
-	if (freeCharacters.length === 0) {
+	if (!freeCharacter) {
 		return null;
 	}
-	const characterId = freeCharacters[0].id;
+	const characterId = freeCharacter.id;
 
 	// Claim the AI-character
 	const [updateResult] = await connection.execute(
@@ -142,21 +106,22 @@ export const validateJobPreferences = async (jobPreference1,
 											 jobPreference2,
 											 jobPreference3,
 											 connection = db) => {
-	const validJobIds = await getValidIds("jobs");
-	
+	const validJobs = await getAllJobs(connection);	
 	const jobPreferences = [jobPreference1, jobPreference2, jobPreference3];
 	for (const jobPreference of jobPreferences) {
-		if (!validJobIds.has(Number(jobPreference))) {
+		const jobId = Number(jobPreference);
+		if (!validJobs.has(jobId)) {
 			throw new BadRequestError(MSG_INVALID_JOB);
 		}
 	}
 };
 
 //--- Validate recreation preference ------------------------------------------------------------//
-export const validateRecreationPreference = async (recreationPreference) => {
-	const validRecreationIds = await getValidIds("recreations");
-	
-	if (!validRecreationIds.has(Number(recreationPreference))) {
+export const validateRecreationPreference = async (recreationPreference,
+												   connection = db) => {
+	const validRecreations = await getAllRecreations(connection);
+	const recreationId = Number(recreationPreference);
+	if (!validRecreations.has(recreationId)) {
 		throw new BadRequestError(MSG_INVALID_RECREATION);
 	}
 };

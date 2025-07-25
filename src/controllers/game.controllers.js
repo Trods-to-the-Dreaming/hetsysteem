@@ -4,11 +4,15 @@ import saveSession from "../utils/session.js";
 import { 
 	getAllWorlds,
 	getAllJobs,
-	getAllRecreations,
+	getAllRecreations
+} from "../helpers/game-static.helpers.js";
+import { 
 	getWorld,
 	getCharacter,
 	findUserCharacter,
 	claimAICharacter,
+	validateJobPreferences,
+	validateRecreationPreference,
 	customizeCharacter
 } from "../helpers/game.helpers.js";
 
@@ -23,7 +27,7 @@ export const showChooseWorld = async (req, res, next) => {
 		const worlds = await getAllWorlds();
 		
 		return res.render("game/choose-world", {
-			worlds
+			worlds: worlds.options
 		});
 	} catch (err) {
 		next(err);
@@ -51,9 +55,9 @@ export const handleChooseWorld = async (req, res, next) => {
 				
 				// All AI-characters have been claimed
 				return res.render("game/choose-world", {
-					worlds,
+					worlds: 		   worlds.options,
 					selected_world_id: parseInt(worldId),
-					world_error: MSG_NO_NEW_CHARACTERS
+					world_error:	   MSG_NO_NEW_CHARACTERS
 				});
 			}
 		}
@@ -104,8 +108,8 @@ export const showCustomizeCharacter = async (req, res, next) => {
 		]);
 		
 		return res.render("game/customize-character", {
-			jobs,
-			recreations
+			jobs: 		 jobs.options,
+			recreations: recreations.options
 		});
 	} catch (err) {
 		next(err);
@@ -116,8 +120,8 @@ export const handleCustomizeCharacter = async (req, res, next) => {
 	try {
 		const { userId,
 				characterId } = req.session;
-		const { characterFirstName, 
-				characterLastName, 
+		const { firstName, 
+				lastName, 
 				jobPreference1, 
 				jobPreference2, 
 				jobPreference3, 
@@ -130,12 +134,12 @@ export const handleCustomizeCharacter = async (req, res, next) => {
 									 jobPreference3);
 		await validateRecreationPreference(recreationPreference);
 		
-		// Check job preference uniqueness
+		// Check if the job preferences are unique
 		const jobPreferences = [jobPreference1, 
 								jobPreference2, 
-								jobPreference3].map(id => Number(id));
+								jobPreference3];
 		const uniqueJobs = new Set(jobPreferences);
-		if (uniqueJobs.size !== 3) {
+		if (uniqueJobs.size !== jobPreferences.length) {
 			const [
 				jobs,
 				recreations
@@ -145,26 +149,25 @@ export const handleCustomizeCharacter = async (req, res, next) => {
 			]);
 			
 			return res.render("game/customize-character", {
-				jobs,
-				recreations,
-				job_preference_error: MSG_IDENTICAL_JOB_PREFERENCES,
-				character_first_name: characterFirstName,
-				character_last_name:  characterLastName
+				jobs: 		 jobs.options,
+				recreations: recreations.options,
+				first_name:	 firstName,
+				last_name:   lastName
 			});
 		}
 		
 		// Customize character
 		await customizeCharacter(characterId,
-								 characterFirstName,
-								 characterLastName,
+								 firstName,
+								 lastName,
 								 jobPreference1,
 								 jobPreference2,
 								 jobPreference3,
 								 recreationPreference);
 		
 		// Save session
-		req.session.characterFirstName = characterFirstName;
-		req.session.characterLastName = characterLastName;
+		req.session.characterFirstName = firstName;
+		req.session.characterLastName = lastName;
 		await saveSession(req);
 		
 		// Enter world
@@ -173,7 +176,6 @@ export const handleCustomizeCharacter = async (req, res, next) => {
 		next(err);
 	}
 };
-
 
 //--- Menu --------------------------------------------------------------------------------------//
 export const showMenu = async (req, res, next) => {
