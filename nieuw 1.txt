@@ -1,3 +1,25 @@
+Als ik een lijst wil van de gebouwen die een personage heeft, inclusief het aantal landtegels dat een gebouw van grootte 1 inneemt, gebruik ik dan best INNER JOIN, ook al heb ik buildings reeds ind e cache staan?
+
+CREATE TABLE buildings (
+	id TINYINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	slug VARCHAR(32) NOT NULL UNIQUE,
+	name VARCHAR(32) NOT NULL,
+	tile_size TINYINT UNSIGNED NOT NULL,
+	job_id TINYINT UNSIGNED UNIQUE NOT NULL,
+	FOREIGN KEY (job_id) REFERENCES jobs(id)
+);
+
+CREATE TABLE character_buildings (
+	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	name VARCHAR(32) NOT NULL UNIQUE,
+	building_id TINYINT UNSIGNED NOT NULL,
+	owner_id INT UNSIGNED NOT NULL,
+	size TINYINT UNSIGNED NOT NULL DEFAULT 1,
+	boosted_working_hours SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+	FOREIGN KEY (owner_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (building_id) REFERENCES buildings(id)
+);
+
 Je kunt je het algoritme dat ik bedoel, voorstellen als volgt. Dit zijn de koop- en verkooporders, allebei gesorteerd van hoge prijs naar lage prijs.
 
 Buyer	quantity	max_unit_price

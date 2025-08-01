@@ -2,6 +2,14 @@
 import saveSession from "../utils/session.js";
 
 import { 
+	MSG_INVALID_LOGIN,
+	MSG_USERNAME_TAKEN,
+	MSG_PASSWORD_WRONG,
+	MSG_USERNAME_CHANGED,
+	MSG_PASSWORD_CHANGED
+} from "../constants/account.messages.js";
+
+import { 
 	findUserById,
 	findUserByName,
 	isUsernameTaken,
@@ -10,13 +18,6 @@ import {
 	updateUsername,
 	updatePassword
 } from "../helpers/account.helpers.js";
-
-//=== Constants =================================================================================//
-const MSG_INVALID_LOGIN		= "Ongeldige gebruikersnaam of wachtwoord.";
-const MSG_USERNAME_TAKEN	= "Deze gebruikersnaam is al in gebruik.";
-const MSG_PASSWORD_WRONG	= "Dit is niet uw wachtwoord.";
-const MSG_USERNAME_CHANGED	= "Uw gebruikersnaam is gewijzigd.";
-const MSG_PASSWORD_CHANGED	= "Uw wachtwoord is gewijzigd.";
 
 //=== Main ======================================================================================//
 
@@ -56,7 +57,7 @@ export const handleLogin = async (req, res, next) => {
 		req.session.username = user.name;
 		await saveSession(req);
 		
-		return res.redirect("/game/choose-world");
+		return res.redirect("/game/setup/choose-world");
 	} catch (err) {
 		next(err); 
 	}
@@ -100,7 +101,7 @@ export const handleRegister = async (req, res, next) => {
 		req.session.username = user.name
 		await saveSession(req);
 		
-		return res.redirect("/game/choose-world");
+		return res.redirect("/game/setup/choose-world");
 	} catch (err) {
 		next(err);
 	}
@@ -230,7 +231,7 @@ export const handleChangePassword = async (req, res, next) => {
 		const user = await findUserById(userId);
 
 		// Verify current password
-		if (!(await isPasswordCorrect(user, password))) {
+		if (!(await isPasswordCorrect(user, currentPassword))) {
 			return res.render("account/change-password", {
 				password_error: MSG_PASSWORD_WRONG
 			});

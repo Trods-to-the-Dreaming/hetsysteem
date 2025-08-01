@@ -1,10 +1,10 @@
-const GAME_MSG = Object.freeze({
-	INVALID_WORLD: "Ongeldige wereld geselecteerd.",
-	NO_NEW_CHARACTERS: "Er is geen plaats meer voor nieuwe personages in de geselecteerde wereld.",
-	INVALID_JOB_PREFERENCE: "Ongeldige job geselecteerd.",
-	INVALID_RECREATION_PREFERENCE: "Ongeldige ontspanning geselecteerd.",
-	IDENTICAL_JOB_PREFERENCES: "Kies drie verschillende jobs.",
-	ORDERS_CONFIRMED: "Uw orders zijn bevestigd."
-});
-
-export default GAME_MSG;
+export const MSG_INVALID_WORLD		  = "Ongeldige wereld.";
+export const MSG_INVALID_CHARACTER	  = "Ongeldig personage.";
+export const MSG_INVALID_NAME		  = "Ongeldige naam."
+export const MSG_INVALID_JOB		  = "Ongeldige jobvoorkeur.";
+export const MSG_NO_UNIQUE_JOBS		  = "Geen unieke jobvoorkeuren.";
+export const MSG_INVALID_RECREATION   = "Ongeldige ontspanningsvoorkeur.";
+export const MSG_NO_CHARACTER_CLAIMED = "Er kon geen personage worden aangemaakt. Probeer het opnieuw.";
+export const MSG_ALREADY_CUSTOMIZED   = "Je personage is al aangepast of bestaat niet meer.";
+export const MSG_NO_NEW_CHARACTERS    = "Er is geen plaats meer voor nieuwe personages.";
+export const MSG_CHARACTER_NAME_TAKEN = "Deze naam is al in gebruik.";

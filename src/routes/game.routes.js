@@ -3,7 +3,7 @@ import express from "express";
 
 import { 
 	requireAuthenticated
-} from"../middleware/auth.middleware.js";
+} from "../middleware/auth.middleware.js";
 
 import {
 	requireWorldSelected,
@@ -16,7 +16,11 @@ import {
 	handleChooseWorld,
 	showCustomizeCharacter,
 	handleCustomizeCharacter,
-	showMenu
+	showMenu,
+	showCharacter,
+	showTurn,
+	handleTurn,
+	showStatistics
 } from "../controllers/game.controllers.js";
 
 //=== Constants =================================================================================//
@@ -36,13 +40,20 @@ const requireAuthenticatedAndCustomized = [
 //=== Main ======================================================================================//
 const router = express.Router();
 
-router.get( "/choose-world", requireAuthenticated, showChooseWorld);
-router.post("/choose-world", requireAuthenticated, handleChooseWorld);
+router.get( "/setup/choose-world", requireAuthenticated, showChooseWorld);
+router.post("/setup/choose-world", requireAuthenticated, handleChooseWorld);
 
-router.get( "/customize-character", requireAuthenticatedAndSelected, showCustomizeCharacter);
-router.post("/customize-character", requireAuthenticatedAndSelected, handleCustomizeCharacter);
+router.get( "/setup/customize-character", requireAuthenticatedAndSelected, showCustomizeCharacter);
+router.post("/setup/customize-character", requireAuthenticatedAndSelected, handleCustomizeCharacter);
 
 router.get( "/", requireAuthenticatedAndCustomized, showMenu);
+
+router.get( "/character", requireAuthenticatedAndCustomized, showCharacter);
+
+router.get( "/turn", requireAuthenticatedAndCustomized, showTurn);
+router.post("/turn", requireAuthenticatedAndCustomized, handleTurn);
+
+router.get("/statistics", requireAuthenticatedAndCustomized, showStatistics);
 
 //=== Export ====================================================================================//
 export default {

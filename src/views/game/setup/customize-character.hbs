@@ -3,7 +3,7 @@
 <div class="container-compact">
 	<h1>Personage aanpassen</h1>
 	
-	<form id="customize-character-form" method="POST" action="/game/customize-character">
+	<form id="customize-character-form" method="POST" action="/game/setup/customize-character">
 		<div class="field">
 			<label for="first-name" class="form-label">Voornaam:</label>
 			<input id="first-name" class="form-control" type="text" name="firstName" value="{{first_name}}" required>
@@ -14,11 +14,13 @@
 			<input id="last-name" class="form-control" type="text" name="lastName" value="{{last_name}}" required>
 		</div>
 		
+		<p class="error" id="name-error">{{name_error}}</p>
+		
 		<div class="field">
 			<label for="job-preference-1" class="form-label">Jobvoorkeur (★★★):</label>
 			<select id="job-preference-1" class="form-select" name="jobPreference1" required>
 				{{#each jobs}}
-				<option value="{{this.id}}">{{this.name}}</option>
+				<option value="{{this.id}}" {{#if (eq @index 0)}}selected{{/if}}>{{this.name}}</option>
 				{{/each}}
 			</select>
 		</div>
@@ -27,7 +29,7 @@
 			<label for="job-preference-2" class="form-label">Jobvoorkeur (★★):</label>
 			<select id="job-preference-2" class="form-select" name="jobPreference2" required>
 				{{#each jobs}}
-				<option value="{{this.id}}">{{this.name}}</option>
+				<option value="{{this.id}}" {{#if (eq @index 1)}}selected{{/if}}>{{this.name}}</option>
 				{{/each}}
 			</select>
 		</div>
@@ -36,12 +38,10 @@
 			<label for="job-preference-3" class="form-label">Jobvoorkeur (★):</label>
 			<select id="job-preference-3" class="form-select" name="jobPreference3" required>
 				{{#each jobs}}
-				<option value="{{this.id}}">{{this.name}}</option>
+				<option value="{{this.id}}" {{#if (eq @index 2)}}selected{{/if}}>{{this.name}}</option>
 				{{/each}}
 			</select>
 		</div>
-		
-		<p id="job-preference-error" class="error">{{job_preference_error}}</p>
 		
 		<div class="field">
 			<label for="recreation-preference" class="form-label">Ontspanningsvoorkeur (★★★):</label>
@@ -52,56 +52,83 @@
 			</select>
 		</div>
 		
-		<p id="recreation-preference-error" class="error">{{recreation_preference_error}}</p>
-		
 		<button class="button-1" type="submit">Volgende</button>
 	</form>
 		
-	<a class="button-back" href="/game/choose-world">Terug</a>
+	<a class="button-back" href="/game/setup/choose-world">Terug</a>
 </div>
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 	//--- Elements ------------------------------------------------------------------------------//
+	const firstNameInput = document.getElementById("first-name");
+	const lastNameInput = document.getElementById("last-name");
 	const jobPreference1Select = document.getElementById("job-preference-1");
 	const jobPreference2Select = document.getElementById("job-preference-2");
 	const jobPreference3Select = document.getElementById("job-preference-3");
-	const recreationPreferenceSelect = document.getElementById("recreation-preference");
 	
-	const form = document.getElementById("customize-character-form");
+	const nameError = document.getElementById("name-error");
 	
-	const jobPreferenceError = document.getElementById("job-preference-error");
-	const recreationPreferenceError = document.getElementById("recreation-preference-error");
+	//--- Execute on load -----------------------------------------------------------------------//
+	handleJobPreferenceChange();
 	
 	//--- Event listeners -----------------------------------------------------------------------//
+	firstNameInput.addEventListener("input", handleFirstNameInput);
+	lastNameInput.addEventListener("input", handleLastNameInput);
 	jobPreference1Select.addEventListener("change", handleJobPreferenceChange);
 	jobPreference2Select.addEventListener("change", handleJobPreferenceChange);
 	jobPreference3Select.addEventListener("change", handleJobPreferenceChange);
-	recreationPreferenceSelect.addEventListener("change", handleRecreationPreferenceChange);
-	
-	form.addEventListener("submit", handleFormSubmit);
 	
 	//--- Event handlers ------------------------------------------------------------------------//
+	function handleCurrentPasswordInput() {
+		passwordError.textContent = "";
+	}
+	
+	function handleFirstNameInput() {
+		nameError.textContent = "";
+		validateName(firstNameInput);
+	}
+	
+	function handleLastNameInput() {
+		nameError.textContent = "";
+		validateName(lastNameInput);
+	}
+	
 	function handleJobPreferenceChange() {
-		jobPreferenceError.textContent = "";
+		const selects = [jobPreference1Select, jobPreference2Select, jobPreference3Select];
+		const selectedValues = selects.map(select => select.value);
+		
+		selects.forEach((select, index) => {
+			const otherSelectedValues = selectedValues.filter((_, i) => i !== index);
+			
+			Array.from(select.options).forEach(option => {
+				option.disabled = otherSelectedValues.includes(option.value);
+			});
+		});
 	}
 	
-	function handleRecreationPreferenceChange() {
-		recreationPreferenceError.textContent = "";
-	}
-	
-	function handleFormSubmit(e) {
-		// Check if the job preferences are unique
-		const selectedJobPreferences = [jobPreference1Select.value,
-										jobPreference2Select.value,
-										jobPreference3Select.value];		
-		const uniqueJobPreferences = new Set(selectedJobPreferences);
-		if (uniqueJobPreferences.size === selectedJobPreferences.length) {
-			jobPreferenceError.textContent = "";
+	//--- Helpers -------------------------------------------------------------------------------//
+	function validateName(nameInput) {
+		const name = nameInput.value;
+		const minLength = 2;
+		const maxLength = 32;
+		const regex = /^[A-Za-zÀ-ÖØ-öø-ÿĀ-ž]+(?:[ '-][A-Za-zÀ-ÖØ-öø-ÿĀ-ž]+)*$/;
+  
+		if (name.length < minLength) {
+			nameInput.setCustomValidity(`Minimaal ${minLength} tekens vereist.`);
+		} else if (name.length > maxLength) {
+			nameInput.setCustomValidity(`Maximaal ${maxLength} tekens toegestaan.`);
+		} else if (name !== name.trim()) {
+			nameInput.setCustomValidity(
+				"Spaties aan het begin of het einde zijn niet toegestaan.");
+		} else if (!regex.test(name)) {
+			nameInput.setCustomValidity(
+				"Alleen letters, spatie, apostrof en koppelteken zijn toegestaan.");
 		} else {
-			jobPreferenceError.textContent = "Kies drie verschillende jobvoorkeuren.";
-			e.preventDefault();
+			nameInput.setCustomValidity("");
 		}
+		
+		nameInput.reportValidity();
 	}
 });
 </script>

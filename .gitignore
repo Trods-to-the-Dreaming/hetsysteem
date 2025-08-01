@@ -3,6 +3,9 @@ node_modules/
 npm-debug.log
 yarn-error.log
 
+# Ignore ideas
+Formules.xlsx
+
 # Ignore environment variables and secrets
 .env
 

@@ -1,25 +1,25 @@
-const GAME_RULES = Object.freeze({
-	FOOD: {
-		NEEDED: 3,
-		MAX: 4
-	},
-	MEDICAL_CARE: {
-		NEEDED: 1,
-		MAX: 2
-	},
-	HOURS_FULLTIME: 8,
-	YEARS_PER_TURN: 3,
-	MAX_AGE: 90,
-	HEALTH_GAIN_FACTOR: 0.1,
-	HEALTH_LOSS_FACTOR: 1,
-	EDUCATION_LABELS: {
-		1: "Primair (1)",
-		2: "Primair (2)",
-		3: "Secundair (3)",
-		4: "Secundair (4)",
-		5: "Bachelor (5)",
-		6: "Master (6)"
-	}
+export const HOURS_FULLTIME = 8;
+export const YEARS_PER_TURN = 3;
+export const MAX_AGE = 90;
+export const HEALTH_GAIN_FACTOR = 0.1;
+export const HEALTH_LOSS_FACTOR = 1;
+
+export const FOOD = Object.freeze({
+	NEEDED: 3,
+	MAX: 4
 });
 
-export default GAME_RULES;
+export const MEDICAL_CARE = Object.freeze({
+	NEEDED: 1,
+	MAX: 2
+});
+
+export const EDUCATION_LEVEL = Object.freeze([
+	"Ongeschoold (0)",
+	"Primair (1)",
+	"Primair (2)",
+	"Secundair (3)",
+	"Secundair (4)",
+	"Bachelor (5)",
+	"Master (6)"
+ ]);

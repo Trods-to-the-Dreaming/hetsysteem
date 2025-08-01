@@ -89,35 +89,40 @@ DROP TABLE global_resources;
 DROP TABLE products;
 DROP TABLE worlds;
 
-DROP TABLE contracts;
+DROP TABLE employment_contracts;
 DROP TABLE character_experience;
 DROP TABLE character_buildings;
 DROP TABLE character_products;
 DROP TABLE characters;
 DROP TABLE buildings;
 DROP TABLE recreations;
-DROP TABLE global_resources;
+DROP TABLE world_resources;
 DROP TABLE products;
 DROP TABLE worlds;
 
 CREATE TABLE worlds (
 	id TINYINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	slug VARCHAR(32) NOT NULL UNIQUE, /* NIEUW!*/
-	name VARCHAR(32) NOT NULL UNIQUE,
+	type VARCHAR(32) NOT NULL UNIQUE,
 	money_system ENUM('fixed_amount', 'loan_interest', 'growing_limits') NOT NULL,
 	n_characters INT UNSIGNED NOT NULL,
 	n_tiles INT UNSIGNED NOT NULL,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE world_state (
+	world_id INT PRIMARY KEY,
+	current_turn SMALLINT UNSIGNED NOT NULL DEFAULT 1
+);
+
 CREATE TABLE products (
 	id TINYINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	slug VARCHAR(32) NOT NULL UNIQUE,
-	name VARCHAR(32) NOT NULL UNIQUE,
+	type VARCHAR(32) NOT NULL UNIQUE,
 	volume TINYINT UNSIGNED NOT NULL DEFAULT 1
 );
 
-CREATE TABLE global_resources (
+CREATE TABLE world_resources (
 	world_id TINYINT UNSIGNED NOT NULL,
 	product_id TINYINT UNSIGNED NOT NULL,
 	quantity INT UNSIGNED NOT NULL,
@@ -135,7 +140,7 @@ CREATE TABLE recreations (
 CREATE TABLE jobs (
 	id TINYINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	slug VARCHAR(32) NOT NULL UNIQUE,
-	name VARCHAR(32) NOT NULL UNIQUE,
+	type VARCHAR(32) NOT NULL UNIQUE,
 	input_id TINYINT UNSIGNED,
 	output_id TINYINT UNSIGNED NOT NULL,
 	booster_id TINYINT UNSIGNED NOT NULL,
@@ -154,7 +159,7 @@ CREATE TABLE jobs (
 CREATE TABLE buildings (
 	id TINYINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	slug VARCHAR(32) NOT NULL UNIQUE,
-	name VARCHAR(32) NOT NULL,
+	type VARCHAR(32) NOT NULL,
 	tile_size TINYINT UNSIGNED NOT NULL,
 	job_id TINYINT UNSIGNED UNIQUE NOT NULL,
 	FOREIGN KEY (job_id) REFERENCES jobs(id)
@@ -171,14 +176,13 @@ CREATE TABLE characters (
 	job_preference_3_id TINYINT UNSIGNED NOT NULL DEFAULT 3,
 	recreation_preference_id TINYINT UNSIGNED NOT NULL DEFAULT 1,
 	is_customized BOOLEAN NOT NULL DEFAULT FALSE,
-	age TINYINT UNSIGNED NOT NULL DEFAULT 18,
+	birth_date SMALLINT UNSIGNED NOT NULL DEFAULT 1,
 	health TINYINT UNSIGNED NOT NULL DEFAULT 100,
-	cumulative_health_loss SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-	cumulative_health_gain SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+	life_expectancy TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	happiness SMALLINT UNSIGNED NOT NULL DEFAULT 0,
 	education SMALLINT UNSIGNED NOT NULL DEFAULT 0,
 	balance INT NOT NULL DEFAULT 0,
-	owned_tiles INT UNSIGNED NULL DEFAULT 0,
+	owned_tiles INT UNSIGNED NOT NULL DEFAULT 0,
 	hours_available TINYINT UNSIGNED NOT NULL DEFAULT 13,
 	food_consumed TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	medical_care_consumed TINYINT UNSIGNED NOT NULL DEFAULT 0,
@@ -194,19 +198,19 @@ CREATE TABLE characters (
 );
 
 CREATE TABLE character_products (
-	character_id INT UNSIGNED NOT NULL,
+	owner_id INT UNSIGNED NOT NULL,
 	product_id TINYINT UNSIGNED NOT NULL,
 	quantity INT UNSIGNED NOT NULL DEFAULT 0,
 	PRIMARY KEY (character_id, product_id),
-	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (owner_id) REFERENCES characters(id) ON DELETE CASCADE,
 	FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
 CREATE TABLE character_buildings (
 	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	name VARCHAR(32) NOT NULL UNIQUE,
-	building_id TINYINT UNSIGNED NOT NULL,
 	owner_id INT UNSIGNED NOT NULL,
+	building_id TINYINT UNSIGNED NOT NULL,
 	size TINYINT UNSIGNED NOT NULL DEFAULT 1,
 	boosted_working_hours SMALLINT UNSIGNED NOT NULL DEFAULT 0,
 	FOREIGN KEY (owner_id) REFERENCES characters(id) ON DELETE CASCADE,
@@ -222,7 +226,7 @@ CREATE TABLE character_experience (
 	FOREIGN KEY (job_id) REFERENCES buildings(id)
 );
 
-CREATE TABLE contracts (
+CREATE TABLE employment_contracts (
 	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	employee_id INT UNSIGNED NOT NULL,
 	workplace_id INT UNSIGNED NOT NULL,
@@ -230,6 +234,22 @@ CREATE TABLE contracts (
 	hourly_wage INT UNSIGNED NOT NULL,
 	FOREIGN KEY (employee_id) REFERENCES characters(id) ON DELETE CASCADE,
 	FOREIGN KEY (workplace_id) REFERENCES character_buildings(id)
+);
+
+CREATE TABLE rental_agreements (
+	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	tenant_id INT UNSIGNED NOT NULL,
+	residence_id INT UNSIGNED NOT NULL,
+	daily_rent INT UNSIGNED NOT NULL,
+	FOREIGN KEY (tenant_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (residence_id) REFERENCES character_buildings(id)
+);
+
+CREATE TABLE residences (
+  character_id INT UNSIGNED PRIMARY KEY,
+  residence_id INT UNSIGNED,
+  FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
+  FOREIGN KEY (residence_id) REFERENCES character_buildings(id) ON DELETE SET NULL
 );
 
 
@@ -371,107 +391,17 @@ CREATE TABLE applications (
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-CREATE TABLE characters (
-	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	world_id TINYINT UNSIGNED NOT NULL,
-	user_id INT UNSIGNED DEFAULT NULL,
-	first_name VARCHAR(32) NOT NULL,
-	last_name VARCHAR(32) NOT NULL,
-	job_preference_1_id TINYINT UNSIGNED NOT NULL DEFAULT 1,
-	job_preference_2_id TINYINT UNSIGNED NOT NULL DEFAULT 2,
-	job_preference_3_id TINYINT UNSIGNED NOT NULL DEFAULT 3,
-	recreation_preference_id TINYINT UNSIGNED NOT NULL DEFAULT 1,
-	is_customized BOOLEAN NOT NULL DEFAULT FALSE,
-	age TINYINT UNSIGNED NOT NULL DEFAULT 18,
-	health TINYINT UNSIGNED NOT NULL DEFAULT 100,
-	cumulative_health_loss SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-	cumulative_health_gain SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-	happiness SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-	education SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-	balance INT NOT NULL DEFAULT 0,
-	owned_tiles INT UNSIGNED NULL DEFAULT 0,
-	hours_available TINYINT UNSIGNED NOT NULL DEFAULT 13,
-	food_consumed TINYINT UNSIGNED NOT NULL DEFAULT 0,
-	medical_care_consumed TINYINT UNSIGNED NOT NULL DEFAULT 0,
-	current_action TINYINT UNSIGNED NOT NULL DEFAULT 0,
-	UNIQUE (world_id, user_id),
-	UNIQUE (world_id, first_name, last_name),
-	FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE,
-	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-	FOREIGN KEY (job_preference_1_id) REFERENCES jobs(id),
-	FOREIGN KEY (job_preference_2_id) REFERENCES jobs(id),
-	FOREIGN KEY (job_preference_3_id) REFERENCES jobs(id),
-	FOREIGN KEY (recreation_preference_id) REFERENCES recreations(id)
-);
-
-CREATE TABLE character_products (
-	character_id INT UNSIGNED NOT NULL,
-	product_id TINYINT UNSIGNED NOT NULL,
-	quantity INT UNSIGNED NOT NULL DEFAULT 0,
-	PRIMARY KEY (character_id, product_id),
-	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
-	FOREIGN KEY (product_id) REFERENCES products(id)
-);
-
-CREATE TABLE character_buildings (
-	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	name VARCHAR(32) NOT NULL UNIQUE,
-	building_id TINYINT UNSIGNED NOT NULL,
-	owner_id INT UNSIGNED NOT NULL,
-	size TINYINT UNSIGNED NOT NULL DEFAULT 1,
-	boosted_working_hours SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-	FOREIGN KEY (owner_id) REFERENCES characters(id) ON DELETE CASCADE,
-	FOREIGN KEY (building_id) REFERENCES buildings(id)
-);
-
-CREATE TABLE character_experience (
-	character_id INT UNSIGNED NOT NULL,
-	job_id TINYINT UNSIGNED NOT NULL,
-	experience SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-	PRIMARY KEY (character_id, job_id),
-	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
-	FOREIGN KEY (job_id) REFERENCES buildings(id)
-);
-
-CREATE TABLE contracts (
-	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	employee_id INT UNSIGNED NOT NULL,
-	workplace_id INT UNSIGNED NOT NULL,
-	working_hours TINYINT UNSIGNED NOT NULL,
-	hourly_wage INT UNSIGNED NOT NULL,
-	FOREIGN KEY (employee_id) REFERENCES characters(id) ON DELETE CASCADE,
-	FOREIGN KEY (workplace_id) REFERENCES character_buildings(id)
-);
-
-
-
-
-
-
-
 INSERT INTO worlds
 (name,                   slug,   money_system,     n_characters, n_tiles) VALUES
 ('Zo zuiver als goud',   'gold', 'fixed_amount',   3,            10),
 ('Belofte maakt schuld', 'debt', 'loan_interest',  3,            10),
 ('De tijd brengt raad',  'time', 'growing_limits', 3,            10);
+
+INSERT INTO world_state
+(world_id) VALUES
+(1),
+(2),
+(3);
 
 INSERT INTO products 
 (slug,               name,                 volume) VALUES

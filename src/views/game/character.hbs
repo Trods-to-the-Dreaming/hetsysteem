@@ -1,64 +1,64 @@
 {{#block "title"}}Personage{{/block}}
 
 <div class="container-compact">
-	<h1>{{character.first_name}} {{character.last_name}}</h1>
+	<h1>{{first_name}} {{last_name}}</h1>
 	
 	<h2>💖 Welzijn</h2>
 	<ul class="list-compact">
 		<li class="list-item-justify">
 			<span>Leeftijd</span>
-			<span>{{character.age}} jaar</span>
+			<span>{{age}} jaar</span>
 		</li>
 		<li class="list-item-justify">
 			<span>Levensverwachting</span>
-			<span>{{character.life_expectancy}} jaar</span>
+			<span>{{life_expectancy}} jaar</span>
 		</li>
 		<li class="list-item-justify">
 			<span>Gezondheid</span>
-			<span>{{character.health}} %</span>
+			<span>{{health}} %</span>
 		</li>
 		<li class="list-item-justify">
 			<span>Geluk</span>
-			<span>{{character.happiness}}</span>
+			<span>{{happiness}} punten</span>
+		</li>
+		<li class="list-item-justify">
+			<span>Woonstatus</span>
+			<span>{{housing_status}}</span>
 		</li>
 	</ul>
 
 	<h2>⭐ Voorkeuren</h2>
 	<ul class="list-compact">
 		<li class="list-item-justify">
-			<span>{{character.job_preference_1}}</span>
+			<span>{{job_preference_1}}</span>
 			<span>★★★</span>
 		</li>
 		<li class="list-item-justify">
-			<span>{{character.job_preference_2}}</span>
+			<span>{{job_preference_2}}</span>
 			<span>★★</span>
 		</li>
 		<li class="list-item-justify">
-			<span>{{character.job_preference_3}}</span>
+			<span>{{job_preference_3}}</span>
 			<span>★</span>
 		</li>
 		<li class="list-item-justify">
-			<span>{{character.recreation_preference}}</span>
+			<span>{{recreation_preference}}</span>
 			<span>★★★</span>
 		</li>
 	</ul>
 
 	<h2>🎓 Opleiding</h2>
-	{{#if (gt character.education 0)}}
-		<ul class="list-compact">
-			<li class="list-item-justify">
-				<span>Niveau</span>
-				<span>{{character.education_label}}</span>
-			</li>
-		</ul>
-	{{else}}
-		<p>Je hebt nog geen opleiding gevolgd.</p>
-	{{/if}}
+	<ul class="list-compact">
+		<li class="list-item-justify">
+			<span>Niveau</span>
+			<span>{{education_level}}</span>
+		</li>
+	</ul>
 
 	<h2>🛠️ Werkervaring</h2>
-	{{#if character.job_experience.length}}
+	{{#if experience.length}}
 		<ul class="list-compact">
-			{{#each character.job_experience}}
+			{{#each experience}}
 				<li class="list-item-justify">
 					<span>{{this.job_name}}</span>
 					<span>{{this.experience_years}} jaar</span>
@@ -68,6 +68,27 @@
 	{{else}}
 		<p>Je hebt nog geen werkervaring.</p>
 	{{/if}}
+	
+	<h2>📜 Bezittingen</h2>
+	<ul class="list-compact">
+		<li class="list-item-justify">
+			<span>Bankrekening</span>
+			<span id="balance">{{balance}} {{currency_symbol}}</span>
+		</li>
+		<li class="list-item-justify">
+			<span>Land</span>
+			<span>{{owned_tiles}} tegels</span>
+		</li>
+	</ul>
 
 	<a class="button-back" href="/game">← Spelmenu</a>
 </div>
+
+<script src="/js/shared-ui.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+	const balanceSpan = document.getElementById("balance");
+	const currencySymbol = createCurrencySymbol();
+	balanceSpan.appendChild(currencySymbol);
+});
+</script>

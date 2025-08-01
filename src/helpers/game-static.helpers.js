@@ -18,7 +18,7 @@ export async function getAllWorlds(connection = db) {
 	const [rows] = await connection.execute(
 		`SELECT id, 
 				slug, 
-				name, 
+				type, 
 				money_system,
 				n_characters,
 				n_tiles,
@@ -41,7 +41,7 @@ export async function getAllProducts(connection = db) {
 	const [rows] = await connection.execute(
 		`SELECT id, 
 				slug, 
-				name, 
+				type, 
 				volume
 		 FROM products`
 	);
@@ -61,7 +61,7 @@ export async function getAllBuildings(connection = db) {
 	const [rows] = await connection.execute(
 		`SELECT id, 
 				slug, 
-				name, 
+				type, 
 				tile_size,
 				job_id
 		 FROM buildings`
@@ -82,7 +82,7 @@ export async function getAllJobs(connection = db) {
 	const [rows] = await connection.execute(
 		`SELECT id, 
 				slug, 
-				name, 
+				type, 
 				input_id,
 				output_id,
 				booster_id,
@@ -110,7 +110,7 @@ export async function getAllRecreations(connection = db) {
 	const [rows] = await connection.execute(
 		`SELECT r.id AS id, 
 				p.slug AS slug, 
-				p.name AS name
+				p.type AS type
 		 FROM recreations r
 		 INNER JOIN products p ON r.product_id = p.id`
 	);
@@ -132,12 +132,12 @@ function buildEntityCache(rows) {
 	for (const row of rows) {
 		const id = row.id;
 		const slug = row["slug"];
-		const name = row["name"];
+		const type = row["type"];
 
 		idSet.add(id);
 		slugToId[slug] = id;
 		idToFull[id] = row;
-		options.push({ id, name });
+		options.push({ id, type });
 	}
 
 	return {

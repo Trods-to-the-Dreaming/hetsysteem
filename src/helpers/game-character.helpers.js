@@ -1,41 +1,39 @@
 //=== Imports ===================================================================================//
 import db from "../utils/db.js";
 import { 
-	NotFoundError 
+	BadRequestError 
 } from "../utils/errors.js";
 
-import GAME_RULES from "../constants/game.rules.js";
-
-//=== Constants =================================================================================//
-const MSG_INVALID_CHARACTER = "Het gevraagde personage bestaat niet.";
+import { 
+	MSG_INVALID_CHARACTER,
+	MSG_INVALID_WORLD
+} from "../constants/game.messages.js";
+import { 
+	YEARS_PER_TURN,
+	HOURS_FULLTIME,
+	EDUCATION_LEVEL
+} from "../constants/game.rules.js";
 
 //=== Main ======================================================================================//
 
-//--- Convert hours to years --------------------------------------------------------------------//
-export function convertHoursToYears(hours) {
-	return Math.round((hours / GAME_RULES.HOURS_FULLTIME) * 10) / 10;
-}
-
-//--- Calculate life expectancy -------------------------------------------------------
-export function calculateLifeExpectancy(age, 
-										gain,
-										loss) {
-	return Math.max(
-		age + GAME_RULES.YEARS_PER_TURN - 1,
-		GAME_RULES.MAX_AGE + gain * GAME_RULES.HEALTH_GAIN_FACTOR
-						   - loss * GAME_RULES.HEALTH_LOSS_FACTOR
-	);
-}
-
-//--- Get character -----------------------------------------------------------------------------//
-export const getCharacter = async (id, 
-								   connection = db) => {
-	const [characters] = await db.execute(
-		`SELECT c.*,
+//--- Build character view ----------------------------------------------------------------------//
+export const buildCharacterView = async (characterId,
+										 worldId,
+										 connection = db) => {
+	const [[character]] = await connection.execute(
+		`SELECT c.first_name,
+				c.last_name,
 				j1.name AS job_preference_1,
 				j2.name AS job_preference_2,
 				j3.name AS job_preference_3,
-				p.name AS recreation_preference
+				p.name AS recreation_preference,
+				c.birth_date,
+				c.health,
+				c.life_expectancy,
+				c.happiness,
+				c.education,
+				c.balance,
+				c.owned_tiles
 		 FROM characters c
 		 INNER JOIN jobs j1 ON c.job_preference_1_id = j1.id
 		 INNER JOIN jobs j2 ON c.job_preference_2_id = j2.id
@@ -43,38 +41,61 @@ export const getCharacter = async (id,
 		 INNER JOIN recreations r ON c.recreation_preference_id = r.id
 		 INNER JOIN products p ON r.product_id = p.id
 		 WHERE c.id = ?`,
-		[id]
+		[characterId]
 	);
-	if (characters.length === 0) {
-		throw new NotFoundError(MSG_INVALID_CHARACTER);
+	if (!character) {
+		throw new BadRequestError(MSG_INVALID_CHARACTER);
 	}
-	const character = characters[0];
 	
-	// Life expectancy
-	character.life_expectancy = calculateLifeExpectancy(
-		character.age,
-		character.cumulative_health_loss,
-		character.cumulative_health_gain
+	const [[world]] = await connection.execute(
+		`SELECT current_turn 
+		 FROM world_state
+		 WHERE world_id = ?`,
+		[worldId]
 	);
-	
-	// Education
-	if (character.education > 0) {
-		character.education_label = GAME_RULES.EDUCATION_LABELS[character.education];
+	if (!world) {
+		throw new BadRequestError(MSG_INVALID_WORLD);
 	}
+	
+	// Calculate age
+	character.age = (world.current_turn - character.birth_date) * YEARS_PER_TURN;
+	
+	// Calculate education level
+	const educationIndex = Math.floor(character.education); // TO DO: change formula
+	character.education_level = EDUCATION_LEVEL[educationIndex];
+	delete character.education;
 	
 	// Job experience
-	const [jobExperience] = await db.execute(
-		`SELECT j.name AS job_name,
-				e.experience AS experience_hours
-		 FROM character_job_experience e
-		 INNER JOIN jobs j ON e.job_id = j.id
-		 WHERE e.character_id = ?`,
-		[character.id]
-	);
-	character.job_experience = jobExperience.map((row) => ({
-		job_name: row.job_name,
+	const [jobExperience] = await connection.execute(
+		`SELECT j.type AS job,
+				ce.experience AS experience_hours
+		 FROM character_experience ce
+		 INNER JOIN jobs j ON ce.job_id = j.id
+		 WHERE ce.character_id = ?`,
+		[characterId]
+	);	
+	character.experience = jobExperience.map((row) => ({
+		job: row.job,
 		experience_years: convertHoursToYears(row.experience_hours),
 	}));
 
 	return character;
 };
+
+//=== Extra =====================================================================================//
+
+//--- Convert hours to years --------------------------------------------------------------------//
+function convertHoursToYears(hours) {
+	return Math.round((hours / HOURS_FULLTIME) * 10) / 10; // TO DO: change formula
+}
+
+/*//--- Calculate life expectancy -------------------------------------------------------
+function calculateLifeExpectancy(age, 
+								 gain,
+								 loss) {
+	return Math.max(
+		age + GAME_RULES.YEARS_PER_TURN - 1,
+		GAME_RULES.MAX_AGE + gain * GAME_RULES.HEALTH_GAIN_FACTOR
+						   - loss * GAME_RULES.HEALTH_LOSS_FACTOR
+	);
+}*/

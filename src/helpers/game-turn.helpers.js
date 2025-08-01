@@ -1,27 +1,63 @@
-/*//=== Imports ===================================================================================//
+//=== Imports ===================================================================================//
 import db from "../utils/db.js";
-import { BadRequestError } from "../utils/errors.js";
-
-import { getProductIds } from "./game-products.helpers.js";
-
-import GAME_RULES from "../constants/game.rules.js";
-
-//=== Constants =================================================================================//
-const MSG_INVALID_CHARACTER	 = "Onbestaand personage.";
-const MSG_INVALID_ACTION	 = "Ongeldige actie.";
-const MSG_INVALID_TYPE		 = "Ongeldig ordertype.";
-const MSG_INVALID_CATEGORY   = "Ongeldige ordercategorie.";
-const MSG_MULTIPLE_ORDERS	 = "Meer dan één order voor een product of gebouw.";
-const MSG_INVALID_QUANTITY	 = "Ongeldige hoeveelheid.";
-const MSG_INVALID_UNIT_PRICE = "Ongeldige eenheidsprijs.";
-const MSG_INVALID_HOURS		 = "Ongeldig aantal uren.";
-
-export const ACTIONS = ["survive", "trade", "spend_time"];
-export const TYPES = ["buy", "sell"];
-export const CATEGORIES = ["product", "building"];
-export const CONTRACTS = ["job", "course", "activity"];
+import { 
+	BadRequestError 
+} from "../utils/errors.js";
 
 //=== Main ======================================================================================//
+
+//--- Get character context ---------------------------------------------------------------------//
+export const getCharacterContext = async (characterId, 
+										  connection = db) => {
+	const [[character]] = await connection.execute(
+		`SELECT balance,
+				owned_tiles
+		 FROM characters
+		 WHERE id = ?`,
+		[characterId]
+	);
+	if (!character) {
+		throw new BadRequestError(MSG_INVALID_CHARACTER);
+	}
+	
+	const [ownedBuildings] = await connection.execute(
+		`SELECT cb.id,
+				cb.name,
+				b.type,
+				b.tile_size,
+				cb.size,
+				cb.boosted_working_hours
+		 FROM characters_buildings cb
+		 INNER JOIN buildings b ON cb.building_id = b.id
+		 WHERE cb.owner_id = ?`,
+		[characterId]
+	);
+	
+	const [ownedProducts] = await connection.execute(
+		`SELECT cp.owner_id,
+				cp.product.id,
+				p.type,
+				p.volume,
+				cp.quantity
+		 FROM characters_products cp
+		 INNER JOIN products p ON cp.product_id = p.id
+		 WHERE cp.owner_id = ?`,
+		[characterId]
+	);
+	
+	const [employmentContracts] = await connection.execute(
+		`SELECT ec.id,
+				ec.working_hours,
+				ec.hourly_wage,
+				cb.name
+		 FROM employment_contracts ec
+		 INNER JOIN characters_buildings cb ON ec.workplace_id = cb.id
+		 WHERE ec.employee_id = ?`,
+		[characterId]
+	);
+	
+	return character.owned_tiles;
+};
 
 //--- Get owned tiles ---------------------------------------------------------------------------//
 export const getOwnedTiles = async (characterId, 
