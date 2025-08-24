@@ -6,6 +6,6 @@ export const requireAuthenticated = (req, res, next) => {
 		next();
 	} else {
 		res.locals.authenticated = false;
-		res.redirect("/account/login");
+		res.redirect('/account/login');
 	}
 };

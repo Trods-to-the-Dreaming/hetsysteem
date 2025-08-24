@@ -1,30 +1,30 @@
 //=== Imports ===================================================================================//
-import db from "../utils/db.js";
+import { knex } from '../utils/db.js';
 import { 
 	getFromCache, 
 	setInCache  
-} from "../utils/cache.js";
-import { BadRequestError } from "../utils/errors.js";
+} from '../utils/cache.js';
+import { BadRequestError } from '../utils/errors.js';
 
 //=== Main ======================================================================================//
 
 //--- Get all worlds ----------------------------------------------------------------------------//
-export async function getAllWorlds(connection = db) {
-	const key = "worlds";
+export async function getAllWorlds(trx = knex) {
+	const key = 'worlds';
 	const cached = getFromCache(key);
 	
 	if (cached) return cached;
 	
-	const [rows] = await connection.execute(
-		`SELECT id, 
-				slug, 
-				type, 
-				money_system,
-				n_characters,
-				n_tiles,
-				created_at
-		 FROM worlds`
-	);
+	const rows = await trx('worlds')
+		.select(
+			'id',
+			'slug',
+			'type',
+			'money_system as moneySystem',
+			'n_characters as nCharacters',
+			'n_tiles as nTiles',
+			'created_at as createdAt'
+		);
 	
 	const cache = buildEntityCache(rows);
 	setInCache(key, cache);
@@ -32,19 +32,19 @@ export async function getAllWorlds(connection = db) {
 }
 
 //--- Get all products --------------------------------------------------------------------------//
-export async function getAllProducts(connection = db) {
-	const key = "products";
+export async function getAllProducts(trx = knex) {
+	const key = 'products';
 	const cached = getFromCache(key);
 	
 	if (cached) return cached;
 	
-	const [rows] = await connection.execute(
-		`SELECT id, 
-				slug, 
-				type, 
-				volume
-		 FROM products`
-	);
+	const rows = await trx('products')
+		.select(
+			'id',
+			'slug',
+			'type',
+			'volume'
+		);
 	
 	const cache = buildEntityCache(rows);
 	setInCache(key, cache);
@@ -52,20 +52,20 @@ export async function getAllProducts(connection = db) {
 }
 
 //--- Get all buildings -------------------------------------------------------------------------//
-export async function getAllBuildings(connection = db) {
-	const key = "buildings";
+export async function getAllBuildings(trx = knex) {
+	const key = 'buildings';
 	const cached = getFromCache(key);
 	
 	if (cached) return cached;
-	
-	const [rows] = await connection.execute(
-		`SELECT id, 
-				slug, 
-				type, 
-				tile_size,
-				job_id
-		 FROM buildings`
-	);
+
+	const rows = await trx('buildings')
+		.select(
+			'id',
+			'slug',
+			'type',
+			'tile_size as tileSize',
+			'job_id as jobId'
+		);
 	
 	const cache = buildEntityCache(rows);
 	setInCache(key, cache);
@@ -73,27 +73,27 @@ export async function getAllBuildings(connection = db) {
 }
 
 //--- Get all jobs ------------------------------------------------------------------------------//
-export async function getAllJobs(connection = db) {
-	const key = "jobs";
+export async function getAllJobs(trx = knex) {
+	const key = 'jobs';
 	const cached = getFromCache(key);
 	
 	if (cached) return cached;
 	
-	const [rows] = await connection.execute(
-		`SELECT id, 
-				slug, 
-				type, 
-				input_id,
-				output_id,
-				booster_id,
-				worn_booster_id,
-				input_per_output,
-				boosted_working_hours_per_booster,
-				max_working_hours,
-				base_factor,
-				boost_factor
-		 FROM jobs`
-	);
+	const rows = await trx('jobs')
+		.select(
+			'id', 
+			'slug', 
+			'type', 
+			'input_id as inputId',
+			'output_id as outputId',
+			'booster_id as boosterId',
+			'worn_booster_id as wornBoosterId',
+			'input_per_output as inputPerOutput',
+			'boosted_working_hours_per_booster as boostedWorkingHoursPerBooster',
+			'max_working_hours as maxWorkingHours',
+			'base_factor as baseFactor',
+			'boost_factor as boostFactor'
+		);
 	
 	const cache = buildEntityCache(rows);
 	setInCache(key, cache);
@@ -101,19 +101,23 @@ export async function getAllJobs(connection = db) {
 }
 
 //--- Get all recreations -----------------------------------------------------------------------//
-export async function getAllRecreations(connection = db) {
-	const key = "recreations";
+export async function getAllRecreations(trx = knex) {
+	const key = 'recreations';
 	const cached = getFromCache(key);
 	
 	if (cached) return cached;
-	
-	const [rows] = await connection.execute(
-		`SELECT r.id AS id, 
-				p.slug AS slug, 
-				p.type AS type
-		 FROM recreations r
-		 INNER JOIN products p ON r.product_id = p.id`
-	);
+
+	const rows = await trx('recreations as r')
+		.select(
+			'r.id as id',
+			'p.slug as slug',
+			'p.type as type'
+		)
+		.innerJoin(
+			'products as p', 
+			'r.product_id', 
+			'p.id'
+		);
 	
 	const cache = buildEntityCache(rows);
 	setInCache(key, cache);
@@ -131,8 +135,8 @@ function buildEntityCache(rows) {
 
 	for (const row of rows) {
 		const id = row.id;
-		const slug = row["slug"];
-		const type = row["type"];
+		const slug = row['slug'];
+		const type = row['type'];
 
 		idSet.add(id);
 		slugToId[slug] = id;

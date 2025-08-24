@@ -14,17 +14,17 @@
 			
 			<div class="field">
 				<label for="new-username" class="form-label">Nieuwe gebruikersnaam:</label>
-				<input id="new-username" class="form-control" type="text" name="newUsername" value="{{new_username}}" required>
+				<input id="new-username" class="form-control" type="text" name="newUsername" value="{{newUsername}}" required>
 			</div>
 			
-			<p id="username-error" class="error">{{username_error}}</p>
+			<p id="username-error" class="error">{{usernameError}}</p>
 			
 			<div class="field">
 				<label for="password" class="form-label">Wachtwoord:</label>
 				<input id="password" class="form-control" type="password" name="password" required>
 			</div>
 			
-			<p id="password-error" class="error">{{password_error}}</p>
+			<p id="password-error" class="error">{{passwordError}}</p>
 			
 			<button class="button-1" type="submit">Bewaren</button>
 		</form>
@@ -34,25 +34,25 @@
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
 	//--- Elements ------------------------------------------------------------------------------//
-	const newUsernameInput = document.getElementById("new-username");
-	const passwordInput = document.getElementById("password");
+	const newUsernameInput = document.getElementById('new-username');
+	const passwordInput = document.getElementById('password');
 	
-	const usernameError = document.getElementById("username-error");
-	const passwordError = document.getElementById("password-error");
+	const usernameError = document.getElementById('username-error');
+	const passwordError = document.getElementById('password-error');
 	
 	//--- Event listeners -----------------------------------------------------------------------//
-	newUsernameInput.addEventListener("input", handleNewUsernameInput);
-	passwordInput.addEventListener("input", handlePasswordinput);
+	newUsernameInput.addEventListener('input', handleNewUsernameInput);
+	passwordInput.addEventListener('input', handlePasswordinput);
 	
 	//--- Event handlers ------------------------------------------------------------------------//
 	function handleNewUsernameInput() {
-		usernameError.textContent = "";
+		usernameError.textContent = '';
 	}
 	
 	function handlePasswordinput() {
-		passwordError.textContent = "";
+		passwordError.textContent = '';
 	}
 });
 </script>

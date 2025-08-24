@@ -171,6 +171,7 @@ CREATE TABLE characters (
 	user_id INT UNSIGNED DEFAULT NULL,
 	first_name VARCHAR(32) NOT NULL,
 	last_name VARCHAR(32) NOT NULL,
+	gender ENUM('M', 'F', 'X') NOT NULL,
 	job_preference_1_id TINYINT UNSIGNED NOT NULL DEFAULT 1,
 	job_preference_2_id TINYINT UNSIGNED NOT NULL DEFAULT 2,
 	job_preference_3_id TINYINT UNSIGNED NOT NULL DEFAULT 3,

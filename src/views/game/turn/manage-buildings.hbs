@@ -3,8 +3,120 @@
 <div class="container-compact">
 	<h1>Gebouwen beheren</h1>
 	
+	<div id="demolish-div">
+		<h2>💥 Slopen</h2>
+		
+		<ul id="owned-buildings-ul" class="list-compact">
+			<!-- Filled bij JS -->
+		</ul>
+	</div>
+	
+	<div id="build-div">
+		<h2>🏗️ Bouwen</h2>
+		
+		<p>Vrije landtegels: <span id="free-tiles-span"></span></p> <!-- neemt toe als een gebouw wordt gesloopt -->
 
+		<ul id="construction-sites-ul" class="list-compact">
+			<!-- Filled bij JS -->
+		</ul>
+		
+		<!-- hier een lijst van geplande gebouwen en een knop, een lijst van gebouwtypes en een lijst van gebouwgroottes? -->
+	</div>
 
+	<button id="next-button" class="btn btn-primary">Volgende</button>
+	
 	<a class="button-back" href="/game">← Spelmenu</a>
 </div>
 
+<script src="/js/turn.js"></script>
+
+<script>
+function initUI() {
+	/*const ownedBuildingsUl = document.getElementById('owned-buildings-ul');
+	ownedBuildings.forEach((building) => {
+		const li = document.createElement('li');
+		li.className = '.list-item-justify';
+
+		const span = document.createElement('span');
+		span.textContent = building.name;
+		
+		const button = document.createElement('button');
+		button.addEventListener('click', () => toggleDemolish(building, span, button));
+		
+		if (building.isDemolished) {
+			span.classList.add('demolished');
+			button.textContent = 'Behouden';
+		} else {
+			span.classList.remove('demolished');
+			button.textContent = 'Slopen';
+		}
+		
+		li.appendChild(span);
+		li.appendChild(button);
+		ownedBuildingsUl.appendChild(li);
+	});
+	
+	const freeTilesSpan = document.getElementById('free-tiles-span');
+	freeTilesSpan.textContent = nFreeTiles;
+	
+	const constructionSitesUl = document.getElementById('construction-sites-ul');
+	constructionSites.forEach((site) => {
+		const li = document.createElement('li');
+		li.className = '.list-item-justify';
+
+		const span = document.createElement('span');
+		span.textContent = site.name;
+		
+		const button = document.createElement('button');
+		button.addEventListener('click', () => clickCancelConstruction(site, li));
+		
+		li.appendChild(span);
+		li.appendChild(button);
+		constructionSitesUl.appendChild(li);
+	});
+	
+	validate();*/
+}
+
+/*function toggleDemolish(building, span, button) {
+	building.isDemolished = !building.isDemolished;
+
+	if (building.isDemolished) {
+		span.classList.add('demolished');
+		button.textContent = 'Behouden';
+		nFreeTiles += building.size * building.tile_size;
+	} else {
+		span.classList.remove('demolished');
+		button.textContent = 'Slopen';
+		nFreeTiles -= building.size * building.tile_size;
+	}
+
+	validate();
+}
+
+function clickCancelConstruction(site, li) {
+	li.remove();
+	nFreeTiles += site.size * site.tile_size;
+	
+	validate();
+}
+
+// some function for constructing a new building?
+
+function validate() {
+	const nextButton = document.getElementById('next-button');
+	nextButton.disabled = nFreeTiles < 0 ? true : false;
+}
+
+function clickNext() {
+	// window.location.href = ...;
+}*/
+
+document.addEventListener('DOMContentLoaded', () => {
+	if (!checkTurnStep(0)) return; 
+    
+	initUI();
+	
+	// more code?
+});
+</script>

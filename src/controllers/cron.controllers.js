@@ -1,7 +1,7 @@
 //=== Imports ===================================================================================//
 import {
 	processCategoryOrders
-} from "../helpers/cron.helpers.js";
+} from '../helpers/cron.helpers.js';
 
 //=== Constants =================================================================================//
 
@@ -10,8 +10,8 @@ import {
 //--- Process orders ----------------------------------------------------------------------------//
 export const processOrders = async (req, res, next) => {
 	try {
-		await processCategoryOrders("product");
-		await processCategoryOrders("building");
+		await processCategoryOrders('product');
+		await processCategoryOrders('building');
 		
 		const html = `<html>
 					  <body>

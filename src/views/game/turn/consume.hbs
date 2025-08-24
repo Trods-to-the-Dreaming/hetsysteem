@@ -1,7 +1,7 @@
-{{#block "title"}}Overleven{{/block}}
+{{#block "title"}}Consumeren{{/block}}
 
 <div class="container-compact">
-	<h1>Overleven</h1>
+	<h1>Consumeren</h1>
 	
 	<div id="confirmed-section" {{#unless has_confirmed}}class="d-none"{{/unless}}>
 		<p class="success">Uw voedsel- en medische zorgconsumptie is bevestigd.</p>
@@ -64,13 +64,13 @@
 
 <script>
 	// Elements
-	const confirmedSection = document.getElementById("confirmed-section");
-	const editButton = document.getElementById("edit-button");
-	const overviewSection = document.getElementById("overview-section");
-	const foodConsumed = document.getElementById("food-consumed");
-	const warningFood = document.getElementById("warning-food");
-	const medicalCareConsumed = document.getElementById("medical-care-consumed");
-	const warningMedicalCare = document.getElementById("warning-medical-care");
+	const confirmedSection = document.getElementById('confirmed-section');
+	const editButton = document.getElementById('edit-button');
+	const overviewSection = document.getElementById('overview-section');
+	const foodConsumed = document.getElementById('food-consumed');
+	const warningFood = document.getElementById('warning-food');
+	const medicalCareConsumed = document.getElementById('medical-care-consumed');
+	const warningMedicalCare = document.getElementById('warning-medical-care');
 	
 	// Variables
 	const foodNeeded = {{food_needed}};
@@ -79,9 +79,9 @@
 	const medicalCareSelectable = {{medical_care_selectable}};
 	
 	// Event listeners
-	editButton.addEventListener("click", clickEdit);
-	foodConsumed.addEventListener("change", checkFoodWarning);
-	medicalCareConsumed.addEventListener("change", checkMedicalCareWarning);
+	editButton.addEventListener('click', clickEdit);
+	foodConsumed.addEventListener('change', checkFoodWarning);
+	medicalCareConsumed.addEventListener('change', checkMedicalCareWarning);
 	
 	// Executed when the DOM content is loaded
 	checkFoodWarning();
@@ -89,25 +89,25 @@
 	
 	// Event handlers
 	function clickEdit() {
-		confirmedSection.classList.add("d-none");
-		overviewSection.classList.remove("d-none");
+		confirmedSection.classList.add('d-none');
+		overviewSection.classList.remove('d-none');
 	};
 	//----------------------------------------
 	function checkFoodWarning() {
 		const selectedValue = Number(foodConsumed.value);
 		if (selectedValue < foodNeeded && foodSelectable >= foodNeeded) {
-			warningFood.textContent = "⚠️ Je eet minder dan nodig, terwijl je genoeg voedsel hebt!";
+			warningFood.textContent = '⚠️ Je eet minder dan nodig, terwijl je genoeg voedsel hebt!';
 		} else {
-			warningFood.textContent = "";
+			warningFood.textContent = '';
 		}
 	}
 	//----------------------------------------
 	function checkMedicalCareWarning() {
 		const selectedValue = Number(medicalCareConsumed.value);
 		if (selectedValue < medicalCareNeeded && medicalCareSelectable >= medicalCareNeeded) {
-			warningMedicalCare.textContent = "⚠️ Je benut minder medische zorg dan nodig, terwijl je toegang tot genoeg medische zorg hebt!";
+			warningMedicalCare.textContent = '⚠️ Je benut minder medische zorg dan nodig, terwijl je toegang tot genoeg medische zorg hebt!';
 		} else {
-			warningMedicalCare.textContent = "";
+			warningMedicalCare.textContent = '';
 		}
 	}
 </script>

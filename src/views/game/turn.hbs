@@ -1,0 +1,11 @@
+{{#block "title"}}Beurt{{/block}}
+
+<script>
+	const turnSteps = {{json turnSteps}};
+	const currentTurnStep = parseInt('{{currentTurnStep}}', 10);
+	
+	localStorage.setItem('turnSteps', JSON.stringify(turnSteps));
+	localStorage.setItem('currentTurnStep', currentTurnStep);
+	
+	window.location.replace(turnSteps[currentTurnStep]);
+</script>

@@ -15,11 +15,11 @@ export const MEDICAL_CARE = Object.freeze({
 });
 
 export const EDUCATION_LEVEL = Object.freeze([
-	"Ongeschoold (0)",
-	"Primair (1)",
-	"Primair (2)",
-	"Secundair (3)",
-	"Secundair (4)",
-	"Bachelor (5)",
-	"Master (6)"
+	'Ongeschoold (0)',
+	'Primair (1)',
+	'Primair (2)',
+	'Secundair (3)',
+	'Secundair (4)',
+	'Bachelor (5)',
+	'Master (6)'
  ]);

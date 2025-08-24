@@ -1,18 +1,18 @@
 //=== Imports ===================================================================================//
-import db from "../utils/db.js";
+import db from '../utils/db.js';
 import { 
 	BadRequestError 
-} from "../utils/errors.js";
+} from '../utils/errors.js';
 
 import { 
 	MSG_INVALID_CHARACTER,
 	MSG_INVALID_WORLD
-} from "../constants/game.messages.js";
+} from '../constants/game.messages.js';
 import { 
 	YEARS_PER_TURN,
 	HOURS_FULLTIME,
 	EDUCATION_LEVEL
-} from "../constants/game.rules.js";
+} from '../constants/game.rules.js';
 
 //=== Main ======================================================================================//
 

@@ -1,15 +1,15 @@
 //=== Imports ===================================================================================//
-import express from "express";
+import express from 'express';
 
-import { 
+/*import { 
 	requireAuthenticated
-} from "../middleware/auth.middleware.js";
+} from '../middleware/auth.middleware.js';
 
 import {
 	requireWorldSelected,
 	requireCharacterSelected,
 	requireCharacterCustomized
-} from "../middleware/game.middleware.js";
+} from '../middleware/game.middleware.js';
 
 import {
 	showChooseWorld,
@@ -21,7 +21,7 @@ import {
 	showTurn,
 	handleTurn,
 	showStatistics
-} from "../controllers/game.controllers.js";
+} from '../controllers/game.controllers.js';
 
 //=== Constants =================================================================================//
 const requireAuthenticatedAndSelected = [
@@ -35,28 +35,28 @@ const requireAuthenticatedAndCustomized = [
 	requireWorldSelected,
 	requireCharacterSelected,
 	requireCharacterCustomized
-];
+];*/
 
 //=== Main ======================================================================================//
 const router = express.Router();
 
-router.get( "/setup/choose-world", requireAuthenticated, showChooseWorld);
-router.post("/setup/choose-world", requireAuthenticated, handleChooseWorld);
+/*router.get( '/setup/choose-world', requireAuthenticated, showChooseWorld);
+router.post('/setup/choose-world', requireAuthenticated, handleChooseWorld);
 
-router.get( "/setup/customize-character", requireAuthenticatedAndSelected, showCustomizeCharacter);
-router.post("/setup/customize-character", requireAuthenticatedAndSelected, handleCustomizeCharacter);
+router.get( '/setup/customize-character', requireAuthenticatedAndSelected, showCustomizeCharacter);
+router.post('/setup/customize-character', requireAuthenticatedAndSelected, handleCustomizeCharacter);
 
-router.get( "/", requireAuthenticatedAndCustomized, showMenu);
+router.get( '/', requireAuthenticatedAndCustomized, showMenu);
 
-router.get( "/character", requireAuthenticatedAndCustomized, showCharacter);
+router.get( '/character', requireAuthenticatedAndCustomized, showCharacter);
 
-router.get( "/turn", requireAuthenticatedAndCustomized, showTurn);
-router.post("/turn", requireAuthenticatedAndCustomized, handleTurn);
+router.get( '/turn', requireAuthenticatedAndCustomized, showTurn);
+router.post('/turn', requireAuthenticatedAndCustomized, handleTurn);
 
-router.get("/statistics", requireAuthenticatedAndCustomized, showStatistics);
+router.get('/statistics', requireAuthenticatedAndCustomized, showStatistics);*/
 
 //=== Export ====================================================================================//
 export default {
-	path: "/game",
+	path: '/game',
 	router
 };

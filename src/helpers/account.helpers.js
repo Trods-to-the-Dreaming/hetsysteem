@@ -1,41 +1,31 @@
 //=== Imports ===================================================================================//
-import bcrypt from "bcrypt";
+import bcrypt from 'bcrypt';
 
-import db from "../utils/db.js";
+import { knex } from '../utils/db.js';
 
 //=== Main ======================================================================================//
 
 //--- Find user by id ---------------------------------------------------------------------------//
 export const findUserById = async (id) => {
-	const [users] = await db.execute(
-		`SELECT * 
-		 FROM users 
-		 WHERE id = ?`,
-		[id]
-	);
-	return users[0] || null;
+	return await knex('users')
+		.where('id', id)
+		.first();
 };
 
 //--- Find user by name -------------------------------------------------------------------------//
 export const findUserByName = async (name) => {
-	const [users] = await db.execute(
-		`SELECT * 
-		 FROM users 
-		 WHERE name = ?`,
-		[name]
-	);
-	return users[0] || null;
+	return await knex('users')
+		.where('name', name)
+		.first();
 };
 
 //--- Is username taken? ------------------------------------------------------------------------//
 export const isUsernameTaken = async (username) => {
-	const [users] = await db.execute(
-		`SELECT id 
-		 FROM users 
-		 WHERE name = ?`,
-		[username]
-	);
-	return users.length > 0;
+	const user = await knex('users')
+		.select('id')
+		.where('name', username)
+		.first();
+	return !!user;
 };
 
 //--- Is password correct? ----------------------------------------------------------------------//
@@ -48,40 +38,25 @@ export const isPasswordCorrect = async (user,
 export const registerUser = async (username, 
 								   password) => {
 	const hashedPassword = await bcrypt.hash(password, 8);
-	const [result] = await db.execute(
-		`INSERT INTO users
-			(name, 
-			 password) 
-		 VALUES (?, ?)`, 
-		[username, 
-		 hashedPassword]
-	);
-	
-	const user = await findUserById(result.insertId);
-	return user;
+	const [id] = await knex('users')
+		.insert({
+			name: username,
+			password: hashedPassword,
+		});
+	return await findUserById(id);
 };
 
 //--- Update username ---------------------------------------------------------------------------//
-export const updateUsername = async (userId, 
-									 newUsername) => {
-	await db.execute(
-		`UPDATE users 
-		 SET name = ? 
-		 WHERE id = ?`,
-		[newUsername, 
-		 userId]
-	);
+export const updateUsername = async (userId, newUsername) => {
+	await knex('users')
+		.where('id', userId)
+		.update({ name: newUsername });
 };
 
 //--- Update password ---------------------------------------------------------------------------//
-export const updatePassword = async (userId, 
-									 newPassword) => {
+export const updatePassword = async (userId, newPassword) => {
 	const hashedPassword = await bcrypt.hash(newPassword, 8);
-	await db.execute(
-		`UPDATE users 
-		 SET password = ? 
-		 WHERE id = ?`,
-		[hashedPassword, 
-		 userId]
-	);
+	await knex('users')
+		.where('id', userId)
+		.update({ password: hashedPassword });
 };

@@ -109,46 +109,46 @@
 <script src="/js/shared-ui.js"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
 	// Elements
-	const confirmedSection = document.getElementById("confirmed-section");
-	const editButton = document.getElementById("edit-button");
-	const overviewSection = document.getElementById("overview-section");
-	const createOrderButton = document.getElementById("create-order-button");
-	const form = document.getElementById("trade-form");
-	const productBuyOrdersInput = document.getElementById("product-buy-orders-input");
-	const productSellOrdersInput = document.getElementById("product-sell-orders-input");
-	const buildingBuyOrdersInput = document.getElementById("building-buy-orders-input");
-	const buildingSellOrdersInput = document.getElementById("building-sell-orders-input");
-	const createOrderWindow = document.getElementById("create-order-window");
-	const createOrderSection = document.getElementById("create-order-section");
-	const typeSelect = document.getElementById("type");
-	const buyOption = document.getElementById("buy-option");
-	const sellOption = document.getElementById("sell-option");
-	const categoryField = document.getElementById("category-field");
-	const categorySelect = document.getElementById("category");
-	const productsOption = document.getElementById("product-option");
-	const buildingsOption = document.getElementById("building-option");
-	const itemField = document.getElementById("item-field");
-	const itemLabel = document.getElementById("item-label");
-	const itemSelect = document.getElementById("item");
-	const quantityField = document.getElementById("quantity-field");
-	const quantityInput = document.getElementById("quantity");
-	const unitPriceField = document.getElementById("unit-price-field");
-	const unitPriceLabel = document.getElementById("unit-price-label");
-	const unitPriceInput = document.getElementById("unit-price");
-	const placeOrderButton = document.getElementById("place-order-button");
+	const confirmedSection = document.getElementById('confirmed-section');
+	const editButton = document.getElementById('edit-button');
+	const overviewSection = document.getElementById('overview-section');
+	const createOrderButton = document.getElementById('create-order-button');
+	const form = document.getElementById('trade-form');
+	const productBuyOrdersInput = document.getElementById('product-buy-orders-input');
+	const productSellOrdersInput = document.getElementById('product-sell-orders-input');
+	const buildingBuyOrdersInput = document.getElementById('building-buy-orders-input');
+	const buildingSellOrdersInput = document.getElementById('building-sell-orders-input');
+	const createOrderWindow = document.getElementById('create-order-window');
+	const createOrderSection = document.getElementById('create-order-section');
+	const typeSelect = document.getElementById('type');
+	const buyOption = document.getElementById('buy-option');
+	const sellOption = document.getElementById('sell-option');
+	const categoryField = document.getElementById('category-field');
+	const categorySelect = document.getElementById('category');
+	const productsOption = document.getElementById('product-option');
+	const buildingsOption = document.getElementById('building-option');
+	const itemField = document.getElementById('item-field');
+	const itemLabel = document.getElementById('item-label');
+	const itemSelect = document.getElementById('item');
+	const quantityField = document.getElementById('quantity-field');
+	const quantityInput = document.getElementById('quantity');
+	const unitPriceField = document.getElementById('unit-price-field');
+	const unitPriceLabel = document.getElementById('unit-price-label');
+	const unitPriceInput = document.getElementById('unit-price');
+	const placeOrderButton = document.getElementById('place-order-button');
 	
 	// Event listeners
-	editButton.addEventListener("click", clickEdit);
-	createOrderButton.addEventListener("click", clickCreateOrder);
-	form.addEventListener("submit", submitForm);
-	typeSelect.addEventListener("change", changeType);
-	categorySelect.addEventListener("change", changeCategory);
-	itemSelect.addEventListener("change", changeItem);
-	quantityInput.addEventListener("input", validateInputs);
-	unitPriceInput.addEventListener("input", validateInputs);
-	placeOrderButton.addEventListener("click", clickPlaceOrder);
+	editButton.addEventListener('click', clickEdit);
+	createOrderButton.addEventListener('click', clickCreateOrder);
+	form.addEventListener('submit', submitForm);
+	typeSelect.addEventListener('change', changeType);
+	categorySelect.addEventListener('change', changeCategory);
+	itemSelect.addEventListener('change', changeItem);
+	quantityInput.addEventListener('input', validateInputs);
+	unitPriceInput.addEventListener('input', validateInputs);
+	placeOrderButton.addEventListener('click', clickPlaceOrder);
 	
 	// Classes
 	class Order {
@@ -168,7 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			this.sellOption = sellOption;
 		}
 
-		getFormattedUnitPrice(locale = "nl-NL") {
+		getFormattedUnitPrice(locale = 'nl-NL') {
 			const formatter = new Intl.NumberFormat(locale);
 			return formatter.format(this.unitPrice);
 		}
@@ -229,21 +229,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	// Storage object for the orders
 	const orderConfig  = {
-		"product": {
-			"buy": new OrderConfig({{{json product_buy_orders}}},
+		'product': {
+			'buy': new OrderConfig({{{json product_buy_orders}}},
 								   {{{json buyable_products}}},
-								   "product-buy-orders"),
-			"sell": new OrderConfig({{{json product_sell_orders}}},
+								   'product-buy-orders'),
+			'sell': new OrderConfig({{{json product_sell_orders}}},
 								    {{{json sellable_products}}},
-								    "product-sell-orders")
+								    'product-sell-orders')
 		},
-		"building": {
-			"buy": new OrderConfig({{{json building_buy_orders}}},
+		'building': {
+			'buy': new OrderConfig({{{json building_buy_orders}}},
 								   {{{json buyable_buildings}}},
-								   "building-buy-orders"),
-			"sell": new OrderConfig({{{json building_sell_orders}}},
+								   'building-buy-orders'),
+			'sell': new OrderConfig({{{json building_sell_orders}}},
 								    {{{json sellable_buildings}}},
-								    "building-sell-orders")
+								    'building-sell-orders')
 		}
 	};
 	
@@ -258,73 +258,73 @@ document.addEventListener("DOMContentLoaded", () => {
 	
 	// Event handlers
 	function clickEdit() {
-		confirmedSection.classList.add("d-none");
-		overviewSection.classList.remove("d-none");
+		confirmedSection.classList.add('d-none');
+		overviewSection.classList.remove('d-none');
 	};
 	//----------------------------------------
 	function clickCreateOrder() {
-		buyOption.disabled = !canPlaceOrder("buy");
-		sellOption.disabled = !canPlaceOrder("sell");
+		buyOption.disabled = !canPlaceOrder('buy');
+		sellOption.disabled = !canPlaceOrder('sell');
 		
-		typeSelect.value = "";
-		typeSelect.dispatchEvent(new Event("change"));
+		typeSelect.value = '';
+		typeSelect.dispatchEvent(new Event('change'));
 	};
 	//----------------------------------------
 	function submitForm() {
-		productBuyOrdersInput.value = JSON.stringify(orderConfig["product"]["buy"].orders);
-		productSellOrdersInput.value = JSON.stringify(orderConfig["product"]["sell"].orders);
-		buildingBuyOrdersInput.value = JSON.stringify(orderConfig["building"]["buy"].orders);
-		buildingSellOrdersInput.value = JSON.stringify(orderConfig["building"]["sell"].orders);
+		productBuyOrdersInput.value = JSON.stringify(orderConfig['product']['buy'].orders);
+		productSellOrdersInput.value = JSON.stringify(orderConfig['product']['sell'].orders);
+		buildingBuyOrdersInput.value = JSON.stringify(orderConfig['building']['buy'].orders);
+		buildingSellOrdersInput.value = JSON.stringify(orderConfig['building']['sell'].orders);
 	};
 	//----------------------------------------
 	function changeType() {
-		categorySelect.value = "";
+		categorySelect.value = '';
 		
 		const type = typeSelect.value;
-		if (type === "") {
-			categoryField.classList.add("d-none");
+		if (type === '') {
+			categoryField.classList.add('d-none');
 		} else {
-			productsOption.disabled = !canPlaceOrder(type, "product");
-			buildingsOption.disabled = !canPlaceOrder(type, "building");
+			productsOption.disabled = !canPlaceOrder(type, 'product');
+			buildingsOption.disabled = !canPlaceOrder(type, 'building');
 			
-			categoryField.classList.remove("d-none");
+			categoryField.classList.remove('d-none');
 		}
 		
-		categorySelect.dispatchEvent(new Event("change"));
+		categorySelect.dispatchEvent(new Event('change'));
 	};
 	//----------------------------------------
 	function changeCategory() {
-		itemSelect.innerHTML = `<option value="">-- Kies --</option>`;
-		itemSelect.value = "";
+		itemSelect.innerHTML = `<option value=''>-- Kies --</option>`;
+		itemSelect.value = '';
 		
 		const category = categorySelect.value;
-		if (category === "") {
-			itemField.classList.add("d-none");
+		if (category === '') {
+			itemField.classList.add('d-none');
 		} else {
 			const type = typeSelect.value;
 			const options = orderConfig[category][type].options;
 			
 			options.forEach(option => {
 				if (option.isVisible) {
-					const itemOption = document.createElement("option");
+					const itemOption = document.createElement('option');
 					itemOption.value = option.itemId;
 					itemOption.textContent = option.itemName;
-					if (type === "sell") {
+					if (type === 'sell') {
 						itemOption.dataset.max = option.quantity;
 					}
 					itemSelect.appendChild(itemOption);
 				}
 			});
 			
-			const labelText = category === "product" ? 
-							  "Product" : 
-							  "Gebouw";
-			itemLabel.textContent = labelText + ":";
+			const labelText = category === 'product' ? 
+							  'Product' : 
+							  'Gebouw';
+			itemLabel.textContent = labelText + ':';
 			
-			itemField.classList.remove("d-none");
+			itemField.classList.remove('d-none');
 		}
 		
-		itemSelect.dispatchEvent(new Event("change"));
+		itemSelect.dispatchEvent(new Event('change'));
 	};
 	//----------------------------------------
 	function changeItem() {	
@@ -332,9 +332,9 @@ document.addEventListener("DOMContentLoaded", () => {
 		unitPriceInput.value = 0;
 		
 		const item = itemSelect.value;
-		if (item === "") {
-			quantityField.classList.add("d-none");
-			unitPriceField.classList.add("d-none");
+		if (item === '') {
+			quantityField.classList.add('d-none');
+			unitPriceField.classList.add('d-none');
 		} else {
 			const type = typeSelect.value;
 			const selectedOption = itemSelect.options[itemSelect.selectedIndex];
@@ -342,15 +342,15 @@ document.addEventListener("DOMContentLoaded", () => {
 			if (selectedOption.dataset.max) {
 				quantityInput.max = selectedOption.dataset.max;
 			} else {
-				quantityInput.removeAttribute("max");
+				quantityInput.removeAttribute('max');
 			}
-			quantityField.classList.remove("d-none");
+			quantityField.classList.remove('d-none');
 			
-			unitPriceLabel.textContent = type === "buy" ?
-										 "Maximale eenheidsprijs:" :
-										 "Minimale eenheidsprijs:";
+			unitPriceLabel.textContent = type === 'buy' ?
+										 'Maximale eenheidsprijs:' :
+										 'Minimale eenheidsprijs:';
 			
-			unitPriceField.classList.remove("d-none");
+			unitPriceField.classList.remove('d-none');
 		}
 		
 		placeOrderButton.disabled = true;
@@ -360,7 +360,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		const quantityValue = quantityInput.valueAsNumber;
 		const unitPriceValue = unitPriceInput.valueAsNumber;
 		
-		const hasMax = quantityInput.max !== "";
+		const hasMax = quantityInput.max !== '';
 		const max = hasMax ? Number(quantityInput.max) : Number.POSITIVE_INFINITY;
 		
 		const isQuantityValid = Number.isInteger(quantity) && 
@@ -400,8 +400,8 @@ document.addEventListener("DOMContentLoaded", () => {
 		// Add order
 		const config = orderConfig[category][type];
 		
-		const configBuy = orderConfig[category]["buy"];
-		const configSell = orderConfig[category]["sell"];
+		const configBuy = orderConfig[category]['buy'];
+		const configSell = orderConfig[category]['sell'];
 		
 		const buyOption = configBuy.hideOption(itemId);
 		const sellOption = configSell.hideOption(itemId);
@@ -414,31 +414,31 @@ document.addEventListener("DOMContentLoaded", () => {
 									  sellOption);
 		
 		// Update page
-		const p = document.getElementById("no-" + config.elementId);
-		p.classList.add("d-none");
+		const p = document.getElementById('no-' + config.elementId);
+		p.classList.add('d-none');
 		
-		const ul = document.getElementById(config.elementId + "-list");
-		ul.classList.remove("d-none");
+		const ul = document.getElementById(config.elementId + '-list');
+		ul.classList.remove('d-none');
 		
-		const li = document.createElement("li");
-		li.classList.add("list-item-justify");
+		const li = document.createElement('li');
+		li.classList.add('list-item-justify');
 		ul.appendChild(li);
 		
-		const pieces = order.quantity === 1 ? "stuk" : "stuks";
-		const minmax = type === "buy" ? "hoogstens" : "minstens";
-		const text = document.createElement("span");
+		const pieces = order.quantity === 1 ? 'stuk' : 'stuks';
+		const minmax = type === 'buy' ? 'hoogstens' : 'minstens';
+		const text = document.createElement('span');
 		text.append(
 			`${order.itemName}:`,
-			document.createElement("br"),
+			document.createElement('br'),
 			`${order.quantity} ${pieces} aan ${minmax} ${order.getFormattedUnitPrice()} `,
 			createCurrencySymbol(),
-			"/stuk"
+			'/stuk'
 		);
 		
-		const deleteBtn = document.createElement("button");
-		deleteBtn.classList.add("btn-close");
-		deleteBtn.type = "button";
-		deleteBtn.addEventListener("click", () => {
+		const deleteBtn = document.createElement('button');
+		deleteBtn.classList.add('btn-close');
+		deleteBtn.type = 'button';
+		deleteBtn.addEventListener('click', () => {
 			// Remove order
 			configBuy.showOption(order.itemId);
 			configSell.showOption(order.itemId);
@@ -448,8 +448,8 @@ document.addEventListener("DOMContentLoaded", () => {
 			// Udate page
 			li.remove();
 			if (ul.children.length === 0) {
-				ul.classList.add("d-none");
-				p.classList.remove("d-none");
+				ul.classList.add('d-none');
+				p.classList.remove('d-none');
 			}
 		});
 		
@@ -462,8 +462,8 @@ document.addEventListener("DOMContentLoaded", () => {
 	}
 	//----------------------------------------
 	function placeInitialOrders() {
-		const categories = ["product", "building"];
-		const types = ["buy", "sell"];
+		const categories = ['product', 'building'];
+		const types = ['buy', 'sell'];
 
 		categories.forEach(category => {
 			types.forEach(type => {
@@ -482,10 +482,10 @@ document.addEventListener("DOMContentLoaded", () => {
 		});
 	}
 	//----------------------------------------
-	function canPlaceOrder(type = "",
-						   category = "") {
-		const types = type ? [type] : ["buy", "sell"];
-		const categories = category ? [category] : ["product", "building"];
+	function canPlaceOrder(type = '',
+						   category = '') {
+		const types = type ? [type] : ['buy', 'sell'];
+		const categories = category ? [category] : ['product', 'building'];
 
 		return types.some(t =>
 			categories.some(c =>

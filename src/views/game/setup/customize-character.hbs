@@ -6,21 +6,21 @@
 	<form id="customize-character-form" method="POST" action="/game/setup/customize-character">
 		<div class="field">
 			<label for="first-name" class="form-label">Voornaam:</label>
-			<input id="first-name" class="form-control" type="text" name="firstName" value="{{first_name}}" required>
+			<input id="first-name" class="form-control" type="text" name="firstName" value="{{firstName}}" required>
 		</div>
 		
 		<div class="field">
 			<label for="last-name" class="form-label">Achternaam:</label>
-			<input id="last-name" class="form-control" type="text" name="lastName" value="{{last_name}}" required>
+			<input id="last-name" class="form-control" type="text" name="lastName" value="{{lastName}}" required>
 		</div>
 		
-		<p class="error" id="name-error">{{name_error}}</p>
+		<p class="error" id="name-error">{{nameError}}</p>
 		
 		<div class="field">
 			<label for="job-preference-1" class="form-label">Jobvoorkeur (★★★):</label>
 			<select id="job-preference-1" class="form-select" name="jobPreference1" required>
 				{{#each jobs}}
-				<option value="{{this.id}}" {{#if (eq @index 0)}}selected{{/if}}>{{this.name}}</option>
+					<option value="{{this.id}}" {{#if (eq @index 0)}}selected{{/if}}>{{this.name}}</option>
 				{{/each}}
 			</select>
 		</div>
@@ -29,7 +29,7 @@
 			<label for="job-preference-2" class="form-label">Jobvoorkeur (★★):</label>
 			<select id="job-preference-2" class="form-select" name="jobPreference2" required>
 				{{#each jobs}}
-				<option value="{{this.id}}" {{#if (eq @index 1)}}selected{{/if}}>{{this.name}}</option>
+					<option value="{{this.id}}" {{#if (eq @index 1)}}selected{{/if}}>{{this.name}}</option>
 				{{/each}}
 			</select>
 		</div>
@@ -38,7 +38,7 @@
 			<label for="job-preference-3" class="form-label">Jobvoorkeur (★):</label>
 			<select id="job-preference-3" class="form-select" name="jobPreference3" required>
 				{{#each jobs}}
-				<option value="{{this.id}}" {{#if (eq @index 2)}}selected{{/if}}>{{this.name}}</option>
+					<option value="{{this.id}}" {{#if (eq @index 2)}}selected{{/if}}>{{this.name}}</option>
 				{{/each}}
 			</select>
 		</div>
@@ -47,7 +47,7 @@
 			<label for="recreation-preference" class="form-label">Ontspanningsvoorkeur (★★★):</label>
 			<select id="recreation-preference" class="form-select" name="recreationPreference" required>
 				{{#each recreations}}
-				<option value="{{this.id}}">{{this.name}}</option>
+					<option value="{{this.id}}">{{this.name}}</option>
 				{{/each}}
 			</select>
 		</div>
@@ -59,38 +59,38 @@
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
 	//--- Elements ------------------------------------------------------------------------------//
-	const firstNameInput = document.getElementById("first-name");
-	const lastNameInput = document.getElementById("last-name");
-	const jobPreference1Select = document.getElementById("job-preference-1");
-	const jobPreference2Select = document.getElementById("job-preference-2");
-	const jobPreference3Select = document.getElementById("job-preference-3");
+	const firstNameInput = document.getElementById('first-name');
+	const lastNameInput = document.getElementById('last-name');
+	const jobPreference1Select = document.getElementById('job-preference-1');
+	const jobPreference2Select = document.getElementById('job-preference-2');
+	const jobPreference3Select = document.getElementById('job-preference-3');
 	
-	const nameError = document.getElementById("name-error");
+	const nameError = document.getElementById('name-error');
 	
 	//--- Execute on load -----------------------------------------------------------------------//
 	handleJobPreferenceChange();
 	
 	//--- Event listeners -----------------------------------------------------------------------//
-	firstNameInput.addEventListener("input", handleFirstNameInput);
-	lastNameInput.addEventListener("input", handleLastNameInput);
-	jobPreference1Select.addEventListener("change", handleJobPreferenceChange);
-	jobPreference2Select.addEventListener("change", handleJobPreferenceChange);
-	jobPreference3Select.addEventListener("change", handleJobPreferenceChange);
+	firstNameInput.addEventListener('input', handleFirstNameInput);
+	lastNameInput.addEventListener('input', handleLastNameInput);
+	jobPreference1Select.addEventListener('change', handleJobPreferenceChange);
+	jobPreference2Select.addEventListener('change', handleJobPreferenceChange);
+	jobPreference3Select.addEventListener('change', handleJobPreferenceChange);
 	
 	//--- Event handlers ------------------------------------------------------------------------//
 	function handleCurrentPasswordInput() {
-		passwordError.textContent = "";
+		passwordError.textContent = '';
 	}
 	
 	function handleFirstNameInput() {
-		nameError.textContent = "";
+		nameError.textContent = '';
 		validateName(firstNameInput);
 	}
 	
 	function handleLastNameInput() {
-		nameError.textContent = "";
+		nameError.textContent = '';
 		validateName(lastNameInput);
 	}
 	
@@ -120,12 +120,12 @@ document.addEventListener("DOMContentLoaded", () => {
 			nameInput.setCustomValidity(`Maximaal ${maxLength} tekens toegestaan.`);
 		} else if (name !== name.trim()) {
 			nameInput.setCustomValidity(
-				"Spaties aan het begin of het einde zijn niet toegestaan.");
+				'Spaties aan het begin of het einde zijn niet toegestaan.');
 		} else if (!regex.test(name)) {
 			nameInput.setCustomValidity(
-				"Alleen letters, spatie, apostrof en koppelteken zijn toegestaan.");
+				'Alleen letters, spatie, apostrof en koppelteken zijn toegestaan.');
 		} else {
-			nameInput.setCustomValidity("");
+			nameInput.setCustomValidity('');
 		}
 		
 		nameInput.reportValidity();

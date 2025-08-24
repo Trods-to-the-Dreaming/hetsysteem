@@ -41,21 +41,21 @@ h3 {
 }
 
 .gold-world {
-  background-color: #fff8dc;
-  color: #a67c00;
-  border-color: #e0c97f;
+	background-color: #fff8dc;
+	color: #a67c00;
+	border-color: #e0c97f;
 }
 
 .debt-world {
-  background-color: lighten($primary, 40%);
-  color: $primary;
-  border-color: lighten($primary, 20%);
+	background-color: lighten($primary, 40%);
+	color: $primary;
+	border-color: lighten($primary, 20%);
 }
 
 .time-world {
-  background-color: #e6f9f1;
-  color: #1f8f5f;
-  border-color: #bce3d1;
+	background-color: #e6f9f1;
+	color: #1f8f5f;
+	border-color: #bce3d1;
 }
 
 .content-wrapper {
@@ -188,6 +188,11 @@ h3 {
 	@include message;
 	@extend .alert-success;
 	display: inline-block;
+}
+
+.demolished {
+	@extend .text-decoration-line-through;
+	@extend .text-danger;
 }
 
 .button-1 {

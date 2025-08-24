@@ -1,8 +1,8 @@
 //=== Imports ===================================================================================//
-import db from "../utils/db.js";
+import db from '../utils/db.js';
 import { 
 	BadRequestError 
-} from "../utils/errors.js";
+} from '../utils/errors.js';
 
 //=== Main ======================================================================================//
 
@@ -166,7 +166,7 @@ export const confirmAction = async (characterId,
 export const getFoodInfo = async (characterId, 
 								  connection = db) => {
 	const productIds = await getProductIds(connection);
-	const foodId = productIds["food"];
+	const foodId = productIds['food'];
 	
 	const [[{ quantity: available }]] = await connection.execute(
 		`SELECT COALESCE(
@@ -202,7 +202,7 @@ export const getFoodInfo = async (characterId,
 export const getMedicalCareInfo = async (characterId, 
 										 connection = db) => {
 	const productIds = await getProductIds(connection);
-	const medicalCareId = productIds["medical-care"];
+	const medicalCareId = productIds['medical-care'];
 	
 	const [[{ quantity: available }]] = await connection.execute(
 		`SELECT COALESCE(
@@ -435,7 +435,7 @@ export const updateOrders = async (characterId,
 		return;
 	}
 
-	const valuePlaceholders = orders.map(() => "(?, ?, ?, ?)").join(", ");
+	const valuePlaceholders = orders.map(() => '(?, ?, ?, ?)').join(', ');
 	const valueParams = orders.flatMap(o => [
 		characterId,
 		o.itemId,
@@ -447,8 +447,8 @@ export const updateOrders = async (characterId,
 		`INSERT INTO \`${category}_${type}_orders\`
 		 (character_id, 
 		  \`${category}_id\`, 
-		  \`${type === "buy" ? "demand" : "supply"}\`, 
-		  \`${type === "buy" ? "max" : "min"}_unit_price\`)
+		  \`${type === 'buy' ? 'demand' : 'supply'}\`, 
+		  \`${type === 'buy' ? 'max' : 'min'}_unit_price\`)
 		 VALUES ${valuePlaceholders}`,
 		valueParams
 	);
@@ -497,24 +497,24 @@ export const validateHours = async (characterId,
 									connection = db) => {
 	let totalHours = 0;
 	
-	//console.log("jobHours: ");
+	//console.log('jobHours: ');
 	//console.log(jobHours);
 	const contracts = await getContracts(characterId, connection);
-	//console.log("contracts: ");
+	//console.log('contracts: ');
 	//console.log(contracts);
 	const contractMap = new Map(contracts.map(c => [String(c.id), c.hours]));
-	//console.log("contractMap: ");
+	//console.log('contractMap: ');
 	//console.log(contractMap);
 
 	for (const [key, value] of Object.entries(jobHours)) {
 		const maxHours = contractMap.get(key);
-		//console.log("key: " + key);
-		//console.log("maxHours: " + maxHours);
+		//console.log('key: ' + key);
+		//console.log('maxHours: ' + maxHours);
 		if (!isValidInteger(value, 0, maxHours)) {
 			throw new BadRequestError(MSG_INVALID_HOURS);
 		}
 		totalHours += value;
-		//console.log("totalHours: " + totalHours);
+		//console.log('totalHours: ' + totalHours);
 	}
 
 	for (const [key, value] of Object.entries(courseHours)) {
@@ -522,7 +522,7 @@ export const validateHours = async (characterId,
 			throw new BadRequestError(MSG_INVALID_HOURS);
 		}
 		totalHours += value;
-		//console.log("totalHours: " + totalHours);
+		//console.log('totalHours: ' + totalHours);
 	}
 
 	for (const [key, value] of Object.entries(activityHours)) {
@@ -530,11 +530,11 @@ export const validateHours = async (characterId,
 			throw new BadRequestError(MSG_INVALID_HOURS);
 		}
 		totalHours += value;
-		//console.log("totalHours: " + totalHours);
+		//console.log('totalHours: ' + totalHours);
 	}
 
 	const availableHours = await getAvailableHours(characterId, connection);
-	//console.log("availableHours: " + availableHours);
+	//console.log('availableHours: ' + availableHours);
 
 	if (totalHours > availableHours) {
 		throw new BadRequestError(MSG_INVALID_HOURS);
@@ -560,7 +560,7 @@ export const updateHours = async (characterId,
 		return;
 	}
 
-	const valuePlaceholders = hours.map(() => "(?, ?, ?)").join(", ");
+	const valuePlaceholders = hours.map(() => '(?, ?, ?)').join(', ');
 	const valueParams = hours.flatMap(h => [
 		characterId,
 		h.contractId,
@@ -591,7 +591,7 @@ export const updateHours = async (characterId,
 
 	if (entries.length === 0) return;
 
-	const placeholders = entries.map(() => "(?, ?, ?)").join(", ");
+	const placeholders = entries.map(() => '(?, ?, ?)').join(', ');
 	const values = entries.flat();
 
 	await connection.execute(
@@ -607,7 +607,7 @@ export const updateHours = async (characterId,
 function isValidInteger(value,
 						min = 0,
 						max = Number.POSITIVE_INFINITY) {	
-	return (typeof value === "number" &&
+	return (typeof value === 'number' &&
 			Number.isInteger(value) &&
 			value >= min &&
 			value <= max);

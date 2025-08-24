@@ -1,0 +1,98 @@
+{{#block "title"}}Groep beheren{{/block}}
+
+<div class="container-compact">
+	<h1>Groep beheren</h1>
+	
+	<form id="manage-group-form">
+		<div id="group-info-div" {{#unless group}}class="d-none"{{/unless}}>
+			<h2>ℹ️ Groepsinformatie</h2>
+			
+			<h3>Instellingen</h3>
+			
+			<ul class="list-compact">
+				<li class="list-item-justify">
+					<span>Groepsnaam</span>
+					<span>{{group.name}}</span>
+				</li>
+				<li class="list-item-justify">
+					<span>Leider</span>
+					<span>{{group.leader}}</span>
+				</li>
+				<li class="list-item-justify">
+					<span>Open voor leden</span>
+					<span>{{group.is_open}}</span>
+				</li>
+				<li class="list-item-justify">
+					<span>Huidig aantal leden</span>
+					<span>{{group.n_members}}</span>
+				</li>
+				<li class="list-item-justify">
+					<span>Maximum aantal leden</span>
+					<span>{{group.max_members}}</span>
+				</li>
+			</ul>
+			
+			<h3>Leden</h3>
+			
+			{{#if group.members}}
+				<ul>
+					{{#each group.members}}
+						<li>{{this}}</li>
+					{{/each}}
+				</ul>
+			{{/if}}
+		</div>
+			
+		<div id="leave-group-div" {{#unless (and group (not is_group_leader))}}class="d-none"{{/unless}}>
+			<h2>🚪 Groep verlaten</h2>
+			
+			<button id="leave-button">Verlaten</button>
+			<button id="stay-button" class="d-none">Toch blijven</button>
+		</div>
+		
+		<div id="disband-group-div" {{#unless (and group is_group_leader)}}class="d-none"{{/unless}}>
+			<h2>✂ Groep ontbinden</h2>
+			
+			<button id="disband-button">Ontbinden</button>
+			<button id="keep-button" class="d-none">Toch behouden</button>
+		</div>
+		
+		<div id="form-group-div" {{#if group}}class="d-none"{{/if}}>
+			<h2>👪 Groep oprichten</h2>
+			
+			<h3>Instellingen</h3>
+			
+			<div class="field">
+				<label for="group-name-input" class="form-label">Groepsnaam:</label>
+				<input id="group-name-input" class="form-control" type="text" required>
+			</div>
+			
+			<div class="field">
+				<label for="is-group-open-select" class="form-label">Open voor leden:</label>
+				<select id="is-group-open-select" class="list-select">
+					<option value="yes">Ja</option>
+					<option value="no">Nee</option>
+				</select>
+			</div>
+			
+			<div class="field">
+				<label for="max-group-size-input" class="form-label">Maximum aantal leden:</label>
+				<input id="max-group-size-input" class="form-control" type="number" min="{{min_group_size}}" max="max_group_size" step="1" required>
+			</div>
+			
+			<h3>Leden uitnodigen</h3>
+			
+			
+		</div>
+		
+		<h2>🤗 Aansluiten bij een groep</h2>
+		specifieke oprichter opgeven
+		groep zoeken
+		
+		<button type="submit">Volgende →</button>
+	</form>
+	
+	<button id="back-button">Vorige ←</button>
+
+	<a class="button-back" href="/game">↑ Spelmenu</a>
+</div>

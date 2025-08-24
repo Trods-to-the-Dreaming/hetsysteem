@@ -1,14 +1,14 @@
 //=== Imports ===================================================================================//
-import db from "../utils/db.js";
+import db from '../utils/db.js';
 
 //=== Constants =================================================================================//
-const MSG_INVALID_CATEGORY = "De gevraagde ordercategorie bestaat niet.";
+const MSG_INVALID_CATEGORY = 'De gevraagde ordercategorie bestaat niet.';
 
 //=== Main ======================================================================================//
 
 //--- Process category orders -------------------------------------------------------------------//
 export const processCategoryOrders = async (category) => {
-	const validCategories = ["product", "building"];
+	const validCategories = ['product', 'building'];
 	if (!validCategories.includes(category)) {
 		throw new BadRequestError(MSG_INVALID_CATEGORY);
 	}

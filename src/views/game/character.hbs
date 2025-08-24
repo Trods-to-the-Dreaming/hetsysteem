@@ -1,7 +1,7 @@
 {{#block "title"}}Personage{{/block}}
 
 <div class="container-compact">
-	<h1>{{first_name}} {{last_name}}</h1>
+	<h1>{{firstName}} {{lastName}}</h1>
 	
 	<h2>💖 Welzijn</h2>
 	<ul class="list-compact">
@@ -11,7 +11,7 @@
 		</li>
 		<li class="list-item-justify">
 			<span>Levensverwachting</span>
-			<span>{{life_expectancy}} jaar</span>
+			<span>{{lifeExpectancy}} jaar</span>
 		</li>
 		<li class="list-item-justify">
 			<span>Gezondheid</span>
@@ -23,26 +23,26 @@
 		</li>
 		<li class="list-item-justify">
 			<span>Woonstatus</span>
-			<span>{{housing_status}}</span>
+			<span>{{housingStatus}}</span>
 		</li>
 	</ul>
 
 	<h2>⭐ Voorkeuren</h2>
 	<ul class="list-compact">
 		<li class="list-item-justify">
-			<span>{{job_preference_1}}</span>
+			<span>{{jobPreference1}}</span>
 			<span>★★★</span>
 		</li>
 		<li class="list-item-justify">
-			<span>{{job_preference_2}}</span>
+			<span>{{jobPreference2}}</span>
 			<span>★★</span>
 		</li>
 		<li class="list-item-justify">
-			<span>{{job_preference_3}}</span>
+			<span>{{jobPreference3}}</span>
 			<span>★</span>
 		</li>
 		<li class="list-item-justify">
-			<span>{{recreation_preference}}</span>
+			<span>{{recreationPreference}}</span>
 			<span>★★★</span>
 		</li>
 	</ul>
@@ -51,7 +51,7 @@
 	<ul class="list-compact">
 		<li class="list-item-justify">
 			<span>Niveau</span>
-			<span>{{education_level}}</span>
+			<span>{{educationLevel}}</span>
 		</li>
 	</ul>
 
@@ -60,8 +60,8 @@
 		<ul class="list-compact">
 			{{#each experience}}
 				<li class="list-item-justify">
-					<span>{{this.job_name}}</span>
-					<span>{{this.experience_years}} jaar</span>
+					<span>{{this.jobName}}</span>
+					<span>{{this.experienceYears}} jaar</span>
 				</li>
 			{{/each}}
 		</ul>
@@ -73,11 +73,11 @@
 	<ul class="list-compact">
 		<li class="list-item-justify">
 			<span>Bankrekening</span>
-			<span id="balance">{{balance}} {{currency_symbol}}</span>
+			<span id="balance">{{balance}} {{currencySymbol}}</span>
 		</li>
 		<li class="list-item-justify">
 			<span>Land</span>
-			<span>{{owned_tiles}} tegels</span>
+			<span>{{ownedTiles}} tegels</span>
 		</li>
 	</ul>
 
@@ -86,8 +86,8 @@
 
 <script src="/js/shared-ui.js"></script>
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-	const balanceSpan = document.getElementById("balance");
+document.addEventListener('DOMContentLoaded', () => {
+	const balanceSpan = document.getElementById('balance');
 	const currencySymbol = createCurrencySymbol();
 	balanceSpan.appendChild(currencySymbol);
 });

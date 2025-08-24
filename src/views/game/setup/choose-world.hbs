@@ -8,32 +8,32 @@
 			<label for="world" class="form-label">Wereld:</label>
 			<select id="world" class="form-select" name="worldId">
 				{{#each worlds}}
-				<option value="{{this.id}}" {{#if (eq this.id ../selected_world_id)}}selected{{/if}}>
-					{{this.name}}
-				</option>
+					<option value="{{this.id}}" {{#if (eq this.id ../selectedWorldId)}}selected{{/if}}>
+						{{this.type}}
+					</option>
 				{{/each}}
 			</select>
 		</div>
 		
-		<p id="world-error" class="error">{{world_error}}</p>
+		<p id="world-error" class="error">{{worldError}}</p>
 		
 		<button class="button-1" type="submit">Volgende</button>
 	</form>
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
 	//--- Elements ------------------------------------------------------------------------------//
-	const worldSelect = document.getElementById("world");
+	const worldSelect = document.getElementById('world');
 	
-	const worldError = document.getElementById("world-error");
+	const worldError = document.getElementById('world-error');
 	
 	//--- Event listeners -----------------------------------------------------------------------//
-	worldSelect.addEventListener("change", handleWorldChange);
+	worldSelect.addEventListener('change', handleWorldChange);
 	
 	//--- Event handlers ------------------------------------------------------------------------//
 	function handleWorldChange() {
-		worldError.textContent = "";
+		worldError.textContent = '';
 	}
 });
 </script>

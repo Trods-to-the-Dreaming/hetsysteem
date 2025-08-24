@@ -14,7 +14,7 @@
 			<input id="password" class="form-control" type="password" name="password" required>
 		</div>
 		
-		<p id="login-error" class="error">{{login_error}}</p>
+		<p id="login-error" class="error">{{loginError}}</p>
 		
 		<button class="button-1" type="submit">Aanmelden</button>
 	</form>
@@ -23,24 +23,24 @@
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
 	//--- Elements ------------------------------------------------------------------------------//
-	const usernameInput = document.getElementById("username");
-	const passwordInput = document.getElementById("password");
+	const usernameInput = document.getElementById('username');
+	const passwordInput = document.getElementById('password');
 	
-	const loginError = document.getElementById("login-error");
+	const loginError = document.getElementById('login-error');
 	
 	//--- Event listeners -----------------------------------------------------------------------//
-	usernameInput.addEventListener("input", handleUsernameInput);
-	passwordInput.addEventListener("input", handlePasswordInput);
+	usernameInput.addEventListener('input', handleUsernameInput);
+	passwordInput.addEventListener('input', handlePasswordInput);
 	
 	//--- Event handlers ------------------------------------------------------------------------//
 	function handleUsernameInput() {
-		loginError.textContent = "";
+		loginError.textContent = '';
 	}
 	
 	function handlePasswordInput() {
-		loginError.textContent = "";
+		loginError.textContent = '';
 	}
 });
 </script>
