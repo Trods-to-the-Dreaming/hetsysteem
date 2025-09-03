@@ -1,5 +1,5 @@
 //=== Imports ===================================================================================//
-import { knex } from '../utils/db.js';
+import knex from '../utils/db.js';
 import { 
 	getFromCache, 
 	setInCache  
@@ -113,11 +113,7 @@ export async function getAllRecreations(trx = knex) {
 			'p.slug as slug',
 			'p.type as type'
 		)
-		.innerJoin(
-			'products as p', 
-			'r.product_id', 
-			'p.id'
-		);
+		.innerJoin('products as p', 'r.product_id', 'p.id');
 	
 	const cache = buildEntityCache(rows);
 	setInCache(key, cache);

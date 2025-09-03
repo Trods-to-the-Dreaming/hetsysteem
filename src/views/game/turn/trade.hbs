@@ -1,9 +1,32 @@
 {{#block "title"}}Handel drijven{{/block}}
 
-<div class="container-compact">
+{{#block "headScripts"}}
+<script src="/js/turn.js"></script>
+<script>
+	ensureBeginTurn();
+	
+	window.stepData = {
+		steps: JSON.parse(localStorage.getItem('steps')),
+		firstStep: parseInt(localStorage.getItem('firstStep'), 10),
+		lastStep: parseInt(localStorage.getItem('lastStep'), 10),
+		currentStep: parseInt(localStorage.getItem('currentStep'), 10),
+		thisStep: 5
+	};
+	
+	ensureValidStep(window.stepData);
+</script>
+{{/block}}
+
+<div id="container-div" class="container-compact d-none">
 	<h1>Handel drijven</h1>
 	
-	<div id="confirmed-section" {{#unless has_confirmed}}class="d-none"{{/unless}}>
+	<button id="finish-button" class="button-1">Voltooien</button>
+	<button id="next-button" class="button-1">Volgende →</button>
+	<button id="back-button" class="button-1">← Vorige</button>
+	
+	<a class="button-2" href="/game">↑ Spelmenu</a>
+	
+	<!--div id="confirmed-section" {{#unless has_confirmed}}class="d-none"{{/unless}}>
 		<p class="success">Uw orders zijn bevestigd.</p>
 		
 		<button id="edit-button" type="button" class="button-1">Wijzigen</button>
@@ -22,14 +45,14 @@
 			<input id="product-buy-orders-input" type="hidden" name="productBuyOrders">
 			<p id="no-product-buy-orders">Je hebt geen kooporders voor producten geplaatst.</p>
 			<ul id="product-buy-orders-list" class="list-compact d-none">
-				<!-- options are added via script -->
+				<!-- options are added via script ->
 			</ul>
 			
 			<h3>Gebouwen</h3>
 			<input id="building-buy-orders-input" type="hidden" name="buildingBuyOrders">
 			<p id="no-building-buy-orders">Je hebt geen kooporders voor gebouwen geplaatst.</p>
 			<ul id="building-buy-orders-list" class="list-compact d-none">
-				<!-- options are added via script -->
+				<!-- options are added via script ->
 			</ul>
 			
 			<h2>💰 Verkopen</h2>
@@ -38,24 +61,24 @@
 			<input id="product-sell-orders-input" type="hidden" name="productSellOrders">
 			<p id="no-product-sell-orders">Je hebt geen verkooporders voor producten geplaatst.</p>
 			<ul id="product-sell-orders-list" class="list-compact d-none">
-				<!-- options are added via script -->
+				<!-- options are added via script ->
 			</ul>
 			
 			<h3>Gebouwen</h3>
 			<input id="building-sell-orders-input" type="hidden" name="buildingSellOrders">
 			<p id="no-building-sell-orders">Je hebt geen verkooporders voor gebouwen geplaatst.</p>
 			<ul id="building-sell-orders-list" class="list-compact d-none">
-				<!-- options are added via script -->
+				<!-- options are added via script ->
 			</ul>
 			
 			<button class="button-1" type="submit">Bevestigen</button>
 		</form>
 	</div>
 	
-	<a class="button-back" href="/game/actions">← Acties</a>
+	<a class="button-back" href="/game/actions">← Acties</a-->
 </div>
 
-<div id="create-order-window" class="offcanvas offcanvas-start" data-bs-backdrop="true" data-bs-scroll="false" tabindex="-1">
+<!--div id="create-order-window" class="offcanvas offcanvas-start" data-bs-backdrop="true" data-bs-scroll="false" tabindex="-1">
 	<div class="offcanvas-header">
 		<h2>📈 Order maken</h2>
 		
@@ -83,9 +106,9 @@
 			</li>
 			
 			<li id="item-field" class="list-item-justify d-none">
-				<label for="item" id="item-label"><!-- label is added via script --></label>
+				<label for="item" id="item-label"><!-- label is added via script -></label>
 				<select id="item" class="list-select">
-					<!-- options are added via script -->
+					<!-- options are added via script ->
 				</select>
 			</li>
 			
@@ -95,7 +118,7 @@
 			</li>
 			
 			<li id="unit-price-field" class="list-item-justify d-none">
-				<label for="unit-price" id="unit-price-label"><!-- label is added via script --></label>
+				<label for="unit-price" id="unit-price-label"><!-- label is added via script -></label>
 				<input id="unit-price" class="list-input-price" type="number" min="1" step="1" value="0">
 			</li>
 		</ul>
@@ -104,9 +127,43 @@
 			<button id="place-order-button" class="button-2" type="button">Order plaatsen</button>
 		</div>
 	</div>
-</div>
+</div-->
 
-<script src="/js/shared-ui.js"></script>
+<script>
+function clickNext() {
+	goToNextStep(stepData);
+}
+
+function clickBack() {
+	goToPreviousStep(stepData);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+	const containerDiv = document.getElementById('container-div');
+	const finishButton = document.getElementById('finish-button');
+	const nextButton = document.getElementById('next-button');
+	const backButton = document.getElementById('back-button');
+	
+	const isFirstStep = (window.stepData.thisStep === window.stepData.firstStep);
+	const isLastStep = (window.stepData.thisStep === window.stepData.lastStep);
+	
+	if (isLastStep) {
+		nextButton.classList.add('d-none');
+	} else {
+		finishButton.classList.add('d-none');
+	}
+	if (isFirstStep) {
+		backButton.classList.add('d-none');
+	}
+	
+	nextButton.addEventListener('click', clickNext);
+	backButton.addEventListener('click', clickBack);
+	
+	containerDiv.classList.remove('d-none');
+});
+</script>
+
+<!--script src="/js/shared-ui.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -494,4 +551,4 @@ document.addEventListener('DOMContentLoaded', () => {
 		);
 	}
 });
-</script>
+</script-->

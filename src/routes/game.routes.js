@@ -1,36 +1,44 @@
 //=== Imports ===================================================================================//
 import express from 'express';
 
-/*import { 
+import { 
 	requireAuthenticated
 } from '../middleware/auth.middleware.js';
 
 import {
-	requireWorldSelected,
+	requireWorldSession/*,
 	requireCharacterSelected,
-	requireCharacterCustomized
+	requireCharacterCustomized*/
 } from '../middleware/game.middleware.js';
 
 import {
 	showChooseWorld,
-	handleChooseWorld,
+	handleChooseWorld/*,
 	showCustomizeCharacter,
-	handleCustomizeCharacter,
+	handleCustomizeCharacter*/,
 	showMenu,
 	showCharacter,
 	showTurn,
+	showCustomizeCharacter,
+	showManageBuildings,
+	showManageEmploymentContracts,
+	showManageRentalAgreements,
+	showProduce,
+	showTrade,
+	showShare,
+	showConsume,
+	showManageGroup/*,
 	handleTurn,
-	showStatistics
+	showStatistics*/
 } from '../controllers/game.controllers.js';
 
 //=== Constants =================================================================================//
-const requireAuthenticatedAndSelected = [
+const requireGameAccess = [
 	requireAuthenticated,
-	requireWorldSelected,
-	requireCharacterSelected
+	requireWorldSession
 ];
 
-const requireAuthenticatedAndCustomized = [
+/*const requireAuthenticatedAndCustomized = [
 	requireAuthenticated,
 	requireWorldSelected,
 	requireCharacterSelected,
@@ -40,20 +48,29 @@ const requireAuthenticatedAndCustomized = [
 //=== Main ======================================================================================//
 const router = express.Router();
 
-/*router.get( '/setup/choose-world', requireAuthenticated, showChooseWorld);
-router.post('/setup/choose-world', requireAuthenticated, handleChooseWorld);
+router.get( '/choose-world', requireAuthenticated, showChooseWorld);
+router.post('/choose-world', requireAuthenticated, handleChooseWorld);
 
-router.get( '/setup/customize-character', requireAuthenticatedAndSelected, showCustomizeCharacter);
-router.post('/setup/customize-character', requireAuthenticatedAndSelected, handleCustomizeCharacter);
+//router.get( '/setup/customize-character', requireAuthenticatedAndSelected, showCustomizeCharacter);
+//router.post('/setup/customize-character', requireAuthenticatedAndSelected, handleCustomizeCharacter);
 
-router.get( '/', requireAuthenticatedAndCustomized, showMenu);
+router.get( '/', requireGameAccess, showMenu);
 
-router.get( '/character', requireAuthenticatedAndCustomized, showCharacter);
+router.get( '/character', requireGameAccess, showCharacter);
 
-router.get( '/turn', requireAuthenticatedAndCustomized, showTurn);
-router.post('/turn', requireAuthenticatedAndCustomized, handleTurn);
+router.get( '/turn', requireGameAccess, showTurn);
+router.get( '/turn/customize-character', requireGameAccess, showCustomizeCharacter);
+router.get( '/turn/manage-buildings', requireGameAccess, showManageBuildings);
+router.get( '/turn/manage-employment-contracts', requireGameAccess, showManageEmploymentContracts);
+router.get( '/turn/manage-rental-agreements', requireGameAccess, showManageRentalAgreements);
+router.get( '/turn/produce', requireGameAccess, showProduce);
+router.get( '/turn/trade', requireGameAccess, showTrade);
+router.get( '/turn/share', requireGameAccess, showShare);
+router.get( '/turn/consume', requireGameAccess, showConsume);
+router.get( '/turn/manage-group', requireGameAccess, showManageGroup);
+//router.post('/turn', requireAuthenticatedAndCustomized, handleTurn);
 
-router.get('/statistics', requireAuthenticatedAndCustomized, showStatistics);*/
+//router.get('/statistics', requireAuthenticatedAndCustomized, showStatistics);
 
 //=== Export ====================================================================================//
 export default {

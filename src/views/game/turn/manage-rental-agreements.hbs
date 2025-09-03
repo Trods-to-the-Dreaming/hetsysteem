@@ -1,9 +1,32 @@
 {{#block "title"}}Huurcontracten beheren{{/block}}
 
-<div class="container-compact">
+{{#block "headScripts"}}
+<script src="/js/turn.js"></script>
+<script>
+	ensureBeginTurn();
+	
+	window.stepData = {
+		steps: JSON.parse(localStorage.getItem('steps')),
+		firstStep: parseInt(localStorage.getItem('firstStep'), 10),
+		lastStep: parseInt(localStorage.getItem('lastStep'), 10),
+		currentStep: parseInt(localStorage.getItem('currentStep'), 10),
+		thisStep: 3
+	};
+	
+	ensureValidStep(window.stepData);
+</script>
+{{/block}}
+
+<div id="container-div" class="container-compact d-none">
 	<h1>Huurcontracten beheren</h1>
 	
-	<h2>🔑 Huurder</h2>
+	<button id="finish-button" class="button-1">Voltooien</button>
+	<button id="next-button" class="button-1">Volgende →</button>
+	<button id="back-button" class="button-1">← Vorige</button>
+	
+	<a class="button-2" href="/game">↑ Spelmenu</a>
+	
+	<!--h2>🔑 Huurder</h2>
 	
 	<h3>Huren</h3>
 	groepsgrootte opgeven
@@ -21,5 +44,39 @@
 	
 	bij de contracten de vraag en de aanbodprijs bewaren, zodat die bij het verbreken door een van de partijen opnieuw kan worden gebruikt
 
-	<a class="button-back" href="/game">← Spelmenu</a>
+	<a class="button-back" href="/game">← Spelmenu</a-->
 </div>
+
+<script>
+function clickNext() {
+	goToNextStep(stepData);
+}
+
+function clickBack() {
+	goToPreviousStep(stepData);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+	const containerDiv = document.getElementById('container-div');
+	const finishButton = document.getElementById('finish-button');
+	const nextButton = document.getElementById('next-button');
+	const backButton = document.getElementById('back-button');
+	
+	const isFirstStep = (window.stepData.thisStep === window.stepData.firstStep);
+	const isLastStep = (window.stepData.thisStep === window.stepData.lastStep);
+	
+	if (isLastStep) {
+		nextButton.classList.add('d-none');
+	} else {
+		finishButton.classList.add('d-none');
+	}
+	if (isFirstStep) {
+		backButton.classList.add('d-none');
+	}
+	
+	nextButton.addEventListener('click', clickNext);
+	backButton.addEventListener('click', clickBack);
+	
+	containerDiv.classList.remove('d-none');
+});
+</script>

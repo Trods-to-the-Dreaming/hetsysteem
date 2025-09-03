@@ -57,7 +57,7 @@ export const handleLogin = async (req, res, next) => {
 		req.session.username = user.name;
 		await saveSession(req);
 		
-		return res.redirect('/game/setup/choose-world');
+		return res.redirect('/game/choose-world');
 	} catch (err) {
 		next(err); 
 	}
@@ -101,7 +101,7 @@ export const handleRegister = async (req, res, next) => {
 		req.session.username = user.name
 		await saveSession(req);
 		
-		return res.redirect('/game/setup/choose-world');
+		return res.redirect('/game/choose-world');
 	} catch (err) {
 		next(err);
 	}

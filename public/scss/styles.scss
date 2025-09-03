@@ -204,13 +204,6 @@ h3 {
 
 .button-2 {
 	@extend .btn;
-	@extend .btn-secondary;
-	@extend .w-100;
-	@extend .mb-3;
-}
-
-.button-back {
-	@extend .btn;
 	@extend .btn-outline-primary;
 	@extend .w-100;
 	@extend .mb-3;

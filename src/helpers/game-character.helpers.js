@@ -1,5 +1,5 @@
 //=== Imports ===================================================================================//
-import db from '../utils/db.js';
+import knex from '../utils/db.js';
 import { 
 	BadRequestError 
 } from '../utils/errors.js';
@@ -19,46 +19,44 @@ import {
 //--- Build character view ----------------------------------------------------------------------//
 export const buildCharacterView = async (characterId,
 										 worldId,
-										 connection = db) => {
-	const [[character]] = await connection.execute(
-		`SELECT c.first_name,
-				c.last_name,
-				j1.name AS job_preference_1,
-				j2.name AS job_preference_2,
-				j3.name AS job_preference_3,
-				p.name AS recreation_preference,
-				c.birth_date,
-				c.health,
-				c.life_expectancy,
-				c.happiness,
-				c.education,
-				c.balance,
-				c.owned_tiles
-		 FROM characters c
-		 INNER JOIN jobs j1 ON c.job_preference_1_id = j1.id
-		 INNER JOIN jobs j2 ON c.job_preference_2_id = j2.id
-		 INNER JOIN jobs j3 ON c.job_preference_3_id = j3.id
-		 INNER JOIN recreations r ON c.recreation_preference_id = r.id
-		 INNER JOIN products p ON r.product_id = p.id
-		 WHERE c.id = ?`,
-		[characterId]
-	);
+										 trx = knex) => {
+	const character = await trx('characters as c')
+		.select(
+			'c.first_name as firstName',
+			'c.last_name as lastName',
+			'j1.type as jobPreference1',
+			'j2.type as jobPreference2',
+			'j3.type as jobPreference3',
+			'p.type as recreationPreference',
+			'c.birth_date as birthDate',
+			'c.health',
+			'c.life_expectancy as lifeExpectancy',
+			'c.happiness',
+			'c.education',
+			'c.balance',
+			'c.owned_tiles as ownedTiles'
+		)
+		.innerJoin('jobs as j1', 'c.job_preference_1_id', 'j1.id')
+		.innerJoin('jobs as j2', 'c.job_preference_2_id', 'j2.id')
+		.innerJoin('jobs as j3', 'c.job_preference_3_id', 'j3.id')
+		.innerJoin('recreations as r', 'c.recreation_preference_id', 'r.id')
+		.innerJoin('products as p', 'r.product_id', 'p.id')
+		.where('c.id', characterId)
+		.first();
 	if (!character) {
 		throw new BadRequestError(MSG_INVALID_CHARACTER);
 	}
 	
-	const [[world]] = await connection.execute(
-		`SELECT current_turn 
-		 FROM world_state
-		 WHERE world_id = ?`,
-		[worldId]
-	);
+	const world = await trx('world_state')
+		.select('current_turn as currentTurn')
+		.where('world_id', worldId)
+		.first();
 	if (!world) {
 		throw new BadRequestError(MSG_INVALID_WORLD);
 	}
 	
 	// Calculate age
-	character.age = (world.current_turn - character.birth_date) * YEARS_PER_TURN;
+	character.age = (world.currentTurn - character.birthDate) * YEARS_PER_TURN;
 	
 	// Calculate education level
 	const educationIndex = Math.floor(character.education); // TO DO: change formula
@@ -66,17 +64,15 @@ export const buildCharacterView = async (characterId,
 	delete character.education;
 	
 	// Job experience
-	const [jobExperience] = await connection.execute(
-		`SELECT j.type AS job,
-				ce.experience AS experience_hours
-		 FROM character_experience ce
-		 INNER JOIN jobs j ON ce.job_id = j.id
-		 WHERE ce.character_id = ?`,
-		[characterId]
-	);	
+	const jobExperience = await trx('character_experience as ce')
+		.select(
+			'j.type as job',
+			'ce.experience AS experienceHours')
+		.innerJoin('jobs as j', 'ce.job_id', 'j.id')
+		.where('ce.character_id', characterId);
 	character.experience = jobExperience.map((row) => ({
 		job: row.job,
-		experience_years: convertHoursToYears(row.experience_hours),
+		experienceYears: convertHoursToYears(row.experienceHours),
 	}));
 
 	return character;

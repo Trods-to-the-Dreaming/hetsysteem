@@ -7,7 +7,7 @@ import path from 'path';
 import fs from 'fs';
 import { pathToFileURL } from 'url';
 
-import { knex } from './src/utils/db.js';
+import knex from './src/utils/db.js';
 import { ConnectSessionKnexStore } from 'connect-session-knex';
 
 //=== Constants =================================================================================//

@@ -6,7 +6,7 @@ import Knex from 'knex';
 //=== Main ======================================================================================//
 dotenv.config({ path: path.join(process.cwd(), '.env')});
 
-export const knex = Knex({
+const knex = Knex({
 	client: 'mysql2',
 	connection: {
 		host: 	  process.env.DB_HOST,
@@ -20,3 +20,6 @@ export const knex = Knex({
 		max: 20 
 	}
 });
+
+//=== Export ====================================================================================//
+export default knex;

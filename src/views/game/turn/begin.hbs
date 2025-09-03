@@ -1,0 +1,21 @@
+{{#block "title"}}Beurt{{/block}}
+
+<script>
+	const character = {{{json character}}};
+	const steps = {{{json steps}}};
+	const firstStep = {{firstStep}};
+	const lastStep = {{lastStep}};
+	const currentStep = {{currentStep}};
+	
+	console.log(steps);
+	
+	localStorage.setItem('character', JSON.stringify(character));
+	localStorage.setItem('steps', JSON.stringify(steps));
+	localStorage.setItem('firstStep', firstStep);
+	localStorage.setItem('lastStep', lastStep);
+	localStorage.setItem('currentStep', currentStep);
+	
+	localStorage.setItem('beginTurn', true);
+	
+	window.location.replace(steps[currentStep].url);
+</script>

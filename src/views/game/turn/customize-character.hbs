@@ -1,9 +1,32 @@
 {{#block "title"}}Personage aanpassen{{/block}}
 
-<div class="container-compact">
+{{#block "headScripts"}}
+<script src="/js/turn.js"></script>
+<script>
+	ensureBeginTurn();
+	
+	window.stepData = {
+		steps: JSON.parse(localStorage.getItem('steps')),
+		firstStep: parseInt(localStorage.getItem('firstStep'), 10),
+		lastStep: parseInt(localStorage.getItem('lastStep'), 10),
+		currentStep: parseInt(localStorage.getItem('currentStep'), 10),
+		thisStep: 0
+	};
+	
+	ensureValidStep(window.stepData);
+</script>
+{{/block}}
+
+<div id="container-div" class="container-compact d-none">
 	<h1>Personage aanpassen</h1>
 	
-	<form id="customize-character-form" method="POST" action="/game/setup/customize-character">
+	<button id="finish-button" class="button-1">Voltooien</button>
+	<button id="next-button" class="button-1">Volgende →</button>
+	<button id="back-button" class="button-1">← Vorige</button>
+	
+	<a class="button-2" href="/game">↑ Spelmenu</a>
+	
+	<!--form id="customize-character-form" method="POST" action="/game/setup/customize-character">
 		<div class="field">
 			<label for="first-name" class="form-label">Voornaam:</label>
 			<input id="first-name" class="form-control" type="text" name="firstName" value="{{firstName}}" required>
@@ -53,14 +76,44 @@
 		</div>
 		
 		<button class="button-1" type="submit">Volgende</button>
-	</form>
-		
-	<a class="button-back" href="/game/setup/choose-world">Terug</a>
+	</form-->
 </div>
 
 <script>
+function clickNext() {
+	goToNextStep(stepData);
+}
+
+function clickBack() {
+	goToPreviousStep(stepData);
+}
+	
 document.addEventListener('DOMContentLoaded', () => {
-	//--- Elements ------------------------------------------------------------------------------//
+	const containerDiv = document.getElementById('container-div');
+	const finishButton = document.getElementById('finish-button');
+	const nextButton = document.getElementById('next-button');
+	const backButton = document.getElementById('back-button');
+	
+	const isFirstStep = (window.stepData.thisStep === window.stepData.firstStep);
+	const isLastStep = (window.stepData.thisStep === window.stepData.lastStep);
+	
+	if (isLastStep) {
+		nextButton.classList.add('d-none');
+	} else {
+		finishButton.classList.add('d-none');
+	}
+	if (isFirstStep) {
+		backButton.classList.add('d-none');
+	}
+	
+	nextButton.addEventListener('click', clickNext);
+	backButton.addEventListener('click', clickBack);
+	
+	containerDiv.classList.remove('d-none');
+	
+	//window.location.assign('/game/turn/end');
+	
+	/*//--- Elements ------------------------------------------------------------------------------//
 	const firstNameInput = document.getElementById('first-name');
 	const lastNameInput = document.getElementById('last-name');
 	const jobPreference1Select = document.getElementById('job-preference-1');
@@ -129,6 +182,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 		
 		nameInput.reportValidity();
-	}
+	}*/
 });
 </script>

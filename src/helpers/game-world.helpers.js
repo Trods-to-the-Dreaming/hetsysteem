@@ -1,5 +1,5 @@
 //=== Imports ===================================================================================//
-import { knex } from '../utils/db.js';
+import knex from '../utils/db.js';
 import { 
 	BadRequestError, 
 	ConflictError 
@@ -7,18 +7,18 @@ import {
 
 import {
 	MSG_INVALID_WORLD,
+	MSG_NO_CHARACTER_CLAIMED/*,
 	MSG_INVALID_CHARACTER,
 	MSG_INVALID_NAME,
 	MSG_INVALID_JOB,
 	MSG_INVALID_RECREATION,
-	MSG_NO_CHARACTER_CLAIMED,
-	MSG_ALREADY_CUSTOMIZED
+	MSG_ALREADY_CUSTOMIZED*/
 } from '../constants/game.messages.js';
 
 import { 
-	getAllWorlds,
+	getAllWorlds/*,
 	getAllJobs,
-	getAllRecreations
+	getAllRecreations*/
 } from './game-static.helpers.js';
 
 //=== Main ======================================================================================//
@@ -44,10 +44,8 @@ export const findUserCharacter = async (userId,
 			'last_name as lastName',
 			'is_customized as isCustomized'
 		)
-		.where({
-			'user_id': userId,
-			'world_id': worldId
-		})
+		.where('user_id', userId)
+		.andWhere('world_id', worldId)
 		.first();
 	
 	return character || null;
@@ -60,10 +58,8 @@ export const claimAICharacter = async (userId,
 	// Find an AI-character
 	const freeCharacter = await trx('characters')
 		.select('id')
-		.where({
-			'user_id': null,
-			'world_id': worldId
-		})
+		.where('user_id', null)
+		.andWhere('world_id', worldId)
 		.forUpdate()
 		.first();
 	if (!freeCharacter) {
@@ -73,10 +69,8 @@ export const claimAICharacter = async (userId,
 
 	// Claim the AI-character
 	const updatedRows = await trx('characters')
-		.where({
-			id: characterId,
-			user_id: null
-		})
+		.where('id', characterId)
+		.andWhere('user_id', null)
 		.update({
 			user_id: userId,
 			is_customized: false
@@ -93,11 +87,11 @@ export const claimAICharacter = async (userId,
 			'last_name as lastName', 
 			'is_customized as isCustomized'
 		)
-		.where({ id: characterId })
+		.where('id', characterId)
 		.first();
 	return character;
 };
-
+/*
 //--- Validate character id ---------------------------------------------------------------------//
 export const validateCharacterId = async (characterId, 
 										  trx = knex) => {
@@ -214,3 +208,4 @@ function isValidName(name) {
 	const validChars = /^[A-Za-zÀ-ÖØ-öø-ÿĀ-ž]+(?:[ '-][A-Za-zÀ-ÖØ-öø-ÿĀ-ž]+)*$/;
 	return validChars.test(name);
 }
+*/

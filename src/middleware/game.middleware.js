@@ -1,7 +1,8 @@
 //=== Main ======================================================================================//
-export const requireWorldSelected = (req, res, next) => {
+export const requireWorldSession = (req, res, next) => {
 	if (req.session.worldId && 
-		req.session.worldType) {
+		req.session.worldType &&
+		req.session.characterId) {
 		res.locals.worldType = req.session.worldType;
 		switch (req.session.worldType) {
 			case 'Zo zuiver als goud':
@@ -16,11 +17,11 @@ export const requireWorldSelected = (req, res, next) => {
 		}
 		next();
 	} else {
-		res.redirect('/game/setup/choose-world');
+		res.redirect('/game/choose-world');
 	}
 };
 
-export const requireCharacterSelected = (req, res, next) => {
+/*export const requireCharacterSelected = (req, res, next) => {
 	if (req.session.characterId) {
 		next();
 	} else {
@@ -37,4 +38,4 @@ export const requireCharacterCustomized = (req, res, next) => {
 	} else {
 		res.redirect('/game/setup/customize-character');
 	}
-};
+};*/
