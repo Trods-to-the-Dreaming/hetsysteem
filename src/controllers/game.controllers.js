@@ -155,33 +155,35 @@ export const showTurn = async (req, res, next) => {
 			}
 		*/
 		
+		const turnNumber = 0;
+		
 		const character = {
 			isCustomized: true
 		};
 		
 		const steps = [
-			{ url: '/game/turn/customize-character', show: !character.isCustomized },
-			{ url: '/game/turn/manage-buildings', show: true },
-			{ url: '/game/turn/manage-employment-contracts', show: false },
-			{ url: '/game/turn/manage-rental-agreements', show: true },
-			{ url: '/game/turn/produce', show: true },
-			{ url: '/game/turn/trade', show: true },
-			{ url: '/game/turn/share', show: true },
-			{ url: '/game/turn/consume', show: true },
-			{ url: '/game/turn/manage-group', show: true }
+			{ url: '/game/turn/customize-character', isRelevant: !character.isCustomized },
+			{ url: '/game/turn/manage-buildings', isRelevant: true },
+			{ url: '/game/turn/manage-employment-contracts', isRelevant: false },
+			{ url: '/game/turn/manage-rental-agreements', isRelevant: true },
+			{ url: '/game/turn/produce', isRelevant: true },
+			{ url: '/game/turn/trade', isRelevant: true },
+			{ url: '/game/turn/share', isRelevant: true },
+			{ url: '/game/turn/consume', isRelevant: true },
+			{ url: '/game/turn/manage-group', isRelevant: true }
 		];
 		
-		const firstStep = steps.findIndex(step => step.show === true);
-		const lastStep = steps.findLastIndex(step => step.show === true);
+		const firstStep = steps.findIndex(step => step.isRelevant === true);
+		const lastStep = steps.findLastIndex(step => step.isRelevant === true);
 		
-		const currentStep = firstStep;
+		const activeStep = firstStep;
 
 		res.render('game/turn/begin', {
 			character,
 			steps,
 			firstStep,
 			lastStep,
-			currentStep
+			activeStep
 		});
 	} catch (err) {
 		next(err);

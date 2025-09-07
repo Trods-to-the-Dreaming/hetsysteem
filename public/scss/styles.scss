@@ -204,9 +204,26 @@ h3 {
 
 .button-2 {
 	@extend .btn;
+	@extend .btn-secondary;
+	@extend .w-100;
+	@extend .mb-3;
+}
+
+.button-up {
+	@extend .btn;
 	@extend .btn-outline-primary;
 	@extend .w-100;
 	@extend .mb-3;
+}
+
+.button-ok {
+	@extend .btn;
+	@extend .btn-primary;
+}
+
+.button-cancel {
+	@extend .btn;
+	@extend .btn-secondary;
 }
 
 .change {

@@ -5,17 +5,15 @@
 	const steps = {{{json steps}}};
 	const firstStep = {{firstStep}};
 	const lastStep = {{lastStep}};
-	const currentStep = {{currentStep}};
-	
-	console.log(steps);
+	const activeStep = {{activeStep}};
 	
 	localStorage.setItem('character', JSON.stringify(character));
 	localStorage.setItem('steps', JSON.stringify(steps));
 	localStorage.setItem('firstStep', firstStep);
 	localStorage.setItem('lastStep', lastStep);
-	localStorage.setItem('currentStep', currentStep);
+	localStorage.setItem('activeStep', activeStep);
 	
-	localStorage.setItem('beginTurn', true);
+	localStorage.setItem('begin', true);
 	
-	window.location.replace(steps[currentStep].url);
+	window.location.replace(steps[activeStep].url);
 </script>

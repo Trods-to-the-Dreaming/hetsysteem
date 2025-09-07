@@ -3,60 +3,30 @@
 {{#block "headScripts"}}
 <script src="/js/turn.js"></script>
 <script>
-	ensureBeginTurn();
-	
-	window.stepData = {
-		steps: JSON.parse(localStorage.getItem('steps')),
-		firstStep: parseInt(localStorage.getItem('firstStep'), 10),
-		lastStep: parseInt(localStorage.getItem('lastStep'), 10),
-		currentStep: parseInt(localStorage.getItem('currentStep'), 10),
-		thisStep: 6
-	};
-	
-	ensureValidStep(window.stepData);
+	window.turn.thisStep = 6;
+	window.turn.ensureValidStep();
 </script>
 {{/block}}
 
 <div id="container-div" class="container-compact d-none">
 	<h1>Delen</h1>
 	
-	<button id="finish-button" class="button-1">Voltooien</button>
-	<button id="next-button" class="button-1">Volgende →</button>
-	<button id="back-button" class="button-1">← Vorige</button>
+	<button id="next-button" class="button-1" type="button">Volgende →</button>
+	<button id="back-button" class="button-1" type="button">← Vorige</button>
+	<button id="edit-button" class="button-1" type="button">Bewerken</button>
+	<button id="finish-button" class="button-1" type="button">Voltooien</button>
 	
-	<a class="button-2" href="/game">↑ Spelmenu</a>
+	<button id="cancel-button" class="button-up" type="button">↑ Annuleren</button>
 </div>
 
 <script>
-function clickNext() {
-	goToNextStep(stepData);
-}
-
-function clickBack() {
-	goToPreviousStep(stepData);
-}
+window.addEventListener('pageshow', (event) => {
+	window.turn.ensureValidStep();
+	window.turn.setupUI();
+});
 
 document.addEventListener('DOMContentLoaded', () => {
-	const containerDiv = document.getElementById('container-div');
-	const finishButton = document.getElementById('finish-button');
-	const nextButton = document.getElementById('next-button');
-	const backButton = document.getElementById('back-button');
-	
-	const isFirstStep = (window.stepData.thisStep === window.stepData.firstStep);
-	const isLastStep = (window.stepData.thisStep === window.stepData.lastStep);
-	
-	if (isLastStep) {
-		nextButton.classList.add('d-none');
-	} else {
-		finishButton.classList.add('d-none');
-	}
-	if (isFirstStep) {
-		backButton.classList.add('d-none');
-	}
-	
-	nextButton.addEventListener('click', clickNext);
-	backButton.addEventListener('click', clickBack);
-	
-	containerDiv.classList.remove('d-none');
+	window.turn.insertEditModal();
+	window.turn.bindUIEvents();
 });
 </script>
