@@ -1,19 +1,23 @@
 {{#block "title"}}Beurt{{/block}}
 
 <script>
-	const character = {{{json character}}};
+	const stepsData = {{{json stepsData}}};
+	
 	const steps = {{{json steps}}};
 	const firstStep = {{firstStep}};
 	const lastStep = {{lastStep}};
 	const activeStep = {{activeStep}};
+
+	stepsData.forEach((stepData, index) => {
+		localStorage.setItem(`turn.step.${index}`, JSON.stringify(stepData));
+	});
 	
-	localStorage.setItem('character', JSON.stringify(character));
-	localStorage.setItem('steps', JSON.stringify(steps));
-	localStorage.setItem('firstStep', firstStep);
-	localStorage.setItem('lastStep', lastStep);
-	localStorage.setItem('activeStep', activeStep);
+	localStorage.setItem('turn.steps', JSON.stringify(steps));
+	localStorage.setItem('turn.firstStep', firstStep);
+	localStorage.setItem('turn.lastStep', lastStep);
+	localStorage.setItem('turn.activeStep', activeStep);
 	
-	localStorage.setItem('begin', true);
+	localStorage.setItem('turn.begin', true);
 	
 	window.location.replace(steps[activeStep].url);
 </script>

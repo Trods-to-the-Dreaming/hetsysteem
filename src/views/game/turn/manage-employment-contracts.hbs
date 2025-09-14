@@ -11,13 +11,6 @@
 <div id="container-div" class="container-compact d-none">
 	<h1>Arbeidsovereenkomsten beheren</h1>
 	
-	<button id="next-button" class="button-1" type="button">Volgende →</button>
-	<button id="back-button" class="button-1" type="button">← Vorige</button>
-	<button id="edit-button" class="button-1" type="button">Bewerken</button>
-	<button id="finish-button" class="button-1" type="button">Voltooien</button>
-	
-	<button id="cancel-button" class="button-up" type="button">↑ Annuleren</button>
-	
 	<!--h2>👷 Werknemer</h2>
 	
 	<h3>Solliciteren</h3>
@@ -40,13 +33,13 @@
 </div>
 
 <script>
+document.addEventListener('DOMContentLoaded', () => {
+	window.turn.insertUI();
+	window.turn.bindUIEvents();
+});
+
 window.addEventListener('pageshow', (event) => {
 	window.turn.ensureValidStep();
 	window.turn.setupUI();
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-	window.turn.insertEditModal();
-	window.turn.bindUIEvents();
 });
 </script>

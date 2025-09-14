@@ -1,7 +1,79 @@
 window.turn = window.turn || {};
+window.step = window.step || {};
 
-//--- Insert edit modal -------------------------------------------------------------------------//
-window.turn.insertEditModal = function() {
+
+
+//--- Ensure validity ---------------------------------------------------------------------------//
+window.step.ensureValidity = function() {
+	window.turn.begin = localStorage.getItem('turn.begin');
+	
+	// Check if the turn has begun
+	if (window.turn.begin === null) {
+		window.location.replace('/game/turn/begin');
+		return;
+	}
+	
+	window.turn.steps = JSON.parse(localStorage.getItem('turn.steps'));
+	window.turn.activeStepIndex = parseInt(localStorage.getItem('turn.activeStepIndex'), 10);
+	
+	// Check if this step is allowed
+	if (!window.turn.steps[window.turn.thisStep].isRelevant ||
+		window.turn.thisStep > window.turn.activeStep) {
+		window.location.replace(window.turn.steps[window.turn.activeStep].url);
+		return;
+	}
+	
+	window.turn.firstStep = parseInt(localStorage.getItem('turn.firstStep'), 10);
+	window.turn.lastStep = parseInt(localStorage.getItem('turn.lastStep'), 10);
+}
+
+
+
+
+//--- Ensure valid step -------------------------------------------------------------------------//
+window.step.ensureValidStep = function() {
+	window.turn.begin = localStorage.getItem('turn.begin');
+	
+	// Check if the turn has begun
+	if (window.turn.begin === null) {
+		window.location.replace('/game/turn/begin');
+		return;
+	}
+	
+	window.turn.steps = JSON.parse(localStorage.getItem('turn.steps'));
+	window.turn.activeStep = parseInt(localStorage.getItem('turn.activeStep'), 10);
+	
+	// Check if this step is allowed
+	if (!window.turn.steps[window.turn.thisStep].isRelevant ||
+		window.turn.thisStep > window.turn.activeStep) {
+		window.location.replace(window.turn.steps[window.turn.activeStep].url);
+		return;
+	}
+	
+	window.turn.firstStep = parseInt(localStorage.getItem('turn.firstStep'), 10);
+	window.turn.lastStep = parseInt(localStorage.getItem('turn.lastStep'), 10);
+}
+
+//--- Initialize --------------------------------------------------------------------------------//
+window.step.initialize = function() {
+	windowstep.loadData();
+	windowstep.insertUI();
+	windowstep.bindUIEvents();
+	windowstep.setVisibility();
+}
+
+//--- Insert UI ---------------------------------------------------------------------------------//
+window.step.insertUI = function() {
+	const UI = window.step.getUI();
+	
+	const buttons = `
+		<button id="next-button" class="button-1" type="button">Volgende →</button>
+		<button id="back-button" class="button-1" type="button">← Vorige</button>
+		<button id="edit-button" class="button-1" type="button">Bewerken</button>
+		<button id="finish-button" class="button-1" type="button">Voltooien</button>
+		<button id="cancel-button" class="button-up" type="button">↑ Annuleren</button>`;
+	UI.containerDiv.insertAdjacentHTML('beforeend', buttons);
+	
 	const editModal = `
 		<div id="edit-warning-div" class="modal fade" tabindex="-1" role="dialog" 
 			 aria-hidden="true">
@@ -27,68 +99,24 @@ window.turn.insertEditModal = function() {
 				</div>
 			</div>
 		</div>`;
-	
-	document.body.insertAdjacentHTML('beforeend', editModal);
+	UI.containerDiv.insertAdjacentHTML('afterend', editModal);
 }
 
-//--- Ensure valid step -------------------------------------------------------------------------//
-window.turn.ensureValidStep = function() {
-	window.turn.begin = localStorage.getItem('begin');
+//--- Bind UI events ----------------------------------------------------------------------------//
+window.step.bindUIEvents = function() {
+	const UI = window.step.getUI();
 	
-	if (window.turn.begin === null) {
-		window.location.replace('/game/turn/begin');
-		return;
-	}
-	
-	window.turn.steps = JSON.parse(localStorage.getItem('steps'));
-	window.turn.firstStep = parseInt(localStorage.getItem('firstStep'), 10);
-	window.turn.lastStep = parseInt(localStorage.getItem('lastStep'), 10);
-	window.turn.activeStep = parseInt(localStorage.getItem('activeStep'), 10);
-	
-	// Case 1: This is the active step -> show
-	if (window.turn.thisStep === window.turn.activeStep) {
-		return; 
-	}
-	
-	// Case 2: this is a previous relevant step -> show
-	if (window.turn.thisStep < window.turn.activeStep &&
-		window.turn.steps[window.turn.thisStep].isRelevant) {
-		return;
-	}
-	
-	// Case 3: This step is irrelevant, or another step must be handled first -> do not show
-	window.location.replace(window.turn.steps[window.turn.activeStep].url);
+	UI.editButton.addEventListener('click', window.step.edit);
+	UI.confirmEditButton.addEventListener('click', window.step.confirmEdit);
+	UI.nextButton.addEventListener('click', window.turn.goToNextStep);
+	UI.backButton.addEventListener('click', window.turn.goToPreviousStep);
+	UI.finishButton.addEventListener('click', window.turn.finish);
+	UI.cancelButton.addEventListener('click', window.turn.cancel);
 }
 
-//--- Get UI ------------------------------------------------------------------------------------//
-window.turn.getUI = function() {
-	const containerDiv = document.getElementById('container-div');
-	const formElements = Array.from(containerDiv.querySelectorAll('input, select'));
-	const nextButton = document.getElementById('next-button');
-	const backButton = document.getElementById('back-button');
-	const editButton = document.getElementById('edit-button');
-	const finishButton = document.getElementById('finish-button');
-	const cancelButton = document.getElementById('cancel-button');
-	
-	const editWarningDiv = document.getElementById('edit-warning-div');
-	const confirmEditButton = document.getElementById('confirm-edit-button');
-	
-	return {
-		containerDiv,
-		formElements,
-		nextButton,
-		backButton,
-		editButton,
-		finishButton,
-		cancelButton,
-		editWarningDiv,
-		confirmEditButton
-	};
-}
-
-//--- Set up UI ---------------------------------------------------------------------------------//
-window.turn.setupUI = function() {
-	const UI = window.turn.getUI();
+//--- Set visibility ----------------------------------------------------------------------------//
+window.step.setVisibility = function() {
+	const UI = window.step.getUI();
 	
 	const isFirstStep = (window.turn.thisStep === window.turn.firstStep);
 	const isLastStep = (window.turn.thisStep === window.turn.lastStep);
@@ -119,20 +147,73 @@ window.turn.setupUI = function() {
 	UI.containerDiv.classList.remove('d-none');
 };
 
-//--- Bind UI events ----------------------------------------------------------------------------//
-window.turn.bindUIEvents = function() {
-	const UI = window.turn.getUI();
+//--- Get UI ------------------------------------------------------------------------------------//
+window.step.getUI = function() {
+	const containerDiv = document.getElementById('container-div');
+	const formElements = Array.from(containerDiv.querySelectorAll('input, select'));
+	const nextButton = document.getElementById('next-button');
+	const backButton = document.getElementById('back-button');
+	const editButton = document.getElementById('edit-button');
+	const finishButton = document.getElementById('finish-button');
+	const cancelButton = document.getElementById('cancel-button');
 	
-	UI.nextButton.addEventListener('click', window.turn.goToNextStep);
-	UI.backButton.addEventListener('click', window.turn.goToPreviousStep);
-	UI.editButton.addEventListener('click', window.turn.editStep);
-	UI.confirmEditButton.addEventListener('click', window.turn.confirmEditStep);
-	UI.finishButton.addEventListener('click', window.turn.finishTurn);
-	UI.cancelButton.addEventListener('click', window.turn.cancelTurn);
+	const editWarningDiv = document.getElementById('edit-warning-div');
+	const confirmEditButton = document.getElementById('confirm-edit-button');
+	
+	return {
+		containerDiv,
+		formElements,
+		nextButton,
+		backButton,
+		editButton,
+		finishButton,
+		cancelButton,
+		editWarningDiv,
+		confirmEditButton
+	};
 }
+
+//--- Edit --------------------------------------------------------------------------------------//
+window.step.edit = function() {
+	const UI = window.step.getUI();
+	
+	const modal = new bootstrap.Modal(UI.editWarningDiv);
+	modal.show();
+}
+
+//--- Confirm edit ------------------------------------------------------------------------------//
+window.step.confirmEdit = function() {
+	const UI = window.step.getUI();
+	
+	const modal = bootstrap.Modal.getInstance(UI.editWarningDiv);
+	modal.hide();
+	
+	UI.editButton.classList.add('d-none');
+	UI.formElements.forEach(el => el.disabled = false);
+	
+	window.turn.activeStep = window.turn.thisStep;
+}
+
+//--- Load data ---------------------------------------------------------------------------------//
+window.step.loadData = function() {
+	window.step.data = JSON.parse(
+		localStorage.getItem(`turn.step.${window.turn.thisStep}`)
+	);
+	window.step.loadFields();
+};
+
+//--- Save data ---------------------------------------------------------------------------------//
+window.step.saveData = function() {
+	window.step.saveFields();
+	localStorage.setItem(
+		`turn.step.${window.turn.thisStep}`,
+		JSON.stringify(window.step.data)
+	);
+};
 
 //--- Go to next step ---------------------------------------------------------------------------//
 window.turn.goToNextStep = function() {
+	console.log('goToNextStep');
 	let nextStep = window.turn.thisStep + 1;
 	
 	while (nextStep <= window.turn.lastStep &&
@@ -142,7 +223,8 @@ window.turn.goToNextStep = function() {
 	
 	if (nextStep <= window.turn.lastStep) {
 		if (window.turn.thisStep === window.turn.activeStep) {
-			localStorage.setItem('activeStep', nextStep);
+			window.turn.saveStepData();
+			localStorage.setItem('turn.activeStep', nextStep);
 		}
 		window.location.assign(window.turn.steps[nextStep].url);
 	}
@@ -158,37 +240,35 @@ window.turn.goToPreviousStep = function() {
 	}
 	
 	if (previousStep >= window.turn.firstStep) {
+		window.turn.saveStepData();
 		window.location.assign(window.turn.steps[previousStep].url);
 	}
 }
 
-//--- Finish turn -------------------------------------------------------------------------------//
-window.turn.finishTurn = function() {
+//--- Finish ------------------------------------------------------------------------------------//
+window.turn.finish = function() {
+	window.turn.saveStepData();
 	window.location.assign('/game/turn/finish');
 }
 
-//--- Cancel turn -------------------------------------------------------------------------------//
-window.turn.cancelTurn = function() {
+//--- Cancel ------------------------------------------------------------------------------------//
+window.turn.cancel = function() {
+	localStorage.removeItem('turn.begin');
+	localStorage.removeItem('turn.steps');
+	localStorage.removeItem('turn.firstStep');
+	localStorage.removeItem('turn.lastStep');
+	localStorage.removeItem('turn.activeStep');
 	window.location.assign('/game');
 }
 
-//--- Edit step ---------------------------------------------------------------------------------//
-window.turn.editStep = function() {
-	const UI = window.turn.getUI();
-	
-	const modal = new bootstrap.Modal(UI.editWarningDiv);
-	modal.show();
-}
 
-//--- Confirm edit step -------------------------------------------------------------------------//
-window.turn.confirmEditStep = function() {
-	const UI = window.turn.getUI();
-	
-	const modal = bootstrap.Modal.getInstance(UI.editWarningDiv);
-	modal.hide();
-	
-	UI.editButton.classList.add('d-none');
-	UI.formElements.forEach(el => el.disabled = false);
-	
-	window.turn.activeStep = window.turn.thisStep;
+//--- Populate select ---------------------------------------------------------------------------//
+window.turn.populateSelect = function(select, options) {
+	select.innerHTML = "";
+	options.forEach(opt => {
+		const option = document.createElement("option");
+		option.value = opt;
+		option.textContent = opt;
+		select.appendChild(option);
+	});
 }

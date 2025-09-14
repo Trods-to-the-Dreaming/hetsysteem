@@ -157,12 +157,34 @@ export const showTurn = async (req, res, next) => {
 		
 		const turnNumber = 0;
 		
-		const character = {
-			isCustomized: true
+		const step0 = {
+			isCharacterCustomized: false,
+			firstName: 'Frodo',
+			lastName: 'Balings'
 		};
+		const step1 = {};
+		const step2 = {};
+		const step3 = {};
+		const step4 = {};
+		const step5 = {};
+		const step6 = {};
+		const step7 = {};
+		const step8 = {};
+		
+		const stepsData = [
+			step0,
+			step1,
+			step2,
+			step3,
+			step4,
+			step5,
+			step6,
+			step7,
+			step8
+		];
 		
 		const steps = [
-			{ url: '/game/turn/customize-character', isRelevant: !character.isCustomized },
+			{ url: '/game/turn/customize-character', isRelevant: !step0.isCharacterCustomized },
 			{ url: '/game/turn/manage-buildings', isRelevant: true },
 			{ url: '/game/turn/manage-employment-contracts', isRelevant: false },
 			{ url: '/game/turn/manage-rental-agreements', isRelevant: true },
@@ -179,7 +201,7 @@ export const showTurn = async (req, res, next) => {
 		const activeStep = firstStep;
 
 		res.render('game/turn/begin', {
-			character,
+			stepsData,
 			steps,
 			firstStep,
 			lastStep,

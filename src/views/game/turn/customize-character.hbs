@@ -10,152 +10,154 @@
 
 <div id="container-div" class="container-compact d-none">
 	<h1>Personage aanpassen</h1>
+
+	<div class="field">
+		<label for="first-name-input" class="form-label">Voornaam:</label>
+		<input id="first-name-input" class="form-control" type="text">
+	</div>
 	
-	<!-- Hier komt het formulier waar de speler zijn acties kan ingeven. -->
-	<!-- Moeten alle inputs, selects, enzovoort disabled zijn dan op enabled worden als de speler op "Bewerken" klikt? -->
+	<div class="field">
+		<label for="last-name-input" class="form-label">Achternaam:</label>
+		<input id="last-name-input" class="form-control" type="text">
+	</div>
 	
-	<button id="next-button" class="button-1" type="button">Volgende →</button>
-	<button id="back-button" class="button-1" type="button">← Vorige</button>
-	<button id="edit-button" class="button-1" type="button">Bewerken</button>
-	<button id="finish-button" class="button-1" type="button">Voltooien</button>
+	<p class="error" id="name-error-p"></p>
 	
-	<button id="cancel-button" class="button-up" type="button">↑ Annuleren</button>
+	<div class="field">
+		<label for="job-preference-1-select" class="form-label">Jobvoorkeur (★★★):</label>
+		<select id="job-preference-1-select" class="form-select"></select>
+	</div>
 	
-	<!--form id="customize-character-form" method="POST" action="/game/setup/customize-character">
-		<div class="field">
-			<label for="first-name" class="form-label">Voornaam:</label>
-			<input id="first-name" class="form-control" type="text" name="firstName" value="{{firstName}}" required>
-		</div>
-		
-		<div class="field">
-			<label for="last-name" class="form-label">Achternaam:</label>
-			<input id="last-name" class="form-control" type="text" name="lastName" value="{{lastName}}" required>
-		</div>
-		
-		<p class="error" id="name-error">{{nameError}}</p>
-		
-		<div class="field">
-			<label for="job-preference-1" class="form-label">Jobvoorkeur (★★★):</label>
-			<select id="job-preference-1" class="form-select" name="jobPreference1" required>
-				{{#each jobs}}
-					<option value="{{this.id}}" {{#if (eq @index 0)}}selected{{/if}}>{{this.name}}</option>
-				{{/each}}
-			</select>
-		</div>
-		
-		<div class="field">
-			<label for="job-preference-2" class="form-label">Jobvoorkeur (★★):</label>
-			<select id="job-preference-2" class="form-select" name="jobPreference2" required>
-				{{#each jobs}}
-					<option value="{{this.id}}" {{#if (eq @index 1)}}selected{{/if}}>{{this.name}}</option>
-				{{/each}}
-			</select>
-		</div>
-		
-		<div class="field">
-			<label for="job-preference-3" class="form-label">Jobvoorkeur (★):</label>
-			<select id="job-preference-3" class="form-select" name="jobPreference3" required>
-				{{#each jobs}}
-					<option value="{{this.id}}" {{#if (eq @index 2)}}selected{{/if}}>{{this.name}}</option>
-				{{/each}}
-			</select>
-		</div>
-		
-		<div class="field">
-			<label for="recreation-preference" class="form-label">Ontspanningsvoorkeur (★★★):</label>
-			<select id="recreation-preference" class="form-select" name="recreationPreference" required>
-				{{#each recreations}}
-					<option value="{{this.id}}">{{this.name}}</option>
-				{{/each}}
-			</select>
-		</div>
-		
-		<button class="button-1" type="submit">Volgende</button>
-	</form-->
+	<div class="field">
+		<label for="job-preference-2-select" class="form-label">Jobvoorkeur (★★):</label>
+		<select id="job-preference-2-select" class="form-select"></select>
+	</div>
+	
+	<div class="field">
+		<label for="job-preference-3-select-select" class="form-label">Jobvoorkeur (★):</label>
+		<select id="job-preference-3-select" class="form-select"></select>
+	</div>
+	
+	<div class="field">
+		<label for="recreation-preference-select" class="form-label">Ontspanningsvoorkeur (★★★):</label>
+		<select id="recreation-preference-select" class="form-select"></select>
+	</div>	
 </div>
 
 <script>
-window.addEventListener('pageshow', (event) => {
-	window.turn.ensureValidStep();
-	window.turn.setupUI();
-});
+window.turn.getFields = function () {
+	return {
+		firstName: document.getElementById('first-name-input'),
+		lastName: document.getElementById('last-name-input'),
+		nameError: document.getElementById('name-error-p'),
+		jobPreference1: document.getElementById('job-preference-1-select'),
+		jobPreference2: document.getElementById('job-preference-2-select'),
+		jobPreference3: document.getElementById('job-preference-3-select'),
+		recreationPreference: document.getElementById('recreation-preference-select')
+	};
+};
+
+window.turn.loadFields = function() {
+	const allJobs = JSON.parse(localStorage.getItem(`turn.allJobs`));
+	const allRecreations = JSON.parse(localStorage.getItem(`turn.allRecreations`));
+	const fields = window.turn.getFields();
+	
+	window.turn.stepFields.firstName: document.getElementById('first-name-input'),
+	window.turn.stepFields.lastName: document.getElementById('last-name-input'),
+	window.turn.stepFields.nameError: document.getElementById('name-error-p'),
+	window.turn.stepFields.jobPreference1: document.getElementById('job-preference-1-select'),
+	window.turn.stepFields.jobPreference2: document.getElementById('job-preference-2-select'),
+	window.turn.stepFields.jobPreference3: document.getElementById('job-preference-3-select'),
+	window.turn.stepFields.recreationPreference: document.getElementById('recreation-preference-select')
+	
+	window.turn.populateSelect(fields.jobPreference1, allJobs);
+	window.turn.populateSelect(fields.jobPreference2, allJobs);
+	window.turn.populateSelect(fields.jobPreference3, allJobs);
+	window.turn.populateSelect(fields.recreationPreference, allRecreations);
+	
+	fields.firstName.value = window.turn.stepData.firstName;
+	fields.lastName.value = window.turn.stepData.lastName;
+	fields.nameError.textContent = window.turn.stepData.nameError;
+	fields.jobPreference1.value = window.turn.stepData.jobPreference1;
+	fields.jobPreference2.value = window.turn.stepData.jobPreference2;	
+	fields.jobPreference3.value = window.turn.stepData.jobPreference3;
+	fields.recreationPreference.value = window.turn.stepData.recreationPreference;
+	
+	fields.firstName.addEventListener('input', handleFirstNameInput);
+	fields.lastName.addEventListener('input', handleLastNameInput);
+	fields.jobPreference1.addEventListener('change', handleJobPreferenceChange);
+	fields.jobPreference2.addEventListener('change', handleJobPreferenceChange);
+	fields.jobPreference3.addEventListener('change', handleJobPreferenceChange);
+}
+
+window.turn.saveFields = function() {
+	const fields = window.turn.getFields();
+	
+	window.turn.stepData.firstName = fields.firstName.value;
+	window.turn.stepData.lastName = fields.lastName.value;
+	window.turn.stepData.nameError = fields.nameError.textContent;
+	window.turn.stepData.jobPreference1 = fields.jobPreference1.value;
+	window.turn.stepData.jobPreference2 = fields.jobPreference2.value;	
+	window.turn.stepData.jobPreference3 = fields.jobPreference3.value;
+	window.turn.stepData.recreationPreference = fields.recreationPreference.value;
+}
+
+//--- Event handlers ------------------------------------------------------------------------//
+function handleFirstNameInput() {
+	const fields = window.turn.getFields();
+	
+	fields.nameError.textContent = '';
+	validateName(fields.firstName);
+}
+
+function handleLastNameInput() {
+	const fields = window.turn.getFields();
+	
+	fields.nameError.textContent = '';
+	validateName(fields.lastName);
+}
+
+function handleJobPreferenceChange() {
+	const fields = window.turn.getFields();
+	const selects = [fields.jobPreference1, 
+					 fields.jobPreference2, 
+					 fields.jobPreference3];
+	const selectedValues = selects.map(select => select.value);
+	
+	selects.forEach((select, index) => {
+		const otherSelectedValues = selectedValues.filter((_, i) => i !== index);
+		
+		Array.from(select.options).forEach(option => {
+			option.disabled = otherSelectedValues.includes(option.value);
+		});
+	});
+}
+
+//--- Helpers -------------------------------------------------------------------------------//
+function validateName(nameInput) {
+	const name = nameInput.value;
+	const minLength = 2;
+	const maxLength = 32;
+	const regex = /^[A-Za-zÀ-ÖØ-öø-ÿĀ-ž]+(?:[ '-][A-Za-zÀ-ÖØ-öø-ÿĀ-ž]+)*$/;
+
+	if (name.length < minLength) {
+		nameInput.setCustomValidity(`Minimaal ${minLength} tekens vereist.`);
+	} else if (name.length > maxLength) {
+		nameInput.setCustomValidity(`Maximaal ${maxLength} tekens toegestaan.`);
+	} else if (name !== name.trim()) {
+		nameInput.setCustomValidity(
+			'Spaties aan het begin of het einde zijn niet toegestaan.');
+	} else if (!regex.test(name)) {
+		nameInput.setCustomValidity(
+			'Alleen letters, spatie, apostrof en koppelteken zijn toegestaan.');
+	} else {
+		nameInput.setCustomValidity('');
+	}
+	
+	nameInput.reportValidity();
+}
 
 document.addEventListener('DOMContentLoaded', () => {
-	window.turn.insertEditModal();
-	window.turn.bindUIEvents();
-	
-	
-	//window.location.assign('/game/turn/end');
-	
-	/*//--- Elements ------------------------------------------------------------------------------//
-	const firstNameInput = document.getElementById('first-name');
-	const lastNameInput = document.getElementById('last-name');
-	const jobPreference1Select = document.getElementById('job-preference-1');
-	const jobPreference2Select = document.getElementById('job-preference-2');
-	const jobPreference3Select = document.getElementById('job-preference-3');
-	
-	const nameError = document.getElementById('name-error');
-	
-	//--- Execute on load -----------------------------------------------------------------------//
-	handleJobPreferenceChange();
-	
-	//--- Event listeners -----------------------------------------------------------------------//
-	firstNameInput.addEventListener('input', handleFirstNameInput);
-	lastNameInput.addEventListener('input', handleLastNameInput);
-	jobPreference1Select.addEventListener('change', handleJobPreferenceChange);
-	jobPreference2Select.addEventListener('change', handleJobPreferenceChange);
-	jobPreference3Select.addEventListener('change', handleJobPreferenceChange);
-	
-	//--- Event handlers ------------------------------------------------------------------------//
-	function handleCurrentPasswordInput() {
-		passwordError.textContent = '';
-	}
-	
-	function handleFirstNameInput() {
-		nameError.textContent = '';
-		validateName(firstNameInput);
-	}
-	
-	function handleLastNameInput() {
-		nameError.textContent = '';
-		validateName(lastNameInput);
-	}
-	
-	function handleJobPreferenceChange() {
-		const selects = [jobPreference1Select, jobPreference2Select, jobPreference3Select];
-		const selectedValues = selects.map(select => select.value);
-		
-		selects.forEach((select, index) => {
-			const otherSelectedValues = selectedValues.filter((_, i) => i !== index);
-			
-			Array.from(select.options).forEach(option => {
-				option.disabled = otherSelectedValues.includes(option.value);
-			});
-		});
-	}
-	
-	//--- Helpers -------------------------------------------------------------------------------//
-	function validateName(nameInput) {
-		const name = nameInput.value;
-		const minLength = 2;
-		const maxLength = 32;
-		const regex = /^[A-Za-zÀ-ÖØ-öø-ÿĀ-ž]+(?:[ '-][A-Za-zÀ-ÖØ-öø-ÿĀ-ž]+)*$/;
-  
-		if (name.length < minLength) {
-			nameInput.setCustomValidity(`Minimaal ${minLength} tekens vereist.`);
-		} else if (name.length > maxLength) {
-			nameInput.setCustomValidity(`Maximaal ${maxLength} tekens toegestaan.`);
-		} else if (name !== name.trim()) {
-			nameInput.setCustomValidity(
-				'Spaties aan het begin of het einde zijn niet toegestaan.');
-		} else if (!regex.test(name)) {
-			nameInput.setCustomValidity(
-				'Alleen letters, spatie, apostrof en koppelteken zijn toegestaan.');
-		} else {
-			nameInput.setCustomValidity('');
-		}
-		
-		nameInput.reportValidity();
-	}*/
+	window.turn.initializeStep();
 });
 </script>
