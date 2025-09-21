@@ -3,8 +3,8 @@
 {{#block "headScripts"}}
 <script src="/js/turn.js"></script>
 <script>
-	window.turn.thisStep = 0;
-	window.turn.ensureValidStep();
+	window.step.index = 0;
+	window.step.checkAccess();
 </script>
 {{/block}}
 
@@ -13,115 +13,105 @@
 
 	<div class="field">
 		<label for="first-name-input" class="form-label">Voornaam:</label>
-		<input id="first-name-input" class="form-control" type="text">
+		<input id="first-name-input" class="form-control" type="text" required>
 	</div>
 	
 	<div class="field">
 		<label for="last-name-input" class="form-label">Achternaam:</label>
-		<input id="last-name-input" class="form-control" type="text">
+		<input id="last-name-input" class="form-control" type="text" required>
 	</div>
-	
-	<p class="error" id="name-error-p"></p>
 	
 	<div class="field">
 		<label for="job-preference-1-select" class="form-label">Jobvoorkeur (★★★):</label>
-		<select id="job-preference-1-select" class="form-select"></select>
+		<select id="job-preference-1-select" class="form-select" required></select>
 	</div>
 	
 	<div class="field">
 		<label for="job-preference-2-select" class="form-label">Jobvoorkeur (★★):</label>
-		<select id="job-preference-2-select" class="form-select"></select>
+		<select id="job-preference-2-select" class="form-select" required></select>
 	</div>
 	
 	<div class="field">
-		<label for="job-preference-3-select-select" class="form-label">Jobvoorkeur (★):</label>
-		<select id="job-preference-3-select" class="form-select"></select>
+		<label for="job-preference-3-select" class="form-label">Jobvoorkeur (★):</label>
+		<select id="job-preference-3-select" class="form-select" required></select>
 	</div>
 	
 	<div class="field">
 		<label for="recreation-preference-select" class="form-label">Ontspanningsvoorkeur (★★★):</label>
-		<select id="recreation-preference-select" class="form-select"></select>
+		<select id="recreation-preference-select" class="form-select" required></select>
 	</div>	
 </div>
 
 <script>
-window.turn.getFields = function () {
-	return {
+//--- Global variables --------------------------------------------------------------------------//
+const debouncedCheckNameAvailability = debounce(checkNameAvailability, 300);
+
+//--- Load and save fields ----------------------------------------------------------------------//
+window.step.loadFields = function() {
+	const allJobs = (JSON.parse(localStorage.getItem(`turn.allJobs`))).options;
+	const allRecreations = (JSON.parse(localStorage.getItem(`turn.allRecreations`))).options;
+	
+	window.step.fields = {
 		firstName: document.getElementById('first-name-input'),
 		lastName: document.getElementById('last-name-input'),
-		nameError: document.getElementById('name-error-p'),
 		jobPreference1: document.getElementById('job-preference-1-select'),
 		jobPreference2: document.getElementById('job-preference-2-select'),
 		jobPreference3: document.getElementById('job-preference-3-select'),
 		recreationPreference: document.getElementById('recreation-preference-select')
 	};
-};
-
-window.turn.loadFields = function() {
-	const allJobs = JSON.parse(localStorage.getItem(`turn.allJobs`));
-	const allRecreations = JSON.parse(localStorage.getItem(`turn.allRecreations`));
-	const fields = window.turn.getFields();
 	
-	window.turn.stepFields.firstName: document.getElementById('first-name-input'),
-	window.turn.stepFields.lastName: document.getElementById('last-name-input'),
-	window.turn.stepFields.nameError: document.getElementById('name-error-p'),
-	window.turn.stepFields.jobPreference1: document.getElementById('job-preference-1-select'),
-	window.turn.stepFields.jobPreference2: document.getElementById('job-preference-2-select'),
-	window.turn.stepFields.jobPreference3: document.getElementById('job-preference-3-select'),
-	window.turn.stepFields.recreationPreference: document.getElementById('recreation-preference-select')
+	const fields = window.step.fields;
+	const data = window.step.data;
 	
-	window.turn.populateSelect(fields.jobPreference1, allJobs);
-	window.turn.populateSelect(fields.jobPreference2, allJobs);
-	window.turn.populateSelect(fields.jobPreference3, allJobs);
-	window.turn.populateSelect(fields.recreationPreference, allRecreations);
+	window.step.populateSelect(fields.jobPreference1, allJobs);
+	window.step.populateSelect(fields.jobPreference2, allJobs);
+	window.step.populateSelect(fields.jobPreference3, allJobs);
+	window.step.populateSelect(fields.recreationPreference, allRecreations);
 	
-	fields.firstName.value = window.turn.stepData.firstName;
-	fields.lastName.value = window.turn.stepData.lastName;
-	fields.nameError.textContent = window.turn.stepData.nameError;
-	fields.jobPreference1.value = window.turn.stepData.jobPreference1;
-	fields.jobPreference2.value = window.turn.stepData.jobPreference2;	
-	fields.jobPreference3.value = window.turn.stepData.jobPreference3;
-	fields.recreationPreference.value = window.turn.stepData.recreationPreference;
+	fields.firstName.value = data.firstName;
+	fields.lastName.value = data.lastName;
+	fields.jobPreference1.value = data.jobPreference1;
+	fields.jobPreference2.value = data.jobPreference2;	
+	fields.jobPreference3.value = data.jobPreference3;
+	fields.recreationPreference.value = data.recreationPreference;
 	
 	fields.firstName.addEventListener('input', handleFirstNameInput);
 	fields.lastName.addEventListener('input', handleLastNameInput);
 	fields.jobPreference1.addEventListener('change', handleJobPreferenceChange);
 	fields.jobPreference2.addEventListener('change', handleJobPreferenceChange);
 	fields.jobPreference3.addEventListener('change', handleJobPreferenceChange);
+	fields.recreationPreference.addEventListener('change', handleRecreationPreferenceChange);
 }
 
-window.turn.saveFields = function() {
-	const fields = window.turn.getFields();
+window.step.saveFields = function() {
+	const fields = window.step.fields;
+	const data = window.step.data;
 	
-	window.turn.stepData.firstName = fields.firstName.value;
-	window.turn.stepData.lastName = fields.lastName.value;
-	window.turn.stepData.nameError = fields.nameError.textContent;
-	window.turn.stepData.jobPreference1 = fields.jobPreference1.value;
-	window.turn.stepData.jobPreference2 = fields.jobPreference2.value;	
-	window.turn.stepData.jobPreference3 = fields.jobPreference3.value;
-	window.turn.stepData.recreationPreference = fields.recreationPreference.value;
+	data.firstName = fields.firstName.value;
+	data.lastName = fields.lastName.value;
+	data.jobPreference1 = fields.jobPreference1.value;
+	data.jobPreference2 = fields.jobPreference2.value;	
+	data.jobPreference3 = fields.jobPreference3.value;
+	data.recreationPreference = fields.recreationPreference.value;
 }
 
-//--- Event handlers ------------------------------------------------------------------------//
+//--- Event handlers ----------------------------------------------------------------------------//
 function handleFirstNameInput() {
-	const fields = window.turn.getFields();
-	
-	fields.nameError.textContent = '';
-	validateName(fields.firstName);
+	validateName(window.step.fields.firstName);
+	debouncedCheckNameAvailability(); 
+	window.step.validate();
 }
 
 function handleLastNameInput() {
-	const fields = window.turn.getFields();
-	
-	fields.nameError.textContent = '';
-	validateName(fields.lastName);
+	validateName(window.step.fields.lastName);
+	debouncedCheckNameAvailability(); 
+	window.step.validate();
 }
 
 function handleJobPreferenceChange() {
-	const fields = window.turn.getFields();
-	const selects = [fields.jobPreference1, 
-					 fields.jobPreference2, 
-					 fields.jobPreference3];
+	const selects = [window.step.fields.jobPreference1, 
+					 window.step.fields.jobPreference2, 
+					 window.step.fields.jobPreference3];
 	const selectedValues = selects.map(select => select.value);
 	
 	selects.forEach((select, index) => {
@@ -131,9 +121,15 @@ function handleJobPreferenceChange() {
 			option.disabled = otherSelectedValues.includes(option.value);
 		});
 	});
+	
+	window.step.validate();
 }
 
-//--- Helpers -------------------------------------------------------------------------------//
+function handleRecreationPreferenceChange() {
+	window.step.validate();
+}
+
+//--- Helpers -----------------------------------------------------------------------------------//
 function validateName(nameInput) {
 	const name = nameInput.value;
 	const minLength = 2;
@@ -157,7 +153,48 @@ function validateName(nameInput) {
 	nameInput.reportValidity();
 }
 
+async function checkNameAvailability() {
+	const fields = window.step.fields;
+	
+	const firstName = fields.firstName.value;
+	const lastName = fields.lastName.value;
+
+	if (!firstName || !lastName) return;
+
+	try {
+		const params = new URLSearchParams({
+			firstName,
+			lastName,
+		});
+		const res = await fetch(`/turn/check-name-availibility?${params}`);
+		const { available } = await res.json();
+
+		if (!available) {
+			fields.lastName.setCustomValidity(
+				'Deze combinatie van voornaam en achternaam is al in gebruik.'
+			);
+		} else {
+			fields.lastName.setCustomValidity('');
+		}
+
+		fields.lastName.reportValidity();
+		window.step.validate();
+	} catch (err) {
+		console.error(err);
+		window.step.validate();
+	}
+}
+
+function debounce(fn, delay) {
+	let timeoutId;
+	return function(...args) {
+		clearTimeout(timeoutId);
+		timeoutId = setTimeout(() => fn.apply(this, args), delay);
+	};
+}
+
+//--- DOM content loaded ------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
-	window.turn.initializeStep();
+	window.step.initialize();
 });
 </script>

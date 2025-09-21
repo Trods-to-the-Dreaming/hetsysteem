@@ -1,23 +1,31 @@
 {{#block "title"}}Beurt{{/block}}
 
 <script>
+	const allJobs = {{{json allJobs}}};
+	const allRecreations = {{{json allRecreations}}};
+	const allBuildings = {{{json allBuildings}}};
+	
+	localStorage.setItem('turn.allJobs', JSON.stringify(allJobs));
+	localStorage.setItem('turn.allRecreations', JSON.stringify(allRecreations));
+	localStorage.setItem('turn.allBuildings', JSON.stringify(allBuildings));
+	
 	const stepsData = {{{json stepsData}}};
 	
-	const steps = {{{json steps}}};
-	const firstStep = {{firstStep}};
-	const lastStep = {{lastStep}};
-	const activeStep = {{activeStep}};
-
 	stepsData.forEach((stepData, index) => {
 		localStorage.setItem(`turn.step.${index}`, JSON.stringify(stepData));
 	});
 	
+	const steps = {{{json steps}}};
+	const firstStepIndex = {{firstStepIndex}};
+	const lastStepIndex = {{lastStepIndex}};
+	const activeStepIndex = {{activeStepIndex}};
+
 	localStorage.setItem('turn.steps', JSON.stringify(steps));
-	localStorage.setItem('turn.firstStep', firstStep);
-	localStorage.setItem('turn.lastStep', lastStep);
-	localStorage.setItem('turn.activeStep', activeStep);
+	localStorage.setItem('turn.firstStepIndex', firstStepIndex);
+	localStorage.setItem('turn.lastStepIndex', lastStepIndex);
+	localStorage.setItem('turn.activeStepIndex', activeStepIndex);
 	
 	localStorage.setItem('turn.begin', true);
 	
-	window.location.replace(steps[activeStep].url);
+	window.location.replace(steps[activeStepIndex].url);
 </script>

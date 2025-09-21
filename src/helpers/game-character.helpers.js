@@ -16,6 +16,64 @@ import {
 
 //=== Main ======================================================================================//
 
+//--- Is character customized? ------------------------------------------------------------------//
+export const isCharacterCustomized = async (characterId,
+											trx = knex) => {
+	const data = await trx('characters')
+		.select(
+			'is_customized as isCustomized'
+		)
+		.where('id', characterId)
+		.first();
+	if (!data) {
+		throw new BadRequestError(MSG_INVALID_CHARACTER);
+	}
+	
+	return data.isCustomized;
+};
+
+//--- Is name available? ------------------------------------------------------------------------//
+export const isNameAvailable = async (selfId,
+									  worldId, 
+									  firstName, 
+									  lastName,
+									  trx = knex) => {
+	const duplicate = await trx('characters')
+		.select(1)
+		.where('id', '!=', selfId)
+		.andWhere('world_id', worldId)
+		.andWhereRaw('LOWER(first_name) = ?', firstName.toLowerCase())
+		.andWhereRaw('LOWER(last_name) = ?', lastName.toLowerCase())
+		.first();
+	return !duplicate;
+};
+
+//--- Get data customized character -------------------------------------------------------------//
+export const getDataCustomizeCharacter = async (characterId,
+												trx = knex) => {
+	const data = await trx('characters as c')
+		.select(
+			'c.first_name as firstName',
+			'c.last_name as lastName',
+			'j1.type as jobPreference1',
+			'j2.type as jobPreference2',
+			'j3.type as jobPreference3',
+			'p.type as recreationPreference'
+		)
+		.leftJoin('jobs as j1', 'c.job_preference_1_id', 'j1.id')
+		.leftJoin('jobs as j2', 'c.job_preference_2_id', 'j2.id')
+		.leftJoin('jobs as j3', 'c.job_preference_3_id', 'j3.id')
+		.leftJoin('recreations as r', 'c.recreation_preference_id', 'r.id')
+		.leftJoin('products as p', 'r.product_id', 'p.id')
+		.where('c.id', characterId)
+		.first();
+	if (!data) {
+		throw new BadRequestError(MSG_INVALID_CHARACTER);
+	}
+	
+	return data;
+};
+
 //--- Build character view ----------------------------------------------------------------------//
 export const buildCharacterView = async (characterId,
 										 worldId,

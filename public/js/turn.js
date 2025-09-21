@@ -1,10 +1,8 @@
 window.turn = window.turn || {};
 window.step = window.step || {};
 
-
-
-//--- Ensure validity ---------------------------------------------------------------------------//
-window.step.ensureValidity = function() {
+//--- Check access ------------------------------------------------------------------------------//
+window.step.checkAccess = function() {
 	window.turn.begin = localStorage.getItem('turn.begin');
 	
 	// Check if the turn has begun
@@ -17,53 +15,26 @@ window.step.ensureValidity = function() {
 	window.turn.activeStepIndex = parseInt(localStorage.getItem('turn.activeStepIndex'), 10);
 	
 	// Check if this step is allowed
-	if (!window.turn.steps[window.turn.thisStep].isRelevant ||
-		window.turn.thisStep > window.turn.activeStep) {
-		window.location.replace(window.turn.steps[window.turn.activeStep].url);
+	if (!window.turn.steps[window.step.index].isRelevant ||
+		window.step.index > window.turn.activeStepIndex) {
+		window.location.replace(window.turn.steps[window.turn.activeStepIndex].url);
 		return;
 	}
 	
-	window.turn.firstStep = parseInt(localStorage.getItem('turn.firstStep'), 10);
-	window.turn.lastStep = parseInt(localStorage.getItem('turn.lastStep'), 10);
-}
-
-
-
-
-//--- Ensure valid step -------------------------------------------------------------------------//
-window.step.ensureValidStep = function() {
-	window.turn.begin = localStorage.getItem('turn.begin');
-	
-	// Check if the turn has begun
-	if (window.turn.begin === null) {
-		window.location.replace('/game/turn/begin');
-		return;
-	}
-	
-	window.turn.steps = JSON.parse(localStorage.getItem('turn.steps'));
-	window.turn.activeStep = parseInt(localStorage.getItem('turn.activeStep'), 10);
-	
-	// Check if this step is allowed
-	if (!window.turn.steps[window.turn.thisStep].isRelevant ||
-		window.turn.thisStep > window.turn.activeStep) {
-		window.location.replace(window.turn.steps[window.turn.activeStep].url);
-		return;
-	}
-	
-	window.turn.firstStep = parseInt(localStorage.getItem('turn.firstStep'), 10);
-	window.turn.lastStep = parseInt(localStorage.getItem('turn.lastStep'), 10);
+	window.turn.firstStepIndex = parseInt(localStorage.getItem('turn.firstStepIndex'), 10);
+	window.turn.lastStepIndex = parseInt(localStorage.getItem('turn.lastStepIndex'), 10);
 }
 
 //--- Initialize --------------------------------------------------------------------------------//
 window.step.initialize = function() {
-	windowstep.loadData();
-	windowstep.insertUI();
-	windowstep.bindUIEvents();
-	windowstep.setVisibility();
+	window.step.load();
+	window.step.renderUI();
+	window.step.bindUIEvents();
+	window.step.updateUIState();
 }
 
-//--- Insert UI ---------------------------------------------------------------------------------//
-window.step.insertUI = function() {
+//--- Render UI ---------------------------------------------------------------------------------//
+window.step.renderUI = function() {
 	const UI = window.step.getUI();
 	
 	const buttons = `
@@ -108,19 +79,19 @@ window.step.bindUIEvents = function() {
 	
 	UI.editButton.addEventListener('click', window.step.edit);
 	UI.confirmEditButton.addEventListener('click', window.step.confirmEdit);
-	UI.nextButton.addEventListener('click', window.turn.goToNextStep);
-	UI.backButton.addEventListener('click', window.turn.goToPreviousStep);
+	UI.nextButton.addEventListener('click', window.turn.navigateNext);
+	UI.backButton.addEventListener('click', window.turn.navigatePrevious);
 	UI.finishButton.addEventListener('click', window.turn.finish);
 	UI.cancelButton.addEventListener('click', window.turn.cancel);
 }
 
-//--- Set visibility ----------------------------------------------------------------------------//
-window.step.setVisibility = function() {
+//--- Update UI state ---------------------------------------------------------------------------//
+window.step.updateUIState = function() {
 	const UI = window.step.getUI();
 	
-	const isFirstStep = (window.turn.thisStep === window.turn.firstStep);
-	const isLastStep = (window.turn.thisStep === window.turn.lastStep);
-	const isActiveStep = (window.turn.thisStep === window.turn.activeStep);
+	const isFirstStep = (window.step.index === window.turn.firstStepIndex);
+	const isLastStep = (window.step.index === window.turn.lastStepIndex);
+	const isActiveStep = (window.step.index === window.turn.activeStepIndex);
 	
 	if (isFirstStep) {
 		UI.backButton.classList.add('d-none');
@@ -173,6 +144,15 @@ window.step.getUI = function() {
 	};
 }
 
+//--- Validate ----------------------------------------------------------------------------------//
+window.step.validate = function() {
+	const UI = window.step.getUI();
+	const allValid = UI.formElements.every(el => el.checkValidity());
+	
+	UI.nextButton.disabled = !allValid;
+	UI.finishButton.disabled = !allValid;
+}
+
 //--- Edit --------------------------------------------------------------------------------------//
 window.step.edit = function() {
 	const UI = window.step.getUI();
@@ -191,63 +171,68 @@ window.step.confirmEdit = function() {
 	UI.editButton.classList.add('d-none');
 	UI.formElements.forEach(el => el.disabled = false);
 	
-	window.turn.activeStep = window.turn.thisStep;
+	for (let i = window.step.index + 1; i <= window.turn.lastStepIndex; i++) {
+		localStorage.removeItem(`turn.step.${i}`);
+	}
+	localStorage.setItem('turn.activeStepIndex', window.step.index);
+	
+	window.turn.activeStepIndex = window.step.index;
 }
 
-//--- Load data ---------------------------------------------------------------------------------//
-window.step.loadData = function() {
+//--- Load --------------------------------------------------------------------------------------//
+window.step.load = function() {
 	window.step.data = JSON.parse(
-		localStorage.getItem(`turn.step.${window.turn.thisStep}`)
+		localStorage.getItem(`turn.step.${window.step.index}`)
 	);
 	window.step.loadFields();
 };
 
-//--- Save data ---------------------------------------------------------------------------------//
-window.step.saveData = function() {
+//--- Save --------------------------------------------------------------------------------------//
+window.step.save = function() {
 	window.step.saveFields();
 	localStorage.setItem(
-		`turn.step.${window.turn.thisStep}`,
+		`turn.step.${window.step.index}`,
 		JSON.stringify(window.step.data)
 	);
 };
 
-//--- Go to next step ---------------------------------------------------------------------------//
-window.turn.goToNextStep = function() {
+//--- Navigate next -----------------------------------------------------------------------------//
+window.turn.navigateNext = function() {
 	console.log('goToNextStep');
-	let nextStep = window.turn.thisStep + 1;
+	let nextStep = window.step.index + 1;
 	
-	while (nextStep <= window.turn.lastStep &&
+	while (nextStep <= window.turn.lastStepIndex &&
 		   !window.turn.steps[nextStep].isRelevant) {
 		nextStep++;
 	}
 	
-	if (nextStep <= window.turn.lastStep) {
-		if (window.turn.thisStep === window.turn.activeStep) {
-			window.turn.saveStepData();
-			localStorage.setItem('turn.activeStep', nextStep);
+	if (nextStep <= window.turn.lastStepIndex) {
+		if (window.step.index === window.turn.activeStepIndex) {
+			window.step.save();
+			localStorage.setItem('turn.activeStepIndex', nextStep);
 		}
 		window.location.assign(window.turn.steps[nextStep].url);
 	}
 }
 
-//--- Go to previous step -----------------------------------------------------------------------//
-window.turn.goToPreviousStep = function() {
-	let previousStep = window.turn.thisStep - 1;
+//--- Navigate previous -------------------------------------------------------------------------//
+window.turn.navigatePrevious = function() {
+	let previousStep = window.step.index - 1;
 	
-	while (previousStep >= window.turn.firstStep &&
+	while (previousStep >= window.turn.firstStepIndex &&
 		   !window.turn.steps[previousStep].isRelevant) {
 		previousStep--;
 	}
 	
-	if (previousStep >= window.turn.firstStep) {
-		window.turn.saveStepData();
+	if (previousStep >= window.turn.firstStepIndex) {
+		window.step.save();
 		window.location.assign(window.turn.steps[previousStep].url);
 	}
 }
 
 //--- Finish ------------------------------------------------------------------------------------//
 window.turn.finish = function() {
-	window.turn.saveStepData();
+	window.turn.save();
 	window.location.assign('/game/turn/finish');
 }
 
@@ -255,20 +240,28 @@ window.turn.finish = function() {
 window.turn.cancel = function() {
 	localStorage.removeItem('turn.begin');
 	localStorage.removeItem('turn.steps');
-	localStorage.removeItem('turn.firstStep');
-	localStorage.removeItem('turn.lastStep');
-	localStorage.removeItem('turn.activeStep');
+	localStorage.removeItem('turn.firstStepIndex');
+	localStorage.removeItem('turn.lastStepIndex');
+	localStorage.removeItem('turn.activeStepIndex');
+	
 	window.location.assign('/game');
 }
 
-
 //--- Populate select ---------------------------------------------------------------------------//
-window.turn.populateSelect = function(select, options) {
+window.step.populateSelect = function(select, options) {
 	select.innerHTML = "";
+	
+	const emptyOption = document.createElement("option");
+	emptyOption.value = "";
+	emptyOption.disabled = true;
+	emptyOption.selected = true;
+	emptyOption.hidden = true;
+	select.appendChild(emptyOption);
+
 	options.forEach(opt => {
 		const option = document.createElement("option");
-		option.value = opt;
-		option.textContent = opt;
+		option.value = opt.id;
+		option.textContent = opt.type;
 		select.appendChild(option);
 	});
 }

@@ -51,21 +51,20 @@ export async function getAllProducts(trx = knex) {
 	return cache;
 }
 
-//--- Get all buildings -------------------------------------------------------------------------//
-export async function getAllBuildings(trx = knex) {
-	const key = 'buildings';
+//--- Get all recreations -----------------------------------------------------------------------//
+export async function getAllRecreations(trx = knex) {
+	const key = 'recreations';
 	const cached = getFromCache(key);
 	
 	if (cached) return cached;
 
-	const rows = await trx('buildings')
+	const rows = await trx('recreations as r')
 		.select(
-			'id',
-			'slug',
-			'type',
-			'tile_size as tileSize',
-			'job_id as jobId'
-		);
+			'r.id as id',
+			'p.slug as slug',
+			'p.type as type'
+		)
+		.innerJoin('products as p', 'r.product_id', 'p.id');
 	
 	const cache = buildEntityCache(rows);
 	setInCache(key, cache);
@@ -100,20 +99,21 @@ export async function getAllJobs(trx = knex) {
 	return cache;
 }
 
-//--- Get all recreations -----------------------------------------------------------------------//
-export async function getAllRecreations(trx = knex) {
-	const key = 'recreations';
+//--- Get all buildings -------------------------------------------------------------------------//
+export async function getAllBuildings(trx = knex) {
+	const key = 'buildings';
 	const cached = getFromCache(key);
 	
 	if (cached) return cached;
 
-	const rows = await trx('recreations as r')
+	const rows = await trx('buildings')
 		.select(
-			'r.id as id',
-			'p.slug as slug',
-			'p.type as type'
-		)
-		.innerJoin('products as p', 'r.product_id', 'p.id');
+			'id',
+			'slug',
+			'type',
+			'tile_size as tileSize',
+			'job_id as jobId'
+		);
 	
 	const cache = buildEntityCache(rows);
 	setInCache(key, cache);

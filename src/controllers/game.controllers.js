@@ -8,9 +8,11 @@ import {
 } from '../constants/game.messages.js';
 
 import { 
-	getAllWorlds/*,
+	getAllWorlds,
+	getAllProducts,
+	getAllRecreations,
 	getAllJobs,
-	getAllRecreations*/
+	getAllBuildings
 } from '../helpers/game-static.helpers.js';
 
 import { 
@@ -26,6 +28,8 @@ import {
 } from '../helpers/game-world.helpers.js';
 
 import { 
+	isCharacterCustomized,
+	getDataCustomizeCharacter,
 	buildCharacterView
 } from '../helpers/game-character.helpers.js';
 
@@ -154,10 +158,38 @@ export const showTurn = async (req, res, next) => {
 				return res.redirect('/game/setup/customize-character');
 			}
 		*/
+
+		const [
+			isCustomized,
+			allJobs,
+			allRecreations,
+			allBuildings
+		] = await Promise.all([
+			isCharacterCustomized(characterId),
+			getAllJobs(),
+			getAllRecreations(),
+			getAllBuildings()
+		]);
+		
+		
 		
 		const turnNumber = 0;
 		
-		const step0 = {
+		const stepsData = await Promise.all([
+			getDataCustomizeCharacter(2),
+			{},
+			{},
+			{},
+			{},
+			{},
+			{},
+			{},
+			{}
+		]);
+		
+		//console.log(stepsData);
+
+		/*const step0 = {
 			isCharacterCustomized: false,
 			firstName: 'Frodo',
 			lastName: 'Balings'
@@ -181,10 +213,10 @@ export const showTurn = async (req, res, next) => {
 			step6,
 			step7,
 			step8
-		];
+		];*/
 		
 		const steps = [
-			{ url: '/game/turn/customize-character', isRelevant: !step0.isCharacterCustomized },
+			{ url: '/game/turn/customize-character', isRelevant: !isCustomized },
 			{ url: '/game/turn/manage-buildings', isRelevant: true },
 			{ url: '/game/turn/manage-employment-contracts', isRelevant: false },
 			{ url: '/game/turn/manage-rental-agreements', isRelevant: true },
@@ -195,18 +227,40 @@ export const showTurn = async (req, res, next) => {
 			{ url: '/game/turn/manage-group', isRelevant: true }
 		];
 		
-		const firstStep = steps.findIndex(step => step.isRelevant === true);
-		const lastStep = steps.findLastIndex(step => step.isRelevant === true);
+		const firstStepIndex = steps.findIndex(step => step.isRelevant === true);
+		const lastStepIndex = steps.findLastIndex(step => step.isRelevant === true);
 		
-		const activeStep = firstStep;
+		const activeStepIndex = firstStepIndex;
 
 		res.render('game/turn/begin', {
+			isCharacterCustomized,
+			allJobs,
+			allRecreations,
 			stepsData,
 			steps,
-			firstStep,
-			lastStep,
-			activeStep
+			firstStepIndex,
+			lastStepIndex,
+			activeStepIndex
 		});
+	} catch (err) {
+		next(err);
+	}
+};
+
+//--- Check name availability -------------------------------------------------------------------//
+export const checkNameAvailability = async (req, res, next) => {
+	try {
+		const { firstName, 
+				lastName } = req.query;
+
+		const available = await isNameAvailable(
+			req.session.characterId,
+			req.session.worldId, 
+			firstName, 
+			lastName
+		);
+		
+		res.json({ available });
 	} catch (err) {
 		next(err);
 	}

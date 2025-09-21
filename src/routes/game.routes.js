@@ -19,6 +19,7 @@ import {
 	showMenu,
 	showCharacter,
 	showTurn,
+	checkNameAvailability,
 	showCustomizeCharacter,
 	showManageBuildings,
 	showManageEmploymentContracts,
@@ -69,6 +70,8 @@ router.get( '/turn/share', requireGameAccess, showShare);
 router.get( '/turn/consume', requireGameAccess, showConsume);
 router.get( '/turn/manage-group', requireGameAccess, showManageGroup);
 //router.post('/turn', requireAuthenticatedAndCustomized, handleTurn);
+
+router.get( '/turn/check-name-availability', requireGameAccess, checkNameAvailability);
 
 //router.get('/statistics', requireAuthenticatedAndCustomized, showStatistics);
 

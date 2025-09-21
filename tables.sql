@@ -61,6 +61,10 @@ CHANGE COLUMN `has_confirmed_hours` `has_confirmed_spend_time` TINYINT(1) NOT NU
 //		aankoop invoeren in character_products en character_buildings (behalve education in character_education, en concert, video-game en fashion-show in character_recreation)
 
 
+
+
+
+
 CREATE TABLE users (
 	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	name VARCHAR(32) NOT NULL UNIQUE,
@@ -100,9 +104,31 @@ DROP TABLE world_resources;
 DROP TABLE products;
 DROP TABLE worlds;
 
+
+
+
+
+DROP TABLE residences;
+DROP TABLE rental_agreements;
+DROP TABLE employment_contracts;
+DROP TABLE character_experience;
+DROP TABLE character_buildings;
+DROP TABLE character_products;
+DROP TABLE characters;
+DROP TABLE buildings;
+DROP TABLE jobs;
+DROP TABLE recreations;
+DROP TABLE world_resources;
+DROP TABLE products;
+DROP TABLE world_state;
+DROP TABLE worlds;
+
+
+
+
 CREATE TABLE worlds (
 	id TINYINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	slug VARCHAR(32) NOT NULL UNIQUE, /* NIEUW!*/
+	slug VARCHAR(32) NOT NULL UNIQUE,
 	type VARCHAR(32) NOT NULL UNIQUE,
 	money_system ENUM('fixed_amount', 'loan_interest', 'growing_limits') NOT NULL,
 	n_characters INT UNSIGNED NOT NULL,
@@ -169,13 +195,12 @@ CREATE TABLE characters (
 	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	world_id TINYINT UNSIGNED NOT NULL,
 	user_id INT UNSIGNED DEFAULT NULL,
-	first_name VARCHAR(32) NOT NULL,
-	last_name VARCHAR(32) NOT NULL,
-	gender ENUM('M', 'F', 'X') NOT NULL,
-	job_preference_1_id TINYINT UNSIGNED NOT NULL DEFAULT 1,
-	job_preference_2_id TINYINT UNSIGNED NOT NULL DEFAULT 2,
-	job_preference_3_id TINYINT UNSIGNED NOT NULL DEFAULT 3,
-	recreation_preference_id TINYINT UNSIGNED NOT NULL DEFAULT 1,
+	first_name VARCHAR(32) DEFAULT NULL,
+	last_name VARCHAR(32) DEFAULT NULL,
+	job_preference_1_id TINYINT UNSIGNED DEFAULT NULL,
+	job_preference_2_id TINYINT UNSIGNED DEFAULT NULL,
+	job_preference_3_id TINYINT UNSIGNED DEFAULT NULL,
+	recreation_preference_id TINYINT UNSIGNED DEFAULT NULL,
 	is_customized BOOLEAN NOT NULL DEFAULT FALSE,
 	birth_date SMALLINT UNSIGNED NOT NULL DEFAULT 1,
 	health TINYINT UNSIGNED NOT NULL DEFAULT 100,
@@ -202,7 +227,7 @@ CREATE TABLE character_products (
 	owner_id INT UNSIGNED NOT NULL,
 	product_id TINYINT UNSIGNED NOT NULL,
 	quantity INT UNSIGNED NOT NULL DEFAULT 0,
-	PRIMARY KEY (character_id, product_id),
+	PRIMARY KEY (owner_id, product_id),
 	FOREIGN KEY (owner_id) REFERENCES characters(id) ON DELETE CASCADE,
 	FOREIGN KEY (product_id) REFERENCES products(id)
 );
@@ -393,7 +418,7 @@ CREATE TABLE applications (
 
 
 INSERT INTO worlds
-(name,                   slug,   money_system,     n_characters, n_tiles) VALUES
+(type,                   slug,   money_system,     n_characters, n_tiles) VALUES
 ('Zo zuiver als goud',   'gold', 'fixed_amount',   3,            10),
 ('Belofte maakt schuld', 'debt', 'loan_interest',  3,            10),
 ('De tijd brengt raad',  'time', 'growing_limits', 3,            10);
@@ -405,7 +430,7 @@ INSERT INTO world_state
 (3);
 
 INSERT INTO products 
-(slug,               name,                 volume) VALUES
+(slug,               type,                 volume) VALUES
 ('food',             'Voedsel',            1), -- id = 1
 ('medical-care',     'Medische zorg',      1), -- id = 2
 ('domestic-help',    'Huishoudhulp',       1), -- id = 3
@@ -429,7 +454,7 @@ INSERT INTO products
 ('ores',             'Ertsen',             1), -- id = 21
 ('litter',           'Zwerfvuil',          1); -- id = 22
 
-INSERT INTO global_resources
+INSERT INTO world_resources
 (world_id, product_id, quantity) VALUES
 (1,        12,         100), -- Infrastructuur
 (1,        21,         100), -- Ertsen
@@ -448,7 +473,7 @@ INSERT INTO recreations
 (11); -- Modeshow
 
 INSERT INTO jobs
-(slug,                     name,                    input_id, output_id, booster_id, worn_booster_id, input_per_output, boosted_working_hours_per_booster, max_working_hours, base_factor,  boost_factor) VALUES
+(slug,                     type,                    input_id, output_id, booster_id, worn_booster_id, input_per_output, boosted_working_hours_per_booster, max_working_hours, base_factor,  boost_factor) VALUES
 ('farmer',                 'Landbouwer',            NULL,      1,        16,         22,              NULL,             5,                                 40,                0.80,         4), -- x → Voedsel (Machines)
 ('nurse',                  'Verpleegkundige',       NULL,      2,        15,         22,              NULL,             5,                                 40,                5.00,         4), -- x → Medische zorg (Gereedschap)
 ('cleaner',                'Schoonmaker',           NULL,      3,        15,         NULL,            NULL,             5,                                 40,                1,            4), -- x → Huishoudhulp (Gereedschap)
@@ -472,7 +497,7 @@ INSERT INTO jobs
 ('recycler',               'Recycler',              13,       14,         7,         NULL,            1,                5,                                 40,                1,            4); -- Vuilnis → Grondstoffen (Energie)
 
 INSERT INTO buildings
-(slug,                  name,                  tile_size, job_id) VALUES
+(slug,                  type,                  tile_size, job_id) VALUES
 ('farm',                'Boerderij',           1,          1),
 ('hospital',            'Ziekenhuis',          1,          2),
 ('house',               'Woning',              1,          3),
@@ -496,40 +521,19 @@ INSERT INTO buildings
 ('recycling-center',    'Recyclagecentrum',    1,         21);
 
 INSERT INTO characters
-(world_id,	first_name,   last_name) VALUES
-(1,         'Voornaam 1', 'Achternaam 1'),
-(1,         'Voornaam 2', 'Achternaam 2'),
-(1,         'Voornaam 3', 'Achternaam 3'),
-/*(1,         'Voornaam 4', 'Achternaam 4'),
-(1,         'Voornaam 5', 'Achternaam 5'),
-(1,         'Voornaam 6', 'Achternaam 6'),
-(1,         'Voornaam 7', 'Achternaam 7'),
-(1,         'Voornaam 8', 'Achternaam 8'),
-(1,         'Voornaam 9', 'Achternaam 9'),
-(1,         'Voornaam 10', 'Achternaam 10'),*/
-(2,         'Voornaam 1', 'Achternaam 1'),
-(2,         'Voornaam 2', 'Achternaam 2'),
-(2,         'Voornaam 3', 'Achternaam 3'),
-/*(2,         'Voornaam 4', 'Achternaam 4'),
-(2,         'Voornaam 5', 'Achternaam 5'),
-(2,         'Voornaam 6', 'Achternaam 6'),
-(2,         'Voornaam 7', 'Achternaam 7'),
-(2,         'Voornaam 8', 'Achternaam 8'),
-(2,         'Voornaam 9', 'Achternaam 9'),
-(2,         'Voornaam 10', 'Achternaam 10'),*/
-(3,         'Voornaam 1', 'Achternaam 1'),
-(3,         'Voornaam 2', 'Achternaam 2'),
-(3,         'Voornaam 3', 'Achternaam 3');
-/*(3,         'Voornaam 4', 'Achternaam 4'),
-(3,         'Voornaam 5', 'Achternaam 5'),
-(3,         'Voornaam 6', 'Achternaam 5'),
-(3,         'Voornaam 7', 'Achternaam 5'),
-(3,         'Voornaam 8', 'Achternaam 5'),
-(3,         'Voornaam 9', 'Achternaam 5'),
-(3,         'Voornaam 10', 'Achternaam 5');*/
+(world_id) VALUES
+(1),
+(1),
+(1),
+(2),
+(2),
+(2),
+(3),
+(3),
+(3);
 
 INSERT INTO character_products
-(character_id, product_id, quantity) VALUES
+(owner_id, product_id, quantity) VALUES
 (1,             1,         6),
 (1,             6,         2),
 (2,             8,         1),
@@ -548,12 +552,6 @@ INSERT INTO contracts
 (employee_id, workplace_id, working_hours, hourly_wage) VALUES
 (1,           1,            3,             500),
 (1,           2,            2,             400);
-
-
-
-
-
-
 
 INSERT INTO buildings
 (slug,                  name,                  tile_size, job,                     input_id, output_id, booster_id, worn_booster_id, input_per_output, boosted_working_hours_per_booster, max_working_hours, base_factor,  boost_factor) VALUES
