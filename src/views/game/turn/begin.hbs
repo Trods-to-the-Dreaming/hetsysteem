@@ -1,13 +1,19 @@
 {{#block "title"}}Beurt{{/block}}
 
 <script>
-	const allJobs = {{{json allJobs}}};
+	const isCharacterCustomized = {{isCharacterCustomized}};
+	const characterState = {{{json characterState}}};
+	
+	localStorage.setItem('isCharacterCustomized', JSON.stringify(isCharacterCustomized));
+	localStorage.setItem('characterState', JSON.stringify(characterState));
+	
+	const allProducts = {{{json allProducts}}};
 	const allRecreations = {{{json allRecreations}}};
 	const allBuildings = {{{json allBuildings}}};
 	
-	localStorage.setItem('turn.allJobs', JSON.stringify(allJobs));
-	localStorage.setItem('turn.allRecreations', JSON.stringify(allRecreations));
-	localStorage.setItem('turn.allBuildings', JSON.stringify(allBuildings));
+	localStorage.setItem('allProducts', JSON.stringify(allProducts));
+	localStorage.setItem('allRecreations', JSON.stringify(allRecreations));
+	localStorage.setItem('allBuildings', JSON.stringify(allBuildings));
 	
 	const stepsData = {{{json stepsData}}};
 	

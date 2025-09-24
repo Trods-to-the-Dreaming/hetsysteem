@@ -11,7 +11,6 @@ import {
 	getAllWorlds,
 	getAllProducts,
 	getAllRecreations,
-	getAllJobs,
 	getAllBuildings
 } from '../helpers/game-static.helpers.js';
 
@@ -29,6 +28,7 @@ import {
 
 import { 
 	isCharacterCustomized,
+	getCharacterState,
 	getDataCustomizeCharacter,
 	buildCharacterView
 } from '../helpers/game-character.helpers.js';
@@ -160,13 +160,15 @@ export const showTurn = async (req, res, next) => {
 		*/
 
 		const [
-			isCustomized,
-			allJobs,
+			isCharacterCustomized,
+			characterState,
+			allProducts,
 			allRecreations,
 			allBuildings
 		] = await Promise.all([
 			isCharacterCustomized(characterId),
-			getAllJobs(),
+			getCharacterState(characterId),
+			getAllProducts(),
 			getAllRecreations(),
 			getAllBuildings()
 		]);
@@ -216,7 +218,7 @@ export const showTurn = async (req, res, next) => {
 		];*/
 		
 		const steps = [
-			{ url: '/game/turn/customize-character', isRelevant: !isCustomized },
+			{ url: '/game/turn/customize-character', isRelevant: !characterState.isCustomized },
 			{ url: '/game/turn/manage-buildings', isRelevant: true },
 			{ url: '/game/turn/manage-employment-contracts', isRelevant: false },
 			{ url: '/game/turn/manage-rental-agreements', isRelevant: true },
@@ -234,8 +236,10 @@ export const showTurn = async (req, res, next) => {
 
 		res.render('game/turn/begin', {
 			isCharacterCustomized,
-			allJobs,
+			characterState,
+			allProducts,
 			allRecreations,
+			allBuildings,
 			stepsData,
 			steps,
 			firstStepIndex,

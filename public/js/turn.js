@@ -238,6 +238,7 @@ window.turn.finish = function() {
 
 //--- Cancel ------------------------------------------------------------------------------------//
 window.turn.cancel = function() {
+	// andere items ook wissen
 	localStorage.removeItem('turn.begin');
 	localStorage.removeItem('turn.steps');
 	localStorage.removeItem('turn.firstStepIndex');

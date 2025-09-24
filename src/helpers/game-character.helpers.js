@@ -16,6 +16,99 @@ import {
 
 //=== Main ======================================================================================//
 
+//--- Get character state -----------------------------------------------------------------------//
+export const getCharacterState = async (characterId,
+										trx = knex) => {
+	const state = await knex('characters')
+		.select(
+			'is_customized as isCustomized',
+			'owned_tiles as ownedTiles',
+			'hours_available as hoursAvailable'
+		)
+		.where('id', characterId)
+		.first();
+
+	if (!state) {
+		throw new BadRequestError(MSG_INVALID_CHARACTER);
+	}
+	
+	return state;
+};
+
+//--- Get character products --------------------------------------------------------------------//
+export const getCharacterProducts = async (characterId,
+										   trx = knex) => {
+	const products = await knex('character_products')
+		.select(
+			'product_id as productId',
+			'quantity'
+		)
+		.where('owner_id', characterId);
+	
+	return products;
+};
+
+//--- Get character buildings -------------------------------------------------------------------//
+export const getCharacterBuildings = async (characterId,
+											trx = knex) => {
+	const buildings = await knex('character_buildings')
+		.select(
+			'id',
+			'name',
+			'size',
+			'building_id as buildingId'
+		)
+		.where('owner_id', characterId);
+	
+	return buildings;
+};
+
+//--- Get employee contracts --------------------------------------------------------------------//
+export const getEmployeeContracts = async (characterId,
+										   trx = knex) => {
+	const contracts = await knex('employment_contracts as ec')
+		.select(
+			'ec.id as id',
+			'cb.name as buildingName',
+			'ec.working_hours as workingHours',
+			'ec.hourly_wage as hourlyWage',
+			'c.first_name as employerFirstName',
+			'c.last_name as employerLastName'
+		)
+		.innerJoin('character_buildings as cb', 'cb.id', 'ec.workplace_id')
+		.innerJoin('characters as c', 'c.id', 'cb.owner_id')
+		.where('ec.employee_id', characterId);
+	
+	return contracts;
+};
+
+//--- Get employer contracts --------------------------------------------------------------------//
+export const getEmployerContracts = async (characterId, 
+										   trx = knex) => {
+	const contracts = await knex('employment_contracts as ec')
+		.select(
+			'ec.id as id',
+			'cb.name as buildingName',
+			'ec.working_hours as workingHours',
+			'ec.hourly_wage as hourlyWage',
+			'c.first_name as employeeFirstName',
+			'c.last_name as employeeLastName'
+		)
+		.innerJoin('character_buildings as cb', 'cb.id', 'ec.workplace_id')
+		.innerJoin('characters as c', 'c.id', 'ec.employee_id')
+		.where('cb.owner_id', characterId);
+	
+	return contracts;
+};
+
+
+
+
+
+
+
+
+
 //--- Is character customized? ------------------------------------------------------------------//
 export const isCharacterCustomized = async (characterId,
 											trx = knex) => {
@@ -25,6 +118,31 @@ export const isCharacterCustomized = async (characterId,
 		)
 		.where('id', characterId)
 		.first();
+	if (!data) {
+		throw new BadRequestError(MSG_INVALID_CHARACTER);
+	}
+	
+	return data.isCustomized;
+};
+
+//--- Get character state -----------------------------------------------------------------------//
+export const getCharacterState = async (characterId,
+										trx = knex) => {
+	const buildings = await knex('character_buildings as cb')
+		.select(
+			'cb.id as characterBuildingId',
+			'cb.name as characterBuildingName',
+			'cb.size as characterBuildingSize',
+			'b.id as buildingId',
+			'b.type as buildingType',
+			'b.tile_size as buildingTileSize',
+			'j.type as jobType',
+			'j.output_id as jobOutputId',
+			'j.max_working_hours as jobMaxHours'
+		)
+		.leftJoin('buildings as b', 'b.id', 'cb.building_id')
+		.where('cb.owner_id', characterId);
+
 	if (!data) {
 		throw new BadRequestError(MSG_INVALID_CHARACTER);
 	}

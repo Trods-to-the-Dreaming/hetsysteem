@@ -116,7 +116,6 @@ DROP TABLE character_buildings;
 DROP TABLE character_products;
 DROP TABLE characters;
 DROP TABLE buildings;
-DROP TABLE jobs;
 DROP TABLE recreations;
 DROP TABLE world_resources;
 DROP TABLE products;
@@ -163,10 +162,12 @@ CREATE TABLE recreations (
 	FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
-CREATE TABLE jobs (
+CREATE TABLE buildings (
 	id TINYINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	slug VARCHAR(32) NOT NULL UNIQUE,
-	type VARCHAR(32) NOT NULL UNIQUE,
+	type VARCHAR(32) NOT NULL,
+	tile_size TINYINT UNSIGNED NOT NULL,
+	job VARCHAR(32) NOT NULL UNIQUE,
 	input_id TINYINT UNSIGNED,
 	output_id TINYINT UNSIGNED NOT NULL,
 	booster_id TINYINT UNSIGNED NOT NULL,
@@ -180,15 +181,6 @@ CREATE TABLE jobs (
 	FOREIGN KEY (output_id) REFERENCES products(id),
 	FOREIGN KEY (booster_id) REFERENCES products(id),
 	FOREIGN KEY (worn_booster_id) REFERENCES products(id)
-);
-
-CREATE TABLE buildings (
-	id TINYINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	slug VARCHAR(32) NOT NULL UNIQUE,
-	type VARCHAR(32) NOT NULL,
-	tile_size TINYINT UNSIGNED NOT NULL,
-	job_id TINYINT UNSIGNED UNIQUE NOT NULL,
-	FOREIGN KEY (job_id) REFERENCES jobs(id)
 );
 
 CREATE TABLE characters (
@@ -212,14 +204,13 @@ CREATE TABLE characters (
 	hours_available TINYINT UNSIGNED NOT NULL DEFAULT 13,
 	food_consumed TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	medical_care_consumed TINYINT UNSIGNED NOT NULL DEFAULT 0,
-	current_action TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	UNIQUE (world_id, user_id),
 	UNIQUE (world_id, first_name, last_name),
 	FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE,
 	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-	FOREIGN KEY (job_preference_1_id) REFERENCES jobs(id),
-	FOREIGN KEY (job_preference_2_id) REFERENCES jobs(id),
-	FOREIGN KEY (job_preference_3_id) REFERENCES jobs(id),
+	FOREIGN KEY (job_preference_1_id) REFERENCES buildings(id),
+	FOREIGN KEY (job_preference_2_id) REFERENCES buildings(id),
+	FOREIGN KEY (job_preference_3_id) REFERENCES buildings(id),
 	FOREIGN KEY (recreation_preference_id) REFERENCES recreations(id)
 );
 
@@ -472,6 +463,68 @@ INSERT INTO recreations
 (10), -- Videospel
 (11); -- Modeshow
 
+INSERT INTO buildings
+(slug,                  type,                  tile_size, job,                     input_id, output_id, booster_id, worn_booster_id, input_per_output, boosted_working_hours_per_booster, max_working_hours, base_factor,  boost_factor) VALUES
+('farm',                'Boerderij',           1,         'Landbouwer',            NULL,      1,        16,         22,              NULL,             5,                                 40,                0.80,         4), -- x → Voedsel (Machines)
+('hospital',            'Ziekenhuis',          1,         'Verpleegkundige',       NULL,      2,        15,         22,              NULL,             5,                                 40,                5.00,         4), -- x → Medische zorg (Gereedschap)
+('house',               'Woning',              1,         'Schoonmaker',           NULL,      3,        15,         NULL,            NULL,             5,                                 40,                1,            4), -- x → Huishoudhulp (Gereedschap)
+('school',              'School',              1,         'Leraar',                NULL,      4,         8,         NULL,            NULL,             5,                                 40,                1,            4), -- x → Onderwijs (Informatie)
+('warehouse',           'Magazijn',            1,         'Logistiek medewerker',  NULL,      5,        16,         22,              NULL,             5,                                 40,                1,            4), -- x → Orderverwerking (Machines)
+('quality-lab',         'Kwaliteitslab',       1,         'Kwaliteitsingenieur',   NULL,      6,         8,         NULL,            NULL,             5,                                 40,                1,            4), -- x → Procedures (Informatie)
+('wind-park',           'Windmolenpark',       1,         'Windmolenoperator',     NULL,      7,         8,         NULL,            NULL,             5,                                 40,                1,            4), -- x → Energie (Informatie)
+('research-center',     'Onderzoekscentrum',   1,         'Onderzoeker',           NULL,      8,        15,         22,              NULL,             5,                                 40,                1,            4), -- x → Informatie (Gereedschap)
+('concert-hall',        'Concertzaal',         1,         'Muzikant',              NULL,      9,        18,         22,              NULL,             5,                                 40,                1,            4), -- x → Concert (Muziekinstrumenten)
+('game-studio',         'Spelstudio',          1,         'Spelontwikkelaar',      NULL,     10,        19,         22,              NULL,             5,                                 40,                1,            4), -- x → Videospel (Elektronica)
+('fashion-hall',        'Modezaal',            1,         'Modeshoworganisator',   NULL,     11,        20,         22,              NULL,             5,                                 40,                1,            4), -- x → Modeshow (Kleding)
+('maintenance-depot',   'Onderhoudsdepot',     1,         'Onderhoudsmedewerker',  14,       12,         6,         NULL,            1,                5,                                 40,                1,            4), -- x → Infrastructuur (Procedures)
+('waste-center',        'Vuilniscentrale',     1,         'Vuilnisophaler',        22,       13,        16,         22,              1,                5,                                 40,                1,            4), -- Zwerfvuil → Vuilnis (Machines)
+('mine',                'Mijn',                1,         'Mijnwerker',            21,       14,         7,         NULL,            1,                5,                                 40,                1,            4), -- Ertsen → Grondstoffen (Energie)
+('tool-factory',        'Gereedschapsfabriek', 1,         'Gereedschapsfabrikant', 14,       15,         7,         NULL,            1,                5,                                 40,                1,            4), -- Grondstoffen → Gereedschap (Energie)
+('machine-factory',     'Machinefabriek',      1,         'Machinebouwer',         14,       16,        15,         22,              1,                5,                                 40,                1,            4), -- Grondstoffen → Machines (Gereedschap)
+('processing-plant',    'Verwerkingsfabriek',  1,         'Procesoperator',        14,       17,        16,         22,              1,                5,                                 40,                1,            4), -- Grondstoffen → Halffabricaten (Machines)
+('instrument-workshop', 'Instrumentenatelier', 1,         'Instrumentmaker',       17,       18,         6,         NULL,            1,                5,                                 40,                1,            4), -- Halffabricaten → Muziekinstrumenten (Procedures)
+('electronics-factory', 'Elektronicafabriek',  1,         'Elektronicaproducent',  17,       19,         6,         NULL,            1,                5,                                 40,                1,            4), -- Halffabricaten → Elektronica (Procedures)
+('clothing-factory',    'Kledingfabriek',      1,         'Kledingproducent',      17,       20,         6,         NULL,            1,                5,                                 40,                1,            4), -- Halffabricaten → Kleding (Procedures)
+('recycling-center',    'Recyclagecentrum',    1,         'Recycler',              13,       14,         7,         NULL,            1,                5,                                 40,                1,            4); -- Vuilnis → Grondstoffen (Energie)
+
+INSERT INTO characters
+(world_id) VALUES
+(1),
+(1),
+(1),
+(2),
+(2),
+(2),
+(3),
+(3),
+(3);
+
+INSERT INTO character_products
+(owner_id, product_id, quantity) VALUES
+(1,             1,         6),
+(1,             6,         2),
+(2,             8,         1),
+(2,            12,         3),
+(3,            18,         5);
+
+INSERT INTO character_buildings
+(name,                 building_id, owner_id, size, boosted_working_hours) VALUES
+('De Appelgaard',       1,          1,        1,    0),
+('Kwaliteitskompas',    6,          1,        1,    0),
+('Innovatiehub',        8,          1,        1,    0),
+('Mobipark',           12,          2,        1,    0),
+('De Stemmige Snaren', 18,          2,        1,    0);
+
+INSERT INTO contracts
+(employee_id, workplace_id, working_hours, hourly_wage) VALUES
+(1,           1,            3,             500),
+(1,           2,            2,             400);
+
+
+
+
+
+
 INSERT INTO jobs
 (slug,                     type,                    input_id, output_id, booster_id, worn_booster_id, input_per_output, boosted_working_hours_per_booster, max_working_hours, base_factor,  boost_factor) VALUES
 ('farmer',                 'Landbouwer',            NULL,      1,        16,         22,              NULL,             5,                                 40,                0.80,         4), -- x → Voedsel (Machines)
@@ -520,62 +573,6 @@ INSERT INTO buildings
 ('clothing-factory',    'Kledingfabriek',      1,         20),
 ('recycling-center',    'Recyclagecentrum',    1,         21);
 
-INSERT INTO characters
-(world_id) VALUES
-(1),
-(1),
-(1),
-(2),
-(2),
-(2),
-(3),
-(3),
-(3);
-
-INSERT INTO character_products
-(owner_id, product_id, quantity) VALUES
-(1,             1,         6),
-(1,             6,         2),
-(2,             8,         1),
-(2,            12,         3),
-(3,            18,         5);
-
-INSERT INTO character_buildings
-(name,                 building_id, owner_id, size, boosted_working_hours) VALUES
-('De Appelgaard',       1,          1,        1,    0),
-('Kwaliteitskompas',    6,          1,        1,    0),
-('Innovatiehub',        8,          1,        1,    0),
-('Mobipark',           12,          2,        1,    0),
-('De Stemmige Snaren', 18,          2,        1,    0);
-
-INSERT INTO contracts
-(employee_id, workplace_id, working_hours, hourly_wage) VALUES
-(1,           1,            3,             500),
-(1,           2,            2,             400);
-
-INSERT INTO buildings
-(slug,                  name,                  tile_size, job,                     input_id, output_id, booster_id, worn_booster_id, input_per_output, boosted_working_hours_per_booster, max_working_hours, base_factor,  boost_factor) VALUES
-('farm',                'Boerderij',           1,         'Landbouwer',            NULL,      1,        16,         22,              NULL,             5,                                 40,                0.80,         4), -- x → Voedsel (Machines)
-('hospital',            'Ziekenhuis',          1,         'Verpleegkundige',       NULL,      2,        15,         22,              NULL,             5,                                 40,                5.00,         4), -- x → Medische zorg (Gereedschap)
-('house',               'Woning',              1,         'Schoonmaker',           NULL,      3,        15,         NULL,            NULL,             5,                                 40,                1,            4), -- x → Huishoudhulp (Gereedschap)
-('school',              'School',              1,         'Leraar',                NULL,      4,         8,         NULL,            NULL,             5,                                 40,                1,            4), -- x → Onderwijs (Informatie)
-('warehouse',           'Magazijn',            1,         'Logistiek medewerker',  NULL,      5,        16,         22,              NULL,             5,                                 40,                1,            4), -- x → Orderverwerking (Machines)
-('quality-lab',         'Kwaliteitslab',       1,         'Kwaliteitsingenieur',   NULL,      6,         8,         NULL,            NULL,             5,                                 40,                1,            4), -- x → Procedures (Informatie)
-('wind-park',           'Windmolenpark',       1,         'Windmolenoperator',     NULL,      7,         8,         NULL,            NULL,             5,                                 40,                1,            4), -- x → Energie (Informatie)
-('research-center',     'Onderzoekscentrum',   1,         'Onderzoeker',           NULL,      8,        15,         22,              NULL,             5,                                 40,                1,            4), -- x → Informatie (Gereedschap)
-('concert-hall',        'Concertzaal',         1,         'Muzikant',              NULL,      9,        18,         22,              NULL,             5,                                 40,                1,            4), -- x → Concert (Muziekinstrumenten)
-('game-studio',         'Spelstudio',          1,         'Spelontwikkelaar',      NULL,     10,        19,         22,              NULL,             5,                                 40,                1,            4), -- x → Videospel (Elektronica)
-('fashion-hall',        'Modezaal',            1,         'Modeshoworganisator',   NULL,     11,        20,         22,              NULL,             5,                                 40,                1,            4), -- x → Modeshow (Kleding)
-('maintenance-depot',   'Onderhoudsdepot',     1,         'Onderhoudsmedewerker',  14,       12,         6,         NULL,            1,                5,                                 40,                1,            4), -- x → Infrastructuur (Procedures)
-('waste-center',        'Vuilniscentrale',     1,         'Vuilnisophaler',        22,       13,        16,         22,              1,                5,                                 40,                1,            4), -- Zwerfvuil → Vuilnis (Machines)
-('mine',                'Mijn',                1,         'Mijnwerker',            21,       14,         7,         NULL,            1,                5,                                 40,                1,            4), -- Ertsen → Grondstoffen (Energie)
-('tool-factory',        'Gereedschapsfabriek', 1,         'Gereedschapsfabrikant', 14,       15,         7,         NULL,            1,                5,                                 40,                1,            4), -- Grondstoffen → Gereedschap (Energie)
-('machine-factory',     'Machinefabriek',      1,         'Machinebouwer',         14,       16,        15,         22,              1,                5,                                 40,                1,            4), -- Grondstoffen → Machines (Gereedschap)
-('processing-plant',    'Verwerkingsfabriek',  1,         'Procesoperator',        14,       17,        16,         22,              1,                5,                                 40,                1,            4), -- Grondstoffen → Halffabricaten (Machines)
-('instrument-workshop', 'Instrumentenatelier', 1,         'Instrumentmaker',       17,       18,         6,         NULL,            1,                5,                                 40,                1,            4), -- Halffabricaten → Muziekinstrumenten (Procedures)
-('electronics-factory', 'Elektronicafabriek',  1,         'Elektronicaproducent',  17,       19,         6,         NULL,            1,                5,                                 40,                1,            4), -- Halffabricaten → Elektronica (Procedures)
-('clothing-factory',    'Kledingfabriek',      1,         'Kledingproducent',      17,       20,         6,         NULL,            1,                5,                                 40,                1,            4), -- Halffabricaten → Kleding (Procedures)
-('recycling-center',    'Recyclagecentrum',    1,         'Recycler',              13,       14,         7,         NULL,            1,                5,                                 40,                1,            4); -- Vuilnis → Grondstoffen (Energie)
 
 
 

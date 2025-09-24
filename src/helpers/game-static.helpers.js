@@ -10,8 +10,7 @@ import { BadRequestError } from '../utils/errors.js';
 
 //--- Get all worlds ----------------------------------------------------------------------------//
 export async function getAllWorlds(trx = knex) {
-	const key = 'worlds';
-	const cached = getFromCache(key);
+	const cached = getFromCache('worlds');
 	
 	if (cached) return cached;
 	
@@ -27,14 +26,13 @@ export async function getAllWorlds(trx = knex) {
 		);
 	
 	const cache = buildEntityCache(rows);
-	setInCache(key, cache);
+	setInCache('worlds', cache);
 	return cache;
 }
 
 //--- Get all products --------------------------------------------------------------------------//
 export async function getAllProducts(trx = knex) {
-	const key = 'products';
-	const cached = getFromCache(key);
+	const cached = getFromCache('products');
 	
 	if (cached) return cached;
 	
@@ -47,14 +45,13 @@ export async function getAllProducts(trx = knex) {
 		);
 	
 	const cache = buildEntityCache(rows);
-	setInCache(key, cache);
+	setInCache('products', cache);
 	return cache;
 }
 
 //--- Get all recreations -----------------------------------------------------------------------//
 export async function getAllRecreations(trx = knex) {
-	const key = 'recreations';
-	const cached = getFromCache(key);
+	const cached = getFromCache('recreations');
 	
 	if (cached) return cached;
 
@@ -67,22 +64,23 @@ export async function getAllRecreations(trx = knex) {
 		.innerJoin('products as p', 'r.product_id', 'p.id');
 	
 	const cache = buildEntityCache(rows);
-	setInCache(key, cache);
+	setInCache('recreations', cache);
 	return cache;
 }
 
-//--- Get all jobs ------------------------------------------------------------------------------//
-export async function getAllJobs(trx = knex) {
-	const key = 'jobs';
-	const cached = getFromCache(key);
+//--- Get all buildings -------------------------------------------------------------------------//
+export async function getAllBuildings(trx = knex) {
+	const cached = getFromCache('buildings');
 	
 	if (cached) return cached;
 	
-	const rows = await trx('jobs')
+	const rows = await trx('buildings')
 		.select(
 			'id', 
 			'slug', 
 			'type', 
+			'tile_size as tileSize',
+			'job',
 			'input_id as inputId',
 			'output_id as outputId',
 			'booster_id as boosterId',
@@ -95,28 +93,7 @@ export async function getAllJobs(trx = knex) {
 		);
 	
 	const cache = buildEntityCache(rows);
-	setInCache(key, cache);
-	return cache;
-}
-
-//--- Get all buildings -------------------------------------------------------------------------//
-export async function getAllBuildings(trx = knex) {
-	const key = 'buildings';
-	const cached = getFromCache(key);
-	
-	if (cached) return cached;
-
-	const rows = await trx('buildings')
-		.select(
-			'id',
-			'slug',
-			'type',
-			'tile_size as tileSize',
-			'job_id as jobId'
-		);
-	
-	const cache = buildEntityCache(rows);
-	setInCache(key, cache);
+	setInCache('buildings', cache);
 	return cache;
 }
 
