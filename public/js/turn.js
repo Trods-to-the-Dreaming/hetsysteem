@@ -198,7 +198,6 @@ window.step.save = function() {
 
 //--- Navigate next -----------------------------------------------------------------------------//
 window.turn.navigateNext = function() {
-	console.log('goToNextStep');
 	let nextStep = window.step.index + 1;
 	
 	while (nextStep <= window.turn.lastStepIndex &&

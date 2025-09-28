@@ -19,7 +19,6 @@ import {
 	showMenu,
 	showCharacter,
 	showTurn,
-	checkNameAvailability,
 	showCustomizeCharacter,
 	showManageBuildings,
 	showManageEmploymentContracts,
@@ -28,7 +27,9 @@ import {
 	showTrade,
 	showShare,
 	showConsume,
-	showManageGroup/*,
+	showManageGroup,
+	checkCharacterName,
+	checkBuildingName,/*,
 	handleTurn,
 	showStatistics*/
 } from '../controllers/game.controllers.js';
@@ -71,7 +72,8 @@ router.get( '/turn/consume', requireGameAccess, showConsume);
 router.get( '/turn/manage-group', requireGameAccess, showManageGroup);
 //router.post('/turn', requireAuthenticatedAndCustomized, handleTurn);
 
-router.get( '/turn/check-name-availability', requireGameAccess, checkNameAvailability);
+router.get( '/turn/check-character-name', requireGameAccess, checkCharacterName);
+router.get( '/turn/check-building-name', requireGameAccess, checkBuildingName);
 
 //router.get('/statistics', requireAuthenticatedAndCustomized, showStatistics);
 

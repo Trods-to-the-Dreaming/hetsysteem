@@ -26,10 +26,18 @@ import {
 	customizeCharacter*/
 } from '../helpers/game-world.helpers.js';
 
-import { 
-	isCharacterCustomized,
-	getCharacterState,
-	getDataCustomizeCharacter,
+import {
+	isCharacterNameAvailable,
+	isBuildingNameAvailable,
+	getCharacterState, 
+	getCharacterProducts,
+	getCharacterBuildings,
+	getEmployeeContracts,
+	getEmployerContracts,
+	getTenantAgreements,
+	getLandlordAgreements,
+	getCustomizeCharacterActions,
+	getManageBuildingsActions,
 	buildCharacterView
 } from '../helpers/game-character.helpers.js';
 
@@ -125,100 +133,46 @@ export const showCharacter = async (req, res, next) => {
 export const showTurn = async (req, res, next) => {
 	try {
 		const { characterId } = req.session;
-		
-		/*const [
-			characterContext,
-			buildings,
-			products,
-			jobs
-		] = await Promise.all([
-			getCharacterContext(characterId),
-			getAllBuildings(),
-			getAllProducts(),
-			getAllJobs(),
-		]);
-		
-		return res.render('game/turn/manage-buildings', { 
-			...characterContext,
-			buildings: buildings.options,
-			products:  products.options,
-			jobs: 	   jobs.options
-		});
-		
-		
-					// Check if the user has already customized his character 
-			if (!character.is_customized) {
-				// Save session
-				req.session.worldId = world.id;
-				req.session.worldType = world.type;
-				req.session.characterId = character.id;
-				await saveSession(req);
-				
-				// Customize character
-				return res.redirect('/game/setup/customize-character');
-			}
-		*/
 
 		const [
-			isCharacterCustomized,
-			characterState,
 			allProducts,
 			allRecreations,
 			allBuildings
 		] = await Promise.all([
-			isCharacterCustomized(characterId),
-			getCharacterState(characterId),
 			getAllProducts(),
 			getAllRecreations(),
 			getAllBuildings()
 		]);
 		
+		const characterData = {
+			state: await getCharacterState(characterId),
+			products: await getCharacterProducts(characterId),
+			buildings: await getCharacterBuildings(characterId),
+			employeeContracts: await getEmployeeContracts(characterId),
+			employerContracts: await getEmployerContracts(characterId),
+			tenantAgreements: await getTenantAgreements(characterId),
+			landlordAgreements: await getLandlordAgreements(characterId),
+		};
 		
+
+		//const turnNumber = 0;
 		
-		const turnNumber = 0;
-		
-		const stepsData = await Promise.all([
-			getDataCustomizeCharacter(2),
-			{},
-			{},
-			{},
-			{},
-			{},
-			{},
-			{},
-			{}
+		const characterActions = await Promise.all([
+			getCustomizeCharacterActions(characterId),
+			getManageBuildingsActions(characterId),
+			{}, // to do
+			{}, // to do
+			{}, // to do
+			{}, // to do
+			{}, // to do
+			{}, // to do
+			{} // to do
 		]);
 		
-		//console.log(stepsData);
-
-		/*const step0 = {
-			isCharacterCustomized: false,
-			firstName: 'Frodo',
-			lastName: 'Balings'
-		};
-		const step1 = {};
-		const step2 = {};
-		const step3 = {};
-		const step4 = {};
-		const step5 = {};
-		const step6 = {};
-		const step7 = {};
-		const step8 = {};
-		
-		const stepsData = [
-			step0,
-			step1,
-			step2,
-			step3,
-			step4,
-			step5,
-			step6,
-			step7,
-			step8
-		];*/
+		console.log(characterActions);
 		
 		const steps = [
-			{ url: '/game/turn/customize-character', isRelevant: !characterState.isCustomized },
+			{ url: '/game/turn/customize-character', isRelevant: !characterData.state.isCustomized },
 			{ url: '/game/turn/manage-buildings', isRelevant: true },
 			{ url: '/game/turn/manage-employment-contracts', isRelevant: false },
 			{ url: '/game/turn/manage-rental-agreements', isRelevant: true },
@@ -231,40 +185,19 @@ export const showTurn = async (req, res, next) => {
 		
 		const firstStepIndex = steps.findIndex(step => step.isRelevant === true);
 		const lastStepIndex = steps.findLastIndex(step => step.isRelevant === true);
-		
 		const activeStepIndex = firstStepIndex;
 
 		res.render('game/turn/begin', {
-			isCharacterCustomized,
-			characterState,
 			allProducts,
 			allRecreations,
 			allBuildings,
-			stepsData,
+			characterData,
+			characterActions,
 			steps,
 			firstStepIndex,
 			lastStepIndex,
 			activeStepIndex
 		});
-	} catch (err) {
-		next(err);
-	}
-};
-
-//--- Check name availability -------------------------------------------------------------------//
-export const checkNameAvailability = async (req, res, next) => {
-	try {
-		const { firstName, 
-				lastName } = req.query;
-
-		const available = await isNameAvailable(
-			req.session.characterId,
-			req.session.worldId, 
-			firstName, 
-			lastName
-		);
-		
-		res.json({ available });
 	} catch (err) {
 		next(err);
 	}
@@ -346,6 +279,44 @@ export const showConsume = async (req, res, next) => {
 export const showManageGroup = async (req, res, next) => {
 	try {
 		return res.render('game/turn/manage-group');
+	} catch (err) {
+		next(err);
+	}
+};
+
+//--- Check character name -------------------------------------------------------------------//
+export const checkCharacterName = async (req, res, next) => {
+	try {
+		const { firstName, 
+				lastName } = req.query;
+		const { characterId,
+				worldId } = req.session;
+
+		const available = await isCharacterNameAvailable(
+			characterId,
+			worldId, 
+			firstName, 
+			lastName
+		);
+		
+		res.json({ available });
+	} catch (err) {
+		next(err);
+	}
+};
+
+//--- Check building name -----------------------------------------------------------------------//
+export const checkBuildingName = async (req, res, next) => {
+	try {
+		const { name } = req.query;
+		const { worldId } = req.session;
+
+		const available = await isBuildingNameAvailable(
+			worldId, 
+			name
+		);
+		
+		res.json({ available });
 	} catch (err) {
 		next(err);
 	}

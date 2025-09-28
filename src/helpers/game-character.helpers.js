@@ -16,6 +16,34 @@ import {
 
 //=== Main ======================================================================================//
 
+//--- Is character name available? --------------------------------------------------------------//
+export const isCharacterNameAvailable = async (selfId,
+											   worldId, 
+											   firstName, 
+											   lastName,
+											   trx = knex) => {
+	const duplicate = await trx('characters')
+		.select(1)
+		.where('id', '!=', selfId)
+		.andWhere('world_id', worldId)
+		.andWhereRaw('LOWER(first_name) = ?', firstName.toLowerCase())
+		.andWhereRaw('LOWER(last_name) = ?', lastName.toLowerCase())
+		.first();
+	return !duplicate;
+};
+
+//--- Is building name available? --------------------------------------------------------------//
+export const isBuildingNameAvailable = async (worldId, 
+											  name,
+											  trx = knex) => {
+	const duplicate = await trx('character_buildings')
+		.select(1)
+		.where('world_id', worldId)
+		.andWhereRaw('LOWER(name) = ?', name.toLowerCase())
+		.first();
+	return !duplicate;
+};
+
 //--- Get character state -----------------------------------------------------------------------//
 export const getCharacterState = async (characterId,
 										trx = knex) => {
@@ -98,17 +126,93 @@ export const getEmployerContracts = async (characterId,
 		.innerJoin('characters as c', 'c.id', 'ec.employee_id')
 		.where('cb.owner_id', characterId);
 	
-	return contracts;
+};
+
+//--- Get tenant agreements ---------------------------------------------------------------------//
+export const getTenantAgreements = async (characterId, 
+										  trx = knex) => {
+	const agreements = await knex('rental_agreements as ra')
+		.select(
+			'ra.id as id',
+			'cb.name as residenceName',
+			'ra.daily_rent as dailyRent',
+			'c.first_name as landlordFirstName',
+			'c.last_name as landlordLastName'
+		)
+		.innerJoin('character_buildings as cb', 'cb.id', 'ra.residence_id')
+		.innerJoin('characters as c', 'c.id', 'cb.owner_id')
+		.where('ra.tenant_id', characterId);
+	
+	return agreements;
+};
+
+//--- Get landlord agreements -------------------------------------------------------------------//
+export const getLandlordAgreements = async (characterId, 
+											trx = knex) => {
+	const agreements = await knex('rental_agreements as ra')
+		.select(
+			'ra.id as id',
+			'cb.name as residenceName',
+			'ra.daily_rent as dailyRent',
+			'c.first_name as tenantFirstName',
+			'c.last_name as tenantLastName'
+		)
+		.innerJoin('character_buildings as cb', 'cb.id', 'ra.residence_id')
+		.innerJoin('characters as c', 'c.id', 'ra.tenant_id')
+		.where('cb.owner_id', characterId);
+	
+	return agreements;
+};
+
+//--- Get customize character actions -----------------------------------------------------------//
+export const getCustomizeCharacterActions = async (characterId,
+												   trx = knex) => {
+	const actions = await trx('action_customize')
+		.select(
+			'first_name as firstName',
+			'last_name as lastName',
+			'job_preference_1_id as jobPreference1',
+			'job_preference_2_id as jobPreference2',
+			'job_preference_3_id as jobPreference3',
+			'recreation_preference_id as recreationPreference'
+		)
+		.where('character_id', characterId)
+		.first();
+	if (!actions) {
+		throw new BadRequestError(MSG_INVALID_CHARACTER);
+	}
+	
+	return actions;
+};
+
+//--- Get manage buildings actions --------------------------------------------------------------//
+export const getManageBuildingsActions = async (characterId,
+												trx = knex) => {
+	const demolish = await trx('action_demolish as ad')
+		.select(
+			'cb.id as id'
+		)
+		.innerJoin('character_buildings as cb', 'cb.id', 'ad.building_id')
+		.where('cb.owner_id', characterId)
+		.first();
+	
+	const construct = await trx('action_construct')
+		.select(
+			'name',
+			'building_id as buildingId',
+			'size'
+		)
+		.where('owner_id', characterId)
+		.first();
+	
+	const actions = { demolish,
+					  construct };
+	
+	return actions;
 };
 
 
-
-
-
-
-
-
-
+/*
 //--- Is character customized? ------------------------------------------------------------------//
 export const isCharacterCustomized = async (characterId,
 											trx = knex) => {
@@ -149,48 +253,9 @@ export const getCharacterState = async (characterId,
 	
 	return data.isCustomized;
 };
+*/
 
-//--- Is name available? ------------------------------------------------------------------------//
-export const isNameAvailable = async (selfId,
-									  worldId, 
-									  firstName, 
-									  lastName,
-									  trx = knex) => {
-	const duplicate = await trx('characters')
-		.select(1)
-		.where('id', '!=', selfId)
-		.andWhere('world_id', worldId)
-		.andWhereRaw('LOWER(first_name) = ?', firstName.toLowerCase())
-		.andWhereRaw('LOWER(last_name) = ?', lastName.toLowerCase())
-		.first();
-	return !duplicate;
-};
 
-//--- Get data customized character -------------------------------------------------------------//
-export const getDataCustomizeCharacter = async (characterId,
-												trx = knex) => {
-	const data = await trx('characters as c')
-		.select(
-			'c.first_name as firstName',
-			'c.last_name as lastName',
-			'j1.type as jobPreference1',
-			'j2.type as jobPreference2',
-			'j3.type as jobPreference3',
-			'p.type as recreationPreference'
-		)
-		.leftJoin('jobs as j1', 'c.job_preference_1_id', 'j1.id')
-		.leftJoin('jobs as j2', 'c.job_preference_2_id', 'j2.id')
-		.leftJoin('jobs as j3', 'c.job_preference_3_id', 'j3.id')
-		.leftJoin('recreations as r', 'c.recreation_preference_id', 'r.id')
-		.leftJoin('products as p', 'r.product_id', 'p.id')
-		.where('c.id', characterId)
-		.first();
-	if (!data) {
-		throw new BadRequestError(MSG_INVALID_CHARACTER);
-	}
-	
-	return data;
-};
 
 //--- Build character view ----------------------------------------------------------------------//
 export const buildCharacterView = async (characterId,

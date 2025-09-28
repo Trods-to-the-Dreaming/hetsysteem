@@ -1,11 +1,9 @@
 {{#block "title"}}Beurt{{/block}}
 
 <script>
-	const isCharacterCustomized = {{isCharacterCustomized}};
-	const characterState = {{{json characterState}}};
+	const characterData = {{{json characterData}}};
 	
-	localStorage.setItem('isCharacterCustomized', JSON.stringify(isCharacterCustomized));
-	localStorage.setItem('characterState', JSON.stringify(characterState));
+	localStorage.setItem('characterData', JSON.stringify(characterData));
 	
 	const allProducts = {{{json allProducts}}};
 	const allRecreations = {{{json allRecreations}}};
@@ -15,10 +13,10 @@
 	localStorage.setItem('allRecreations', JSON.stringify(allRecreations));
 	localStorage.setItem('allBuildings', JSON.stringify(allBuildings));
 	
-	const stepsData = {{{json stepsData}}};
+	const characterActions = {{{json characterActions}}};
 	
-	stepsData.forEach((stepData, index) => {
-		localStorage.setItem(`turn.step.${index}`, JSON.stringify(stepData));
+	characterActions.forEach((stepActions, index) => {
+		localStorage.setItem(`turn.step.${index}`, JSON.stringify(stepActions));
 	});
 	
 	const steps = {{{json steps}}};
