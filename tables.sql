@@ -298,6 +298,37 @@ CREATE TABLE action_construct (
 	FOREIGN KEY (building_id) REFERENCES buildings(id)
 );
 
+CREATE TABLE action_apply (
+    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	applicant_id INT UNSIGNED NOT NULL,
+	job_id INT UNSIGNED NOT NULL,
+	working_hours TINYINT UNSIGNED NOT NULL,
+	min_hourly_wage INT UNSIGNED NOT NULL,
+	FOREIGN KEY (applicant_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (job_id) REFERENCES buildings(id)
+);
+
+CREATE TABLE action_resign (
+    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	contract_id INT UNSIGNED NOT NULL,
+	FOREIGN KEY (contract_id) REFERENCES employment_contracts(id)
+);
+
+CREATE TABLE action_recruit (
+    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	job_id INT UNSIGNED NOT NULL,
+	working_hours TINYINT UNSIGNED NOT NULL,
+	max_hourly_wage INT UNSIGNED NOT NULL,
+	FOREIGN KEY (job_id) REFERENCES character_buildings(id)
+);
+
+CREATE TABLE action_dismiss (
+    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	contract_id INT UNSIGNED NOT NULL,
+	FOREIGN KEY (contract_id) REFERENCES employment_contracts(id)
+);
+
+
 INSERT INTO worlds
 (type,                   slug,   money_system,     n_characters, n_tiles) VALUES
 ('Zo zuiver als goud',   'gold', 'fixed_amount',   3,            10),

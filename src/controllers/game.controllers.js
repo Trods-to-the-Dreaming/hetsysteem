@@ -35,11 +35,29 @@ import {
 	getEmployeeContracts,
 	getEmployerContracts,
 	getTenantAgreements,
-	getLandlordAgreements,
-	getCustomizeCharacterActions,
-	getManageBuildingsActions,
+	getLandlordAgreements,	
+	getCharacterCustomization,
+	getBuildingsManagement,
+	getEmploymentContractsManagement,
+	getRentalAgreementsManagement,
+	getProduction,
+	getTrading,
+	getSharing,
+	getConsumption,
+	getGroupManagement,
 	buildCharacterView
 } from '../helpers/game-character.helpers.js';
+
+
+	getCharacterCustomization,
+	getBuildingsManagement,
+	getEmploymentContractsManagement,
+	getRentalAgreementsManagement,
+	getProduction,
+	getTrading,
+	getSharing,
+	getConsumption,
+	getGroupManagement
 
 //=== Main ======================================================================================//
 
@@ -158,18 +176,18 @@ export const showTurn = async (req, res, next) => {
 		//const turnNumber = 0;
 		
 		const characterActions = await Promise.all([
-			getCustomizeCharacterActions(characterId),
-			getManageBuildingsActions(characterId),
-			{}, // to do
-			{}, // to do
-			{}, // to do
-			{}, // to do
-			{}, // to do
-			{}, // to do
-			{} // to do
+			getCharacterCustomization(characterId),
+			getBuildingsManagement(characterId),
+			getEmploymentContractsManagement(characterId),
+			getRentalAgreementsManagement(characterId),
+			getProduction(characterId),
+			getTrading(characterId),
+			getSharing(characterId),
+			getConsumption(characterId),
+			getGroupManagement(characterId)
 		]);
 		
-		console.log(characterActions);
+		console.dir(characterActions, { depth: null });
 		
 		const steps = [
 			{ url: '/game/turn/customize-character', isRelevant: !characterData.state.isCustomized },

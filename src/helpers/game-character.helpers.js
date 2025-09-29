@@ -126,6 +126,7 @@ export const getEmployerContracts = async (characterId,
 		.innerJoin('characters as c', 'c.id', 'ec.employee_id')
 		.where('cb.owner_id', characterId);
 	
+	return contracts;
 };
 
 //--- Get tenant agreements ---------------------------------------------------------------------//
@@ -164,11 +165,12 @@ export const getLandlordAgreements = async (characterId,
 	return agreements;
 };
 
-//--- Get customize character actions -----------------------------------------------------------//
-export const getCustomizeCharacterActions = async (characterId,
-												   trx = knex) => {
+//--- Get character customization ---------------------------------------------------------------//
+export const getCharacterCustomization = async (characterId,
+												trx = knex) => {
 	const actions = await trx('action_customize')
 		.select(
+			'id',
 			'first_name as firstName',
 			'last_name as lastName',
 			'job_preference_1_id as jobPreference1',
@@ -178,39 +180,120 @@ export const getCustomizeCharacterActions = async (characterId,
 		)
 		.where('character_id', characterId)
 		.first();
-	if (!actions) {
-		throw new BadRequestError(MSG_INVALID_CHARACTER);
-	}
 	
 	return actions;
 };
 
-//--- Get manage buildings actions --------------------------------------------------------------//
-export const getManageBuildingsActions = async (characterId,
-												trx = knex) => {
+//--- Get buildings management ------------------------------------------------------------------//
+export const getBuildingsManagement = async (characterId,
+											 trx = knex) => {
 	const demolish = await trx('action_demolish as ad')
 		.select(
-			'cb.id as id'
+			'ad.id as id',
+			'cb.id as buildingId'
 		)
 		.innerJoin('character_buildings as cb', 'cb.id', 'ad.building_id')
 		.where('cb.owner_id', characterId)
-		.first();
 	
 	const construct = await trx('action_construct')
 		.select(
+			'id',
 			'name',
 			'building_id as buildingId',
 			'size'
 		)
 		.where('owner_id', characterId)
-		.first();
 	
-	const actions = { demolish,
-					  construct };
-	
-	return actions;
+	return { demolish,
+			 construct };
 };
 
+//--- Get employment contracts management -------------------------------------------------------//
+export const getEmploymentContractsManagement = async (characterId,
+													   trx = knex) => {
+	const apply = await trx('action_apply')
+		.select(
+			'id',
+			'job_id as jobId',
+			'working_hours as workingHours',
+			'min_hourly_wage as minHourlyWage'
+		)
+		.where('applicant_id', characterId);
+	
+	const resign = await trx('action_resign as ar')
+		.select(
+			'ar.id',
+			'ar.contract_id as contractId'
+		)
+		.innerJoin('employment_contracts as ec', 'ec.id', 'ar.contract_id')
+		.where('ec.employee_id', characterId);
+	
+	const recruit = await trx('action_recruit as ar')
+		.select(
+			'ar.id',
+			'ar.job_id as jobId',
+			'ar.working_hours as workingHours',
+			'ar.max_hourly_wage as maxHourlyWage'
+		)
+		.innerJoin('character_buildings as cb', 'cb.id', 'ar.job_id')
+		.where('cb.owner_id', characterId);
+	
+	const dismiss = await trx('action_dismiss as ad')
+		.select(
+			'ad.id',
+			'ad.contract_id as contractId'
+		)
+		.innerJoin('employment_contracts as ec', 'ec.id', 'ad.contract_id')
+		.innerJoin('character_buildings as cb', 'cb.id', 'ec.workplace_id')
+		.where('cb.owner_id', characterId);
+	
+	return { apply,
+			 resign,
+			 recruit,
+			 dismiss };
+};
+
+//--- Get rental agreements management ----------------------------------------------------------//
+export const getRentalAgreementsManagement = async (characterId,
+													trx = knex) => {
+	
+	return ;
+};
+
+//--- Get production ----------------------------------------------------------------------------//
+export const getProduction = async (characterId,
+									trx = knex) => {
+	
+	return ;
+};
+
+//--- Get trading -------------------------------------------------------------------------------//
+export const getTrading = async (characterId,
+								 trx = knex) => {
+	
+	return ;
+};
+
+//--- Get sharing -------------------------------------------------------------------------------//
+export const getSharing = async (characterId,
+								 trx = knex) => {
+	
+	return ;
+};
+
+//--- Get consumption ---------------------------------------------------------------------------//
+export const getConsumption = async (characterId,
+									 trx = knex) => {
+	
+	return ;
+};
+
+//--- Get group management ----------------------------------------------------------------------//
+export const getGroupManagement = async (characterId,
+										 trx = knex) => {
+	
+	return ;
+};
 
 /*
 //--- Is character customized? ------------------------------------------------------------------//
