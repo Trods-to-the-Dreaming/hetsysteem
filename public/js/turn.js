@@ -27,9 +27,9 @@ window.step.checkAccess = function() {
 
 //--- Initialize --------------------------------------------------------------------------------//
 window.step.initialize = function() {
-	window.step.load();
 	window.step.renderUI();
 	window.step.bindUIEvents();
+	window.step.load();
 	window.step.updateUIState();
 }
 
@@ -181,7 +181,7 @@ window.step.confirmEdit = function() {
 
 //--- Load --------------------------------------------------------------------------------------//
 window.step.load = function() {
-	window.step.data = JSON.parse(
+	window.step.actions = JSON.parse(
 		localStorage.getItem(`turn.step.${window.step.index}`)
 	);
 	window.step.loadFields();
@@ -192,12 +192,14 @@ window.step.save = function() {
 	window.step.saveFields();
 	localStorage.setItem(
 		`turn.step.${window.step.index}`,
-		JSON.stringify(window.step.data)
+		JSON.stringify(window.step.actions)
 	);
 };
 
 //--- Navigate next -----------------------------------------------------------------------------//
 window.turn.navigateNext = function() {
+	console.log
+	
 	let nextStep = window.step.index + 1;
 	
 	while (nextStep <= window.turn.lastStepIndex &&

@@ -257,6 +257,26 @@ export const getEmploymentContractsManagement = async (characterId,
 export const getRentalAgreementsManagement = async (characterId,
 													trx = knex) => {
 	
+	/*const rent = await trx('action_rent as ad')
+		.select(
+			'ad.id as id',
+			'cb.id as buildingId'
+		)
+		.innerJoin('character_buildings as cb', 'cb.id', 'ad.building_id')
+		.where('cb.owner_id', characterId)
+	
+	const rentOut = await trx('action_rent_out')
+		.select(
+			'id',
+			'name',
+			'building_id as buildingId',
+			'size'
+		)
+		.where('owner_id', characterId)
+	
+	return { rent,
+			 rentOut };*/
+			 
 	return ;
 };
 

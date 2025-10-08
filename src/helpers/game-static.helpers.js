@@ -57,7 +57,7 @@ export async function getAllRecreations(trx = knex) {
 
 	const rows = await trx('recreations as r')
 		.select(
-			'r.id as id',
+			'r.product_id as id',
 			'p.slug as slug',
 			'p.type as type'
 		)

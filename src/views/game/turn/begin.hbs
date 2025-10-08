@@ -1,10 +1,6 @@
 {{#block "title"}}Beurt{{/block}}
 
-<script>
-	const characterData = {{{json characterData}}};
-	
-	localStorage.setItem('characterData', JSON.stringify(characterData));
-	
+<script>	
 	const allProducts = {{{json allProducts}}};
 	const allRecreations = {{{json allRecreations}}};
 	const allBuildings = {{{json allBuildings}}};
@@ -12,6 +8,10 @@
 	localStorage.setItem('allProducts', JSON.stringify(allProducts));
 	localStorage.setItem('allRecreations', JSON.stringify(allRecreations));
 	localStorage.setItem('allBuildings', JSON.stringify(allBuildings));
+	
+	const characterData = {{{json characterData}}};
+	
+	localStorage.setItem('characterData', JSON.stringify(characterData));
 	
 	const characterActions = {{{json characterActions}}};
 	

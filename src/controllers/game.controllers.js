@@ -134,14 +134,14 @@ export const showMenu = async (req, res, next) => {
 //--- Character ---------------------------------------------------------------------------------//
 export const showCharacter = async (req, res, next) => {
 	try {
-		const { characterId,
+		/*const { characterId,
 				worldId } = req.session;
 		
-		const character = await buildCharacterView(characterId, worldId);
+		const character = await buildCharacterView(characterId, worldId);*/
 		
-		return res.render('game/character', { 
+		return res.render('game/character'/*, { 
 			...character
-		});
+		}*/);
 	} catch (err) {
 		next(err);
 	}

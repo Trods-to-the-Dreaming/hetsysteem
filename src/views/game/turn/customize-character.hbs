@@ -61,19 +61,19 @@ window.step.loadFields = function() {
 	};
 	
 	const fields = window.step.fields;
-	const data = window.step.data;
+	const actions = window.step.actions || {};
 	
 	window.step.populateSelect(fields.jobPreference1, allJobs);
 	window.step.populateSelect(fields.jobPreference2, allJobs);
 	window.step.populateSelect(fields.jobPreference3, allJobs);
 	window.step.populateSelect(fields.recreationPreference, allRecreations);
 	
-	fields.firstName.value = data.firstName;
-	fields.lastName.value = data.lastName;
-	fields.jobPreference1.value = data.jobPreference1;
-	fields.jobPreference2.value = data.jobPreference2;	
-	fields.jobPreference3.value = data.jobPreference3;
-	fields.recreationPreference.value = data.recreationPreference;
+	fields.firstName.value = actions.firstName || "";
+	fields.lastName.value = actions.lastName || "";
+	fields.jobPreference1.value = actions.jobPreference1;
+	fields.jobPreference2.value = actions.jobPreference2;	
+	fields.jobPreference3.value = actions.jobPreference3;
+	fields.recreationPreference.value = actions.recreationPreference;
 	
 	fields.firstName.addEventListener('input', handleFirstNameInput);
 	fields.lastName.addEventListener('input', handleLastNameInput);
@@ -81,18 +81,23 @@ window.step.loadFields = function() {
 	fields.jobPreference2.addEventListener('change', handleJobPreferenceChange);
 	fields.jobPreference3.addEventListener('change', handleJobPreferenceChange);
 	fields.recreationPreference.addEventListener('change', handleRecreationPreferenceChange);
+	
+	handleFirstNameInput();
+	handleLastNameInput();
+	handleJobPreferenceChange();
+	handleRecreationPreferenceChange();
 }
 
 window.step.saveFields = function() {
 	const fields = window.step.fields;
-	const data = window.step.data;
+	const actions = window.step.actions;
 	
-	data.firstName = fields.firstName.value;
-	data.lastName = fields.lastName.value;
-	data.jobPreference1 = fields.jobPreference1.value;
-	data.jobPreference2 = fields.jobPreference2.value;	
-	data.jobPreference3 = fields.jobPreference3.value;
-	data.recreationPreference = fields.recreationPreference.value;
+	actions.firstName = fields.firstName.value;
+	actions.lastName = fields.lastName.value;
+	actions.jobPreference1 = fields.jobPreference1.value;
+	actions.jobPreference2 = fields.jobPreference2.value;	
+	actions.jobPreference3 = fields.jobPreference3.value;
+	actions.recreationPreference = fields.recreationPreference.value;
 }
 
 //--- Event handlers ----------------------------------------------------------------------------//
@@ -166,7 +171,7 @@ async function checkNameAvailability() {
 			firstName,
 			lastName,
 		});
-		const res = await fetch(`/turn/check-name-availibility?${params}`);
+		const res = await fetch(`/turn/check-character-name?${params}`);
 		const { available } = await res.json();
 
 		if (!available) {

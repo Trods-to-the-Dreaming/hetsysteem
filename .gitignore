@@ -9,6 +9,8 @@ Formules.xlsx
 # Ignore environment variables and secrets
 .env
 
+test.txt
+
 # Ignore OS-specific and editor files
 .DS_Store
 Thumbs.db

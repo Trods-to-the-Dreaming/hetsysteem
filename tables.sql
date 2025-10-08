@@ -62,69 +62,36 @@ CHANGE COLUMN `has_confirmed_hours` `has_confirmed_spend_time` TINYINT(1) NOT NU
 
 
 
-
-
-
 CREATE TABLE users (
 	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	name VARCHAR(32) NOT NULL UNIQUE,
 	password VARCHAR(255) NOT NULL
 );
 
-DROP TABLE applications;
-DROP TABLE vacancies;
-DROP TABLE building_transactions;
-DROP TABLE building_sell_orders;
-DROP TABLE building_buy_orders;
-DROP TABLE product_transactions;
-DROP TABLE product_sell_orders;
-DROP TABLE product_buy_orders;
-DROP TABLE employment_contracts;
-DROP TABLE employer_boosts;
-DROP TABLE character_job_experience;
-DROP TABLE character_consumption;
-DROP TABLE character_buildings;
-DROP TABLE character_products;
-DROP TABLE characters;
-DROP TABLE jobs;
-DROP TABLE buildings;
-DROP TABLE recreations;
-DROP TABLE global_resources;
-DROP TABLE products;
-DROP TABLE worlds;
-
-DROP TABLE employment_contracts;
-DROP TABLE character_experience;
-DROP TABLE character_buildings;
-DROP TABLE character_products;
-DROP TABLE characters;
-DROP TABLE buildings;
-DROP TABLE recreations;
-DROP TABLE world_resources;
-DROP TABLE products;
-DROP TABLE worlds;
-
-
-
-
-
-DROP TABLE residences;
+DROP TABLE action_rent_out;
+DROP TABLE action_rent;
+DROP TABLE action_recruit;
+DROP TABLE action_dismiss;
+DROP TABLE action_apply;
+DROP TABLE action_resign;
+DROP TABLE action_construct;
+DROP TABLE action_demolish;
+DROP TABLE action_customize;
 DROP TABLE rental_agreements;
 DROP TABLE employment_contracts;
 DROP TABLE character_experience;
+DROP TABLE residences;
 DROP TABLE character_buildings;
 DROP TABLE character_products;
 DROP TABLE characters;
+DROP TABLE world_resources;
+DROP TABLE world_state;
 DROP TABLE buildings;
 DROP TABLE recreations;
-DROP TABLE world_resources;
 DROP TABLE products;
-DROP TABLE world_state;
 DROP TABLE worlds;
 
-
-
-
+-- static
 CREATE TABLE worlds (
 	id TINYINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	slug VARCHAR(32) NOT NULL UNIQUE,
@@ -135,12 +102,6 @@ CREATE TABLE worlds (
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE world_state (
-	world_id TINYINT UNSIGNED PRIMARY KEY,
-	current_turn SMALLINT UNSIGNED NOT NULL DEFAULT 1,
-	FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE
-);
-
 CREATE TABLE products (
 	id TINYINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	slug VARCHAR(32) NOT NULL UNIQUE,
@@ -148,19 +109,9 @@ CREATE TABLE products (
 	volume TINYINT UNSIGNED NOT NULL DEFAULT 1
 );
 
-CREATE TABLE world_resources (
-	world_id TINYINT UNSIGNED NOT NULL,
-	product_id TINYINT UNSIGNED NOT NULL,
-	quantity INT UNSIGNED NOT NULL,
-	PRIMARY KEY (world_id, product_id),
-	FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE,
-	FOREIGN KEY (product_id) REFERENCES products(id)
-);
-
 CREATE TABLE recreations (
-	id TINYINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	product_id TINYINT UNSIGNED NOT NULL,
-	FOREIGN KEY (product_id) REFERENCES products(id)
+    product_id TINYINT UNSIGNED PRIMARY KEY,
+    FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
 CREATE TABLE buildings (
@@ -182,6 +133,22 @@ CREATE TABLE buildings (
 	FOREIGN KEY (output_id) REFERENCES products(id),
 	FOREIGN KEY (booster_id) REFERENCES products(id),
 	FOREIGN KEY (worn_booster_id) REFERENCES products(id)
+);
+
+-- variable
+CREATE TABLE world_state (
+	world_id TINYINT UNSIGNED PRIMARY KEY,
+	current_turn SMALLINT UNSIGNED NOT NULL DEFAULT 1,
+	FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE
+);
+
+CREATE TABLE world_resources (
+	world_id TINYINT UNSIGNED NOT NULL,
+	product_id TINYINT UNSIGNED NOT NULL,
+	quantity INT UNSIGNED NOT NULL,
+	PRIMARY KEY (world_id, product_id),
+	FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE,
+	FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
 CREATE TABLE characters (
@@ -212,7 +179,7 @@ CREATE TABLE characters (
 	FOREIGN KEY (job_preference_1_id) REFERENCES buildings(id),
 	FOREIGN KEY (job_preference_2_id) REFERENCES buildings(id),
 	FOREIGN KEY (job_preference_3_id) REFERENCES buildings(id),
-	FOREIGN KEY (recreation_preference_id) REFERENCES recreations(id)
+	FOREIGN KEY (recreation_preference_id) REFERENCES recreations(product_id)
 );
 
 CREATE TABLE character_products (
@@ -236,6 +203,11 @@ CREATE TABLE character_buildings (
 	FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE,
 	FOREIGN KEY (owner_id) REFERENCES characters(id) ON DELETE CASCADE,
 	FOREIGN KEY (building_id) REFERENCES buildings(id)
+);
+
+CREATE TABLE residences (
+    character_building_id INT UNSIGNED PRIMARY KEY,
+    FOREIGN KEY (character_building_id) REFERENCES character_buildings(id) ON DELETE CASCADE
 );
 
 CREATE TABLE character_experience (
@@ -263,9 +235,10 @@ CREATE TABLE rental_agreements (
 	residence_id INT UNSIGNED NOT NULL,
 	daily_rent INT UNSIGNED NOT NULL,
 	FOREIGN KEY (tenant_id) REFERENCES characters(id) ON DELETE CASCADE,
-	FOREIGN KEY (residence_id) REFERENCES character_buildings(id)
+	FOREIGN KEY (residence_id) REFERENCES residences(character_building_id)
 );
 
+-- temporary
 CREATE TABLE action_customize (
 	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	character_id INT UNSIGNED NOT NULL,
@@ -279,7 +252,7 @@ CREATE TABLE action_customize (
 	FOREIGN KEY (job_preference_1_id) REFERENCES buildings(id),
 	FOREIGN KEY (job_preference_2_id) REFERENCES buildings(id),
 	FOREIGN KEY (job_preference_3_id) REFERENCES buildings(id),
-	FOREIGN KEY (recreation_preference_id) REFERENCES recreations(id)
+	FOREIGN KEY (recreation_preference_id) REFERENCES recreations(product_id)
 );
 
 CREATE TABLE action_demolish (
@@ -298,17 +271,23 @@ CREATE TABLE action_construct (
 	FOREIGN KEY (building_id) REFERENCES buildings(id)
 );
 
+CREATE TABLE action_resign (
+    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	contract_id INT UNSIGNED NOT NULL,
+	FOREIGN KEY (contract_id) REFERENCES employment_contracts(id)
+);
+
 CREATE TABLE action_apply (
     id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	applicant_id INT UNSIGNED NOT NULL,
-	job_id INT UNSIGNED NOT NULL,
+	job_id TINYINT UNSIGNED NOT NULL,
 	working_hours TINYINT UNSIGNED NOT NULL,
 	min_hourly_wage INT UNSIGNED NOT NULL,
 	FOREIGN KEY (applicant_id) REFERENCES characters(id) ON DELETE CASCADE,
 	FOREIGN KEY (job_id) REFERENCES buildings(id)
 );
 
-CREATE TABLE action_resign (
+CREATE TABLE action_dismiss (
     id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	contract_id INT UNSIGNED NOT NULL,
 	FOREIGN KEY (contract_id) REFERENCES employment_contracts(id)
@@ -322,24 +301,27 @@ CREATE TABLE action_recruit (
 	FOREIGN KEY (job_id) REFERENCES character_buildings(id)
 );
 
-CREATE TABLE action_dismiss (
+CREATE TABLE action_rent (
     id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	contract_id INT UNSIGNED NOT NULL,
-	FOREIGN KEY (contract_id) REFERENCES employment_contracts(id)
+	applicant_id INT UNSIGNED NOT NULL,
+	capacity TINYINT UNSIGNED NOT NULL,
+	max_daily_rent INT UNSIGNED NOT NULL,
+	FOREIGN KEY (applicant_id) REFERENCES characters(id) ON DELETE CASCADE
 );
 
+CREATE TABLE action_rent_out (
+    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	residence_id INT UNSIGNED NOT NULL,
+	capacity TINYINT UNSIGNED NOT NULL,
+	min_daily_rent INT UNSIGNED NOT NULL,
+	FOREIGN KEY (residence_id) REFERENCES residences(character_building_id)
+);
 
 INSERT INTO worlds
 (type,                   slug,   money_system,     n_characters, n_tiles) VALUES
 ('Zo zuiver als goud',   'gold', 'fixed_amount',   3,            10),
 ('Belofte maakt schuld', 'debt', 'loan_interest',  3,            10),
 ('De tijd brengt raad',  'time', 'growing_limits', 3,            10);
-
-INSERT INTO world_state
-(world_id) VALUES
-(1),
-(2),
-(3);
 
 INSERT INTO products 
 (slug,               type,                 volume) VALUES
@@ -365,18 +347,6 @@ INSERT INTO products
 ('clothing',         'Kleding',            1), -- id = 20
 ('ores',             'Ertsen',             1), -- id = 21
 ('litter',           'Zwerfvuil',          1); -- id = 22
-
-INSERT INTO world_resources
-(world_id, product_id, quantity) VALUES
-(1,        12,         100), -- Infrastructuur
-(1,        21,         100), -- Ertsen
-(1,        22,           0), -- Zwerfvuil
-(2,        12,         100), -- Infrastructuur
-(2,        21,         100), -- Ertsen
-(2,        22,           0), -- Zwerfvuil
-(3,        12,         100), -- Infrastructuur
-(3,        21,         100), -- Ertsen
-(3,        22,           0); -- Zwerfvuil
 
 INSERT INTO recreations
 (product_id) VALUES
@@ -407,6 +377,24 @@ INSERT INTO buildings
 ('electronics-factory', 'Elektronicafabriek',  1,         'Elektronicaproducent',  17,       19,         6,         NULL,            1,                5,                                 40,                1,            4), -- Halffabricaten → Elektronica (Procedures)
 ('clothing-factory',    'Kledingfabriek',      1,         'Kledingproducent',      17,       20,         6,         NULL,            1,                5,                                 40,                1,            4), -- Halffabricaten → Kleding (Procedures)
 ('recycling-center',    'Recyclagecentrum',    1,         'Recycler',              13,       14,         7,         NULL,            1,                5,                                 40,                1,            4); -- Vuilnis → Grondstoffen (Energie)
+
+INSERT INTO world_state
+(world_id) VALUES
+(1),
+(2),
+(3);
+
+INSERT INTO world_resources
+(world_id, product_id, quantity) VALUES
+(1,        12,         100), -- Infrastructuur
+(1,        21,         100), -- Ertsen
+(1,        22,           0), -- Zwerfvuil
+(2,        12,         100), -- Infrastructuur
+(2,        21,         100), -- Ertsen
+(2,        22,           0), -- Zwerfvuil
+(3,        12,         100), -- Infrastructuur
+(3,        21,         100), -- Ertsen
+(3,        22,           0); -- Zwerfvuil
 
 INSERT INTO characters
 (world_id) VALUES
