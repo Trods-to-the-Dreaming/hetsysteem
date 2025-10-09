@@ -11,75 +11,33 @@
 <div id="container-div" class="container-compact d-none">
 	<h1>Gebouwen beheren</h1>
 	
-	<div id="demolish-div">
+	<!--div id="demolish-div">
 		<h2>💥 Slopen</h2>
 		
 		<ul id="owned-buildings-ul" class="list-compact">
-			<!-- Filled bij JS -->
+			<!-- Filled bij JS ->
 		</ul>
 	</div>
 	
 	<div id="build-div">
 		<h2>🏗️ Bouwen</h2>
 		
-		<p>Vrije landtegels: <span id="free-tiles-span"></span></p> <!-- neemt toe als een gebouw wordt gesloopt -->
+		<p>Vrije landtegels: <span id="free-tiles-span"></span></p> <!-- neemt toe als een gebouw wordt gesloopt ->
 
 		<ul id="construction-sites-ul" class="list-compact">
-			<!-- Filled bij JS -->
+			<!-- Filled bij JS ->
 		</ul>
 		
-		<!-- hier een lijst van geplande gebouwen en een knop, een lijst van gebouwtypes en een lijst van gebouwgroottes? -->
-	</div>
+		<!-- hier een lijst van geplande gebouwen en een knop, een lijst van gebouwtypes en een lijst van gebouwgroottes? ->
+	</div-->
 </div>
 
 <script>
 //--- Load and save fields ----------------------------------------------------------------------//
 window.step.loadFields = function() {
-	const allJobs = (JSON.parse(localStorage.getItem(`turn.allJobs`))).options;
-	const allRecreations = (JSON.parse(localStorage.getItem(`turn.allRecreations`))).options;
-	
-	window.step.fields = {
-		firstName: document.getElementById('first-name-input'),
-		lastName: document.getElementById('last-name-input'),
-		jobPreference1: document.getElementById('job-preference-1-select'),
-		jobPreference2: document.getElementById('job-preference-2-select'),
-		jobPreference3: document.getElementById('job-preference-3-select'),
-		recreationPreference: document.getElementById('recreation-preference-select')
-	};
-	
-	const fields = window.step.fields;
-	const data = window.step.data;
-	
-	window.step.populateSelect(fields.jobPreference1, allJobs);
-	window.step.populateSelect(fields.jobPreference2, allJobs);
-	window.step.populateSelect(fields.jobPreference3, allJobs);
-	window.step.populateSelect(fields.recreationPreference, allRecreations);
-	
-	fields.firstName.value = data.firstName;
-	fields.lastName.value = data.lastName;
-	fields.jobPreference1.value = data.jobPreference1;
-	fields.jobPreference2.value = data.jobPreference2;	
-	fields.jobPreference3.value = data.jobPreference3;
-	fields.recreationPreference.value = data.recreationPreference;
-	
-	fields.firstName.addEventListener('input', handleFirstNameInput);
-	fields.lastName.addEventListener('input', handleLastNameInput);
-	fields.jobPreference1.addEventListener('change', handleJobPreferenceChange);
-	fields.jobPreference2.addEventListener('change', handleJobPreferenceChange);
-	fields.jobPreference3.addEventListener('change', handleJobPreferenceChange);
-	fields.recreationPreference.addEventListener('change', handleRecreationPreferenceChange);
 }
 
 window.step.saveFields = function() {
-	const fields = window.step.fields;
-	const data = window.step.data;
-	
-	data.firstName = fields.firstName.value;
-	data.lastName = fields.lastName.value;
-	data.jobPreference1 = fields.jobPreference1.value;
-	data.jobPreference2 = fields.jobPreference2.value;	
-	data.jobPreference3 = fields.jobPreference3.value;
-	data.recreationPreference = fields.recreationPreference.value;
 }
 
 /*function initUI() {
@@ -162,16 +120,6 @@ function validate() {
 function clickNext() {
 	// window.location.href = ...;
 }*/
-window.turn.saveData = function() {
-	//const data = [];
-	//localStorage.setItem('data', JSON.stringify(data));
-	alert('saving data...');
-}
-
-window.turn.loadData = function() {
-	//const data = [];
-	alert('loading data...');
-}
 
 //--- DOM content loaded ------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {

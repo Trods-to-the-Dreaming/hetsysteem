@@ -35,21 +35,12 @@ import {
 	getEmployeeContracts,
 	getEmployerContracts,
 	getTenantAgreements,
-	getLandlordAgreements,	
-	getCharacterCustomization,
-	getBuildingsManagement,
-	getEmploymentContractsManagement,
-	getRentalAgreementsManagement,
-	getProduction,
-	getTrading,
-	getSharing,
-	getConsumption,
-	getGroupManagement,
-	buildCharacterView
-} from '../helpers/game-character.helpers.js';
+	getLandlordAgreements
+} from '../helpers/game-state.helpers.js';
 
-
+import {
 	getCharacterCustomization,
+	setCharacterCustomization,
 	getBuildingsManagement,
 	getEmploymentContractsManagement,
 	getRentalAgreementsManagement,
@@ -58,6 +49,11 @@ import {
 	getSharing,
 	getConsumption,
 	getGroupManagement
+} from '../helpers/game-actions.helpers.js';
+
+import {
+	buildCharacterView
+} from '../helpers/game-character.helpers.js';
 
 //=== Main ======================================================================================//
 
@@ -187,12 +183,13 @@ export const showTurn = async (req, res, next) => {
 			getGroupManagement(characterId)
 		]);
 		
+		console.log("In:");
 		console.dir(characterActions, { depth: null });
 		
 		const steps = [
 			{ url: '/game/turn/customize-character', isRelevant: !characterData.state.isCustomized },
 			{ url: '/game/turn/manage-buildings', isRelevant: true },
-			{ url: '/game/turn/manage-employment-contracts', isRelevant: false },
+			{ url: '/game/turn/manage-employment-contracts', isRelevant: true },
 			{ url: '/game/turn/manage-rental-agreements', isRelevant: true },
 			{ url: '/game/turn/produce', isRelevant: true },
 			{ url: '/game/turn/trade', isRelevant: true },
@@ -302,6 +299,24 @@ export const showManageGroup = async (req, res, next) => {
 	}
 };
 
+//--- Handle turn--------------------------------------------------------------------------------//
+export const handleTurn = async (req, res, next) => {
+	try {
+		const { characterActions } = req.body;
+		const { characterId,
+				worldId } = req.session;
+		
+		console.log("Uit:");
+		console.dir(characterActions, { depth: null });
+		
+		getCharacterCustomization(characterId, characterActions[0], )
+
+		res.status(200).json({ success: true });
+	} catch (err) {
+		next(err);
+	}
+};
+
 //--- Check character name -------------------------------------------------------------------//
 export const checkCharacterName = async (req, res, next) => {
 	try {
@@ -309,7 +324,7 @@ export const checkCharacterName = async (req, res, next) => {
 				lastName } = req.query;
 		const { characterId,
 				worldId } = req.session;
-
+		
 		const available = await isCharacterNameAvailable(
 			characterId,
 			worldId, 

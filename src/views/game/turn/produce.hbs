@@ -3,8 +3,8 @@
 {{#block "headScripts"}}
 <script src="/js/turn.js"></script>
 <script>
-	window.turn.thisStep = 4;
-	window.turn.ensureValidStep();
+	window.step.index = 4;
+	window.step.checkAccess();
 </script>
 {{/block}}
 
@@ -24,13 +24,15 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-	window.turn.insertUI();
-	window.turn.bindUIEvents();
-});
+//--- Load and save fields ----------------------------------------------------------------------//
+window.step.loadFields = function() {
+}
 
-window.addEventListener('pageshow', (event) => {
-	window.turn.ensureValidStep();
-	window.turn.setupUI();
+window.step.saveFields = function() {
+}
+
+//--- DOM content loaded ------------------------------------------------------------------------//
+document.addEventListener('DOMContentLoaded', () => {
+	window.step.initialize();
 });
 </script>

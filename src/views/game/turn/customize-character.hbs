@@ -48,9 +48,6 @@ const debouncedCheckNameAvailability = debounce(checkNameAvailability, 300);
 
 //--- Load and save fields ----------------------------------------------------------------------//
 window.step.loadFields = function() {
-	const allJobs = (JSON.parse(localStorage.getItem(`turn.allJobs`))).options;
-	const allRecreations = (JSON.parse(localStorage.getItem(`turn.allRecreations`))).options;
-	
 	window.step.fields = {
 		firstName: document.getElementById('first-name-input'),
 		lastName: document.getElementById('last-name-input'),
@@ -60,16 +57,29 @@ window.step.loadFields = function() {
 		recreationPreference: document.getElementById('recreation-preference-select')
 	};
 	
+	if (!window.step.actions) {
+		window.step.actions = {
+			firstName: "",
+			lastName: "",
+			jobPreference1: "",
+			jobPreference2: "",	
+			jobPreference3: "",
+			recreationPreference: ""
+		};
+	}
+	
+	const allJobs = (JSON.parse(localStorage.getItem(`turn.allJobs`))).options;
+	const allRecreations = (JSON.parse(localStorage.getItem(`turn.allRecreations`))).options;
 	const fields = window.step.fields;
-	const actions = window.step.actions || {};
+	const actions = window.step.actions;
 	
 	window.step.populateSelect(fields.jobPreference1, allJobs);
 	window.step.populateSelect(fields.jobPreference2, allJobs);
 	window.step.populateSelect(fields.jobPreference3, allJobs);
 	window.step.populateSelect(fields.recreationPreference, allRecreations);
 	
-	fields.firstName.value = actions.firstName || "";
-	fields.lastName.value = actions.lastName || "";
+	fields.firstName.value = actions.firstName;
+	fields.lastName.value = actions.lastName;
 	fields.jobPreference1.value = actions.jobPreference1;
 	fields.jobPreference2.value = actions.jobPreference2;	
 	fields.jobPreference3.value = actions.jobPreference3;
@@ -171,7 +181,7 @@ async function checkNameAvailability() {
 			firstName,
 			lastName,
 		});
-		const res = await fetch(`/turn/check-character-name?${params}`);
+		const res = await fetch(`/game/turn/check-character-name?${params}`);
 		const { available } = await res.json();
 
 		if (!available) {

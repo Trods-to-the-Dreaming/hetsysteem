@@ -38,10 +38,10 @@ window.step.renderUI = function() {
 	const UI = window.step.getUI();
 	
 	const buttons = `
+		<button id="finish-button" class="button-1" type="button">Voltooien</button>
 		<button id="next-button" class="button-1" type="button">Volgende →</button>
 		<button id="back-button" class="button-1" type="button">← Vorige</button>
 		<button id="edit-button" class="button-1" type="button">Bewerken</button>
-		<button id="finish-button" class="button-1" type="button">Voltooien</button>
 		<button id="cancel-button" class="button-up" type="button">↑ Annuleren</button>`;
 	UI.containerDiv.insertAdjacentHTML('beforeend', buttons);
 	
@@ -197,9 +197,7 @@ window.step.save = function() {
 };
 
 //--- Navigate next -----------------------------------------------------------------------------//
-window.turn.navigateNext = function() {
-	console.log
-	
+window.turn.navigateNext = function() {	
 	let nextStep = window.step.index + 1;
 	
 	while (nextStep <= window.turn.lastStepIndex &&
@@ -232,9 +230,28 @@ window.turn.navigatePrevious = function() {
 }
 
 //--- Finish ------------------------------------------------------------------------------------//
-window.turn.finish = function() {
-	window.turn.save();
-	window.location.assign('/game/turn/finish');
+window.turn.finish = async function() {
+	window.step.save();
+	localStorage.setItem('turn.activeStepIndex', window.turn.lastStepIndex + 1);
+	
+	const characterActions = [];
+	
+	for (let index = 0; index < window.turn.steps.length; index++) {
+		const stepActions = localStorage.getItem(`turn.step.${index}`);
+		characterActions.push(JSON.parse(stepActions));
+	}
+	
+	try {
+		const res = await fetch('/game/turn/finish', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ characterActions })
+		});
+		
+		window.location.assign('/game');
+	} catch (err) {
+		console.error('Netwerkfout:', err);
+	}
 }
 
 //--- Cancel ------------------------------------------------------------------------------------//
