@@ -316,8 +316,8 @@ export const finishTurn = async (req, res, next) => {
 		const { characterId,
 				worldId } = req.session;
 		
-		console.log("Uit:");
-		console.dir(characterActions, { depth: null });
+		//console.log("Uit:");
+		//console.dir(characterActions, { depth: null });
 		
 		await knex.transaction(async (trx) => {
 			await setCharacterCustomization(characterId, 

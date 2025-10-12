@@ -2,12 +2,41 @@
 import db from '../utils/db.js';
 
 //=== Constants =================================================================================//
-const MSG_INVALID_CATEGORY = 'De gevraagde ordercategorie bestaat niet.';
+//const MSG_INVALID_CATEGORY = 'De gevraagde ordercategorie bestaat niet.';
 
 //=== Main ======================================================================================//
 
+//--- Process character customization -----------------------------------------------------------//
+export const processCharacterCustomization = async (trx = knex) => {
+	const customizations = await trx('action_customize')
+		.select('*');
+
+    if (customizations.length === 0) {
+      console.log('Geen aanpassingen gevonden.');
+      return;
+    }
+
+    for (const action of customizations) {
+		await trx('characters')
+			.where('id', action.character_id)
+			.update({
+				first_name: action.first_name,
+				last_name: action.last_name,
+				job_preference_1_id: action.job_preference_1_id,
+				job_preference_2_id: action.job_preference_2_id,
+				job_preference_3_id: action.job_preference_3_id,
+				recreation_preference_id: action.recreation_preference_id,
+				is_customized: true
+			});
+    }
+
+    await trx('action_customize').del();
+
+    console.log(`${customizations.length} aanpassingen toegepast.`);
+};
+
 //--- Process category orders -------------------------------------------------------------------//
-export const processCategoryOrders = async (category) => {
+/*export const processCategoryOrders = async (category) => {
 	const validCategories = ['product', 'building'];
 	if (!validCategories.includes(category)) {
 		throw new BadRequestError(MSG_INVALID_CATEGORY);
@@ -380,4 +409,4 @@ export const updateHealth = async (characterId,
 		 cumulative_health_gain,
 		 characterId]
 	);
-};
+};*/

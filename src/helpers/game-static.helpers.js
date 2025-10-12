@@ -99,7 +99,7 @@ export async function getAllBuildings(trx = knex) {
 
 //--- Get all jobs ------------------------------------------------------------------------------//
 export async function getAllJobs(trx = knex) {
-	const cached = getFromCache('buildings');
+	const cached = getFromCache('jobs');
 	
 	if (cached) return cached;
 	

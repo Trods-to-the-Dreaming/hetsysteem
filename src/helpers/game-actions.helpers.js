@@ -7,6 +7,7 @@ import {
 
 import { 
 	MSG_INVALID_CHARACTER,
+	MSG_ALREADY_CUSTOMIZED,
 	MSG_EMPTY_FIELD,
 	MSG_INVALID_JOB,
 	MSG_INVALID_RECREATION,
@@ -49,14 +50,18 @@ export const setCharacterCustomization = async (characterId,
 												worldId,
 												action,
 												trx = knex) => {
-	// Validate character id
-	const exists = await trx('characters')
-		.select(1)
+	// Validate character
+	const character = await trx('characters')
+		.select(
+			'is_customized as isCustomized'
+		)
 		.where('id', characterId)
 		.first();
 	
-	if (!exists) {
+	if (!character) {
 		throw new BadRequestError(MSG_INVALID_CHARACTER);
+	} else if (character.isCustomized) {
+		throw new BadRequestError(MSG_ALREADY_CUSTOMIZED);
 	}
 	
 	// Validate character name
