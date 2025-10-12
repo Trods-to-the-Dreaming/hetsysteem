@@ -34,25 +34,24 @@
 </div>
 
 <script>
+//--- Event handlers ----------------------------------------------------------------------------//
+function handleNewUsernameInput() {
+	usernameError.textContent = '';
+}
+
+function handlePasswordinput() {
+	passwordError.textContent = '';
+}
+	
+//--- DOM content loaded ------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
-	//--- Elements ------------------------------------------------------------------------------//
 	const newUsernameInput = document.getElementById('new-username');
 	const passwordInput = document.getElementById('password');
 	
 	const usernameError = document.getElementById('username-error');
 	const passwordError = document.getElementById('password-error');
 	
-	//--- Event listeners -----------------------------------------------------------------------//
 	newUsernameInput.addEventListener('input', handleNewUsernameInput);
 	passwordInput.addEventListener('input', handlePasswordinput);
-	
-	//--- Event handlers ------------------------------------------------------------------------//
-	function handleNewUsernameInput() {
-		usernameError.textContent = '';
-	}
-	
-	function handlePasswordinput() {
-		passwordError.textContent = '';
-	}
 });
 </script>

@@ -22,18 +22,17 @@
 </div>
 
 <script>
+//--- Event handlers ----------------------------------------------------------------------------//
+function handleWorldChange() {
+	worldError.textContent = '';
+}
+	
+//--- DOM content loaded ------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
-	//--- Elements ------------------------------------------------------------------------------//
 	const worldSelect = document.getElementById('world');
 	
 	const worldError = document.getElementById('world-error');
 	
-	//--- Event listeners -----------------------------------------------------------------------//
 	worldSelect.addEventListener('change', handleWorldChange);
-	
-	//--- Event handlers ------------------------------------------------------------------------//
-	function handleWorldChange() {
-		worldError.textContent = '';
-	}
 });
 </script>

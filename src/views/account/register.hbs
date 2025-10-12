@@ -30,8 +30,31 @@
 </div>
 
 <script>
+//--- Event handlers ----------------------------------------------------------------------------//
+function handleUsernameInput() {
+	usernameError.textContent = '';
+}
+
+function handlePasswordInput() {
+	confirmationError.textContent = '';
+}
+
+function handlePasswordConfirmationInput() {
+	confirmationError.textContent = '';
+}
+
+function handleFormSubmit(e) {
+	// Check if the password is confirmed correctly
+	if (passwordInput.value === passwordConfirmationInput.value) {
+		confirmationError.textContent = '';
+	} else {
+		confirmationError.textContent = 'De wachtwoorden komen niet overeen.';
+		e.preventDefault();
+	}
+}
+
+//--- DOM content loaded ------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
-	//--- Elements ------------------------------------------------------------------------------//
 	const usernameInput = document.getElementById('username');
 	const passwordInput = document.getElementById('password');
 	const passwordConfirmationInput = document.getElementById('password-confirmation');
@@ -41,34 +64,10 @@ document.addEventListener('DOMContentLoaded', () => {
 	const usernameError = document.getElementById('username-error');
 	const confirmationError = document.getElementById('confirmation-error');
 	
-	//--- Event listeners -----------------------------------------------------------------------//
 	usernameInput.addEventListener('input', handleUsernameInput);
 	passwordInput.addEventListener('input', handlePasswordInput);
 	passwordConfirmationInput.addEventListener('input', handlePasswordConfirmationInput);
 	
 	form.addEventListener('submit', handleFormSubmit);
-	
-	//--- Event handlers ------------------------------------------------------------------------//
-	function handleUsernameInput() {
-		usernameError.textContent = '';
-	}
-	
-	function handlePasswordInput() {
-		confirmationError.textContent = '';
-	}
-	
-	function handlePasswordConfirmationInput() {
-		confirmationError.textContent = '';
-	}
-	
-	function handleFormSubmit(e) {
-		// Check if the password is confirmed correctly
-		if (passwordInput.value === passwordConfirmationInput.value) {
-			confirmationError.textContent = '';
-		} else {
-			confirmationError.textContent = 'De wachtwoorden komen niet overeen.';
-			e.preventDefault();
-		}
-	}
 });
 </script>

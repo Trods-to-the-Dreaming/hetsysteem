@@ -1,6 +1,7 @@
 export const MSG_INVALID_WORLD		  = 'Ongeldige wereld.';
 export const MSG_INVALID_CHARACTER	  = 'Ongeldig personage.';
-export const MSG_INVALID_NAME		  = 'Ongeldige naam.'
+export const MSG_INVALID_NAME		  = 'Ongeldige naam.';
+export const MSG_EMPTY_FIELD		  = 'Je hebt een veld niet ingevuld.';
 export const MSG_INVALID_JOB		  = 'Ongeldige jobvoorkeur.';
 export const MSG_NO_UNIQUE_JOBS		  = 'Geen unieke jobvoorkeuren.';
 export const MSG_INVALID_RECREATION   = 'Ongeldige ontspanningsvoorkeur.';

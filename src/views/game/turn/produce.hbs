@@ -1,10 +1,10 @@
 {{#block "title"}}Produceren{{/block}}
 
 {{#block "headScripts"}}
-<script src="/js/turn.js"></script>
-<script>
-	window.step.index = 4;
-	window.step.checkAccess();
+<script type="module">
+	import { turn } from '/js/turn-logic.js';
+	turn.page.index = 4;
+	turn.page.checkAccess();
 </script>
 {{/block}}
 
@@ -23,16 +23,18 @@
 	<a class="button-back" href="/game">← Spelmenu</a-->
 </div>
 
-<script>
+<script type="module">
+import { turn } from '/js/turn-logic.js';
+
 //--- Load and save fields ----------------------------------------------------------------------//
-window.step.loadFields = function() {
+turn.page.loadFields = function() {
 }
 
-window.step.saveFields = function() {
+turn.page.saveFields = function() {
 }
 
 //--- DOM content loaded ------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
-	window.step.initialize();
+	turn.page.initialize();
 });
 </script>

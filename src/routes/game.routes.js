@@ -18,7 +18,7 @@ import {
 	handleCustomizeCharacter*/,
 	showMenu,
 	showCharacter,
-	showTurn,
+	beginTurn,
 	showCustomizeCharacter,
 	showManageBuildings,
 	showManageEmploymentContracts,
@@ -28,9 +28,11 @@ import {
 	showShare,
 	showConsume,
 	showManageGroup,
+	finishTurn,
 	checkCharacterName,
 	checkBuildingName,
-	handleTurn/*,
+	showCharacterNameConflict,
+	showBuildingNameConflict/*,
 	showStatistics*/
 } from '../controllers/game.controllers.js';
 
@@ -60,7 +62,7 @@ router.get( '/', requireGameAccess, showMenu);
 
 router.get( '/character', requireGameAccess, showCharacter);
 
-router.get( '/turn/begin', requireGameAccess, showTurn);
+router.get( '/turn/begin', requireGameAccess, beginTurn);
 router.get( '/turn/customize-character', requireGameAccess, showCustomizeCharacter);
 router.get( '/turn/manage-buildings', requireGameAccess, showManageBuildings);
 router.get( '/turn/manage-employment-contracts', requireGameAccess, showManageEmploymentContracts);
@@ -70,10 +72,13 @@ router.get( '/turn/trade', requireGameAccess, showTrade);
 router.get( '/turn/share', requireGameAccess, showShare);
 router.get( '/turn/consume', requireGameAccess, showConsume);
 router.get( '/turn/manage-group', requireGameAccess, showManageGroup);
-router.post('/turn/finish', requireGameAccess, handleTurn);
+router.post('/turn/finish', requireGameAccess, finishTurn);
 
 router.get( '/turn/check-character-name', requireGameAccess, checkCharacterName);
 router.get( '/turn/check-building-name', requireGameAccess, checkBuildingName);
+
+router.get( '/turn/character-name-conflict', requireGameAccess, showCharacterNameConflict);
+router.get( '/turn/building-name-conflict', requireGameAccess, showBuildingNameConflict);
 
 //router.get('/statistics', requireAuthenticatedAndCustomized, showStatistics);
 

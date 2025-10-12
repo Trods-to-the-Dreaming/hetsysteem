@@ -1,10 +1,10 @@
 {{#block "title"}}Gebouwen beheren{{/block}}
 
 {{#block "headScripts"}}
-<script src="/js/turn.js"></script>
-<script>
-	window.step.index = 1;
-	window.step.checkAccess();
+<script type="module">
+	import { turn } from '/js/turn-logic.js';
+	turn.page.index = 1;
+	turn.page.checkAccess();
 </script>
 {{/block}}
 
@@ -32,13 +32,20 @@
 	</div-->
 </div>
 
-<script>
+<script type="module">
+import { turn } from '/js/turn-logic.js';
+
 //--- Load and save fields ----------------------------------------------------------------------//
-window.step.loadFields = function() {
+turn.page.loadFields = function() {
 }
 
-window.step.saveFields = function() {
+turn.page.saveFields = function() {
 }
+
+//--- DOM content loaded ------------------------------------------------------------------------//
+document.addEventListener('DOMContentLoaded', () => {
+	turn.page.initialize();
+});
 
 /*function initUI() {
 	const ownedBuildingsUl = document.getElementById('owned-buildings-ul');
@@ -120,9 +127,4 @@ function validate() {
 function clickNext() {
 	// window.location.href = ...;
 }*/
-
-//--- DOM content loaded ------------------------------------------------------------------------//
-document.addEventListener('DOMContentLoaded', () => {
-	window.step.initialize();
-});
 </script>

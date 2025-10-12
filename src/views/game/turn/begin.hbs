@@ -4,32 +4,34 @@
 	const allProducts = {{{json allProducts}}};
 	const allRecreations = {{{json allRecreations}}};
 	const allBuildings = {{{json allBuildings}}};
+	const allJobs = {{{json allJobs}}};
 	
-	localStorage.setItem('allProducts', JSON.stringify(allProducts));
-	localStorage.setItem('allRecreations', JSON.stringify(allRecreations));
-	localStorage.setItem('allBuildings', JSON.stringify(allBuildings));
+	localStorage.setItem('turn.allProducts', JSON.stringify(allProducts));
+	localStorage.setItem('turn.allRecreations', JSON.stringify(allRecreations));
+	localStorage.setItem('turn.allBuildings', JSON.stringify(allBuildings));
+	localStorage.setItem('turn.allJobs', JSON.stringify(allJobs));
 	
 	const characterData = {{{json characterData}}};
 	
-	localStorage.setItem('characterData', JSON.stringify(characterData));
+	localStorage.setItem('turn.characterData', JSON.stringify(characterData));
 	
 	const characterActions = {{{json characterActions}}};
 	
-	characterActions.forEach((stepActions, index) => {
-		localStorage.setItem(`turn.step.${index}`, JSON.stringify(stepActions));
+	characterActions.forEach((action, index) => {
+		localStorage.setItem(`turn.page${index}.data`, JSON.stringify(action));
 	});
 	
-	const steps = {{{json steps}}};
-	const firstStepIndex = {{firstStepIndex}};
-	const lastStepIndex = {{lastStepIndex}};
-	const activeStepIndex = {{activeStepIndex}};
+	const actionPages = {{{json actionPages}}};
+	const firstRelevantPageIndex = {{firstRelevantPageIndex}};
+	const lastRelevantPageIndex = {{lastRelevantPageIndex}};
+	const currentPageIndex = {{currentPageIndex}};
 
-	localStorage.setItem('turn.steps', JSON.stringify(steps));
-	localStorage.setItem('turn.firstStepIndex', firstStepIndex);
-	localStorage.setItem('turn.lastStepIndex', lastStepIndex);
-	localStorage.setItem('turn.activeStepIndex', activeStepIndex);
+	localStorage.setItem('turn.actionPages', JSON.stringify(actionPages));
+	localStorage.setItem('turn.firstRelevantPageIndex', firstRelevantPageIndex);
+	localStorage.setItem('turn.lastRelevantPageIndex', lastRelevantPageIndex);
+	localStorage.setItem('turn.currentPageIndex', currentPageIndex);
 	
 	localStorage.setItem('turn.begin', true);
 	
-	window.location.replace(steps[activeStepIndex].url);
+	location.replace(actionPages[currentPageIndex].url);
 </script>

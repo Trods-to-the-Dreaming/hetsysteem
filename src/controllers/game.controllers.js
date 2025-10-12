@@ -1,6 +1,9 @@
 //=== Imports ===================================================================================//
 import knex from '../utils/db.js';
 import saveSession from '../utils/session.js';
+import { 
+	ConflictError
+} from '../utils/errors.js';
 
 import { 
 	MSG_NO_NEW_CHARACTERS,
@@ -11,7 +14,8 @@ import {
 	getAllWorlds,
 	getAllProducts,
 	getAllRecreations,
-	getAllBuildings
+	getAllBuildings,
+	getAllJobs
 } from '../helpers/game-static.helpers.js';
 
 import { 
@@ -143,20 +147,25 @@ export const showCharacter = async (req, res, next) => {
 	}
 };
 
-//--- Turn --------------------------------------------------------------------------------------//
-export const showTurn = async (req, res, next) => {
+//--- Begin turn --------------------------------------------------------------------------------//
+export const beginTurn = async (req, res, next) => {
 	try {
 		const { characterId } = req.session;
 
 		const [
 			allProducts,
 			allRecreations,
-			allBuildings
+			allBuildings,
+			allJobs
 		] = await Promise.all([
 			getAllProducts(),
 			getAllRecreations(),
-			getAllBuildings()
+			getAllBuildings(),
+			getAllJobs()
 		]);
+		
+		//console.dir(allBuildings, { depth: null });
+		//console.dir(allJobs, { depth: null });
 		
 		const characterData = {
 			state: await getCharacterState(characterId),
@@ -183,10 +192,10 @@ export const showTurn = async (req, res, next) => {
 			getGroupManagement(characterId)
 		]);
 		
-		console.log("In:");
-		console.dir(characterActions, { depth: null });
+		//console.log("In:");
+		//console.dir(characterActions, { depth: null });
 		
-		const steps = [
+		const actionPages = [
 			{ url: '/game/turn/customize-character', isRelevant: !characterData.state.isCustomized },
 			{ url: '/game/turn/manage-buildings', isRelevant: true },
 			{ url: '/game/turn/manage-employment-contracts', isRelevant: true },
@@ -198,20 +207,21 @@ export const showTurn = async (req, res, next) => {
 			{ url: '/game/turn/manage-group', isRelevant: true }
 		];
 		
-		const firstStepIndex = steps.findIndex(step => step.isRelevant === true);
-		const lastStepIndex = steps.findLastIndex(step => step.isRelevant === true);
-		const activeStepIndex = firstStepIndex;
+		const firstRelevantPageIndex = actionPages.findIndex(page => page.isRelevant === true);
+		const lastRelevantPageIndex = actionPages.findLastIndex(page => page.isRelevant === true);
+		const currentPageIndex = firstRelevantPageIndex;
 
 		res.render('game/turn/begin', {
 			allProducts,
 			allRecreations,
 			allBuildings,
+			allJobs,
 			characterData,
 			characterActions,
-			steps,
-			firstStepIndex,
-			lastStepIndex,
-			activeStepIndex
+			actionPages,
+			firstRelevantPageIndex,
+			lastRelevantPageIndex,
+			currentPageIndex
 		});
 	} catch (err) {
 		next(err);
@@ -299,8 +309,8 @@ export const showManageGroup = async (req, res, next) => {
 	}
 };
 
-//--- Handle turn--------------------------------------------------------------------------------//
-export const handleTurn = async (req, res, next) => {
+//--- Finish turn--------------------------------------------------------------------------------//
+export const finishTurn = async (req, res, next) => {
 	try {
 		const { characterActions } = req.body;
 		const { characterId,
@@ -309,10 +319,25 @@ export const handleTurn = async (req, res, next) => {
 		console.log("Uit:");
 		console.dir(characterActions, { depth: null });
 		
-		getCharacterCustomization(characterId, characterActions[0], )
+		await knex.transaction(async (trx) => {
+			await setCharacterCustomization(characterId, 
+											worldId,
+											characterActions[0], 
+											trx);
+		});
 
 		res.status(200).json({ success: true });
 	} catch (err) {
+		if (err instanceof ConflictError) {			
+			return res.status(err.status).json({ 
+				success: false,
+				error: err.message,
+				redirect: err.info?.type === 'character' 
+						  ? '/game/turn/character-name-conflict'
+						  : '/game/turn/building-name-conflict',
+				info: err.info
+			});
+		}
 		next(err);
 	}
 };
@@ -353,6 +378,16 @@ export const checkBuildingName = async (req, res, next) => {
 	} catch (err) {
 		next(err);
 	}
+};
+
+//--- Show character name conflict --------------------------------------------------------------//
+export const showCharacterNameConflict = async (req, res, next) => {
+	
+};
+
+//--- Show building name conflict --------------------------------------------------------------//
+export const showBuildingNameConflict = async (req, res, next) => {
+	
 };
 /*
 //--- Customize character -----------------------------------------------------------------------//

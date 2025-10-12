@@ -97,6 +97,25 @@ export async function getAllBuildings(trx = knex) {
 	return cache;
 }
 
+//--- Get all jobs ------------------------------------------------------------------------------//
+export async function getAllJobs(trx = knex) {
+	const cached = getFromCache('buildings');
+	
+	if (cached) return cached;
+	
+	const allBuildings = await getAllBuildings(trx);
+
+	const rows = allBuildings.all.map(b => ({
+		id: b.id,
+		slug: b.slug,
+		type: b.job
+	}));
+
+	const cache = buildEntityCache(rows);
+	setInCache('jobs', cache);
+	return cache;
+}
+
 //=== Extra =====================================================================================//
 
 //--- Build entity cache ------------------------------------------------------------------------//

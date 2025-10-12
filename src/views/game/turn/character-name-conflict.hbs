@@ -1,0 +1,110 @@
+{{#block "title"}}Naam personage al in gebruik{{/block}}
+
+<div id="container-div" class="container-compact d-none">
+	<h1>Naam personage al in gebruik</h1>
+
+	<p>De combinatie van voornaam en achternaam die u koos is al in gebruik.
+	   Gelieve een andere naam te kiezen.</p>
+
+	<form id="character-name-form" novalidate>
+		<div class="field">
+			<label for="first-name-input" class="form-label">Voornaam:</label>
+			<input id="first-name-input" class="form-control" type="text" required>
+		</div>
+		
+		<div class="field">
+			<label for="last-name-input" class="form-label">Achternaam:</label>
+			<input id="last-name-input" class="form-control" type="text" required>
+		</div>
+	
+		<button class="button-1" type="submit">Voltooien</button>
+	</form>
+</div>
+
+<script src="/js/character-name-validation.js"></script>
+<script src="/js/turn-submit.js"></script>
+<script>
+//--- Event handlers ----------------------------------------------------------------------------//
+function handleFirstNameInput() {
+	validateName(window.turn.action.fields.firstName);
+	validate();
+}
+
+function handleLastNameInput() {
+	validateName(window.turn.action.fields.lastName);
+	validate();
+}
+
+async function handleFormSubmit(e) {
+	e.preventDefault();
+
+	const data = window.turn.action.data;
+	const fields = window.turn.action.fields;
+	
+	data.firstName = fields.firstName.value;
+	data.lastName = fields.lastName.value;
+	
+	localStorage.setItem('turn.action.0', JSON.stringify(data));
+
+	try {
+	  const characterActions = [];
+
+	  // verzamel opnieuw alle actions
+	  const actions = JSON.parse(localStorage.getItem('turn.actions'));
+	  for (let i = 0; i < actions.length; i++) {
+		characterActions.push(JSON.parse(localStorage.getItem(`turn.action.${i}`)));
+	  }
+
+	  // probeer opnieuw de beurt te voltooien
+	  const res = await fetch('/game/turn/finish', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ characterActions })
+	  });
+
+	  if (res.status === 409) {
+		alert("Deze naam is nog steeds in gebruik. Probeer een andere naam.");
+		return;
+	  }
+
+	  if (!res.ok) {
+		alert("Er is iets misgegaan. Probeer later opnieuw.");
+		return;
+	  }
+
+	  // Succes: ga terug naar het menu
+	  window.location.assign('/game');
+	} catch (err) {
+	  console.error('Netwerkfout:', err);
+	  alert("Netwerkfout. Probeer later opnieuw.");
+	}
+});
+
+//--- Helpers -----------------------------------------------------------------------------------//
+function validate() {
+	const formElements = Array.from(window.turn.action.fields);
+	const allValid = UI.formElements.every(el => el.checkValidity());
+	UI.nextButton.disabled = !allValid;
+}
+  
+//--- DOM content loaded ------------------------------------------------------------------------//
+document.addEventListener('DOMContentLoaded', () => {
+	window.turn.action.data = JSON.parse(localStorage.getItem('turn.action.0'));
+	
+	window.turn.action.fields = {
+		firstName: document.getElementById('first-name-input'),
+		lastName: document.getElementById('last-name-input')
+	};
+	const form = document.getElementById('character-name-form');
+	
+	const data = window.turn.action.data;
+	const fields = window.turn.action.fields;
+	
+	fields.firstName.value = data.firstName;
+	fields.lastName.value = data.lastName;
+	
+	fields.firstName.addEventListener('input', handleFirstNameInput);
+	fields.lastName.addEventListener('input', handleLastNameInput);
+	form.addEventListener('submit', handleFormSubmit);
+});
+</script>

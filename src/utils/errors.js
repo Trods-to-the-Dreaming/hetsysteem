@@ -46,11 +46,11 @@ export class NotFoundError extends Error {
 
 //--- Conflict (409) ----------------------------------------------------------------------------//
 export class ConflictError extends Error {
-	constructor(message, redirect = '/') {
+	constructor(message, info = {}) {
 		super(message);
 		this.name = 'ConflictError';
 		this.status = 409;
 		this.expose = true;
-		this.redirect = redirect;
+		this.info = info;
 	}
 }

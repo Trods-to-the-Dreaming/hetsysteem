@@ -1,10 +1,10 @@
 {{#block "title"}}Personage aanpassen{{/block}}
 
 {{#block "headScripts"}}
-<script src="/js/turn.js"></script>
-<script>
-	window.step.index = 0;
-	window.step.checkAccess();
+<script type="module">
+	import { turn } from '/js/turn-logic.js';
+	turn.page.index = 0;
+	turn.page.checkAccess();
 </script>
 {{/block}}
 
@@ -42,23 +42,17 @@
 	</div>	
 </div>
 
-<script>
+<script type="module">
+import { validateName } from '/js/character-name-validation.js';
+import { turn } from '/js/turn-logic.js';
+
 //--- Global variables --------------------------------------------------------------------------//
 const debouncedCheckNameAvailability = debounce(checkNameAvailability, 300);
 
 //--- Load and save fields ----------------------------------------------------------------------//
-window.step.loadFields = function() {
-	window.step.fields = {
-		firstName: document.getElementById('first-name-input'),
-		lastName: document.getElementById('last-name-input'),
-		jobPreference1: document.getElementById('job-preference-1-select'),
-		jobPreference2: document.getElementById('job-preference-2-select'),
-		jobPreference3: document.getElementById('job-preference-3-select'),
-		recreationPreference: document.getElementById('recreation-preference-select')
-	};
-	
-	if (!window.step.actions) {
-		window.step.actions = {
+turn.page.loadFields = function() {
+	if (!turn.page.data) {
+		turn.page.data = {
 			firstName: "",
 			lastName: "",
 			jobPreference1: "",
@@ -68,22 +62,31 @@ window.step.loadFields = function() {
 		};
 	}
 	
+	turn.page.fields = {
+		firstName: document.getElementById('first-name-input'),
+		lastName: document.getElementById('last-name-input'),
+		jobPreference1: document.getElementById('job-preference-1-select'),
+		jobPreference2: document.getElementById('job-preference-2-select'),
+		jobPreference3: document.getElementById('job-preference-3-select'),
+		recreationPreference: document.getElementById('recreation-preference-select')
+	};
+
 	const allJobs = (JSON.parse(localStorage.getItem(`turn.allJobs`))).options;
 	const allRecreations = (JSON.parse(localStorage.getItem(`turn.allRecreations`))).options;
-	const fields = window.step.fields;
-	const actions = window.step.actions;
+	const data = turn.page.data;
+	const fields = turn.page.fields;
 	
-	window.step.populateSelect(fields.jobPreference1, allJobs);
-	window.step.populateSelect(fields.jobPreference2, allJobs);
-	window.step.populateSelect(fields.jobPreference3, allJobs);
-	window.step.populateSelect(fields.recreationPreference, allRecreations);
+	turn.page.populateSelect(fields.jobPreference1, allJobs);
+	turn.page.populateSelect(fields.jobPreference2, allJobs);
+	turn.page.populateSelect(fields.jobPreference3, allJobs);
+	turn.page.populateSelect(fields.recreationPreference, allRecreations);
 	
-	fields.firstName.value = actions.firstName;
-	fields.lastName.value = actions.lastName;
-	fields.jobPreference1.value = actions.jobPreference1;
-	fields.jobPreference2.value = actions.jobPreference2;	
-	fields.jobPreference3.value = actions.jobPreference3;
-	fields.recreationPreference.value = actions.recreationPreference;
+	fields.firstName.value = data.firstName;
+	fields.lastName.value = data.lastName;
+	fields.jobPreference1.value = data.jobPreference1;
+	fields.jobPreference2.value = data.jobPreference2;	
+	fields.jobPreference3.value = data.jobPreference3;
+	fields.recreationPreference.value = data.recreationPreference;
 	
 	fields.firstName.addEventListener('input', handleFirstNameInput);
 	fields.lastName.addEventListener('input', handleLastNameInput);
@@ -98,35 +101,35 @@ window.step.loadFields = function() {
 	handleRecreationPreferenceChange();
 }
 
-window.step.saveFields = function() {
-	const fields = window.step.fields;
-	const actions = window.step.actions;
+turn.page.saveFields = function() {
+	const data = turn.page.data;
+	const fields = turn.page.fields;
 	
-	actions.firstName = fields.firstName.value;
-	actions.lastName = fields.lastName.value;
-	actions.jobPreference1 = fields.jobPreference1.value;
-	actions.jobPreference2 = fields.jobPreference2.value;	
-	actions.jobPreference3 = fields.jobPreference3.value;
-	actions.recreationPreference = fields.recreationPreference.value;
+	data.firstName = fields.firstName.value;
+	data.lastName = fields.lastName.value;
+	data.jobPreference1 = fields.jobPreference1.value;
+	data.jobPreference2 = fields.jobPreference2.value;	
+	data.jobPreference3 = fields.jobPreference3.value;
+	data.recreationPreference = fields.recreationPreference.value;
 }
 
 //--- Event handlers ----------------------------------------------------------------------------//
 function handleFirstNameInput() {
-	validateName(window.step.fields.firstName);
+	validateName(turn.page.fields.firstName);
 	debouncedCheckNameAvailability(); 
-	window.step.validate();
+	turn.page.validate();
 }
 
 function handleLastNameInput() {
-	validateName(window.step.fields.lastName);
+	validateName(turn.page.fields.lastName);
 	debouncedCheckNameAvailability(); 
-	window.step.validate();
+	turn.page.validate();
 }
 
 function handleJobPreferenceChange() {
-	const selects = [window.step.fields.jobPreference1, 
-					 window.step.fields.jobPreference2, 
-					 window.step.fields.jobPreference3];
+	const selects = [turn.page.fields.jobPreference1, 
+					 turn.page.fields.jobPreference2, 
+					 turn.page.fields.jobPreference3];
 	const selectedValues = selects.map(select => select.value);
 	
 	selects.forEach((select, index) => {
@@ -137,66 +140,43 @@ function handleJobPreferenceChange() {
 		});
 	});
 	
-	window.step.validate();
+	turn.page.validate();
 }
 
 function handleRecreationPreferenceChange() {
-	window.step.validate();
+	turn.page.validate();
 }
 
 //--- Helpers -----------------------------------------------------------------------------------//
-function validateName(nameInput) {
-	const name = nameInput.value;
-	const minLength = 2;
-	const maxLength = 32;
-	const regex = /^[A-Za-zÀ-ÖØ-öø-ÿĀ-ž]+(?:[ '-][A-Za-zÀ-ÖØ-öø-ÿĀ-ž]+)*$/;
-
-	if (name.length < minLength) {
-		nameInput.setCustomValidity(`Minimaal ${minLength} tekens vereist.`);
-	} else if (name.length > maxLength) {
-		nameInput.setCustomValidity(`Maximaal ${maxLength} tekens toegestaan.`);
-	} else if (name !== name.trim()) {
-		nameInput.setCustomValidity(
-			'Spaties aan het begin of het einde zijn niet toegestaan.');
-	} else if (!regex.test(name)) {
-		nameInput.setCustomValidity(
-			'Alleen letters, spatie, apostrof en koppelteken zijn toegestaan.');
-	} else {
-		nameInput.setCustomValidity('');
-	}
-	
-	nameInput.reportValidity();
-}
-
 async function checkNameAvailability() {
-	const fields = window.step.fields;
+	const fields = turn.page.fields;
 	
 	const firstName = fields.firstName.value;
 	const lastName = fields.lastName.value;
 
 	if (!firstName || !lastName) return;
 
-	try {
-		const params = new URLSearchParams({
-			firstName,
-			lastName,
-		});
-		const res = await fetch(`/game/turn/check-character-name?${params}`);
-		const { available } = await res.json();
+	if (fields.firstName.validity.valid &&
+		fields.lastName.validity.valid) {
+		try {
+			const params = new URLSearchParams({
+				firstName,
+				lastName,
+			});
+			const res = await fetch(`/game/turn/check-character-name?${params}`);
+			const { available } = await res.json();
 
-		if (!available) {
-			fields.lastName.setCustomValidity(
-				'Deze combinatie van voornaam en achternaam is al in gebruik.'
-			);
-		} else {
-			fields.lastName.setCustomValidity('');
+			if (!available) {
+				fields.firstName.setCustomValidity(
+					'Deze combinatie van voornaam en achternaam is al in gebruik.'
+				);
+				fields.lastName.setCustomValidity(
+					'Deze combinatie van voornaam en achternaam is al in gebruik.'
+				);
+			}
+		} catch (err) {
+			console.error(err);
 		}
-
-		fields.lastName.reportValidity();
-		window.step.validate();
-	} catch (err) {
-		console.error(err);
-		window.step.validate();
 	}
 }
 
@@ -210,6 +190,6 @@ function debounce(fn, delay) {
 
 //--- DOM content loaded ------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
-	window.step.initialize();
+	turn.page.initialize();
 });
 </script>
