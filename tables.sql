@@ -62,11 +62,7 @@ CHANGE COLUMN `has_confirmed_hours` `has_confirmed_spend_time` TINYINT(1) NOT NU
 
 
 
-CREATE TABLE users (
-	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	name VARCHAR(32) NOT NULL UNIQUE,
-	password VARCHAR(255) NOT NULL
-);
+
 
 DROP TABLE action_rent_out;
 DROP TABLE action_rent;
@@ -90,6 +86,12 @@ DROP TABLE buildings;
 DROP TABLE recreations;
 DROP TABLE products;
 DROP TABLE worlds;
+
+CREATE TABLE users (
+	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	name VARCHAR(32) NOT NULL UNIQUE,
+	password VARCHAR(255) NOT NULL
+);
 
 -- static
 CREATE TABLE worlds (

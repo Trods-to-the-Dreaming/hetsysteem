@@ -12,8 +12,12 @@ import { BadRequestError } from '../utils/errors.js';
 export async function getAllWorlds(trx = knex) {
 	const cached = getFromCache('worlds');
 	
-	if (cached) return cached;
+	if (cached) {
+		console.log('Cache hit: worlds');
+		return cached;
+	}
 	
+	console.log('Cache miss: worlds, ophalen uit DB...');
 	const rows = await trx('worlds')
 		.select(
 			'id',
