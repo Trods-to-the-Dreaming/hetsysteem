@@ -12,7 +12,7 @@ import {
 } from '../middleware/game.middleware.js';
 
 import {
-	debugWorlds,
+	//debugWorlds,
 	showChooseWorld,
 	handleChooseWorld/*,
 	showCustomizeCharacter,
@@ -83,7 +83,7 @@ router.get( '/turn/building-name-conflict', requireGameAccess, showBuildingNameC
 
 //router.get('/statistics', requireAuthenticatedAndCustomized, showStatistics);
 
-router.get( '/turn/debug/worlds', requireGameAccess, debugWorlds);
+//router.get( '/turn/debug/worlds', requireGameAccess, debugWorlds);
 
 //=== Export ====================================================================================//
 export default {

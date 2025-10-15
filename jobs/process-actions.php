@@ -1,6 +1,6 @@
 <?php
 // URL naar je beveiligde cron-route
-$url = 'http://localhost:3000/cron/process-actions'; //'https://www.hetsysteem.site/cron/process-actions'; //
+$url = 'https://www.hetsysteem.site/cron/process-actions'; //'http://localhost:3000/cron/process-actions'; //
 
 $options = [
   'http' => [

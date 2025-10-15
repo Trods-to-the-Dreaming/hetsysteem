@@ -61,10 +61,10 @@ import {
 
 //=== Main ======================================================================================//
 
-export const debugWorlds = async (req, res, next) => {
+/*export const debugWorlds = async (req, res, next) => {
   const worlds = await getAllWorlds();
   res.json(worlds.all);
-};
+};*/
 
 //--- Choose world ------------------------------------------------------------------------------//
 export const showChooseWorld = async (req, res, next) => {
