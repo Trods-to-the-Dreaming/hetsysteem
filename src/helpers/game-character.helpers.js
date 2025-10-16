@@ -22,11 +22,12 @@ export const buildCharacterView = async (characterId,
 										 trx = knex) => {
 	const character = await trx('characters as c')
 		.select(
+			'c.is_customized as isCustomized',
 			'c.first_name as firstName',
 			'c.last_name as lastName',
-			'j1.type as jobPreference1',
-			'j2.type as jobPreference2',
-			'j3.type as jobPreference3',
+			'b1.job as jobPreference1',
+			'b2.job as jobPreference2',
+			'b3.job as jobPreference3',
 			'p.type as recreationPreference',
 			'c.birth_date as birthDate',
 			'c.health',
@@ -36,11 +37,11 @@ export const buildCharacterView = async (characterId,
 			'c.balance',
 			'c.owned_tiles as ownedTiles'
 		)
-		.innerJoin('jobs as j1', 'c.job_preference_1_id', 'j1.id')
-		.innerJoin('jobs as j2', 'c.job_preference_2_id', 'j2.id')
-		.innerJoin('jobs as j3', 'c.job_preference_3_id', 'j3.id')
-		.innerJoin('recreations as r', 'c.recreation_preference_id', 'r.id')
-		.innerJoin('products as p', 'r.product_id', 'p.id')
+		.leftJoin('buildings as b1', 'c.job_preference_1_id', 'b1.id')
+		.leftJoin('buildings as b2', 'c.job_preference_2_id', 'b2.id')
+		.leftJoin('buildings as b3', 'c.job_preference_3_id', 'b3.id')
+		.leftJoin('recreations as r', 'c.recreation_preference_id', 'r.product_id')
+		.leftJoin('products as p', 'r.product_id', 'p.id')
 		.where('c.id', characterId)
 		.first();
 	if (!character) {
@@ -66,9 +67,9 @@ export const buildCharacterView = async (characterId,
 	// Job experience
 	const jobExperience = await trx('character_experience as ce')
 		.select(
-			'j.type as job',
+			'b.job as job',
 			'ce.experience AS experienceHours')
-		.innerJoin('jobs as j', 'ce.job_id', 'j.id')
+		.innerJoin('buildings as b', 'ce.job_id', 'b.id')
 		.where('ce.character_id', characterId);
 	character.experience = jobExperience.map((row) => ({
 		job: row.job,

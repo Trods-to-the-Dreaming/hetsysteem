@@ -1,92 +1,94 @@
 {{#block "title"}}Personage{{/block}}
 
-<div class="container-compact">
-	<p>(onder constructie)</p>
-	
-	<a class="button-up" href="/game">↑ Spelmenu</a>
-	
-	<!--h1>{{firstName}} {{lastName}}</h1>
-	
-	<h2>💖 Welzijn</h2>
-	<ul class="list-compact">
-		<li class="list-item-justify">
-			<span>Leeftijd</span>
-			<span>{{age}} jaar</span>
-		</li>
-		<li class="list-item-justify">
-			<span>Levensverwachting</span>
-			<span>{{lifeExpectancy}} jaar</span>
-		</li>
-		<li class="list-item-justify">
-			<span>Gezondheid</span>
-			<span>{{health}} %</span>
-		</li>
-		<li class="list-item-justify">
-			<span>Geluk</span>
-			<span>{{happiness}} punten</span>
-		</li>
-		<li class="list-item-justify">
-			<span>Woonstatus</span>
-			<span>{{housingStatus}}</span>
-		</li>
-	</ul>
-
-	<h2>⭐ Voorkeuren</h2>
-	<ul class="list-compact">
-		<li class="list-item-justify">
-			<span>{{jobPreference1}}</span>
-			<span>★★★</span>
-		</li>
-		<li class="list-item-justify">
-			<span>{{jobPreference2}}</span>
-			<span>★★</span>
-		</li>
-		<li class="list-item-justify">
-			<span>{{jobPreference3}}</span>
-			<span>★</span>
-		</li>
-		<li class="list-item-justify">
-			<span>{{recreationPreference}}</span>
-			<span>★★★</span>
-		</li>
-	</ul>
-
-	<h2>🎓 Opleiding</h2>
-	<ul class="list-compact">
-		<li class="list-item-justify">
-			<span>Niveau</span>
-			<span>{{educationLevel}}</span>
-		</li>
-	</ul>
-
-	<h2>🛠️ Werkervaring</h2>
-	{{#if experience.length}}
+<div class="container-compact">	
+	{{#if isCustomized}}
+		<h1>{{firstName}} {{lastName}}</h1>
+		
+		<h2>💖 Welzijn</h2>
 		<ul class="list-compact">
-			{{#each experience}}
-				<li class="list-item-justify">
-					<span>{{this.job}}</span>
-					<span>{{this.experienceYears}} jaar</span>
-				</li>
-			{{/each}}
+			<li class="list-item-justify">
+				<span>Leeftijd</span>
+				<span>{{age}} jaar</span>
+			</li>
+			<li class="list-item-justify">
+				<span>Levensverwachting</span>
+				<span>{{lifeExpectancy}} jaar</span>
+			</li>
+			<li class="list-item-justify">
+				<span>Gezondheid</span>
+				<span>{{health}} %</span>
+			</li>
+			<li class="list-item-justify">
+				<span>Geluk</span>
+				<span>{{happiness}} punten</span>
+			</li>
+			<li class="list-item-justify">
+				<span>Woonstatus</span>
+				<span>{{housingStatus}}</span>
+			</li>
+		</ul>
+
+		<h2>⭐ Voorkeuren</h2>
+		<ul class="list-compact">
+			<li class="list-item-justify">
+				<span>{{jobPreference1}}</span>
+				<span>★★★</span>
+			</li>
+			<li class="list-item-justify">
+				<span>{{jobPreference2}}</span>
+				<span>★★</span>
+			</li>
+			<li class="list-item-justify">
+				<span>{{jobPreference3}}</span>
+				<span>★</span>
+			</li>
+			<li class="list-item-justify">
+				<span>{{recreationPreference}}</span>
+				<span>★★★</span>
+			</li>
+		</ul>
+
+		<h2>🎓 Opleiding</h2>
+		<ul class="list-compact">
+			<li class="list-item-justify">
+				<span>Niveau</span>
+				<span>{{educationLevel}}</span>
+			</li>
+		</ul>
+
+		<h2>🛠️ Werkervaring</h2>
+		{{#if experience.length}}
+			<ul class="list-compact">
+				{{#each experience}}
+					<li class="list-item-justify">
+						<span>{{this.job}}</span>
+						<span>{{this.experienceYears}} jaar</span>
+					</li>
+				{{/each}}
+			</ul>
+		{{else}}
+			<p>Je hebt nog geen werkervaring.</p>
+		{{/if}}
+		
+		<h2>📜 Bezittingen</h2>
+		<ul class="list-compact">
+			<li class="list-item-justify">
+				<span>Bankrekening</span>
+				<span id="balance">{{balance}} {{currencySymbol}}</span>
+			</li>
+			<li class="list-item-justify">
+				<span>Land</span>
+				<span>{{ownedTiles}} tegels</span>
+			</li>
 		</ul>
 	{{else}}
-		<p>Je hebt nog geen werkervaring.</p>
+		<h1>Personage</h1>
+		
+		<p>Uw personage is nog niet aangepast.</p>
 	{{/if}}
-	
-	<h2>📜 Bezittingen</h2>
-	<ul class="list-compact">
-		<li class="list-item-justify">
-			<span>Bankrekening</span>
-			<span id="balance">{{balance}} {{currencySymbol}}</span>
-		</li>
-		<li class="list-item-justify">
-			<span>Land</span>
-			<span>{{ownedTiles}} tegels</span>
-		</li>
-	</ul>
 
 	<a class="button-up" href="/game">↑ Spelmenu</a>
-</div-->
+</div>
 
 <!--script src="/js/shared-ui.js"></script>
 <script>

@@ -1,6 +1,15 @@
 <?php
 // URL naar je beveiligde cron-route
-$url = 'https://www.hetsysteem.site/cron/process-actions'; //'http://localhost:3000/cron/process-actions'; //
+//$url = 'http://localhost:3000/cron/process-actions'; //'https://www.hetsysteem.site/cron/process-actions'; //
+
+$env = getenv('NODE_ENV') ?: 'development';
+
+// Kies de juiste URL afhankelijk van de omgeving
+if ($env === 'production') {
+    $url = 'https://www.hetsysteem.site/cron/process-actions';
+} else {
+    $url = 'http://localhost:3000/cron/process-actions';
+}
 
 $options = [
   'http' => [
