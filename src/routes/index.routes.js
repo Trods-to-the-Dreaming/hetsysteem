@@ -4,7 +4,7 @@ import express from 'express';
 import {
 	showIndex,
 	showAbout,
-	showRules
+	showGameMechanics
 } from '../controllers/index.controllers.js';
 
 //=== Main ======================================================================================//
@@ -14,7 +14,7 @@ router.get('/', showIndex);
 
 router.get('/about', showAbout);
 
-router.get('/rules', showRules);
+router.get('/game-mechanics', showGameMechanics);
 
 //=== Export ====================================================================================//
 export default {

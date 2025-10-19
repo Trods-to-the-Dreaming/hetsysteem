@@ -31,7 +31,10 @@ const sessionStore = new ConnectSessionKnexStore ({
 });
 await sessionStore.ready;
 
-app.set('trust proxy', 1);
+const isProduction = process.env.NODE_ENV === 'production';
+if (isProduction) {
+	app.set('trust proxy', 1);
+}
 app.use(expressSession({
 	name:              'systeem_session_cookie',
 	secret:            process.env.SESSION_SECRET,
@@ -40,7 +43,7 @@ app.use(expressSession({
 	saveUninitialized: false,
 	rolling:           true,
 	cookie: {
-		secure: process.env.NODE_ENV === 'production',
+		secure: isProduction,
 		httpOnly: true,
 		maxAge: 24 * 60 * 60 * 1000 // 24 hours
 	}

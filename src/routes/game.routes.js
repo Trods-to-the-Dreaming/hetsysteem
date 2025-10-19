@@ -33,8 +33,8 @@ import {
 	checkCharacterName,
 	checkBuildingName,
 	showCharacterNameConflict,
-	showBuildingNameConflict/*,
-	showStatistics*/
+	showBuildingNameConflict,
+	showStatistics
 } from '../controllers/game.controllers.js';
 
 //=== Constants =================================================================================//
@@ -55,9 +55,6 @@ const router = express.Router();
 
 router.get( '/choose-world', requireAuthenticated, showChooseWorld);
 router.post('/choose-world', requireAuthenticated, handleChooseWorld);
-
-//router.get( '/setup/customize-character', requireAuthenticatedAndSelected, showCustomizeCharacter);
-//router.post('/setup/customize-character', requireAuthenticatedAndSelected, handleCustomizeCharacter);
 
 router.get( '/', requireGameAccess, showMenu);
 
@@ -81,7 +78,7 @@ router.get( '/turn/check-building-name', requireGameAccess, checkBuildingName);
 router.get( '/turn/character-name-conflict', requireGameAccess, showCharacterNameConflict);
 router.get( '/turn/building-name-conflict', requireGameAccess, showBuildingNameConflict);
 
-//router.get('/statistics', requireAuthenticatedAndCustomized, showStatistics);
+router.get('/statistics', requireAuthenticatedAndCustomized, showStatistics);
 
 //router.get( '/turn/debug/worlds', requireGameAccess, debugWorlds);
 

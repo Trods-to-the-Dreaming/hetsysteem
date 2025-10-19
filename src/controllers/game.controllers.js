@@ -510,7 +510,7 @@ export const handleTurn = async (req, res, next) => {
 		next(err);
 	}
 };
-
+*/
 //--- Show statistics page ----------------------------------------------------------------------//
 export const showStatistics = async (req, res, next) => {
 	try {
@@ -519,4 +519,3 @@ export const showStatistics = async (req, res, next) => {
 		next(err);
 	}
 };
-*/

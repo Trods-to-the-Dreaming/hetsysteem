@@ -19,9 +19,9 @@ export const showAbout = (req, res, next) => {
 };
 
 //--- Rules -------------------------------------------------------------------------------------//
-export const showRules = (req, res, next) => {
+export const showGameMechanics = (req, res, next) => {
 	try {
-		return res.render('rules');
+		return res.render('game-mechanics');
 	} catch (err) {
 		next(err); 
 	}
