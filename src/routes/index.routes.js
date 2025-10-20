@@ -3,8 +3,8 @@ import express from 'express';
 
 import {
 	showIndex,
-	showAbout/*,
-	showGameMechanics*/
+	showAbout,
+	showGameMechanics
 } from '../controllers/index.controllers.js';
 
 //=== Main ======================================================================================//
@@ -14,7 +14,7 @@ router.get('/', showIndex);
 
 router.get('/about', showAbout);
 
-//router.get('/game-mechanics', showGameMechanics);
+router.get('/game-mechanics', showGameMechanics);
 
 //=== Export ====================================================================================//
 export default {
