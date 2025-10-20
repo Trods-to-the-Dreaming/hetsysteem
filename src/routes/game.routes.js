@@ -13,7 +13,7 @@ import {
 	showChooseWorld,
 	handleChooseWorld,
 	showMenu,
-	showCharacter/*,
+	showCharacter,
 	beginTurn,
 	showCustomizeCharacter,
 	showManageBuildings,
@@ -24,7 +24,7 @@ import {
 	showShare,
 	showConsume,
 	showManageGroup,
-	finishTurn,
+	finishTurn/*,
 	checkCharacterName,
 	checkBuildingName,
 	showCharacterNameConflict,
@@ -48,7 +48,7 @@ router.get( '/', requireGameAccess, showMenu);
 
 router.get( '/character', requireGameAccess, showCharacter);
 
-/*router.get( '/turn/begin', requireGameAccess, beginTurn);
+router.get( '/turn/begin', requireGameAccess, beginTurn);
 router.get( '/turn/customize-character', requireGameAccess, showCustomizeCharacter);
 router.get( '/turn/manage-buildings', requireGameAccess, showManageBuildings);
 router.get( '/turn/manage-employment-contracts', requireGameAccess, showManageEmploymentContracts);
@@ -60,7 +60,7 @@ router.get( '/turn/consume', requireGameAccess, showConsume);
 router.get( '/turn/manage-group', requireGameAccess, showManageGroup);
 router.post('/turn/finish', requireGameAccess, finishTurn);
 
-router.get( '/turn/check-character-name', requireGameAccess, checkCharacterName);
+/*router.get( '/turn/check-character-name', requireGameAccess, checkCharacterName);
 router.get( '/turn/check-building-name', requireGameAccess, checkBuildingName);
 
 router.get( '/turn/character-name-conflict', requireGameAccess, showCharacterNameConflict);
