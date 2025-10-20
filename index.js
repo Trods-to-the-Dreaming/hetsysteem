@@ -1,4 +1,13 @@
-//=== Imports ===================================================================================//
+import express from 'express';
+const app = express();
+
+app.get('/', (req, res) => res.send('✅ Server werkt!'));
+
+app.listen(process.env.APP_PORT || 3000, () => {
+  console.log('Server gestart');
+});
+
+/*//=== Imports ===================================================================================//
 import express from 'express';
 import expressSession from 'express-session';
 import expressHandlebars from 'express-handlebars';
@@ -119,4 +128,4 @@ app.use((err, req, res, next) => {
 app.listen(process.env.APP_PORT, () => {
 	console.log(MSG_SERVER_STARTED + process.env.APP_PORT);
 	console.log(MSG_MYSQLSTORE_READY);
-});
+});*/
