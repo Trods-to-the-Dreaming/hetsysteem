@@ -31,10 +31,7 @@ const sessionStore = new ConnectSessionKnexStore ({
 });
 await sessionStore.ready;
 
-const isProduction = process.env.NODE_ENV === 'production';
-if (isProduction) {
-	app.set('trust proxy', 1);
-}
+app.set('trust proxy', 1);
 app.use(expressSession({
 	name:              'systeem_session_cookie',
 	secret:            process.env.SESSION_SECRET,
@@ -43,7 +40,7 @@ app.use(expressSession({
 	saveUninitialized: false,
 	rolling:           true,
 	cookie: {
-		secure: false, //isProduction, //bug
+		secure: process.env.NODE_ENV === 'production', // bug in Combell
 		httpOnly: true,
 		maxAge: 24 * 60 * 60 * 1000 // 24 hours
 	}
