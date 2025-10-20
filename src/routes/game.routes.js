@@ -11,12 +11,10 @@ import {
 	requireCharacterCustomized*/
 } from '../middleware/game.middleware.js';
 
-import {
+/*import {
 	//debugWorlds,
 	showChooseWorld,
-	handleChooseWorld/*,
-	showCustomizeCharacter,
-	handleCustomizeCharacter*/,
+	handleChooseWorld,
 	showMenu,
 	showCharacter,
 	beginTurn,
@@ -35,7 +33,7 @@ import {
 	showCharacterNameConflict,
 	showBuildingNameConflict,
 	showStatistics
-} from '../controllers/game.controllers.js';
+} from '../controllers/game.controllers.js';*/
 
 //=== Constants =================================================================================//
 const requireGameAccess = [
@@ -53,7 +51,7 @@ const requireGameAccess = [
 //=== Main ======================================================================================//
 const router = express.Router();
 
-router.get( '/choose-world', requireAuthenticated, showChooseWorld);
+/*router.get( '/choose-world', requireAuthenticated, showChooseWorld);
 router.post('/choose-world', requireAuthenticated, handleChooseWorld);
 
 router.get( '/', requireGameAccess, showMenu);
@@ -78,7 +76,7 @@ router.get( '/turn/check-building-name', requireGameAccess, checkBuildingName);
 router.get( '/turn/character-name-conflict', requireGameAccess, showCharacterNameConflict);
 router.get( '/turn/building-name-conflict', requireGameAccess, showBuildingNameConflict);
 
-router.get('/statistics', requireAuthenticatedAndCustomized, showStatistics);
+router.get('/statistics', requireAuthenticatedAndCustomized, showStatistics);*/
 
 //router.get( '/turn/debug/worlds', requireGameAccess, debugWorlds);
 
