@@ -24,12 +24,12 @@ import {
 	showShare,
 	showConsume,
 	showManageGroup,
-	finishTurn/*,
+	finishTurn,
 	checkCharacterName,
 	checkBuildingName,
 	showCharacterNameConflict,
 	showBuildingNameConflict,
-	showStatistics*/
+	showStatistics
 } from '../controllers/game.controllers.js';
 
 //=== Constants =================================================================================//
@@ -60,13 +60,13 @@ router.get( '/turn/consume', requireGameAccess, showConsume);
 router.get( '/turn/manage-group', requireGameAccess, showManageGroup);
 router.post('/turn/finish', requireGameAccess, finishTurn);
 
-/*router.get( '/turn/check-character-name', requireGameAccess, checkCharacterName);
+router.get( '/turn/check-character-name', requireGameAccess, checkCharacterName);
 router.get( '/turn/check-building-name', requireGameAccess, checkBuildingName);
 
 router.get( '/turn/character-name-conflict', requireGameAccess, showCharacterNameConflict);
 router.get( '/turn/building-name-conflict', requireGameAccess, showBuildingNameConflict);
 
-router.get('/statistics', requireAuthenticatedAndCustomized, showStatistics);*/
+router.get('/statistics', requireGameAccess, showStatistics);
 
 //=== Export ====================================================================================//
 export default {
