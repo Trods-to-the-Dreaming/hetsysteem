@@ -20,22 +20,3 @@ export const requireWorldSession = (req, res, next) => {
 		res.redirect('/game/choose-world');
 	}
 };
-
-/*export const requireCharacterSelected = (req, res, next) => {
-	if (req.session.characterId) {
-		next();
-	} else {
-		res.redirect('/game/setup/choose-world');
-	}
-};
-
-export const requireCharacterCustomized = (req, res, next) => {
-	if (req.session.characterFirstName && 
-		req.session.characterLastName) {
-		res.locals.characterFirstName = req.session.characterFirstName;
-		res.locals.characterLastName = req.session.characterLastName;
-		next();
-	} else {
-		res.redirect('/game/setup/customize-character');
-	}
-};*/

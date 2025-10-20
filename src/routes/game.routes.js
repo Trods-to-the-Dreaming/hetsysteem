@@ -6,17 +6,14 @@ import {
 } from '../middleware/auth.middleware.js';
 
 import {
-	requireWorldSession/*,
-	requireCharacterSelected,
-	requireCharacterCustomized*/
+	requireWorldSession
 } from '../middleware/game.middleware.js';
 
-/*import {
-	//debugWorlds,
+import {
 	showChooseWorld,
 	handleChooseWorld,
 	showMenu,
-	showCharacter,
+	showCharacter/*,
 	beginTurn,
 	showCustomizeCharacter,
 	showManageBuildings,
@@ -32,8 +29,8 @@ import {
 	checkBuildingName,
 	showCharacterNameConflict,
 	showBuildingNameConflict,
-	showStatistics
-} from '../controllers/game.controllers.js';*/
+	showStatistics*/
+} from '../controllers/game.controllers.js';
 
 //=== Constants =================================================================================//
 const requireGameAccess = [
@@ -41,24 +38,17 @@ const requireGameAccess = [
 	requireWorldSession
 ];
 
-/*const requireAuthenticatedAndCustomized = [
-	requireAuthenticated,
-	requireWorldSelected,
-	requireCharacterSelected,
-	requireCharacterCustomized
-];*/
-
 //=== Main ======================================================================================//
 const router = express.Router();
 
-/*router.get( '/choose-world', requireAuthenticated, showChooseWorld);
+router.get( '/choose-world', requireAuthenticated, showChooseWorld);
 router.post('/choose-world', requireAuthenticated, handleChooseWorld);
 
 router.get( '/', requireGameAccess, showMenu);
 
 router.get( '/character', requireGameAccess, showCharacter);
 
-router.get( '/turn/begin', requireGameAccess, beginTurn);
+/*router.get( '/turn/begin', requireGameAccess, beginTurn);
 router.get( '/turn/customize-character', requireGameAccess, showCustomizeCharacter);
 router.get( '/turn/manage-buildings', requireGameAccess, showManageBuildings);
 router.get( '/turn/manage-employment-contracts', requireGameAccess, showManageEmploymentContracts);
@@ -77,8 +67,6 @@ router.get( '/turn/character-name-conflict', requireGameAccess, showCharacterNam
 router.get( '/turn/building-name-conflict', requireGameAccess, showBuildingNameConflict);
 
 router.get('/statistics', requireAuthenticatedAndCustomized, showStatistics);*/
-
-//router.get( '/turn/debug/worlds', requireGameAccess, debugWorlds);
 
 //=== Export ====================================================================================//
 export default {
