@@ -43,7 +43,7 @@ app.use(expressSession({
 	saveUninitialized: false,
 	rolling:           true,
 	cookie: {
-		secure: isProduction,
+		secure: false, //isProduction, //bug
 		httpOnly: true,
 		maxAge: 24 * 60 * 60 * 1000 // 24 hours
 	}
