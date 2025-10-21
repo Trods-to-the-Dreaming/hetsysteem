@@ -191,7 +191,7 @@ save() {
 populateSelect(select, options) {
 	select.innerHTML = "";
 	
-	const emptyOption = document.createElement("option");
+	const emptyOption = document.createElement('option');
 	emptyOption.value = "";
 	emptyOption.disabled = true;
 	emptyOption.selected = true;
@@ -199,7 +199,7 @@ populateSelect(select, options) {
 	select.appendChild(emptyOption);
 
 	options.forEach(opt => {
-		const option = document.createElement("option");
+		const option = document.createElement('option');
 		option.value = opt.id;
 		option.textContent = opt.type;
 		select.appendChild(option);

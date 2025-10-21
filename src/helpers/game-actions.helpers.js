@@ -61,7 +61,7 @@ export const setCharacterCustomization = async (characterId,
 	if (!character) {
 		throw new BadRequestError(MSG_INVALID_CHARACTER);
 	} else if (character.isCustomized) {
-		throw new BadRequestError(MSG_ALREADY_CUSTOMIZED);
+		return;
 	}
 	
 	// Validate character name

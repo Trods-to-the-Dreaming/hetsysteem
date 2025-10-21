@@ -66,7 +66,7 @@ router.get( '/turn/check-building-name', requireGameAccess, checkBuildingName);
 router.get( '/turn/character-name-conflict', requireGameAccess, showCharacterNameConflict);
 router.get( '/turn/building-name-conflict', requireGameAccess, showBuildingNameConflict);
 
-router.get('/statistics', requireGameAccess, showStatistics);
+router.get( '/statistics', requireGameAccess, showStatistics);
 
 //=== Export ====================================================================================//
 export default {
