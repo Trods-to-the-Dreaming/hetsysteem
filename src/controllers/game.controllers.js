@@ -1,14 +1,14 @@
 //=== Imports ===================================================================================//
-import knex from '../utils/db.js';
-import saveSession from '../utils/session.js';
+import knex from '#utils/db.js';
+import saveSession from '#utils/session.js';
 import { 
 	ConflictError
-} from '../utils/errors.js';
+} from '#utils/errors.js';
 
 import { 
 	MSG_NO_NEW_CHARACTERS,
 	MSG_CHARACTER_NAME_TAKEN
-} from '../constants/game.messages.js';
+} from '#constants/game.messages.js';
 
 import { 
 	getAllWorlds,
@@ -16,19 +16,17 @@ import {
 	getAllRecreations,
 	getAllBuildings,
 	getAllJobs
-} from '../helpers/game-static.helpers.js';
+} from '#helpers/game/static.helpers.js';
 
 import { 
 	getWorld,
 	findUserCharacter,
-	claimAICharacter/*,
-	validateCharacterId,
-	validateName,
-	validateJobPreferences,
-	validateRecreationPreference,
-	isCharacterNameTaken,
-	customizeCharacter*/
-} from '../helpers/game-world.helpers.js';
+	claimAICharacter
+} from '#helpers/game/world.helpers.js';
+
+import {
+	buildCharacterView
+} from '#helpers/game/character.helpers.js';
 
 import {
 	isCharacterNameAvailable,
@@ -40,24 +38,52 @@ import {
 	getEmployerContracts,
 	getTenantAgreements,
 	getLandlordAgreements
-} from '../helpers/game-state.helpers.js';
+} from '#helpers/game/state.helpers.js';
 
 import {
-	getCharacterCustomization,
-	setCharacterCustomization,
-	getBuildingsManagement,
-	getEmploymentContractsManagement,
-	getRentalAgreementsManagement,
-	getProduction,
-	getTrading,
-	getSharing,
-	getConsumption,
-	getGroupManagement
-} from '../helpers/game-actions.helpers.js';
+	getCustomizeCharacter,
+	setCustomizeCharacter
+} from '#helpers/game/turn/customize-character.helpers.js';
 
 import {
-	buildCharacterView
-} from '../helpers/game-character.helpers.js';
+	getManageBuildings,
+	setManageBuildings
+} from '#helpers/game/turn/manage-buildings.helpers.js';
+
+import {
+	getManageEmploymentContracts,
+	setManageEmploymentContracts
+} from '#helpers/game/turn/manage-employment-contracts.helpers.js';
+
+import {
+	getManageRentalAgreements,
+	setManageRentalAgreements
+} from '#helpers/game/turn/manage-rental-agreements.helpers.js';
+
+import {
+	getProduce,
+	setProduce
+} from '#helpers/game/turn/produce.helpers.js';
+
+import {
+	getTrade,
+	setTrade
+} from '#helpers/game/turn/trade.helpers.js';
+
+import {
+	getShare,
+	setShare
+} from '#helpers/game/turn/share.helpers.js';
+
+import {
+	getConsume,
+	setConsume
+} from '#helpers/game/turn/consume.helpers.js';
+
+import {
+	getManageGroup,
+	setManageGroup
+} from '#helpers/game/turn/manage-group.helpers.js';
 
 //=== Main ======================================================================================//
 
@@ -181,15 +207,15 @@ export const beginTurn = async (req, res, next) => {
 		//const turnNumber = 0;
 		
 		const characterActions = await Promise.all([
-			getCharacterCustomization(characterId),
-			getBuildingsManagement(characterId),
-			getEmploymentContractsManagement(characterId),
-			getRentalAgreementsManagement(characterId),
-			getProduction(characterId),
-			getTrading(characterId),
-			getSharing(characterId),
-			getConsumption(characterId),
-			getGroupManagement(characterId)
+			getCustomizeCharacter(characterId),
+			getManageBuildings(characterId),
+			getManageEmploymentContracts(characterId),
+			getManageRentalAgreements(characterId),
+			getProduce(characterId),
+			getTrade(characterId),
+			getShare(characterId),
+			getConsume(characterId),
+			getManageGroup(characterId)
 		]);
 		
 		//console.log("In:");
@@ -320,11 +346,26 @@ export const finishTurn = async (req, res, next) => {
 		//console.dir(characterActions, { depth: null });
 		
 		await knex.transaction(async (trx) => {
-			await setCharacterCustomization(characterId, 
-											worldId,
-											characterActions[0], 
+			await setCustomizeCharacter(characterId, 
+										worldId,
+										characterActions[0], 
+										trx);
+			await setManageBuildings(characterId, 
+									 trx);
+			await setManageEmploymentContracts(characterId, 
+											   trx);
+			await setManageRentalAgreements(characterId, 
 											trx);
-			// other actions
+			await setProduce(characterId, 
+							 trx);
+			await setTrade(characterId, 
+						   trx);
+			await setShare(characterId, 
+						   trx);
+			await setConsume(characterId, 
+							 trx);
+			await setManageGroup(characterId, 
+								 trx);
 		});
 
 		res.status(200).json({ success: true });
@@ -390,123 +431,7 @@ export const showCharacterNameConflict = async (req, res, next) => {
 export const showBuildingNameConflict = async (req, res, next) => {
 	
 };
-/*
-//--- Customize character -----------------------------------------------------------------------//
-export const showCustomizeCharacter = async (req, res, next) => {
-	try {
-		const [
-			jobs,
-			recreations
-		] = await Promise.all([
-			getAllJobs(),
-			getAllRecreations()
-		]);
-		
-		return res.render('game/setup/customize-character', {
-			jobs: 		 jobs.options,
-			recreations: recreations.options
-		});
-	} catch (err) {
-		next(err);
-	}
-};
 
-export const handleCustomizeCharacter = async (req, res, next) => {
-	const connection = await db.getConnection();
-	try {
-		const { userId,
-				worldId,
-				characterId } = req.session;
-		const { firstName, 
-				lastName, 
-				jobPreference1, 
-				jobPreference2, 
-				jobPreference3, 
-				recreationPreference } = req.body;
-		
-		// Validate user input
-		await validateCharacterId(characterId);
-		await validateName(firstName,
-						   lastName);
-		await validateJobPreferences(jobPreference1,
-									 jobPreference2,
-									 jobPreference3);
-		await validateRecreationPreference(recreationPreference);
-		
-		await connection.beginTransaction();
-		
-		// Check if name is already taken
-		const isNameTaken = await isCharacterNameTaken(characterId,
-													   worldId,
-													   firstName, 
-													   lastName, 
-													   connection);
-		if (isNameTaken) {
-			const [
-				jobs,
-				recreations
-			] = await Promise.all([
-				getAllJobs(connection),
-				getAllRecreations(connection)
-			]);
-			await connection.rollback();
-
-			return res.render('game/setup/customize-character', {
-				firstName,
-				lastName,
-				jobPreference1,
-				jobPreference2,
-				jobPreference3,
-				recreationPreference,
-				jobs: 		 jobs.options,
-				recreations: recreations.options,
-				nameError:   MSG_CHARACTER_NAME_TAKEN,
-			});
-		}
-		
-		// Customize character
-		await customizeCharacter(characterId,
-								 firstName,
-								 lastName,
-								 jobPreference1,
-								 jobPreference2,
-								 jobPreference3,
-								 recreationPreference,
-								 connection);
-		
-		// Save session
-		req.session.characterFirstName = firstName;
-		req.session.characterLastName = lastName;
-		await saveSession(req);
-		
-		await connection.commit();
-		
-		// Enter world
-		return res.redirect('/game');
-	} catch (err) {
-		await connection.rollback();
-		next(err);
-	} finally {
-		if (connection) connection.release();
-	}
-};
-
-
-
-
-
-export const handleTurn = async (req, res, next) => {
-	try {
-		const { characterId } = req.session;
-		
-		const currentActionIndex = await getCurrentActionIndex(characterId);
-		const currentAction = ACTIONS[currentActionIndex];
-		return res.redirect(`/game/actions/${currentAction}`);
-	} catch (err) {
-		next(err);
-	}
-};
-*/
 //--- Show statistics page ----------------------------------------------------------------------//
 export const showStatistics = async (req, res, next) => {
 	try {

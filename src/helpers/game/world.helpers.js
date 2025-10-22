@@ -1,9 +1,9 @@
 //=== Imports ===================================================================================//
-import knex from '../utils/db.js';
+import knex from '#utils/db.js';
 import { 
 	BadRequestError, 
 	ConflictError 
-} from '../utils/errors.js';
+} from '#utils/errors.js';
 
 import {
 	MSG_INVALID_WORLD,
@@ -13,13 +13,13 @@ import {
 	MSG_INVALID_JOB,
 	MSG_INVALID_RECREATION,
 	MSG_ALREADY_CUSTOMIZED*/
-} from '../constants/game.messages.js';
+} from '#constants/game.messages.js';
 
 import { 
 	getAllWorlds/*,
 	getAllJobs,
 	getAllRecreations*/
-} from './game-static.helpers.js';
+} from '#helpers/game/static.helpers.js';
 
 //=== Main ======================================================================================//
 

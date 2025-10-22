@@ -3,11 +3,11 @@ import express from 'express';
 
 import { 
 	requireAuthenticated
-} from '../middleware/auth.middleware.js';
+} from '#middleware/auth.middleware.js';
 
 import {
 	requireWorldSession
-} from '../middleware/game.middleware.js';
+} from '#middleware/game.middleware.js';
 
 import {
 	showChooseWorld,
@@ -30,7 +30,7 @@ import {
 	showCharacterNameConflict,
 	showBuildingNameConflict,
 	showStatistics
-} from '../controllers/game.controllers.js';
+} from '#controllers/game.controllers.js';
 
 //=== Constants =================================================================================//
 const requireGameAccess = [

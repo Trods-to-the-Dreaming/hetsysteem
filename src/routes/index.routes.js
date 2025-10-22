@@ -5,7 +5,7 @@ import {
 	showIndex,
 	showAbout,
 	showGameMechanics
-} from '../controllers/index.controllers.js';
+} from '#controllers/index.controllers.js';
 
 //=== Main ======================================================================================//
 const router = express.Router();

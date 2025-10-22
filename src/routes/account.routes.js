@@ -3,7 +3,7 @@ import express from 'express';
 
 import { 
 	requireAuthenticated 
-} from'../middleware/auth.middleware.js';
+} from '#middleware/auth.middleware.js';
 
 import {
 	showLogin,
@@ -16,7 +16,7 @@ import {
 	handleChangeUsername,
 	showChangePassword,
 	handleChangePassword
-} from '../controllers/account.controllers.js';
+} from '#controllers/account.controllers.js';
 
 //=== Main ======================================================================================//
 const router = express.Router();

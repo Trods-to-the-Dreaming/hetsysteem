@@ -2,7 +2,7 @@
 import express from 'express';
 import {
 	processActions
-} from '../controllers/cron.controllers.js';
+} from '#controllers/cron.controllers.js';
 
 //=== Main ======================================================================================//
 const router = express.Router();

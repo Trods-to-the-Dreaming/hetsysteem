@@ -1,12 +1,12 @@
 //=== Imports ===================================================================================//
-import knex from '../utils/db.js';
+import knex from '#utils/db.js';
 import { 
 	BadRequestError 
-} from '../utils/errors.js';
+} from '#utils/errors.js';
 
 import { 
 	MSG_INVALID_CHARACTER
-} from '../constants/game.messages.js';
+} from '#constants/game.messages.js';
 
 //=== Main ======================================================================================//
 

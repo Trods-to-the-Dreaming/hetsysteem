@@ -1,5 +1,5 @@
 //=== Imports ===================================================================================//
-import db from '../utils/db.js';
+import db from '#utils/db.js';
 
 //=== Constants =================================================================================//
 //const MSG_INVALID_CATEGORY = 'De gevraagde ordercategorie bestaat niet.';

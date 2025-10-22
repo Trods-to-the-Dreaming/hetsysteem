@@ -1,8 +1,8 @@
 //=== Imports ===================================================================================//
-import db from '../utils/db.js';
+import db from '#utils/db.js';
 import { 
 	BadRequestError 
-} from '../utils/errors.js';
+} from '#utils/errors.js';
 
 //=== Main ======================================================================================//
 

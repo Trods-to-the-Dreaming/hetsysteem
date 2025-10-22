@@ -1,5 +1,5 @@
 //=== Imports ===================================================================================//
-import saveSession from '../utils/session.js';
+import saveSession from '#utils/session.js';
 
 import { 
 	MSG_INVALID_LOGIN,
@@ -7,7 +7,7 @@ import {
 	MSG_PASSWORD_WRONG,
 	MSG_USERNAME_CHANGED,
 	MSG_PASSWORD_CHANGED
-} from '../constants/account.messages.js';
+} from '#constants/account.messages.js';
 
 import { 
 	findUserById,
@@ -17,7 +17,7 @@ import {
 	registerUser,
 	updateUsername,
 	updatePassword
-} from '../helpers/account.helpers.js';
+} from '#helpers/account.helpers.js';
 
 //=== Main ======================================================================================//
 

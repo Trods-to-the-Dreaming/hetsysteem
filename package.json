@@ -8,6 +8,16 @@
     "build": "npm ci",
     "serve": "node index.js"
   },
+  "imports": {
+    "#root/*": "./src/*",
+    "#constants/*": "./src/constants/*",
+    "#controllers/*": "./src/controllers/*",
+    "#helpers/*": "./src/helpers/*",
+    "#middleware/*": "./src/middleware/*",
+    "#routes/*": "./src/routes/*",
+    "#utils/*": "./src/utils/*",
+    "#views/*": "./src/views/*"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/DreamTeam24/hetsysteem.git"
