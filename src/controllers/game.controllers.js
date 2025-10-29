@@ -350,21 +350,29 @@ export const finishTurn = async (req, res, next) => {
 										worldId,
 										characterActions[0], 
 										trx);
-			await setManageBuildings(characterId, 
+			await setManageBuildings(characterId,
+									 characterActions[1], 
 									 trx);
-			await setManageEmploymentContracts(characterId, 
+			await setManageEmploymentContracts(characterId,
+											   characterActions[2], 
 											   trx);
-			await setManageRentalAgreements(characterId, 
+			await setManageRentalAgreements(characterId,
+											characterActions[3], 
 											trx);
-			await setProduce(characterId, 
+			await setProduce(characterId,
+							 characterActions[4], 
 							 trx);
-			await setTrade(characterId, 
+			await setTrade(characterId,
+						   characterActions[5], 
 						   trx);
-			await setShare(characterId, 
+			await setShare(characterId,
+						   characterActions[6], 
 						   trx);
-			await setConsume(characterId, 
+			await setConsume(characterId,
+							 characterActions[7], 
 							 trx);
-			await setManageGroup(characterId, 
+			await setManageGroup(characterId,
+								 characterActions[8], 
 								 trx);
 		});
 

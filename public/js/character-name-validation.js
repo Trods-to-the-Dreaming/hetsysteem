@@ -17,6 +17,4 @@ export function validateName(nameInput) {
 	} else {
 		nameInput.setCustomValidity('');
 	}
-	
-	nameInput.reportValidity();
 }

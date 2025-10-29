@@ -6,17 +6,20 @@ import {
 } from '#utils/errors.js';
 
 import { 
+	customizeCharacterSchema
+} from '#validation/actions.validation.js';
+
+import { 
 	MSG_INVALID_CHARACTER,
-	MSG_CHARACTER_NAME_TAKEN,
-	MSG_EMPTY_FIELD,
 	MSG_INVALID_JOB,
 	MSG_INVALID_RECREATION,
-	MSG_NO_UNIQUE_JOBS
+	MSG_NO_UNIQUE_JOBS,
+	MSG_CHARACTER_NAME_TAKEN
 } from '#constants/game.messages.js';
 
 import { 
-	getAllRecreations,
-	getAllJobs
+	getAllJobs,
+	getAllRecreations
 } from '#helpers/game/static.helpers.js';
 
 import {
@@ -63,27 +66,11 @@ export const setCustomizeCharacter = async (characterId,
 		return;
 	}
 	
-	// Validate character name
-	const available = await isCharacterNameAvailable(
-		characterId,
-		worldId, 
-		action.firstName, 
-		action.lastName
-	);
-	
-	if (!available) {
-		throw new ConflictError(MSG_CHARACTER_NAME_TAKEN,
-								{ type: 'character' });
-	}
-	
 	// Validate action
-	if (!action.firstName ||
-		!action.lastName ||
-		!action.jobPreference1 ||
-		!action.jobPreference2 ||
-		!action.jobPreference3 ||
-		!action.recreationPreference) {
-		throw new BadRequestError(MSG_EMPTY_FIELD);
+	const validatedAction = customizeCharacterSchema.safeParse(action);
+	
+	if (!validatedAction.success) {
+		throw new BadRequestError(validatedAction.error.issues[0].message);
 	}
 	
 	const [
@@ -95,16 +82,16 @@ export const setCustomizeCharacter = async (characterId,
 	]);
 	
 	const jobIds = [
-		Number(action.jobPreference1),
-		Number(action.jobPreference2),
-		Number(action.jobPreference3)
+		validatedAction.jobPreference1,
+		validatedAction.jobPreference2,
+		validatedAction.jobPreference3
 	];
 	
 	if (!jobIds.every(id => allJobs.has(id))) {
 		throw new BadRequestError(MSG_INVALID_JOB);
 	}
 	
-	const recreationId = Number(action.recreationPreference);
+	const recreationId = validatedAction.recreationPreference;
 	
 	if (!allRecreations.has(recreationId)) {
 		throw new BadRequestError(MSG_INVALID_RECREATION);
@@ -112,6 +99,19 @@ export const setCustomizeCharacter = async (characterId,
 	
 	if (new Set(jobIds).size < jobIds.length) {
 		throw new BadRequestError(MSG_NO_UNIQUE_JOBS);
+	}
+	
+	// Validate character name
+	const available = await isCharacterNameAvailable(
+		characterId,
+		worldId, 
+		validatedAction.data.firstName, 
+		validatedAction.data.lastName
+	);
+	
+	if (!available) {
+		throw new ConflictError(MSG_CHARACTER_NAME_TAKEN,
+								{ type: 'character' });
 	}
 	
 	// Delete existing action
@@ -123,11 +123,11 @@ export const setCustomizeCharacter = async (characterId,
 	await trx('action_customize')
 		.insert({
 			character_id: characterId,
-			first_name: action.firstName,
-			last_name: action.lastName,
-			job_preference_1_id: action.jobPreference1,
-			job_preference_2_id: action.jobPreference2,
-			job_preference_3_id: action.jobPreference3,
-			recreation_preference_id: action.recreationPreference
+			first_name: validatedAction.firstName,
+			last_name: validatedAction.lastName,
+			job_preference_1_id: validatedAction.jobPreference1,
+			job_preference_2_id: validatedAction.jobPreference2,
+			job_preference_3_id: validatedAction.jobPreference3,
+			recreation_preference_id: validatedAction.recreationPreference
 		});
 };

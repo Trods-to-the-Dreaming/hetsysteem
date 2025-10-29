@@ -21,6 +21,9 @@
 		<input id="last-name-input" class="form-control" type="text" required>
 	</div>
 	
+	<input id="name-input" class="d-none" value="dummytext" required>
+	<p id="name-error" class="error"></p>
+	
 	<div class="field">
 		<label for="job-preference-1-select" class="form-label">Jobvoorkeur (★★★):</label>
 		<select id="job-preference-1-select" class="form-select" required></select>
@@ -115,15 +118,11 @@ turn.page.saveFields = function() {
 
 //--- Event handlers ----------------------------------------------------------------------------//
 function handleFirstNameInput() {
-	validateName(turn.page.fields.firstName);
-	debouncedCheckNameAvailability(); 
-	turn.page.validate();
+	handleNameInput(turn.page.fields.firstName);
 }
 
 function handleLastNameInput() {
-	validateName(turn.page.fields.lastName);
-	debouncedCheckNameAvailability(); 
-	turn.page.validate();
+	handleNameInput(turn.page.fields.lastName);
 }
 
 function handleJobPreferenceChange() {
@@ -148,9 +147,20 @@ function handleRecreationPreferenceChange() {
 }
 
 //--- Helpers -----------------------------------------------------------------------------------//
-async function checkNameAvailability() {
-	const fields = turn.page.fields;
+function handleNameInput(nameInput) {
+	validateName(nameInput);
+	nameInput.reportValidity();
+	debouncedCheckNameAvailability();
+	turn.page.validate();
+}
+
+async function checkNameAvailability() {	
+	const nameInput = document.getElementById('name-input');
+	const nameError = document.getElementById('name-error');
+	nameInput.setCustomValidity('');
+	nameError.textContent = '';
 	
+	const fields = turn.page.fields;
 	const firstName = fields.firstName.value;
 	const lastName = fields.lastName.value;
 
@@ -167,13 +177,12 @@ async function checkNameAvailability() {
 			const { available } = await res.json();
 
 			if (!available) {
-				fields.firstName.setCustomValidity(
-					'Deze combinatie van voornaam en achternaam is al in gebruik.'
-				);
-				fields.lastName.setCustomValidity(
-					'Deze combinatie van voornaam en achternaam is al in gebruik.'
-				);
+				const msg = 'Deze naam is al in gebruik.';
+				nameInput.setCustomValidity(msg);
+				nameError.textContent = msg;
 			}
+			
+			turn.page.validate();
 		} catch (err) {
 			console.error(err);
 		}
