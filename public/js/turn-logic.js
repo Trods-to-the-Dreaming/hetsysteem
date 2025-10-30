@@ -210,20 +210,33 @@ populateSelect(select, options) {
 };
 
 //--- Navigate next -----------------------------------------------------------------------------//
-turn.navigateNext = function() {	
-	let nextPageIndex = turn.page.index + 1;
-	
-	while (nextPageIndex <= turn.lastRelevantPageIndex &&
-		   !turn.actionPages[nextPageIndex].isRelevant) {
-		nextPageIndex++;
+turn.navigateNext = async function() {
+	try {
+		if (typeof turn.page.beforeNext === 'function') {
+			const canNavigateNext = await turn.page.beforeNext();
+			if (!canNavigateNext) {
+				const UI = turn.page.getUI();
+				UI.nextButton.disabled = true;
+				UI.finishButton.disabled = true;
+				return;
+			}
+		}
+		
+		let nextPageIndex = turn.page.index + 1;
+		while (nextPageIndex <= turn.lastRelevantPageIndex &&
+			   !turn.actionPages[nextPageIndex].isRelevant) {
+			nextPageIndex++;
+		}
+		
+		if (turn.page.index === turn.currentPageIndex) {
+			turn.page.save();
+			localStorage.setItem('turn.currentPageIndex', nextPageIndex);
+		}
+		
+		location.assign(turn.actionPages[nextPageIndex].url);
+	} catch (err) {
+		console.error('Fout bij navigateNext:', err);
 	}
-	
-	if (turn.page.index === turn.currentPageIndex) {
-		turn.page.save();
-		localStorage.setItem('turn.currentPageIndex', nextPageIndex);
-	}
-	
-	location.assign(turn.actionPages[nextPageIndex].url);
 }
 
 //--- Navigate previous -------------------------------------------------------------------------//

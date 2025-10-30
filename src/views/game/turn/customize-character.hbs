@@ -49,9 +49,6 @@
 import { validateName } from '/js/character-name-validation.js';
 import { turn } from '/js/turn-logic.js';
 
-//--- Global variables --------------------------------------------------------------------------//
-const debouncedCheckNameAvailability = debounce(checkNameAvailability, 300);
-
 //--- Load and save fields ----------------------------------------------------------------------//
 turn.page.loadFields = function() {
 	if (!turn.page.data) {
@@ -116,6 +113,35 @@ turn.page.saveFields = function() {
 	data.recreationPreference = fields.recreationPreference.value;
 }
 
+//--- Server check ------------------------------------------------------------------------------//
+turn.page.beforeNext = async function() {
+	const nameError = document.getElementById('name-error');
+	nameError.textContent = '';
+	
+	const fields = turn.page.fields;
+	const firstName = fields.firstName.value;
+	const lastName = fields.lastName.value;
+
+	try {
+		const params = new URLSearchParams({
+			firstName,
+			lastName,
+		});
+		const res = await fetch(`/game/turn/check-character-name?${params}`);
+		const { available } = await res.json();
+
+		if (!available) {
+			nameError.textContent = 'Deze naam is al in gebruik.';
+			return false;
+		}
+		
+		return true;
+	} catch (err) {
+		console.error(err);
+		return false;
+	}
+};
+
 //--- Event handlers ----------------------------------------------------------------------------//
 function handleFirstNameInput() {
 	handleNameInput(turn.page.fields.firstName);
@@ -148,53 +174,12 @@ function handleRecreationPreferenceChange() {
 
 //--- Helpers -----------------------------------------------------------------------------------//
 function handleNameInput(nameInput) {
-	validateName(nameInput);
-	nameInput.reportValidity();
-	debouncedCheckNameAvailability();
-	turn.page.validate();
-}
-
-async function checkNameAvailability() {	
-	const nameInput = document.getElementById('name-input');
 	const nameError = document.getElementById('name-error');
-	nameInput.setCustomValidity('');
 	nameError.textContent = '';
 	
-	const fields = turn.page.fields;
-	const firstName = fields.firstName.value;
-	const lastName = fields.lastName.value;
-
-	if (!firstName || !lastName) return;
-
-	if (fields.firstName.validity.valid &&
-		fields.lastName.validity.valid) {
-		try {
-			const params = new URLSearchParams({
-				firstName,
-				lastName,
-			});
-			const res = await fetch(`/game/turn/check-character-name?${params}`);
-			const { available } = await res.json();
-
-			if (!available) {
-				const msg = 'Deze naam is al in gebruik.';
-				nameInput.setCustomValidity(msg);
-				nameError.textContent = msg;
-			}
-			
-			turn.page.validate();
-		} catch (err) {
-			console.error(err);
-		}
-	}
-}
-
-function debounce(fn, delay) {
-	let timeoutId;
-	return function(...args) {
-		clearTimeout(timeoutId);
-		timeoutId = setTimeout(() => fn.apply(this, args), delay);
-	};
+	validateName(nameInput);
+	nameInput.reportValidity();
+	turn.page.validate();
 }
 
 //--- DOM content loaded ------------------------------------------------------------------------//
