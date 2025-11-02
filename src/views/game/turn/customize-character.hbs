@@ -53,12 +53,12 @@ import { turn } from '/js/turn-logic.js';
 turn.page.loadFields = function() {
 	if (!turn.page.data) {
 		turn.page.data = {
-			firstName: "",
-			lastName: "",
-			jobPreference1: "",
-			jobPreference2: "",	
-			jobPreference3: "",
-			recreationPreference: ""
+			firstName: '',
+			lastName: '',
+			jobPreference1: '',
+			jobPreference2: '',	
+			jobPreference3: '',
+			recreationPreference: ''
 		};
 	}
 	
@@ -71,15 +71,15 @@ turn.page.loadFields = function() {
 		recreationPreference: document.getElementById('recreation-preference-select')
 	};
 
-	const allJobs = (JSON.parse(localStorage.getItem(`turn.allJobs`))).options;
-	const allRecreations = (JSON.parse(localStorage.getItem(`turn.allRecreations`))).options;
+	const jobOptions = JSON.parse(localStorage.getItem(`turn.jobOptions`));
+	const recreationOptions = JSON.parse(localStorage.getItem(`turn.recreationOptions`));
 	const data = turn.page.data;
 	const fields = turn.page.fields;
 	
-	turn.page.populateSelect(fields.jobPreference1, allJobs);
-	turn.page.populateSelect(fields.jobPreference2, allJobs);
-	turn.page.populateSelect(fields.jobPreference3, allJobs);
-	turn.page.populateSelect(fields.recreationPreference, allRecreations);
+	turn.page.populateSelect(fields.jobPreference1, jobOptions);
+	turn.page.populateSelect(fields.jobPreference2, jobOptions);
+	turn.page.populateSelect(fields.jobPreference3, jobOptions);
+	turn.page.populateSelect(fields.recreationPreference, recreationOptions);
 	
 	fields.firstName.value = data.firstName;
 	fields.lastName.value = data.lastName;
@@ -99,7 +99,7 @@ turn.page.loadFields = function() {
 	handleLastNameInput();
 	handleJobPreferenceChange();
 	handleRecreationPreferenceChange();
-}
+};
 
 turn.page.saveFields = function() {
 	const data = turn.page.data;
@@ -111,7 +111,7 @@ turn.page.saveFields = function() {
 	data.jobPreference2 = fields.jobPreference2.value;	
 	data.jobPreference3 = fields.jobPreference3.value;
 	data.recreationPreference = fields.recreationPreference.value;
-}
+};
 
 //--- Server check ------------------------------------------------------------------------------//
 turn.page.beforeNext = async function() {

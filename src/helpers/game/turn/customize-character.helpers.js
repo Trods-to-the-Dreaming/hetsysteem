@@ -73,13 +73,8 @@ export const setCustomizeCharacter = async (characterId,
 		throw new BadRequestError(validatedAction.error.issues[0].message);
 	}
 	
-	const [
-		allJobs,
-		allRecreations,
-	] = await Promise.all([
-		getAllJobs(trx),
-		getAllRecreations(trx)
-	]);
+	// Validate job preferences
+	const allJobs = await getAllJobs(trx);
 	
 	const jobIds = [
 		validatedAction.jobPreference1,
@@ -91,22 +86,26 @@ export const setCustomizeCharacter = async (characterId,
 		throw new BadRequestError(MSG_INVALID_JOB);
 	}
 	
+	if (new Set(jobIds).size < jobIds.length) {
+		throw new BadRequestError(MSG_NO_UNIQUE_JOBS);
+	}
+	
+	// Validate recreation preferences
+	const allRecreations = await getAllRecreations(trx);
+	
 	const recreationId = validatedAction.recreationPreference;
 	
 	if (!allRecreations.has(recreationId)) {
 		throw new BadRequestError(MSG_INVALID_RECREATION);
 	}
 	
-	if (new Set(jobIds).size < jobIds.length) {
-		throw new BadRequestError(MSG_NO_UNIQUE_JOBS);
-	}
-	
-	// Validate character name
+	// Validate new character name
 	const available = await isCharacterNameAvailable(
 		characterId,
 		worldId, 
 		validatedAction.data.firstName, 
-		validatedAction.data.lastName
+		validatedAction.data.lastName,
+		trx
 	);
 	
 	if (!available) {

@@ -14,7 +14,9 @@
 	<div id="demolish-div">
 		<h2>💥 Slopen</h2>
 		
-		<p>(Een lijst met de gebouwen die het personage bezit. Naast elk gebouw een toggle knop "slopen/behouden".)</p>
+		<ul id="owned-buildings-ul" class="list-compact"></ul>
+		
+		<!--p>(Een lijst met de gebouwen die het personage bezit. Naast elk gebouw een toggle knop "slopen/behouden".)</p-->
 		<!--ul id="owned-buildings-ul" class="list-compact">
 			<!-- Filled bij JS ->
 		</ul-->
@@ -42,7 +44,71 @@ import { turn } from '/js/turn-logic.js';
 
 //--- Load and save fields ----------------------------------------------------------------------//
 turn.page.loadFields = function() {
+	if (!turn.page.data) {
+		turn.page.data = {
+			demolish: []
+		};
+	}
+	
+	turn.page.fields = {
+		ownedBuildings: document.getElementById('owned-buildings-ul')
+	};
+
+	const characterData = JSON.parse(localStorage.getItem(`turn.characterData`));
+	const allBuildings = JSON.parse(localStorage.getItem(`turn.allBuildings`));
+	const data = turn.page.data;
+	const fields = turn.page.fields;
+	
+	fields.ownedBuildings.innerHTML = '';
+	characterData.buildings.forEach((building) => {
+		const li = document.createElement('li');
+		li.className = 'list-item-justify';
+		li.textContent = building.name;
+		
+		const input = document.createElement('input');
+		input.id = building.id;
+		input.className = 'btn-check';
+		input.type = 'checkbox';
+		
+		const label = document.createElement('label');
+		label.htmlFor = building.id;
+		label.className = 'btn btn-outline-danger btn-sm';
+		
+		const i = document.createElement('i');
+		i.className = 'bi bi-x-lg';
+		i.style.cursor = 'pointer';
+		
+		input.addEventListener('change', () => {
+			const checked = input.checked;
+			label.innerHTML = checked
+			  ? `<i class="bi bi-arrow-counterclockwise"></i>`
+			  : `<i class="bi bi-x-lg"></i>`;
+			label.style.textDecoration = checked ? 'line-through' : 'none';
+		});
+		
+		label.appendChild(i);
+		li.appendChild(input);
+		li.appendChild(label);
+		fields.ownedBuildings.appendChild(li);
+	});
 }
+
+		/*const div = document.createElement('div');
+		div.className = 'form-check';
+		
+		const input = document.createElement('input');
+		input.id = building.id;
+		input.className = 'form-check-input';
+		input.type = 'checkbox';
+		
+		const label = document.createElement('label');
+		label.htmlFor = building.id;
+		label.className = 'form-check-label';
+		label.textContent = building.name;
+		
+		div.appendChild(input);
+		div.appendChild(label);
+		fields.ownedBuildings.appendChild(div);*/
 
 turn.page.saveFields = function() {
 }

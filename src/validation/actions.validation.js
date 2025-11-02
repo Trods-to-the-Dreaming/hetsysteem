@@ -11,7 +11,18 @@ export const customizeCharacterSchema = z.object({
 	jobPreference2: z.coerce.number().int().positive(),
 	jobPreference3: z.coerce.number().int().positive(),
 	recreationPreference: z.coerce.number().int().positive()
-})/*.refine(data => {
-	const jobs = [data.jobPreference1, data.jobPreference2, data.jobPreference3];
-	return new Set(jobs).size === 3;
-}, { message: "Jobvoorkeuren moeten verschillend zijn." })*/;
+});
+
+const constructSchema = z.object({
+	buildingId: z.coerce.number().int().positive(),
+	name: z.string().min(2).max(32),
+	size: z.coerce.number().int().refine(
+			  (val) => [1, 2, 4].includes(val),
+			  { message: 'Invalid input: expected 1, 2 or 4' }
+		  )
+});
+
+export const manageBuildingsSchema = z.object({
+	demolish: z.array(z.coerce.number().int().positive()).default([]),
+	construct: z.array(constructSchema).default([])
+})

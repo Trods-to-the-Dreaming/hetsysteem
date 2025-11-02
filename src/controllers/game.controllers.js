@@ -93,7 +93,7 @@ export const showChooseWorld = async (req, res, next) => {
 		const worlds = await getAllWorlds();
 		
 		return res.render('game/choose-world', {
-			worlds: worlds.options
+			worldOptions: worlds.options
 		});
 	} catch (err) {
 		next(err);
@@ -135,7 +135,7 @@ export const handleChooseWorld = async (req, res, next) => {
 			const worlds = await getAllWorlds();
 
 			return res.render('game/choose-world', {
-				worlds: 		 worlds.options,
+				worldOptions: 	 worlds.options,
 				selectedWorldId: parseInt(worldId),
 				worldError:	     MSG_NO_NEW_CHARACTERS
 			});
@@ -190,6 +190,21 @@ export const beginTurn = async (req, res, next) => {
 			getAllJobs()
 		]);
 		
+		const productData = allProducts.all.map(p => ({
+			id: p.id,
+			type: p.type,
+			volume: p.volume
+		}));
+		
+		const buildingData = allBuildings.all.map(b => ({
+			id: b.id,
+			type: b.type,
+			tileSize: b.tileSize,
+			job: b.job,
+			boosterId: b.boosterId,
+			maxWorkingHours: b.maxWorkingHours
+		}));
+		
 		//console.dir(allBuildings, { depth: null });
 		//console.dir(allJobs, { depth: null });
 		
@@ -203,7 +218,6 @@ export const beginTurn = async (req, res, next) => {
 			landlordAgreements: await getLandlordAgreements(characterId),
 		};
 		
-
 		//const turnNumber = 0;
 		
 		const characterActions = await Promise.all([
@@ -238,10 +252,12 @@ export const beginTurn = async (req, res, next) => {
 		const currentPageIndex = firstRelevantPageIndex;
 
 		res.render('game/turn/begin', {
-			allProducts,
-			allRecreations,
-			allBuildings,
-			allJobs,
+			productOptions: allProducts.options,
+			recreationOptions: allRecreations.options,
+			buildingOptions: allBuildings.options,
+			jobOptions: allJobs.options,
+			productData,
+			buildingData,
 			characterData,
 			characterActions,
 			actionPages,
@@ -341,9 +357,6 @@ export const finishTurn = async (req, res, next) => {
 		const { characterActions } = req.body;
 		const { characterId,
 				worldId } = req.session;
-		
-		//console.log("Uit:");
-		//console.dir(characterActions, { depth: null });
 		
 		await knex.transaction(async (trx) => {
 			await setCustomizeCharacter(characterId, 

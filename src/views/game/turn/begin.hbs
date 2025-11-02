@@ -1,18 +1,22 @@
 {{#block "title"}}Begin beurt{{/block}}
 
 <script>	
-	const allProducts = {{{json allProducts}}};
-	const allRecreations = {{{json allRecreations}}};
-	const allBuildings = {{{json allBuildings}}};
-	const allJobs = {{{json allJobs}}};
+	const productOptions = {{{json productOptions}}};
+	const recreationOptions = {{{json recreationOptions}}};
+	const buildingOptions = {{{json buildingOptions}}};
+	const jobOptions = {{{json jobOptions}}};
 	
-	localStorage.setItem('turn.allProducts', JSON.stringify(allProducts));
-	localStorage.setItem('turn.allRecreations', JSON.stringify(allRecreations));
-	localStorage.setItem('turn.allBuildings', JSON.stringify(allBuildings));
-	localStorage.setItem('turn.allJobs', JSON.stringify(allJobs));
+	localStorage.setItem('turn.productOptions', JSON.stringify(productOptions));
+	localStorage.setItem('turn.recreationOptions', JSON.stringify(recreationOptions));
+	localStorage.setItem('turn.buildingOptions', JSON.stringify(buildingOptions));
+	localStorage.setItem('turn.jobOptions', JSON.stringify(jobOptions));
 	
+	const productData = {{{json productData}}};
+	const buildingData = {{{json buildingData}}};
 	const characterData = {{{json characterData}}};
 	
+	localStorage.setItem('turn.productData', JSON.stringify(productData));
+	localStorage.setItem('turn.buildingData', JSON.stringify(buildingData));
 	localStorage.setItem('turn.characterData', JSON.stringify(characterData));
 	
 	const characterActions = {{{json characterActions}}};
