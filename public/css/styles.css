@@ -12096,6 +12096,10 @@ h3, .h3 {
   display: inline-block;
 }
 
+.button-test {
+  outline: none !important;
+}
+
 .change {
   text-align: right;
 }

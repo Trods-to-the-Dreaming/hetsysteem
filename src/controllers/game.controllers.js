@@ -11,11 +11,10 @@ import {
 } from '#constants/game.messages.js';
 
 import { 
-	getAllWorlds,
-	getAllProducts,
-	getAllRecreations,
-	getAllBuildings,
-	getAllJobs
+	getWorlds,
+	getProducts,
+	getRecreations,
+	getBuildings
 } from '#helpers/game/static.helpers.js';
 
 import { 
@@ -31,7 +30,7 @@ import {
 import {
 	isCharacterNameAvailable,
 	isBuildingNameAvailable,
-	getCharacterState, 
+	getCharacterResources, 
 	getCharacterProducts,
 	getCharacterBuildings,
 	getEmployeeContracts,
@@ -87,20 +86,20 @@ import {
 
 //=== Main ======================================================================================//
 
-//--- Choose world ------------------------------------------------------------------------------//
-export const showChooseWorld = async (req, res, next) => {
+//--- Enter world -------------------------------------------------------------------------------//
+export const showEnterWorld = async (req, res, next) => {
 	try {
-		const worlds = await getAllWorlds();
+		const worlds = await getWorlds();
 		
-		return res.render('game/choose-world', {
-			worldOptions: worlds.options
+		return res.render('game/enter-world', {
+			worlds: worlds.all
 		});
 	} catch (err) {
 		next(err);
 	}
 };
 
-export const handleChooseWorld = async (req, res, next) => {
+export const handleEnterWorld = async (req, res, next) => {
 	try {
 		const { userId } = req.session;
 		const { worldId } = req.body;
@@ -132,10 +131,10 @@ export const handleChooseWorld = async (req, res, next) => {
 		
 		if (!character) {
 			// All AI-characters have been claimed
-			const worlds = await getAllWorlds();
+			const worlds = await getWorlds();
 
-			return res.render('game/choose-world', {
-				worldOptions: 	 worlds.options,
+			return res.render('game/enter-world', {
+				worlds: 	 	 worlds.all,
 				selectedWorldId: parseInt(worldId),
 				worldError:	     MSG_NO_NEW_CHARACTERS
 			});
@@ -179,43 +178,23 @@ export const beginTurn = async (req, res, next) => {
 		const { characterId } = req.session;
 
 		const [
-			allProducts,
-			allRecreations,
-			allBuildings,
-			allJobs
+			products,
+			recreations,
+			buildings
 		] = await Promise.all([
-			getAllProducts(),
-			getAllRecreations(),
-			getAllBuildings(),
-			getAllJobs()
+			getProducts(),
+			getRecreations(),
+			getBuildings()
 		]);
 		
-		const productData = allProducts.all.map(p => ({
-			id: p.id,
-			type: p.type,
-			volume: p.volume
-		}));
-		
-		const buildingData = allBuildings.all.map(b => ({
-			id: b.id,
-			type: b.type,
-			tileSize: b.tileSize,
-			job: b.job,
-			boosterId: b.boosterId,
-			maxWorkingHours: b.maxWorkingHours
-		}));
-		
-		//console.dir(allBuildings, { depth: null });
-		//console.dir(allJobs, { depth: null });
-		
-		const characterData = {
-			state: await getCharacterState(characterId),
-			products: await getCharacterProducts(characterId),
-			buildings: await getCharacterBuildings(characterId),
+		const characterState = {
+			...(await getCharacterResources(characterId)),
+			ownedProducts: await getCharacterProducts(characterId),
+			ownedBuildings: await getCharacterBuildings(characterId),
 			employeeContracts: await getEmployeeContracts(characterId),
 			employerContracts: await getEmployerContracts(characterId),
 			tenantAgreements: await getTenantAgreements(characterId),
-			landlordAgreements: await getLandlordAgreements(characterId),
+			landlordAgreements: await getLandlordAgreements(characterId)
 		};
 		
 		//const turnNumber = 0;
@@ -232,11 +211,8 @@ export const beginTurn = async (req, res, next) => {
 			getManageGroup(characterId)
 		]);
 		
-		//console.log("In:");
-		//console.dir(characterActions, { depth: null });
-		
 		const actionPages = [
-			{ url: '/game/turn/customize-character', isRelevant: !characterData.state.isCustomized },
+			{ url: '/game/turn/customize-character', isRelevant: !characterState.isCustomized },
 			{ url: '/game/turn/manage-buildings', isRelevant: true },
 			{ url: '/game/turn/manage-employment-contracts', isRelevant: true },
 			{ url: '/game/turn/manage-rental-agreements', isRelevant: true },
@@ -252,13 +228,10 @@ export const beginTurn = async (req, res, next) => {
 		const currentPageIndex = firstRelevantPageIndex;
 
 		res.render('game/turn/begin', {
-			productOptions: allProducts.options,
-			recreationOptions: allRecreations.options,
-			buildingOptions: allBuildings.options,
-			jobOptions: allJobs.options,
-			productData,
-			buildingData,
-			characterData,
+			products: products.all,
+			recreations: recreations.all,
+			buildings: buildings.all,
+			characterState,
 			characterActions,
 			actionPages,
 			firstRelevantPageIndex,

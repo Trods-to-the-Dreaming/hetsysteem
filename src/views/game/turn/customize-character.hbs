@@ -42,17 +42,22 @@
 	<div class="field">
 		<label for="recreation-preference-select" class="form-label">Ontspanningsvoorkeur (★★★):</label>
 		<select id="recreation-preference-select" class="form-select" required></select>
-	</div>	
+	</div>
+	
+	<hr>
 </div>
 
 <script type="module">
 import { validateName } from '/js/character-name-validation.js';
 import { turn } from '/js/turn-logic.js';
 
-//--- Load and save fields ----------------------------------------------------------------------//
-turn.page.loadFields = function() {
-	if (!turn.page.data) {
-		turn.page.data = {
+//--- Initialize elements -----------------------------------------------------------------------//
+turn.page.initializeElements = function() {
+	const buildings = JSON.parse(localStorage.getItem(`turn.buildings`));
+	const recreations = JSON.parse(localStorage.getItem(`turn.recreations`));
+	
+	if (!turn.page.action) {
+		turn.page.action = {
 			firstName: '',
 			lastName: '',
 			jobPreference1: '',
@@ -62,38 +67,37 @@ turn.page.loadFields = function() {
 		};
 	}
 	
-	turn.page.fields = {
+	turn.page.elements = {
 		firstName: document.getElementById('first-name-input'),
 		lastName: document.getElementById('last-name-input'),
-		jobPreference1: document.getElementById('job-preference-1-select'),
-		jobPreference2: document.getElementById('job-preference-2-select'),
-		jobPreference3: document.getElementById('job-preference-3-select'),
-		recreationPreference: document.getElementById('recreation-preference-select')
+		jobPreference: document.getElementById('job-preference-1-select'),
+		jobPreference: document.getElementById('job-preference-2-select'),
+		jobPreference: document.getElementById('job-preference-3-select'),
+		recreationPreference: document.getElementById('recreation-preference-select'),
+		nameError: document.getElementById('name-error')
 	};
-
-	const jobOptions = JSON.parse(localStorage.getItem(`turn.jobOptions`));
-	const recreationOptions = JSON.parse(localStorage.getItem(`turn.recreationOptions`));
-	const data = turn.page.data;
-	const fields = turn.page.fields;
 	
-	turn.page.populateSelect(fields.jobPreference1, jobOptions);
-	turn.page.populateSelect(fields.jobPreference2, jobOptions);
-	turn.page.populateSelect(fields.jobPreference3, jobOptions);
-	turn.page.populateSelect(fields.recreationPreference, recreationOptions);
+	const action = turn.page.action;
+	const elements = turn.page.elements;
 	
-	fields.firstName.value = data.firstName;
-	fields.lastName.value = data.lastName;
-	fields.jobPreference1.value = data.jobPreference1;
-	fields.jobPreference2.value = data.jobPreference2;	
-	fields.jobPreference3.value = data.jobPreference3;
-	fields.recreationPreference.value = data.recreationPreference;
+	turn.page.populateSelect(elements.jobPreference1, buildings, 'job');
+	turn.page.populateSelect(elements.jobPreference2, buildings, 'job');
+	turn.page.populateSelect(elements.jobPreference3, buildings, 'job');
+	turn.page.populateSelect(elements.recreationPreference, recreations, 'type');
 	
-	fields.firstName.addEventListener('input', handleFirstNameInput);
-	fields.lastName.addEventListener('input', handleLastNameInput);
-	fields.jobPreference1.addEventListener('change', handleJobPreferenceChange);
-	fields.jobPreference2.addEventListener('change', handleJobPreferenceChange);
-	fields.jobPreference3.addEventListener('change', handleJobPreferenceChange);
-	fields.recreationPreference.addEventListener('change', handleRecreationPreferenceChange);
+	elements.firstName.value = action.firstName;
+	elements.lastName.value = action.lastName;
+	elements.jobPreference1.value = action.jobPreference1;
+	elements.jobPreference2.value = action.jobPreference2;	
+	elements.jobPreference3.value = action.jobPreference3;
+	elements.recreationPreference.value = action.recreationPreference;
+	
+	elements.firstName.addEventListener('input', handleFirstNameInput);
+	elements.lastName.addEventListener('input', handleLastNameInput);
+	elements.jobPreference1.addEventListener('change', handleJobPreferenceChange);
+	elements.jobPreference2.addEventListener('change', handleJobPreferenceChange);
+	elements.jobPreference3.addEventListener('change', handleJobPreferenceChange);
+	elements.recreationPreference.addEventListener('change', handleRecreationPreferenceChange);
 	
 	handleFirstNameInput();
 	handleLastNameInput();
@@ -101,26 +105,24 @@ turn.page.loadFields = function() {
 	handleRecreationPreferenceChange();
 };
 
-turn.page.saveFields = function() {
-	const data = turn.page.data;
-	const fields = turn.page.fields;
+//--- Read elements -----------------------------------------------------------------------------//
+turn.page.readElements = function() {
+	const action = turn.page.action;
+	const elements = turn.page.elements;
 	
-	data.firstName = fields.firstName.value;
-	data.lastName = fields.lastName.value;
-	data.jobPreference1 = fields.jobPreference1.value;
-	data.jobPreference2 = fields.jobPreference2.value;	
-	data.jobPreference3 = fields.jobPreference3.value;
-	data.recreationPreference = fields.recreationPreference.value;
+	action.firstName = elements.firstName.value;
+	action.lastName = elements.lastName.value;
+	action.jobPreference1 = elements.jobPreference1.value;
+	action.jobPreference2 = elements.jobPreference2.value;	
+	action.jobPreference3 = elements.jobPreference3.value;
+	action.recreationPreference = elements.recreationPreference.value;
 };
 
 //--- Server check ------------------------------------------------------------------------------//
 turn.page.beforeNext = async function() {
-	const nameError = document.getElementById('name-error');
-	nameError.textContent = '';
-	
-	const fields = turn.page.fields;
-	const firstName = fields.firstName.value;
-	const lastName = fields.lastName.value;
+	turn.page.elements.nameError.textContent = '';
+	const firstName = turn.page.elements.firstName.value;
+	const lastName = turn.page.elements.lastName.value;
 
 	try {
 		const params = new URLSearchParams({
@@ -137,24 +139,24 @@ turn.page.beforeNext = async function() {
 		
 		return true;
 	} catch (err) {
-		console.error(err);
+		consolelements.error(err);
 		return false;
 	}
 };
 
 //--- Event handlers ----------------------------------------------------------------------------//
 function handleFirstNameInput() {
-	handleNameInput(turn.page.fields.firstName);
+	handleNameInput(turn.page.elements.firstName);
 }
 
 function handleLastNameInput() {
-	handleNameInput(turn.page.fields.lastName);
+	handleNameInput(turn.page.elements.lastName);
 }
 
 function handleJobPreferenceChange() {
-	const selects = [turn.page.fields.jobPreference1, 
-					 turn.page.fields.jobPreference2, 
-					 turn.page.fields.jobPreference3];
+	const selects = [turn.page.elements.jobPreference1, 
+					 turn.page.elements.jobPreference2, 
+					 turn.page.elements.jobPreference3];
 	const selectedValues = selects.map(select => select.value);
 	
 	selects.forEach((select, index) => {
@@ -174,8 +176,7 @@ function handleRecreationPreferenceChange() {
 
 //--- Helpers -----------------------------------------------------------------------------------//
 function handleNameInput(nameInput) {
-	const nameError = document.getElementById('name-error');
-	nameError.textContent = '';
+	turn.page.elements.nameError.textContent = '';
 	
 	validateName(nameInput);
 	nameInput.reportValidity();

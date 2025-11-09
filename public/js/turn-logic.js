@@ -29,14 +29,14 @@ checkAccess() {
 
 //--- Initialize --------------------------------------------------------------------------------//
 initialize() {
-	this.renderUI();
-	this.bindUIEvents();
-	this.load();
-	this.updateUIState();
+	this.extendUI();
+	this.bindEvents();
+	this.loadAction();
+	this.showUI();
 },
 
-//--- Render UI ---------------------------------------------------------------------------------//
-renderUI() {
+//--- Extend UI ---------------------------------------------------------------------------------//
+extendUI() {
 	const UI = this.getUI();
 	
 	const buttons = `
@@ -75,8 +75,8 @@ renderUI() {
 	UI.containerDiv.insertAdjacentHTML('afterend', editModal);
 },
 
-//--- Bind UI events ----------------------------------------------------------------------------//
-bindUIEvents() {
+//--- Bind events -------------------------------------------------------------------------------//
+bindEvents() {
 	const UI = this.getUI();
 	
 	UI.editButton.addEventListener('click', this.edit.bind(this));
@@ -87,8 +87,8 @@ bindUIEvents() {
 	UI.cancelButton.addEventListener('click', turn.cancel);
 },
 
-//--- Update UI state ---------------------------------------------------------------------------//
-updateUIState() {
+//--- Show UI -----------------------------------------------------------------------------------//
+showUI() {
 	const UI = this.getUI();
 	
 	const isFirstRelevantPage = (this.index === turn.firstRelevantPageIndex);
@@ -168,27 +168,29 @@ confirmEdit() {
 	UI.formElements.forEach(el => el.disabled = false);
 	
 	for (let i = this.index + 1; i <= turn.lastRelevantPageIndex; i++) {
-		localStorage.removeItem(`turn.page${i}.data`);
+		localStorage.removeItem(`turn.page${i}.action`);
 	}
 	localStorage.setItem('turn.currentPageIndex', this.index);
 	
 	turn.currentPageIndex = this.index;
 },
 
-//--- Load --------------------------------------------------------------------------------------//
-load() {
-	this.data = JSON.parse(localStorage.getItem(`turn.page${this.index}.data`));
-	this.loadFields();
+//--- Load action -------------------------------------------------------------------------------//
+loadAction() {
+	this.action = JSON.parse(localStorage.getItem(`turn.page${this.index}.action`));
+	this.initializeElements();
 },
 
-//--- Save --------------------------------------------------------------------------------------//
-save() {
-	this.saveFields();
-	localStorage.setItem(`turn.page${this.index}.data`, JSON.stringify(this.data));
+//--- Save action -------------------------------------------------------------------------------//
+saveAction() {
+	this.readElements();
+	localStorage.setItem(`turn.page${this.index}.action`, JSON.stringify(this.action));
 },
 
 //--- Populate select ---------------------------------------------------------------------------//
-populateSelect(select, options) {
+populateSelect(select, 
+			   table,
+			   columnName) {
 	select.innerHTML = "";
 	
 	const emptyOption = document.createElement('option');
@@ -198,10 +200,10 @@ populateSelect(select, options) {
 	emptyOption.hidden = true;
 	select.appendChild(emptyOption);
 
-	options.forEach(opt => {
+	table.forEach(row => {
 		const option = document.createElement('option');
-		option.value = opt.id;
-		option.textContent = opt.type;
+		option.value = row.id;
+		option.textContent = row[columnName];
 		select.appendChild(option);
 	});
 }
@@ -229,7 +231,7 @@ turn.navigateNext = async function() {
 		}
 		
 		if (turn.page.index === turn.currentPageIndex) {
-			turn.page.save();
+			turn.page.saveAction();
 			localStorage.setItem('turn.currentPageIndex', nextPageIndex);
 		}
 		
@@ -249,7 +251,7 @@ turn.navigatePrevious = function() {
 	}
 	
 	if (turn.page.index === turn.currentPageIndex) {
-		turn.page.save();
+		turn.page.saveAction();
 	}
 	
 	location.assign(turn.actionPages[previousPageIndex].url);
@@ -258,7 +260,7 @@ turn.navigatePrevious = function() {
 //--- Finish ------------------------------------------------------------------------------------//
 turn.finish = async function() {
 	if (turn.page.index === turn.currentPageIndex) {
-		turn.page.save();
+		turn.page.saveAction();
 		localStorage.setItem('turn.currentPageIndex', turn.lastRelevantPageIndex + 1);
 	}
 	

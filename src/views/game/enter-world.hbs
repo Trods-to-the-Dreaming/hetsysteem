@@ -1,13 +1,13 @@
-{{#block "title"}}Wereld kiezen{{/block}}
+{{#block "title"}}Wereld betreden{{/block}}
 
 <div class="container-compact">
 	<h1>Wereld kiezen</h1>
 	
-	<form id="choose-world-form" method="POST" action="/game/choose-world">
+	<form id="enter-world-form" method="POST" action="/game/enter-world">
 		<div class="field">
-			<label for="world" class="form-label">Wereld:</label>
+			<label for="world" class="form-label">Kies een wereld.</label>
 			<select id="world" class="form-select" name="worldId">
-				{{#each worldOptions}}
+				{{#each worlds}}
 					<option value="{{this.id}}" {{#if (eq this.id ../selectedWorldId)}}selected{{/if}}>
 						{{this.type}}
 					</option>
@@ -17,7 +17,7 @@
 		
 		<p id="world-error" class="error">{{worldError}}</p>
 		
-		<button class="button-1" type="submit">Volgende →</button>
+		<button class="button-1" type="submit">Betreden</button>
 	</form>
 </div>
 

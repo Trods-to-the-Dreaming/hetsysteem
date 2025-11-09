@@ -1,28 +1,22 @@
 {{#block "title"}}Begin beurt{{/block}}
 
 <script>	
-	const productOptions = {{{json productOptions}}};
-	const recreationOptions = {{{json recreationOptions}}};
-	const buildingOptions = {{{json buildingOptions}}};
-	const jobOptions = {{{json jobOptions}}};
+	const products = {{{json products}}};
+	const recreations = {{{json recreations}}};
+	const buildings = {{{json buildings}}};
 	
-	localStorage.setItem('turn.productOptions', JSON.stringify(productOptions));
-	localStorage.setItem('turn.recreationOptions', JSON.stringify(recreationOptions));
-	localStorage.setItem('turn.buildingOptions', JSON.stringify(buildingOptions));
-	localStorage.setItem('turn.jobOptions', JSON.stringify(jobOptions));
+	localStorage.setItem('turn.products', JSON.stringify(products));
+	localStorage.setItem('turn.recreations', JSON.stringify(recreations));
+	localStorage.setItem('turn.buildings', JSON.stringify(buildings));
 	
-	const productData = {{{json productData}}};
-	const buildingData = {{{json buildingData}}};
-	const characterData = {{{json characterData}}};
+	const characterState = {{{json characterState}}};
 	
-	localStorage.setItem('turn.productData', JSON.stringify(productData));
-	localStorage.setItem('turn.buildingData', JSON.stringify(buildingData));
-	localStorage.setItem('turn.characterData', JSON.stringify(characterData));
+	localStorage.setItem('turn.characterState', JSON.stringify(characterState));
 	
 	const characterActions = {{{json characterActions}}};
 	
 	characterActions.forEach((action, index) => {
-		localStorage.setItem(`turn.page${index}.data`, JSON.stringify(action));
+		localStorage.setItem(`turn.page${index}.action`, JSON.stringify(action));
 	});
 	
 	const actionPages = {{{json actionPages}}};

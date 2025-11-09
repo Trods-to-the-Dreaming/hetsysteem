@@ -9,7 +9,7 @@ import { BadRequestError } from '#utils/errors.js';
 //=== Main ======================================================================================//
 
 //--- Get all worlds ----------------------------------------------------------------------------//
-export async function getAllWorlds(trx = knex) {
+export async function getWorlds(trx = knex) {
 	const cached = getFromCache('worlds');
 	
 	if (cached) return cached;
@@ -17,7 +17,7 @@ export async function getAllWorlds(trx = knex) {
 	const rows = await trx('worlds')
 		.select(
 			'id',
-			'slug',
+			//'slug',
 			'type',
 			'money_system as moneySystem',
 			'n_characters as nCharacters',
@@ -31,7 +31,7 @@ export async function getAllWorlds(trx = knex) {
 }
 
 //--- Get all products --------------------------------------------------------------------------//
-export async function getAllProducts(trx = knex) {
+export async function getProducts(trx = knex) {
 	const cached = getFromCache('products');
 	
 	if (cached) return cached;
@@ -39,7 +39,7 @@ export async function getAllProducts(trx = knex) {
 	const rows = await trx('products')
 		.select(
 			'id',
-			'slug',
+			//'slug',
 			'type',
 			'volume'
 		);
@@ -50,7 +50,7 @@ export async function getAllProducts(trx = knex) {
 }
 
 //--- Get all recreations -----------------------------------------------------------------------//
-export async function getAllRecreations(trx = knex) {
+export async function getRecreations(trx = knex) {
 	const cached = getFromCache('recreations');
 	
 	if (cached) return cached;
@@ -58,7 +58,7 @@ export async function getAllRecreations(trx = knex) {
 	const rows = await trx('recreations as r')
 		.select(
 			'r.product_id as id',
-			'p.slug as slug',
+			//'p.slug as slug',
 			'p.type as type'
 		)
 		.innerJoin('products as p', 'r.product_id', 'p.id');
@@ -69,7 +69,7 @@ export async function getAllRecreations(trx = knex) {
 }
 
 //--- Get all buildings -------------------------------------------------------------------------//
-export async function getAllBuildings(trx = knex) {
+export async function getBuildings(trx = knex) {
 	const cached = getFromCache('buildings');
 	
 	if (cached) return cached;
@@ -77,9 +77,9 @@ export async function getAllBuildings(trx = knex) {
 	const rows = await trx('buildings')
 		.select(
 			'id', 
-			'slug', 
+			//'slug', 
 			'type', 
-			'tile_size as tileSize',
+			'base_size as baseSize',
 			'job',
 			'input_id as inputId',
 			'output_id as outputId',
@@ -97,50 +97,31 @@ export async function getAllBuildings(trx = knex) {
 	return cache;
 }
 
-//--- Get all jobs ------------------------------------------------------------------------------//
-export async function getAllJobs(trx = knex) {
-	const cached = getFromCache('jobs');
-	
-	if (cached) return cached;
-	
-	const allBuildings = await getAllBuildings(trx);
-
-	const rows = allBuildings.all.map(b => ({
-		id: b.id,
-		slug: b.slug,
-		type: b.job
-	}));
-
-	const cache = buildEntityCache(rows);
-	setInCache('jobs', cache);
-	return cache;
-}
-
 //=== Extra =====================================================================================//
 
 //--- Build entity cache ------------------------------------------------------------------------//
 function buildEntityCache(rows) {
 	const idSet = new Set();
-	const slugToId = {};
+	//const slugToId = {};
 	const idToFull = {};
-	const options = [];
+	//const options = [];
 
 	for (const row of rows) {
 		const id = row.id;
-		const slug = row['slug'];
-		const type = row['type'];
+		//const slug = row['slug'];
+		//const type = row['type'];
 
 		idSet.add(id);
-		slugToId[slug] = id;
+		//slugToId[slug] = id;
 		idToFull[id] = row;
-		options.push({ id, type });
+		//options.push({ id, type });
 	}
 
 	return {
 		has: (id) => idSet.has(id),
-		getId: (slug) => slugToId[slug],
+		//getId: (slug) => slugToId[slug],
 		get: (id) => idToFull[id],
-		options,
+		//options,
 		all: rows
 	};
 }

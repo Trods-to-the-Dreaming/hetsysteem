@@ -18,8 +18,8 @@ import {
 } from '#constants/game.messages.js';
 
 import { 
-	getAllJobs,
-	getAllRecreations
+	getBuildings,
+	getRecreations
 } from '#helpers/game/static.helpers.js';
 
 import {
@@ -74,28 +74,28 @@ export const setCustomizeCharacter = async (characterId,
 	}
 	
 	// Validate job preferences
-	const allJobs = await getAllJobs(trx);
+	const jobs = await getBuildings(trx);
 	
-	const jobIds = [
+	const jobPreferences = [
 		validatedAction.jobPreference1,
 		validatedAction.jobPreference2,
 		validatedAction.jobPreference3
 	];
 	
-	if (!jobIds.every(id => allJobs.has(id))) {
+	if (!jobPreferences.every(id => jobs.has(id))) {
 		throw new BadRequestError(MSG_INVALID_JOB);
 	}
 	
-	if (new Set(jobIds).size < jobIds.length) {
+	if (new Set(jobPreferences).size < jobPreferences.length) {
 		throw new BadRequestError(MSG_NO_UNIQUE_JOBS);
 	}
 	
 	// Validate recreation preferences
-	const allRecreations = await getAllRecreations(trx);
+	const recreations = await getRecreations(trx);
 	
-	const recreationId = validatedAction.recreationPreference;
+	const recreationPreference = validatedAction.recreationPreference;
 	
-	if (!allRecreations.has(recreationId)) {
+	if (!recreations.has(recreationPreference)) {
 		throw new BadRequestError(MSG_INVALID_RECREATION);
 	}
 	

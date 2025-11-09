@@ -226,6 +226,10 @@ h3 {
 	@extend .btn-secondary;
 }
 
+.button-test {
+	outline: none !important;
+}
+
 .change {
 	@extend .d-block;
 	@extend .mt-0;

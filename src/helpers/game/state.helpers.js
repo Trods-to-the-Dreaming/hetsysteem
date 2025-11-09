@@ -38,10 +38,10 @@ export const isBuildingNameAvailable = async (worldId,
 	return !duplicate;
 };
 
-//--- Get character state -----------------------------------------------------------------------//
-export const getCharacterState = async (characterId,
+//--- Get character resources -------------------------------------------------------------------//
+export const getCharacterResources = async (characterId,
 										trx = knex) => {
-	const state = await knex('characters')
+	const resources = await knex('characters')
 		.select(
 			'is_customized as isCustomized',
 			'owned_tiles as ownedTiles',
@@ -50,11 +50,11 @@ export const getCharacterState = async (characterId,
 		.where('id', characterId)
 		.first();
 
-	if (!state) {
+	if (!resources) {
 		throw new BadRequestError(MSG_INVALID_CHARACTER);
 	}
 	
-	return state;
+	return resources;
 };
 
 //--- Get character products --------------------------------------------------------------------//
@@ -65,7 +65,8 @@ export const getCharacterProducts = async (characterId,
 			'product_id as productId',
 			'quantity'
 		)
-		.where('owner_id', characterId);
+		.where('owner_id', characterId)
+		.orderBy('product_id', 'asc');
 	
 	return products;
 };
@@ -77,10 +78,11 @@ export const getCharacterBuildings = async (characterId,
 		.select(
 			'id',
 			'name',
-			'size',
+			'size_factor as sizeFactor',
 			'building_id as buildingId'
 		)
-		.where('owner_id', characterId);
+		.where('owner_id', characterId)
+		.orderBy('building_id', 'asc');
 	
 	return buildings;
 };

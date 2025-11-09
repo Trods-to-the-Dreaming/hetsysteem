@@ -10,8 +10,8 @@ import {
 } from '#middleware/game.middleware.js';
 
 import {
-	showChooseWorld,
-	handleChooseWorld,
+	showEnterWorld,
+	handleEnterWorld,
 	showMenu,
 	showCharacter,
 	beginTurn,
@@ -41,8 +41,8 @@ const requireGameAccess = [
 //=== Main ======================================================================================//
 const router = express.Router();
 
-router.get( '/choose-world', requireAuthenticated, showChooseWorld);
-router.post('/choose-world', requireAuthenticated, handleChooseWorld);
+router.get( '/enter-world', requireAuthenticated, showEnterWorld);
+router.post('/enter-world', requireAuthenticated, handleEnterWorld);
 
 router.get( '/', requireGameAccess, showMenu);
 

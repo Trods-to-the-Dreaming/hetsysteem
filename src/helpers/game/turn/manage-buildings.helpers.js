@@ -35,7 +35,7 @@ export const getManageBuildings = async (characterId,
 			'id',
 			'name',
 			'building_id as buildingId',
-			'size'
+			'size_factor as sizeFactor'
 		)
 		.where('owner_id', characterId)
 	
