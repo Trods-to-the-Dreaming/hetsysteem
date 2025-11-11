@@ -5,23 +5,21 @@
 	
 	<form id="register-form" method="POST" action="/account/register">
 		<div class="field">
-			<label for="username" class="form-label">Gebruikersnaam:</label>
-			<input id="username" class="form-control" type="text" name="username" value="{{username}}" required>
+			<label for="username-input" class="form-label">Gebruikersnaam:</label>
+			<input id="username-input" class="form-control" type="text" name="username" value="{{username}}" required>
 		</div>
 		
 		<p id="username-error" class="error">{{usernameError}}</p>
 		
 		<div class="field">
-			<label for="password" class="form-label">Wachtwoord:</label>
-			<input id="password" class="form-control" type="password" name="password" required>
+			<label for="password-input" class="form-label">Wachtwoord:</label>
+			<input id="password-input" class="form-control" type="password" name="password" required>
 		</div>
 		
 		<div class="field">
-			<label for="password-confirmation" class="form-label">Bevestig wachtwoord:</label>
-			<input id="password-confirmation" class="form-control" type="password" name="passwordConfirmation" required>
+			<label for="confirmed-password-input" class="form-label">Bevestig wachtwoord:</label>
+			<input id="confirmed-password-input" class="form-control" type="password" name="confirmedPassword" required>
 		</div>
-		
-		<p id="confirmation-error" class="error"></p>
 		
 		<button class="button-1" type="submit">Registreren</button>
 	</form>
@@ -29,45 +27,44 @@
 	<p>Reeds lid? <a href="/account/login">Aanmelden</a>.</p>
 </div>
 
-<script>
+<script type="module">
 //--- Event handlers ----------------------------------------------------------------------------//
-function handleUsernameInput() {
+function clearUsernameError() {
+	const usernameError = document.getElementById('username-error');
 	usernameError.textContent = '';
 }
 
-function handlePasswordInput() {
-	confirmationError.textContent = '';
-}
-
-function handlePasswordConfirmationInput() {
-	confirmationError.textContent = '';
+function clearConfirmationError() {
+	const confirmedPassword = document.getElementById('confirmed-password-input');
+	confirmedPassword.setCustomValidity('');
 }
 
 function handleFormSubmit(e) {
-	// Check if the password is confirmed correctly
-	if (passwordInput.value === passwordConfirmationInput.value) {
-		confirmationError.textContent = '';
+	const password = document.getElementById('password-input');
+	const confirmedPassword = document.getElementById('confirmed-password-input');
+	const form = document.getElementById('register-form');
+	
+	if (confirmedPassword.value && 
+		password.value !== confirmedPassword.value) {
+		confirmedPassword.setCustomValidity('De wachtwoorden komen niet overeen.');
 	} else {
-		confirmationError.textContent = 'De wachtwoorden komen niet overeen.';
+		confirmedPassword.setCustomValidity('');
+	}
+	
+	if (!form.checkValidity()) {
 		e.preventDefault();
+		form.reportValidity();
 	}
 }
 
 //--- DOM content loaded ------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
-	const usernameInput = document.getElementById('username');
-	const passwordInput = document.getElementById('password');
-	const passwordConfirmationInput = document.getElementById('password-confirmation');
-	
+	const username = document.getElementById('username-input');
+	const confirmedPassword = document.getElementById('confirmed-password-input');
 	const form = document.getElementById('register-form');
 	
-	const usernameError = document.getElementById('username-error');
-	const confirmationError = document.getElementById('confirmation-error');
-	
-	usernameInput.addEventListener('input', handleUsernameInput);
-	passwordInput.addEventListener('input', handlePasswordInput);
-	passwordConfirmationInput.addEventListener('input', handlePasswordConfirmationInput);
-	
+	username.addEventListener('input', clearUsernameError);
+	confirmedPassword.addEventListener('input', clearConfirmationError);
 	form.addEventListener('submit', handleFormSubmit);
 });
 </script>

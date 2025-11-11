@@ -8,20 +8,20 @@
 	{{else}}
 		<form id="change-username-form" method="POST" action="/account/change-username">
 			<div class="field">
-				<label for="current-username" class="form-label">Huidige gebruikersnaam:</label>
-				<input id="current-username" class="form-control" type="text" value="{{username}}" readonly>
+				<label for="current-username-input" class="form-label">Huidige gebruikersnaam:</label>
+				<input id="current-username-input" class="form-control" type="text" value="{{username}}" readonly>
 			</div>
 			
 			<div class="field">
-				<label for="new-username" class="form-label">Nieuwe gebruikersnaam:</label>
-				<input id="new-username" class="form-control" type="text" name="newUsername" value="{{newUsername}}" required>
+				<label for="new-username-input" class="form-label">Nieuwe gebruikersnaam:</label>
+				<input id="new-username-input" class="form-control" type="text" name="newUsername" value="{{newUsername}}" required>
 			</div>
 			
 			<p id="username-error" class="error">{{usernameError}}</p>
 			
 			<div class="field">
-				<label for="password" class="form-label">Wachtwoord:</label>
-				<input id="password" class="form-control" type="password" name="password" required>
+				<label for="password-input" class="form-label">Wachtwoord:</label>
+				<input id="password-input" class="form-control" type="password" name="password" required>
 			</div>
 			
 			<p id="password-error" class="error">{{passwordError}}</p>
@@ -35,23 +35,22 @@
 
 <script>
 //--- Event handlers ----------------------------------------------------------------------------//
-function handleNewUsernameInput() {
+function clearUsernameError() {
+	const usernameError = document.getElementById('username-error');
 	usernameError.textContent = '';
 }
 
-function handlePasswordinput() {
+function clearPasswordError() {
+	const passwordError = document.getElementById('password-error');
 	passwordError.textContent = '';
 }
 	
 //--- DOM content loaded ------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
-	const newUsernameInput = document.getElementById('new-username');
-	const passwordInput = document.getElementById('password');
+	const newUsername = document.getElementById('new-username-input');
+	const password = document.getElementById('password-input');
 	
-	const usernameError = document.getElementById('username-error');
-	const passwordError = document.getElementById('password-error');
-	
-	newUsernameInput.addEventListener('input', handleNewUsernameInput);
-	passwordInput.addEventListener('input', handlePasswordinput);
+	newUsername.addEventListener('input', clearUsernameError);
+	password.addEventListener('input', clearPasswordError);
 });
 </script>

@@ -66,18 +66,17 @@ turn.page.initializeElements = function() {
 			recreationPreference: ''
 		};
 	}
+	const action = turn.page.action;
 	
 	turn.page.elements = {
 		firstName: document.getElementById('first-name-input'),
 		lastName: document.getElementById('last-name-input'),
-		jobPreference: document.getElementById('job-preference-1-select'),
-		jobPreference: document.getElementById('job-preference-2-select'),
-		jobPreference: document.getElementById('job-preference-3-select'),
+		jobPreference1: document.getElementById('job-preference-1-select'),
+		jobPreference2: document.getElementById('job-preference-2-select'),
+		jobPreference3: document.getElementById('job-preference-3-select'),
 		recreationPreference: document.getElementById('recreation-preference-select'),
 		nameError: document.getElementById('name-error')
 	};
-	
-	const action = turn.page.action;
 	const elements = turn.page.elements;
 	
 	turn.page.populateSelect(elements.jobPreference1, buildings, 'job');

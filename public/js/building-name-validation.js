@@ -2,7 +2,7 @@ export function validateName(nameInput) {
 	const name = nameInput.value;
 	const minLength = 2;
 	const maxLength = 32;
-	const regex = /^[A-Za-zÀ-ÖØ-öø-ÿĀ-ž]+(?:[ '-][A-Za-zÀ-ÖØ-öø-ÿĀ-ž]+)*$/;
+	const regex = /^[A-Za-z0-9À-ÖØ-öø-ÿĀ-ž]+(?:[ '-][A-Za-z0-9À-ÖØ-öø-ÿĀ-ž]+)*$/;
 
 	if (name.length < minLength) {
 		nameInput.setCustomValidity(`Minimaal ${minLength} tekens vereist.`);

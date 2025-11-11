@@ -11,6 +11,10 @@ import {
 } from '#constants/game.messages.js';
 
 import { 
+	BUILDING_SIZE_FACTORS
+} from '#constants/game.rules.js';
+
+import { 
 	getWorlds,
 	getProducts,
 	getRecreations,
@@ -231,6 +235,7 @@ export const beginTurn = async (req, res, next) => {
 			products: products.all,
 			recreations: recreations.all,
 			buildings: buildings.all,
+			sizeFactors: BUILDING_SIZE_FACTORS,
 			characterState,
 			characterActions,
 			actionPages,

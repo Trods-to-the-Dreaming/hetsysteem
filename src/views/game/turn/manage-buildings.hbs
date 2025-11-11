@@ -25,7 +25,7 @@
 	<div id="build-div" class="field">
 		<h2>🏗️ Bouwen</h2>
 
-		<p>Vrije landtegels: <span id="unoccupied-tiles-span"></span></p>
+		<p>Vrije landtegels: <span id="free-tiles-span"></span></p>
 		
 		<button id="open-construct-window-button" class="button-2" type="button" 
 				data-bs-toggle="offcanvas" data-bs-target="#construct-window">
@@ -46,7 +46,7 @@
 	</div>
 	
 	<div class="offcanvas-body">
-		<p>Vink de te slopen gebouwen aan.</p>
+		<p>Vink de te slopen gebouwen aan:</p>
 		
 		<div id="existing-buildings-div" class="field"></div>
 		
@@ -65,14 +65,21 @@
 	
 	<div class="offcanvas-body">
 		<div class="field">
-			<label for="new-building-select" class="form-label">Kies een gebouw.</label>
-			<select id="new-building-select" class="form-select" type="text" required></select>
+			<label for="new-building-select" class="form-label">Kies een gebouw:</label>
+			<select id="new-building-select" class="form-select" required></select>
 		</div>
 		
 		<div class="field">
-			<label for="size-select" class="form-label">Kies een grootte.</label>
-			<select id="size-select" class="form-select" type="text" required></select>
+			<label for="size-factor-select" class="form-label">Kies een grootte:</label>
+			<select id="size-factor-select" class="form-select" required></select>
 		</div>
+		
+		<div class="field">
+			<label for="building-name-input" class="form-label">Naam van het nieuwe gebouw:</label>
+			<input id="building-name-input" class="form-control" type="text" required>
+		</div>
+		
+		<p id="name-error" class="error"></p>
 		
 		<div class="container-compact">
 			<button id="confirm-construct-button" class="button-2" type="button">Bevestigen</button>
@@ -81,12 +88,14 @@
 </div>
 
 <script type="module">
+import { validateName } from '/js/building-name-validation.js';
 import { turn } from '/js/turn-logic.js';
 
 //--- Initialize elements -----------------------------------------------------------------------//
 turn.page.initializeElements = function() {
 	const characterState = JSON.parse(localStorage.getItem(`turn.characterState`));
 	const buildings = JSON.parse(localStorage.getItem(`turn.buildings`));
+	const sizeFactors = JSON.parse(localStorage.getItem(`turn.sizeFactors`));
 	
 	if (!turn.page.action) {
 		turn.page.action = {
@@ -94,6 +103,7 @@ turn.page.initializeElements = function() {
 			construct: []
 		};
 	}
+	const action = turn.page.action;
 	
 	turn.page.elements = {
 		demolish: document.getElementById('demolish-ul'),
@@ -106,18 +116,16 @@ turn.page.initializeElements = function() {
 		),
 		confirmDemolish: document.getElementById('confirm-demolish-button'),
 		confirmConstruct: document.getElementById('confirm-construct-button'),
-		unoccupiedTiles: document.getElementById('unoccupied-tiles-span'),
+		freeTiles: document.getElementById('free-tiles-span'),
 		existingBuildings: document.getElementById('existing-buildings-div'),
 		newBuilding: document.getElementById('new-building-select'),
-		size: document.getElementById('size-select')
+		sizeFactor: document.getElementById('size-factor-select'),
+		buildingName: document.getElementById('building-name-input'),
+		nameError: document.getElementById('name-error')
 	};
+	const elements = turn.page.elements;	
 	
-	const action = turn.page.action;
-	const elements = turn.page.elements;
-	
-	turn.page.populateSelect(elements.newBuilding, buildings, 'type');
-	
-	let occupiedTiles = 0;
+	let freeTiles = characterState.ownedTiles;
 	
 	const existingBuildings = characterState.ownedBuildings.map(eb => {
 		const building = buildings.find(b => b.id === eb.buildingId);
@@ -125,52 +133,49 @@ turn.page.initializeElements = function() {
 		const size = building.baseSize * eb.sizeFactor;
 		const unit = size === 1 ? 'tegel' : 'tegels';
 		
-		occupiedTiles += isDemolished ? 0 : size;
+		freeTiles -= isDemolished ? 0 : size;
 
 		return {
 			id: eb.buildingId,
 			isDemolished,
 			size,
-			descriptionHTML: `${eb.name} <small>(${building.type} ${size} ${unit})</small>`
+			label: `${eb.name} <small>(${building.type} ${size} ${unit})</small>`
 		};
 	});
 	
 	const newBuildings = action.construct.map(nb => {
-		const building = buildings.find(b => b.id === cb.buildingId);
+		const building = buildings.find(b => b.id === nb.buildingId);
 		const size = building.baseSize * nb.sizeFactor;
 		const unit = size === 1 ? 'tegel' : 'tegels';
 		
-		occupiedTiles += size;
+		freeTiles -= size;
 		
 		return {
+			id: nb.buildingId,
+			name: nb.name,
+			sizeFactor: nb.sizeFactor,
 			size,
-			descriptionHTML: `${nb.name} <small>(${building.type} ${size} ${unit})</small>`
+			label: `${nb.name} <small>(${building.type} ${size} ${unit})</small>`
 		};
 	});
 	
 	turn.page.data = {
-		unoccupiedTiles: characterState.ownedTiles - occupiedTiles,
+		freeTiles,
 		existingBuildings,
-		newBuildings
+		newBuildings,
+		buildings,
+		sizeFactors
 	};
+	const data = turn.page.data;
 	
+	turn.page.populateSelect(elements.newBuilding, data.buildings, 'type');	
+	
+	elements.newBuilding.addEventListener('change', handleNewBuildingChange);
+	elements.buildingName.addEventListener('input', handleBuildingNameInput);
 	elements.confirmDemolish.addEventListener('click', handleConfirmDemolish);
 	elements.confirmConstruct.addEventListener('click', handleConfirmConstruct);
 	
 	updateUI();
-	
-	/*const offcanvas = document.getElementById('demolish-window');
-
-	offcanvas.addEventListener('show.bs.offcanvas', () => {
-		const maxSize = 1;
-
-		turn.page.helpers.ownedBuildings.forEach(ob => {
-			if (ob.size > maxSize) {
-				const option = elements.ownedBuildings.querySelector(`option[value="${ob.id}"]`);
-				option.disabled = true;
-			}
-		});
-	});*/
 }
 
 //--- Read elements -----------------------------------------------------------------------------//
@@ -214,6 +219,24 @@ turn.page.beforeNext = async function() {
 };
 
 //--- Event handlers ----------------------------------------------------------------------------//
+function handleNewBuildingChange() {
+	const elements = turn.page.elements;
+	const data = turn.page.data;
+	
+	const newBuildingId = Number(elements.newBuilding.value);
+	const newBuilding = data.buildings.find(b => b.id === newBuildingId);
+	
+	elements.sizeFactor.innerHTML = '';
+	data.sizeFactors.forEach(sizeFactor => {
+		const size = newBuilding.baseSize * sizeFactor;
+		
+		const option = document.createElement('option');
+		option.value = sizeFactor;
+		option.textContent = size + (size === 1 ? ' tegel' : ' tegels');
+		elements.sizeFactor.appendChild(option);
+	});
+}
+
 function handleConfirmDemolish() {
 	const elements = turn.page.elements;
 	const data = turn.page.data;
@@ -221,9 +244,13 @@ function handleConfirmDemolish() {
 	const checkboxes = elements.existingBuildings.querySelectorAll('input[type="checkbox"]');
 
 	checkboxes.forEach(checkbox => {
-		const buildingId = parseInt(checkbox.dataset.buildingId, 10);
-		const building = data.existingBuildings.find(b => b.id === buildingId);
-		building.isDemolished = checkbox.checked;
+		if (checkbox.checked) {
+			const buildingId = Number(checkbox.dataset.buildingId);
+			const building = data.existingBuildings.find(b => b.id === buildingId);
+			building.isDemolished = checkbox.checked;
+
+			data.freeTiles += building.size;
+		}
 	});
 	
 	updateUI();
@@ -231,19 +258,49 @@ function handleConfirmDemolish() {
 }
 
 function handleConfirmConstruct() {
-	// geselecteerde value van newBuilding (id) en size (ook id?) ophalen
+	const elements = turn.page.elements;
+	const data = turn.page.data;
+	
+	const newBuildingId = Number(elements.newBuilding.value);
+	const newBuilding = data.buildings.find(b => b.id === newBuildingId);
+	const name = elements.buildingName.value;
+	const sizeFactor = Number(elements.sizeFactor.value);
+	const size = newBuilding.baseSize * sizeFactor;
+	const unit = size === 1 ? 'tegel' : 'tegels';
+	
+	data.newBuildings.push({
+		id: newBuildingId,
+		name,
+		sizeFactor,
+		size,
+		label: `${name} <small>(${newBuilding.type} ${size} ${unit})</small>`
+	});
+	
+	data.freeTiles -= size;
 	
 	updateUI();
+	elements.constructOffcanvas.hide();
 }
 
 //--- Helpers -----------------------------------------------------------------------------------//
+function handleBuildingNameInput() {
+	const elements = turn.page.elements;
+	
+	elements.nameError.textContent = '';
+	
+	validateName(elements.buildingName);
+	elements.buildingName.reportValidity();
+}
+
 function updateUI() {
 	const elements = turn.page.elements;
 	const data = turn.page.data;
 	
 	renderDemolishList();
 	renderConstructList();
-	renderUnoccupiedTiles();
+	renderFreeTiles();
+	
+	turn.page.validate();
 }
 
 function renderDemolishList() {
@@ -261,18 +318,19 @@ function renderDemolishList() {
 			li.dataset.buildingId = eb.id;
 			
 			const span = document.createElement('span');
-			span.innerHTML = eb.descriptionHTML;
+			span.innerHTML = eb.label;
 			
 			const button = document.createElement('button');
 			button.type = 'button';
 			button.classList.add('btn');
 			button.innerHTML = `<i class="bi bi-x-lg"></i>`;
 			
-			if (eb.size > data.unoccupiedTiles) {
+			if (eb.size > data.freeTiles) {
 				button.disabled = true;
 			} else {
 				button.addEventListener('click', () => {
 					eb.isDemolished = false;
+					data.freeTiles -= eb.size;
 					updateUI();
 				});
 			}
@@ -294,7 +352,7 @@ function renderDemolishList() {
 			const label = document.createElement('label');
 			label.htmlFor = input.id;
 			label.className = 'form-check-label';
-			label.innerHTML = eb.descriptionHTML;
+			label.innerHTML = eb.label;
 			
 			div.appendChild(input);
 			div.appendChild(label);
@@ -322,7 +380,7 @@ function renderConstructList() {
 		li.dataset.buildingId = 'nb_' + index; // temporary id
 		
 		const span = document.createElement('span');
-		span.innerHTML = nb.descriptionHTML;
+		span.innerHTML = nb.label;
 		
 		const button = document.createElement('button');
 		button.type = 'button';
@@ -331,6 +389,7 @@ function renderConstructList() {
 		
 		button.addEventListener('click', () => {
 			data.newBuildings.splice(index, 1);
+			data.freeTiles += nb.size;
 			updateUI();
 		});
 		
@@ -346,11 +405,11 @@ function renderConstructList() {
 	}
 }
 
-function renderUnoccupiedTiles() {
+function renderFreeTiles() {
 	const elements = turn.page.elements;
 	const data = turn.page.data;
 	
-	elements.unoccupiedTiles.textContent = data.unoccupiedTiles;
+	elements.freeTiles.textContent = data.freeTiles;
 }
 
 //--- DOM content loaded ------------------------------------------------------------------------//

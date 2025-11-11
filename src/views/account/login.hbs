@@ -5,13 +5,13 @@
 	
 	<form id="login-form" method="POST" action="/account/login">
 		<div class="field">
-			<label for="username" class="form-label">Gebruikersnaam:</label>
-			<input id="username" class="form-control" type="text" name="username" value="{{username}}" required>
+			<label for="username-input" class="form-label">Gebruikersnaam:</label>
+			<input id="username-input" class="form-control" type="text" name="username" value="{{username}}" required>
 		</div>
 		
 		<div class="field">
-			<label for="password" class="form-label">Wachtwoord:</label>
-			<input id="password" class="form-control" type="password" name="password" required>
+			<label for="password-input" class="form-label">Wachtwoord:</label>
+			<input id="password-input" class="form-control" type="password" name="password" required>
 		</div>
 		
 		<p id="login-error" class="error">{{loginError}}</p>
@@ -22,24 +22,19 @@
 	<p>Nog geen lid? <a href="/account/register">Registreren</a>.</p>
 </div>
 
-<script>
+<script type="module">
 //--- Event handlers ----------------------------------------------------------------------------//
-function handleUsernameInput() {
-	loginError.textContent = '';
-}
-
-function handlePasswordInput() {
+function clearLoginError() {
+	const loginError = document.getElementById('login-error');
 	loginError.textContent = '';
 }
 	
 //--- DOM content loaded ------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
-	const usernameInput = document.getElementById('username');
-	const passwordInput = document.getElementById('password');
+	const username = document.getElementById('username-input');
+	const password = document.getElementById('password-input');
 	
-	const loginError = document.getElementById('login-error');
-	
-	usernameInput.addEventListener('input', handleUsernameInput);
-	passwordInput.addEventListener('input', handlePasswordInput);
+	username.addEventListener('input', clearLoginError);
+	password.addEventListener('input', clearLoginError);
 });
 </script>

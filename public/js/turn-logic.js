@@ -191,10 +191,10 @@ saveAction() {
 populateSelect(select, 
 			   table,
 			   columnName) {
-	select.innerHTML = "";
+	select.innerHTML = '';
 	
 	const emptyOption = document.createElement('option');
-	emptyOption.value = "";
+	emptyOption.value = '';
 	emptyOption.disabled = true;
 	emptyOption.selected = true;
 	emptyOption.hidden = true;

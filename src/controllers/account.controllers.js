@@ -57,7 +57,7 @@ export const handleLogin = async (req, res, next) => {
 		req.session.username = user.name;
 		await saveSession(req);
 		
-		return res.redirect('/game/choose-world');
+		return res.redirect('/game/enter-world');
 	} catch (err) {
 		next(err); 
 	}
@@ -76,10 +76,10 @@ export const handleRegister = async (req, res, next) => {
 	try {
 		const { username, 
 				password, 
-				passwordConfirmation } = req.body;
+				confirmedPassword } = req.body;
 
 		// Check if passwords are the same
-		if (password !== passwordConfirmation) {
+		if (password !== confirmedPassword) {
 			return res.render('account/register', {
 				username
 			});
@@ -101,7 +101,7 @@ export const handleRegister = async (req, res, next) => {
 		req.session.username = user.name
 		await saveSession(req);
 		
-		return res.redirect('/game/choose-world');
+		return res.redirect('/game/enter-world');
 	} catch (err) {
 		next(err);
 	}
@@ -220,10 +220,10 @@ export const handleChangePassword = async (req, res, next) => {
 		const { userId } = req.session;
 		const { currentPassword, 
 				newPassword, 
-				passwordConfirmation } = req.body;
+				confirmedNewPassword } = req.body;
 
 		// Check if passwords are the same
-		if (newPassword !== passwordConfirmation) {
+		if (newPassword !== confirmedNewPassword) {
 			return res.render('account/change-password');
 		}
 		
