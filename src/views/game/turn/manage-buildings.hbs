@@ -108,6 +108,10 @@ turn.page.initializeElements = function() {
 	turn.page.elements = {
 		demolish: document.getElementById('demolish-ul'),
 		construct: document.getElementById('construct-ul'),
+		openDemolishWindow: document.getElementById('open-demolish-window-button'),
+		openConstructWindow: document.getElementById('open-construct-window-button'),
+		demolishWindow: document.getElementById('demolish-window'),
+		constructWindow: document.getElementById('construct-window'),
 		demolishOffcanvas: new bootstrap.Offcanvas(
 			document.getElementById('demolish-window')
 		),
@@ -168,13 +172,13 @@ turn.page.initializeElements = function() {
 	};
 	const data = turn.page.data;
 	
-	turn.page.populateSelect(elements.newBuilding, data.buildings, 'type');	
-	
+	elements.constructWindow.addEventListener('show.bs.offcanvas', handleConstructWindowShow);
 	elements.newBuilding.addEventListener('change', handleNewBuildingChange);
 	elements.buildingName.addEventListener('input', handleBuildingNameInput);
 	elements.confirmDemolish.addEventListener('click', handleConfirmDemolish);
 	elements.confirmConstruct.addEventListener('click', handleConfirmConstruct);
 	
+	updateConstructWindow();
 	updateUI();
 }
 
@@ -219,6 +223,35 @@ turn.page.beforeNext = async function() {
 };
 
 //--- Event handlers ----------------------------------------------------------------------------//
+function handleConstructWindowShow() {
+	const elements = turn.page.elements;
+	const data = turn.page.data;
+	
+	elements.newBuilding.innerHTML = '';
+	
+	const emptyOption = document.createElement('option');
+	emptyOption.value = '';
+	emptyOption.disabled = true;
+	emptyOption.selected = true;
+	emptyOption.hidden = true;
+	elements.newBuilding.appendChild(emptyOption);
+
+	data.buildings.forEach(b => {
+		const option = document.createElement('option');
+		option.value = b.id;
+		option.textContent = b.type;
+		option.disabled = (b.baseSize > data.freeTiles);
+		elements.newBuilding.appendChild(option);
+		console.log(b.type, b.baseSize, typeof b.baseSize, data.freeTiles, typeof data.freeTiles);
+	});
+	
+	elements.newBuilding.value = '';
+	elements.sizeFactor.innerHTML = '';
+	elements.buildingName.value = '';
+	
+	updateConstructWindow();
+}
+	
 function handleNewBuildingChange() {
 	const elements = turn.page.elements;
 	const data = turn.page.data;
@@ -233,8 +266,22 @@ function handleNewBuildingChange() {
 		const option = document.createElement('option');
 		option.value = sizeFactor;
 		option.textContent = size + (size === 1 ? ' tegel' : ' tegels');
+		option.disabled = (size > data.freeTiles);
 		elements.sizeFactor.appendChild(option);
 	});
+	
+	updateConstructWindow();
+}
+
+function handleBuildingNameInput() {
+	const elements = turn.page.elements;
+	
+	elements.nameError.textContent = '';
+	
+	validateName(elements.buildingName);
+	elements.buildingName.reportValidity();
+	
+	updateConstructWindow();
 }
 
 function handleConfirmDemolish() {
@@ -283,13 +330,16 @@ function handleConfirmConstruct() {
 }
 
 //--- Helpers -----------------------------------------------------------------------------------//
-function handleBuildingNameInput() {
+function updateConstructWindow() {
 	const elements = turn.page.elements;
 	
-	elements.nameError.textContent = '';
-	
-	validateName(elements.buildingName);
-	elements.buildingName.reportValidity();
+	if (elements.newBuilding.value === '' ||
+		elements.buildingName.value === '' ||
+		!elements.buildingName.checkValidity()) {
+		elements.confirmConstruct.disabled = true;
+	} else {
+		elements.confirmConstruct.disabled = false;
+	}
 }
 
 function updateUI() {
@@ -403,6 +453,12 @@ function renderConstructList() {
 	} else {
 		elements.construct.classList.remove('d-none');
 	}
+	
+	if (data.freeTiles === 0) {
+		elements.openConstructWindow.disabled = true;
+	} else {
+		elements.openConstructWindow.disabled = false;
+	}	
 }
 
 function renderFreeTiles() {
