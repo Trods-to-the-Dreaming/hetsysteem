@@ -190,10 +190,10 @@ h3 {
 	display: inline-block;
 }
 
-.demolished {
+/*.demolished {
 	@extend .text-decoration-line-through;
 	@extend .text-danger;
-}
+}*/
 
 .button-1 {
 	@extend .btn;
@@ -216,7 +216,11 @@ h3 {
 	@extend .mb-3;
 }
 
-.button-ok {
+.button-cancel {
+	
+}
+
+/*.button-ok {
 	@extend .btn;
 	@extend .btn-primary;
 }
@@ -236,4 +240,4 @@ h3 {
 	@extend .mb-0;
 	@extend .pe-2;
 	text-align: right;
-}
+}*/

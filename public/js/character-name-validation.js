@@ -8,10 +8,10 @@ export function validateName(nameInput) {
 		nameInput.setCustomValidity(`Minimaal ${minLength} tekens vereist.`);
 	} else if (name.length > maxLength) {
 		nameInput.setCustomValidity(`Maximaal ${maxLength} tekens toegestaan.`);
-	} else if (name !== name.trim()) {
+	} /*else if (name !== name.trim()) {
 		nameInput.setCustomValidity(
 			'Spaties aan het begin of het einde zijn niet toegestaan.');
-	} else if (!regex.test(name)) {
+	}*/ else if (!regex.test(name)) {
 		nameInput.setCustomValidity(
 			'Dit is geen geldige naam.');
 	} else {

@@ -11,7 +11,8 @@ export const getProduce = async (characterId,
 };
 
 //--- Set produce -------------------------------------------------------------------------------//
-export const setProduce = async (characterId,
+export const setProduce = async (action,
+								 characterId,
 								 trx = knex) => {
 	
 };

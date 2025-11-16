@@ -1,43 +1,23 @@
-import { turn } from '/js/turn-submit.js';
+import { turn } from '/js/turn.js';
 
 //=== Page (begin) ==============================================================================//
-turn.page = {
+turn.page = { ...turn.page,
 	
-//--- Check access ------------------------------------------------------------------------------//
-checkAccess() {
-	turn.begin = localStorage.getItem('turn.begin');
-	
-	// Check if the turn has begun
-	if (turn.begin === null) {
-		location.replace('/game/turn/begin');
-		return;
-	}
-	
-	turn.actionPages = JSON.parse(localStorage.getItem('turn.actionPages'));
-	turn.currentPageIndex = parseInt(localStorage.getItem('turn.currentPageIndex'), 10);
-	
-	// Check if this page is allowed
-	if (!turn.actionPages[turn.page.index].isRelevant ||
-		turn.page.index > turn.currentPageIndex) {
-		location.replace(turn.actionPages[turn.currentPageIndex].url);
-		return;
-	}
-	
-	turn.firstRelevantPageIndex = parseInt(localStorage.getItem('turn.firstRelevantPageIndex'), 10);
-	turn.lastRelevantPageIndex = parseInt(localStorage.getItem('turn.lastRelevantPageIndex'), 10);
-},
+//--- Disabled ----------------------------------------------------------------------------------//
+disabled: true,
 
 //--- Initialize --------------------------------------------------------------------------------//
 initialize() {
-	this.extendUI();
-	this.bindEvents();
+	this.addTurnFlowControls();
+	this.bindTurnFlowEvents();
 	this.loadAction();
-	this.showUI();
+	this.show();
 },
 
-//--- Extend UI ---------------------------------------------------------------------------------//
-extendUI() {
-	const UI = this.getUI();
+//--- Add turn flow controls ---------------------------------------------------------------------//
+addTurnFlowControls() {
+	const controls = this.getTurnFlowControls();
+	const containerDiv = controls.containerDiv;
 	
 	const buttons = `
 		<button id="finish-button" class="button-1" type="button">Voltooien</button>
@@ -45,7 +25,7 @@ extendUI() {
 		<button id="back-button" class="button-1" type="button">← Vorige</button>
 		<button id="edit-button" class="button-1" type="button">Bewerken</button>
 		<button id="cancel-button" class="button-up" type="button">↑ Annuleren</button>`;
-	UI.containerDiv.insertAdjacentHTML('beforeend', buttons);
+	containerDiv.insertAdjacentHTML('beforeend', buttons);
 	
 	const editModal = `
 		<div id="edit-warning-div" class="modal fade" tabindex="-1" role="dialog" 
@@ -72,52 +52,51 @@ extendUI() {
 				</div>
 			</div>
 		</div>`;
-	UI.containerDiv.insertAdjacentHTML('afterend', editModal);
+	containerDiv.insertAdjacentHTML('afterend', editModal);
 },
 
-//--- Bind events -------------------------------------------------------------------------------//
-bindEvents() {
-	const UI = this.getUI();
+//--- Bind turn flow events ---------------------------------------------------------------------//
+bindTurnFlowEvents() {
+	const controls = this.getTurnFlowControls();
 	
-	UI.editButton.addEventListener('click', this.edit.bind(this));
-	UI.confirmEditButton.addEventListener('click', this.confirmEdit.bind(this));
-	UI.finishButton.addEventListener('click', turn.finish);
-	UI.nextButton.addEventListener('click', turn.navigateNext);
-	UI.backButton.addEventListener('click', turn.navigatePrevious);
-	UI.cancelButton.addEventListener('click', turn.cancel);
+	controls.editButton.addEventListener('click', this.edit.bind(this));
+	controls.confirmEditButton.addEventListener('click', this.confirmEdit.bind(this));
+	controls.finishButton.addEventListener('click', turn.finish);
+	controls.nextButton.addEventListener('click', turn.nextPage);
+	controls.backButton.addEventListener('click', turn.previousPage);
+	controls.cancelButton.addEventListener('click', turn.cancel);
 },
 
-//--- Show UI -----------------------------------------------------------------------------------//
-showUI() {
-	const UI = this.getUI();
+//--- Show --------------------------------------------------------------------------------------//
+show() {
+	const controls = this.getTurnFlowControls();
 	
 	const isFirstRelevantPage = (this.index === turn.firstRelevantPageIndex);
 	const isLastRelevantPage = (this.index === turn.lastRelevantPageIndex);
 	const isCurrentPage = (this.index === turn.currentPageIndex);
 	
 	if (isFirstRelevantPage) {
-		UI.backButton.classList.add('d-none');
+		controls.backButton.classList.add('d-none');
 	}
 	
 	if (isLastRelevantPage) {
-		UI.nextButton.classList.add('d-none');
+		controls.nextButton.classList.add('d-none');
 	} else {
-		UI.finishButton.classList.add('d-none');
+		controls.finishButton.classList.add('d-none');
 	}
 	
 	if (isCurrentPage) {
-		UI.editButton.classList.add('d-none');
-	} else {
-		UI.formElements.forEach(el => el.disabled = true);
+		controls.editButton.classList.add('d-none');
+		this.disabled = false;
 	}
 	
-	UI.containerDiv.classList.remove('d-none');
+	this.updateUI();
+	controls.containerDiv.classList.remove('d-none');	
 },
 
-//--- Get UI ------------------------------------------------------------------------------------//
-getUI() {
+//--- Get turn flow controls --------------------------------------------------------------------//
+getTurnFlowControls() {
 	const containerDiv = document.getElementById('container-div');
-	const formElements = Array.from(containerDiv.querySelectorAll('input, select'));
 	const nextButton = document.getElementById('next-button');
 	const backButton = document.getElementById('back-button');
 	const editButton = document.getElementById('edit-button');
@@ -129,7 +108,6 @@ getUI() {
 	
 	return {
 		containerDiv,
-		formElements,
 		nextButton,
 		backButton,
 		editButton,
@@ -140,32 +118,33 @@ getUI() {
 	};
 },
 
-//--- Validate ----------------------------------------------------------------------------------//
-validate() {
-	const UI = this.getUI();
-	const allValid = UI.formElements.every(el => el.checkValidity());
+//--- Set next disabled -------------------------------------------------------------------------//
+setNextDisabled(isDisabled) {
+	const controls = this.getTurnFlowControls();
 	
-	UI.nextButton.disabled = !allValid;
-	UI.finishButton.disabled = !allValid;
+	controls.nextButton.disabled = isDisabled;
+	controls.finishButton.disabled = isDisabled;
 },
 
 //--- Edit --------------------------------------------------------------------------------------//
 edit() {
-	const UI = this.getUI();
+	const controls = this.getTurnFlowControls();
 	
-	const modal = new bootstrap.Modal(UI.editWarningDiv);
+	const modal = new bootstrap.Modal(controls.editWarningDiv);
 	modal.show();
 },
 
 //--- Confirm edit ------------------------------------------------------------------------------//
 confirmEdit() {
-	const UI = this.getUI();
+	const controls = this.getTurnFlowControls();
 	
-	const modal = bootstrap.Modal.getInstance(UI.editWarningDiv);
+	const modal = bootstrap.Modal.getInstance(controls.editWarningDiv);
 	modal.hide();
 	
-	UI.editButton.classList.add('d-none');
-	UI.formElements.forEach(el => el.disabled = false);
+	controls.editButton.classList.add('d-none');
+	
+	this.disabled = false;
+	this.updateUI();
 	
 	for (let i = this.index + 1; i <= turn.lastRelevantPageIndex; i++) {
 		localStorage.removeItem(`turn.page${i}.action`);
@@ -173,18 +152,6 @@ confirmEdit() {
 	localStorage.setItem('turn.currentPageIndex', this.index);
 	
 	turn.currentPageIndex = this.index;
-},
-
-//--- Load action -------------------------------------------------------------------------------//
-loadAction() {
-	this.action = JSON.parse(localStorage.getItem(`turn.page${this.index}.action`));
-	this.initializeElements();
-},
-
-//--- Save action -------------------------------------------------------------------------------//
-saveAction() {
-	this.readElements();
-	localStorage.setItem(`turn.page${this.index}.action`, JSON.stringify(this.action));
 },
 
 //--- Populate select ---------------------------------------------------------------------------//
@@ -209,19 +176,14 @@ populateSelect(select,
 }
 
 //=== Page (end) ================================================================================//
-};
+}
 
-//--- Navigate next -----------------------------------------------------------------------------//
-turn.navigateNext = async function() {
+//--- Next page ---------------------------------------------------------------------------------//
+turn.nextPage = async function() {
 	try {
-		if (typeof turn.page.beforeNext === 'function') {
-			const canNavigateNext = await turn.page.beforeNext();
-			if (!canNavigateNext) {
-				const UI = turn.page.getUI();
-				UI.nextButton.disabled = true;
-				UI.finishButton.disabled = true;
-				return;
-			}
+		if (typeof turn.page.preventNext === 'function') {
+			const prevent = await turn.page.preventNext();
+			if (prevent) return;
 		}
 		
 		let nextPageIndex = turn.page.index + 1;
@@ -237,12 +199,12 @@ turn.navigateNext = async function() {
 		
 		location.assign(turn.actionPages[nextPageIndex].url);
 	} catch (err) {
-		console.error('Fout bij navigateNext:', err);
+		console.error('Fout bij nextPage:', err);
 	}
 }
 
-//--- Navigate previous -------------------------------------------------------------------------//
-turn.navigatePrevious = function() {
+//--- Previous page -----------------------------------------------------------------------------//
+turn.previousPage = function() {
 	let previousPageIndex = turn.page.index - 1;
 	
 	while (previousPageIndex >= turn.firstRelevantPageIndex &&
@@ -264,17 +226,31 @@ turn.finish = async function() {
 		localStorage.setItem('turn.currentPageIndex', turn.lastRelevantPageIndex + 1);
 	}
 	
-	try {
-        const res = await turn.submitActions();
-        
-        if (res.redirect) {
-            location.assign(res.redirect);
-            return;
-        }
+	const characterActions = [];
 
-        location.assign('/game');
+	for (let index = 0; index < turn.actionPages.length; index++) {
+		const action = localStorage.getItem(`turn.page${index}.action`);
+		characterActions.push(JSON.parse(action));
+	}
+	
+	console.log('characterActions:', JSON.stringify(characterActions, null, 2));
+	
+	try {
+        const res = await fetch('/game/turn/finish', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ characterActions })
+		});
+		
+		const json = await res.json();
+		if (json.redirect) {
+			location.assign(json.redirect);
+			return;
+		} else {
+			location.assign('/game');
+		}
     } catch (err) {
-        console.error('Fout bij submitActions:', err);
+        console.error('Fout bij finish:', err);
     }
 }
 

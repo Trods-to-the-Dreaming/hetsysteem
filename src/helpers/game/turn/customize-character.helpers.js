@@ -23,7 +23,7 @@ import {
 } from '#helpers/game/static.helpers.js';
 
 import {
-	isCharacterNameAvailable
+	findCharacterName
 } from '#helpers/game/state.helpers.js';
 
 //=== Main ======================================================================================//
@@ -48,9 +48,9 @@ export const getCustomizeCharacter = async (characterId,
 };
 
 //--- Set customize character -------------------------------------------------------------------//
-export const setCustomizeCharacter = async (characterId,
+export const setCustomizeCharacter = async (action,
+											characterId,
 											worldId,
-											action,
 											trx = knex) => {
 	// Validate character
 	const character = await trx('characters')
@@ -76,39 +76,39 @@ export const setCustomizeCharacter = async (characterId,
 	// Validate job preferences
 	const jobs = await getBuildings(trx);
 	
-	const jobPreferences = [
-		validatedAction.jobPreference1,
-		validatedAction.jobPreference2,
-		validatedAction.jobPreference3
+	const jobPreferenceIds = [
+		validatedAction.data.jobPreference1,
+		validatedAction.data.jobPreference2,
+		validatedAction.data.jobPreference3
 	];
 	
-	if (!jobPreferences.every(id => jobs.has(id))) {
+	if (!jobPreferenceIds.every(id => jobs.has(id))) {
 		throw new BadRequestError(MSG_INVALID_JOB);
 	}
 	
-	if (new Set(jobPreferences).size < jobPreferences.length) {
+	if (new Set(jobPreferenceIds).size < jobPreferenceIds.length) {
 		throw new BadRequestError(MSG_NO_UNIQUE_JOBS);
 	}
 	
 	// Validate recreation preferences
 	const recreations = await getRecreations(trx);
 	
-	const recreationPreference = validatedAction.recreationPreference;
+	const recreationPreferenceId = validatedAction.data.recreationPreference;
 	
-	if (!recreations.has(recreationPreference)) {
+	if (!recreations.has(recreationPreferenceId)) {
 		throw new BadRequestError(MSG_INVALID_RECREATION);
 	}
 	
 	// Validate new character name
-	const available = await isCharacterNameAvailable(
-		characterId,
-		worldId, 
-		validatedAction.data.firstName, 
+	const duplicate = await findCharacterName(
+		validatedAction.data.firstName,
 		validatedAction.data.lastName,
+		characterId,
+		worldId,
 		trx
 	);
 	
-	if (!available) {
+	if (duplicate) {
 		throw new ConflictError(MSG_CHARACTER_NAME_TAKEN,
 								{ type: 'character' });
 	}
@@ -122,11 +122,11 @@ export const setCustomizeCharacter = async (characterId,
 	await trx('action_customize')
 		.insert({
 			character_id: characterId,
-			first_name: validatedAction.firstName,
-			last_name: validatedAction.lastName,
-			job_preference_1_id: validatedAction.jobPreference1,
-			job_preference_2_id: validatedAction.jobPreference2,
-			job_preference_3_id: validatedAction.jobPreference3,
-			recreation_preference_id: validatedAction.recreationPreference
+			first_name: validatedAction.data.firstName,
+			last_name: validatedAction.data.lastName,
+			job_preference_1_id: validatedAction.data.jobPreference1,
+			job_preference_2_id: validatedAction.data.jobPreference2,
+			job_preference_3_id: validatedAction.data.jobPreference3,
+			recreation_preference_id: validatedAction.data.recreationPreference
 		});
 };

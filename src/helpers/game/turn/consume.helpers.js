@@ -11,7 +11,8 @@ export const getConsume = async (characterId,
 };
 
 //--- Set consume -------------------------------------------------------------------------------//
-export const setConsume = async (characterId,
+export const setConsume = async (action,
+								 characterId,
 								 trx = knex) => {
 	
 	return ;

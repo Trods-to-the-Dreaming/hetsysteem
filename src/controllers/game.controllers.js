@@ -32,8 +32,8 @@ import {
 } from '#helpers/game/character.helpers.js';
 
 import {
-	isCharacterNameAvailable,
-	isBuildingNameAvailable,
+	findCharacterName,
+	findBuildingName,
 	getCharacterResources, 
 	getCharacterProducts,
 	getCharacterBuildings,
@@ -337,34 +337,53 @@ export const finishTurn = async (req, res, next) => {
 				worldId } = req.session;
 		
 		await knex.transaction(async (trx) => {
-			await setCustomizeCharacter(characterId, 
-										worldId,
-										characterActions[0], 
-										trx);
-			await setManageBuildings(characterId,
-									 characterActions[1], 
-									 trx);
-			await setManageEmploymentContracts(characterId,
-											   characterActions[2], 
-											   trx);
-			await setManageRentalAgreements(characterId,
-											characterActions[3], 
-											trx);
-			await setProduce(characterId,
-							 characterActions[4], 
-							 trx);
-			await setTrade(characterId,
-						   characterActions[5], 
-						   trx);
-			await setShare(characterId,
-						   characterActions[6], 
-						   trx);
-			await setConsume(characterId,
-							 characterActions[7], 
-							 trx);
-			await setManageGroup(characterId,
-								 characterActions[8], 
-								 trx);
+			await setCustomizeCharacter(
+				characterActions[0], 
+				characterId, 
+				worldId,
+				trx
+			);
+			await setManageBuildings(
+				characterActions[1], 
+				characterId, 
+				worldId,
+				trx
+			);
+			await setManageEmploymentContracts(
+				characterActions[2], 
+				characterId,
+				trx
+			);
+			await setManageRentalAgreements(
+				characterActions[3], 
+				characterId,
+				trx
+			);
+			await setProduce(
+				characterActions[4], 
+				characterId,
+				trx
+			);
+			await setTrade(
+				characterActions[5], 
+				characterId,
+				trx
+			);
+			await setShare(
+				characterActions[6], 
+				characterId,
+				trx
+			);
+			await setConsume(
+				characterActions[7], 
+				characterId,
+				trx
+			);
+			await setManageGroup(
+				characterActions[8], 
+				characterId,
+				trx
+			);
 		});
 
 		res.status(200).json({ success: true });
@@ -383,39 +402,39 @@ export const finishTurn = async (req, res, next) => {
 	}
 };
 
-//--- Check character name -------------------------------------------------------------------//
-export const checkCharacterName = async (req, res, next) => {
+//--- Is character name available? --------------------------------------------------------------//
+export const isCharacterNameAvailable = async (req, res, next) => {
 	try {
 		const { firstName, 
 				lastName } = req.query;
 		const { characterId,
 				worldId } = req.session;
 		
-		const available = await isCharacterNameAvailable(
+		const duplicate = await findCharacterName(
+			firstName,
+			lastName,
 			characterId,
-			worldId, 
-			firstName, 
-			lastName
+			worldId
 		);
 		
-		res.json({ available });
+		res.json({ available: !duplicate });
 	} catch (err) {
 		next(err);
 	}
 };
 
-//--- Check building name -----------------------------------------------------------------------//
-export const checkBuildingName = async (req, res, next) => {
+//--- Is building name available? ---------------------------------------------------------------//
+export const isBuildingNameAvailable = async (req, res, next) => {
 	try {
-		const { name } = req.query;
+		const { buildingName } = req.query;
 		const { worldId } = req.session;
-
-		const available = await isBuildingNameAvailable(
-			worldId, 
-			name
+		
+		const duplicate = await findBuildingName(
+			buildingName,
+			worldId
 		);
 		
-		res.json({ available });
+		res.json({ available: !duplicate });
 	} catch (err) {
 		next(err);
 	}
@@ -426,8 +445,8 @@ export const showCharacterNameConflict = async (req, res, next) => {
 	
 };
 
-//--- Show building name conflict --------------------------------------------------------------//
-export const showBuildingNameConflict = async (req, res, next) => {
+//--- Show building names conflict --------------------------------------------------------------//
+export const showBuildingNamesConflict = async (req, res, next) => {
 	
 };
 

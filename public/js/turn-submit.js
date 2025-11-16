@@ -1,4 +1,4 @@
-export const turn = {};
+import { turn } from '/js/turn.js';
 
 //--- Submit actions ----------------------------------------------------------------------------//
 turn.submitActions = async function() {

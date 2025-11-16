@@ -11,7 +11,8 @@ export const getShare = async (characterId,
 };
 
 //--- Set share ---------------------------------------------------------------------------------//
-export const setShare = async (characterId,
+export const setShare = async (action,
+							   characterId,
 							   trx = knex) => {
 	
 	return ;

@@ -1,12 +1,17 @@
 {{#block "title"}}Handel drijven{{/block}}
 
+<!------------------------------------------------------------------------------------------------>
+
 {{#block "headScripts"}}
 <script type="module">
-	import { turn } from '/js/turn-logic.js';
-	turn.page.index = 5;
-	turn.page.checkAccess();
+import { turn } from '/js/turn-check-access.js';
+
+turn.page.index = 5;
+turn.page.checkAccess();
 </script>
 {{/block}}
+
+<!------------------------------------------------------------------------------------------------>
 
 <div id="container-div" class="container-compact d-none">
 	<h1>Handel drijven</h1>
@@ -144,14 +149,21 @@
 	</div>
 </div-->
 
-<script type="module">
-import { turn } from '/js/turn-logic.js';
+<!------------------------------------------------------------------------------------------------>
 
-//--- Load and save fields ----------------------------------------------------------------------//
-turn.page.loadFields = function() {
+<script type="module">
+import { turn } from '/js/turn-flow.js';
+
+//--- Load action -------------------------------------------------------------------------------//
+turn.page.loadAction = function() {	
 }
 
-turn.page.saveFields = function() {
+//--- Save action -------------------------------------------------------------------------------//
+turn.page.saveAction = function() {
+}
+
+//--- Update UI ---------------------------------------------------------------------------------//
+turn.page.updateUI = function() {
 }
 
 //--- DOM content loaded ------------------------------------------------------------------------//

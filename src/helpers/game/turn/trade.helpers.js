@@ -11,7 +11,8 @@ export const getTrade = async (characterId,
 };
 
 //--- Set trade ---------------------------------------------------------------------------------//
-export const setTrade = async (characterId,
+export const setTrade = async (action,
+							   characterId,
 							   trx = knex) => {
 	
 	return ;

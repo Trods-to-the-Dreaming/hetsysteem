@@ -10,7 +10,8 @@ export const getManageRentalAgreements = async (characterId,
 };
 
 //--- Set manage employment contracts -----------------------------------------------------------//
-export const setManageRentalAgreements = async (characterId,
+export const setManageRentalAgreements = async (action,
+												characterId,
 												trx = knex) => {
 	
 };

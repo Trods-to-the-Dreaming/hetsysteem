@@ -25,10 +25,10 @@ import {
 	showConsume,
 	showManageGroup,
 	finishTurn,
-	checkCharacterName,
-	checkBuildingName,
+	isCharacterNameAvailable,
+	isBuildingNameAvailable,
 	showCharacterNameConflict,
-	showBuildingNameConflict,
+	showBuildingNamesConflict,
 	showStatistics
 } from '#controllers/game.controllers.js';
 
@@ -60,11 +60,11 @@ router.get( '/turn/consume', requireGameAccess, showConsume);
 router.get( '/turn/manage-group', requireGameAccess, showManageGroup);
 router.post('/turn/finish', requireGameAccess, finishTurn);
 
-router.get( '/turn/check-character-name', requireGameAccess, checkCharacterName);
-router.get( '/turn/check-building-name', requireGameAccess, checkBuildingName);
+router.get( '/turn/is-character-name-available', requireGameAccess, isCharacterNameAvailable);
+router.get( '/turn/is-building-name-available', requireGameAccess, isBuildingNameAvailable);
 
 router.get( '/turn/character-name-conflict', requireGameAccess, showCharacterNameConflict);
-router.get( '/turn/building-name-conflict', requireGameAccess, showBuildingNameConflict);
+router.get( '/turn/building-names-conflict', requireGameAccess, showBuildingNamesConflict);
 
 router.get( '/statistics', requireGameAccess, showStatistics);
 

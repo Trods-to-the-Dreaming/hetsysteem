@@ -49,7 +49,8 @@ export const getManageEmploymentContracts = async (characterId,
 };
 
 //--- Set manage employment contracts -----------------------------------------------------------//
-export const setManageEmploymentContracts = async (characterId,
+export const setManageEmploymentContracts = async (action,
+												   characterId,
 												   trx = knex) => {
 	
 };

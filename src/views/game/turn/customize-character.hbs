@@ -1,61 +1,77 @@
 {{#block "title"}}Personage aanpassen{{/block}}
 
+<!------------------------------------------------------------------------------------------------>
+
 {{#block "headScripts"}}
 <script type="module">
-	import { turn } from '/js/turn-logic.js';
-	turn.page.index = 0;
-	turn.page.checkAccess();
+import { turn } from '/js/turn-check-access.js';
+
+turn.page.index = 0;
+turn.page.checkAccess();
 </script>
 {{/block}}
+
+<!------------------------------------------------------------------------------------------------>
 
 <div id="container-div" class="container-compact d-none">
 	<h1>Personage aanpassen</h1>
 
 	<div class="field">
-		<label for="first-name-input" class="form-label">Voornaam:</label>
+		<label for="first-name-input" class="form-label">
+			Voornaam:
+		</label>
 		<input id="first-name-input" class="form-control" type="text" required>
 	</div>
 	
 	<div class="field">
-		<label for="last-name-input" class="form-label">Achternaam:</label>
+		<label for="last-name-input" class="form-label">
+			Achternaam:
+		</label>
 		<input id="last-name-input" class="form-control" type="text" required>
 	</div>
 	
-	<input id="name-input" class="d-none" value="dummytext" required>
-	<p id="name-error" class="error"></p>
+	<p id="character-name-error" class="error"></p>
 	
 	<div class="field">
-		<label for="job-preference-1-select" class="form-label">Jobvoorkeur (★★★):</label>
+		<label for="job-preference-1-select" class="form-label">
+			Jobvoorkeur (★★★):
+		</label>
 		<select id="job-preference-1-select" class="form-select" required></select>
 	</div>
 	
 	<div class="field">
-		<label for="job-preference-2-select" class="form-label">Jobvoorkeur (★★):</label>
+		<label for="job-preference-2-select" class="form-label">
+			Jobvoorkeur (★★):
+		</label>
 		<select id="job-preference-2-select" class="form-select" required></select>
 	</div>
 	
 	<div class="field">
-		<label for="job-preference-3-select" class="form-label">Jobvoorkeur (★):</label>
+		<label for="job-preference-3-select" class="form-label">
+			Jobvoorkeur (★):
+		</label>
 		<select id="job-preference-3-select" class="form-select" required></select>
 	</div>
 	
 	<div class="field">
-		<label for="recreation-preference-select" class="form-label">Ontspanningsvoorkeur (★★★):</label>
+		<label for="recreation-preference-select" class="form-label">
+			Ontspanningsvoorkeur (★★★):
+		</label>
 		<select id="recreation-preference-select" class="form-select" required></select>
 	</div>
 	
 	<hr>
 </div>
 
-<script type="module">
-import { validateName } from '/js/character-name-validation.js';
-import { turn } from '/js/turn-logic.js';
+<!------------------------------------------------------------------------------------------------>
 
-//--- Initialize elements -----------------------------------------------------------------------//
-turn.page.initializeElements = function() {
-	const buildings = JSON.parse(localStorage.getItem(`turn.buildings`));
-	const recreations = JSON.parse(localStorage.getItem(`turn.recreations`));
-	
+<script type="module">
+import { turn } from '/js/turn-flow.js';
+
+//--- Load action -------------------------------------------------------------------------------//
+turn.page.loadAction = function() {	
+	// Get action
+	turn.page.action = JSON.parse(localStorage.getItem(`turn.page${turn.page.index}.action`));
 	if (!turn.page.action) {
 		turn.page.action = {
 			firstName: '',
@@ -68,6 +84,11 @@ turn.page.initializeElements = function() {
 	}
 	const action = turn.page.action;
 	
+	// Get game state
+	const buildings = JSON.parse(localStorage.getItem(`turn.buildings`));
+	const recreations = JSON.parse(localStorage.getItem(`turn.recreations`));
+	
+	// Get elements
 	turn.page.elements = {
 		firstName: document.getElementById('first-name-input'),
 		lastName: document.getElementById('last-name-input'),
@@ -75,10 +96,19 @@ turn.page.initializeElements = function() {
 		jobPreference2: document.getElementById('job-preference-2-select'),
 		jobPreference3: document.getElementById('job-preference-3-select'),
 		recreationPreference: document.getElementById('recreation-preference-select'),
-		nameError: document.getElementById('name-error')
+		characterNameError: document.getElementById('character-name-error')
 	};
 	const elements = turn.page.elements;
 	
+	// Add event listeners
+	elements.firstName.addEventListener('input', handleFirstNameInput);
+	elements.lastName.addEventListener('input', handleLastNameInput);
+	elements.jobPreference1.addEventListener('change', turn.page.updateUI);
+	elements.jobPreference2.addEventListener('change', turn.page.updateUI);
+	elements.jobPreference3.addEventListener('change', turn.page.updateUI);
+	elements.recreationPreference.addEventListener('change', turn.page.updateUI);
+	
+	// Write to elements
 	turn.page.populateSelect(elements.jobPreference1, buildings, 'job');
 	turn.page.populateSelect(elements.jobPreference2, buildings, 'job');
 	turn.page.populateSelect(elements.jobPreference3, buildings, 'job');
@@ -90,24 +120,13 @@ turn.page.initializeElements = function() {
 	elements.jobPreference2.value = action.jobPreference2;	
 	elements.jobPreference3.value = action.jobPreference3;
 	elements.recreationPreference.value = action.recreationPreference;
-	
-	elements.firstName.addEventListener('input', handleFirstNameInput);
-	elements.lastName.addEventListener('input', handleLastNameInput);
-	elements.jobPreference1.addEventListener('change', handleJobPreferenceChange);
-	elements.jobPreference2.addEventListener('change', handleJobPreferenceChange);
-	elements.jobPreference3.addEventListener('change', handleJobPreferenceChange);
-	elements.recreationPreference.addEventListener('change', handleRecreationPreferenceChange);
-	
-	handleFirstNameInput();
-	handleLastNameInput();
-	handleJobPreferenceChange();
-	handleRecreationPreferenceChange();
 };
 
-//--- Read elements -----------------------------------------------------------------------------//
-turn.page.readElements = function() {
-	const action = turn.page.action;
+//--- Save action -------------------------------------------------------------------------------//
+turn.page.saveAction = function() {
+	// Write to action
 	const elements = turn.page.elements;
+	const action = turn.page.action;
 	
 	action.firstName = elements.firstName.value;
 	action.lastName = elements.lastName.value;
@@ -115,47 +134,52 @@ turn.page.readElements = function() {
 	action.jobPreference2 = elements.jobPreference2.value;	
 	action.jobPreference3 = elements.jobPreference3.value;
 	action.recreationPreference = elements.recreationPreference.value;
+	
+	// Save to local storage
+	localStorage.setItem(`turn.page${turn.page.index}.action`, JSON.stringify(action));
 };
 
-//--- Server check ------------------------------------------------------------------------------//
-turn.page.beforeNext = async function() {
-	turn.page.elements.nameError.textContent = '';
-	const firstName = turn.page.elements.firstName.value;
-	const lastName = turn.page.elements.lastName.value;
+//--- Prevent next ------------------------------------------------------------------------------//
+turn.page.preventNext = async function() {
+	const elements = turn.page.elements;
+	
+	const firstName = elements.firstName.value;
+	const lastName = elements.lastName.value;
 
 	try {
 		const params = new URLSearchParams({
 			firstName,
 			lastName,
 		});
-		const res = await fetch(`/game/turn/check-character-name?${params}`);
+		const res = await fetch(`/game/turn/is-character-name-available?${params}`);
 		const { available } = await res.json();
 
 		if (!available) {
-			nameError.textContent = 'Deze naam is al in gebruik.';
-			return false;
+			elements.characterNameError.textContent = 'Deze naam is al in gebruik.';
+			return true;
 		}
 		
-		return true;
-	} catch (err) {
-		consolelements.error(err);
 		return false;
+	} catch (err) {
+		console.error(err);
+		return true;
 	}
 };
 
-//--- Event handlers ----------------------------------------------------------------------------//
-function handleFirstNameInput() {
-	handleNameInput(turn.page.elements.firstName);
-}
-
-function handleLastNameInput() {
-	handleNameInput(turn.page.elements.lastName);
-}
-
-function handleJobPreferenceChange() {
-	const selects = [turn.page.elements.jobPreference1, 
-					 turn.page.elements.jobPreference2, 
-					 turn.page.elements.jobPreference3];
+//--- Update UI ---------------------------------------------------------------------------------//
+turn.page.updateUI = function() {
+	const elements = turn.page.elements;
+	const inputs = [elements.firstName,
+					elements.lastName,
+					elements.jobPreference1,
+					elements.jobPreference2,
+					elements.jobPreference3,
+					elements.recreationPreference];
+	
+	// Disable the selected job preference in the other selects
+	const selects = [elements.jobPreference1, 
+					 elements.jobPreference2, 
+					 elements.jobPreference3];
 	const selectedValues = selects.map(select => select.value);
 	
 	selects.forEach((select, index) => {
@@ -166,20 +190,46 @@ function handleJobPreferenceChange() {
 		});
 	});
 	
-	turn.page.validate();
+	// Enable/disable input elements
+	inputs.forEach(input => {
+		input.disabled = turn.page.disabled;
+	});
+	
+	// Enable/disable next button
+	const isPageValid = inputs.every(input => input.checkValidity());
+	turn.page.setNextDisabled(!isPageValid);
 }
 
-function handleRecreationPreferenceChange() {
-	turn.page.validate();
+//--- Event handlers ----------------------------------------------------------------------------//
+function handleFirstNameInput() {
+	handleNameInput(turn.page.elements.firstName);
+}
+
+function handleLastNameInput() {
+	handleNameInput(turn.page.elements.lastName);
 }
 
 //--- Helpers -----------------------------------------------------------------------------------//
 function handleNameInput(nameInput) {
-	turn.page.elements.nameError.textContent = '';
+	turn.page.elements.characterNameError.textContent = '';
 	
-	validateName(nameInput);
+	const name = nameInput.value;
+	const minLength = 2;
+	const maxLength = 32;
+	const regex = /^[A-Za-zÀ-ÖØ-öø-ÿĀ-ž]+(?:[ '-][A-Za-zÀ-ÖØ-öø-ÿĀ-ž]+)*$/;
+
+	if (name.length < minLength) {
+		nameInput.setCustomValidity(`Minimaal ${minLength} tekens vereist.`);
+	} else if (name.length > maxLength) {
+		nameInput.setCustomValidity(`Maximaal ${maxLength} tekens toegestaan.`);
+	} else if (!regex.test(name)) {
+		nameInput.setCustomValidity('Dit is geen geldige naam.');
+	} else {
+		nameInput.setCustomValidity('');
+	}	
 	nameInput.reportValidity();
-	turn.page.validate();
+	
+	turn.page.updateUI();
 }
 
 //--- DOM content loaded ------------------------------------------------------------------------//

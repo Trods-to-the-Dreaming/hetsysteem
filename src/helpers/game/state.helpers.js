@@ -10,32 +10,59 @@ import {
 
 //=== Main ======================================================================================//
 
-//--- Is character name available? --------------------------------------------------------------//
-export const isCharacterNameAvailable = async (selfId,
-											   worldId, 
-											   firstName, 
-											   lastName,
-											   trx = knex) => {
-	const duplicate = await trx('characters')
+//--- Find character name -----------------------------------------------------------------------//
+export const findCharacterName = async (firstName, 
+										lastName,
+										selfId,
+										worldId,
+										trx = knex) => {
+	const lowerCaseFirstName = firstName.toLowerCase();
+	const lowerCaseLastName = lastName.toLowerCase();
+	
+	const existingCharacter  = await trx('characters')
 		.select(1)
 		.where('id', '!=', selfId)
 		.andWhere('world_id', worldId)
-		.andWhereRaw('LOWER(first_name) = ?', firstName.toLowerCase())
-		.andWhereRaw('LOWER(last_name) = ?', lastName.toLowerCase())
+		.andWhereRaw('LOWER(first_name) = ?', lowerCaseFirstName)
+		.andWhereRaw('LOWER(last_name) = ?', lowerCaseLastName)
 		.first();
-	return !duplicate;
+	
+	if (existingCharacter) return existingCharacter;
+	
+	const reserved = await trx('action_customize as ac')
+		.join('characters as c', 'ac.character_id', 'c.id')
+		.select(1)
+		.where('c.id', '!=', selfId)
+		.andWhere('c.world_id', worldId)
+		.andWhereRaw('LOWER(ac.first_name) = ?', lowerCaseFirstName)
+		.andWhereRaw('LOWER(ac.last_name) = ?', lowerCaseLastName)
+		.first();
+
+	return reserved;
 };
 
-//--- Is building name available? --------------------------------------------------------------//
-export const isBuildingNameAvailable = async (worldId, 
-											  name,
-											  trx = knex) => {
-	const duplicate = await trx('character_buildings')
+//--- Find building name ------------------------------------------------------------------------//
+export const findBuildingName = async (buildingName,
+									   worldId,
+									   trx = knex) => {
+	const lowerCaseName = buildingName.toLowerCase();
+	
+	const existingBuilding = await trx('character_buildings')
 		.select(1)
 		.where('world_id', worldId)
-		.andWhereRaw('LOWER(name) = ?', name.toLowerCase())
+		.andWhereRaw('LOWER(name) = ?', lowerCaseName)
 		.first();
-	return !duplicate;
+	
+	if (existingBuilding) return existingBuilding;
+	
+	const reserved = await trx('action_construct as ac')
+		.join('characters as c', 'ac.owner_id', 'c.id')
+		.select(1)
+		.where('c.world_id', worldId)
+		.andWhereRaw('LOWER(ac.name) = ?', lowerCaseName)
+		.first();
+
+	return reserved;
 };
 
 //--- Get character resources -------------------------------------------------------------------//

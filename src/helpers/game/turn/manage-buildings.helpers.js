@@ -9,11 +9,18 @@ import {
 } from '#validation/actions.validation.js';
 
 import { 
-	MSG_NOT_OWNED_BUILDING
+	MSG_NOT_OWNED_BUILDING,
+	MSG_INVALID_BUILDING,
+	MSG_NO_UNIQUE_BUILDING_NAMES,
+	MSG_BUILDING_NAME_TAKEN
 } from '#constants/game.messages.js';
 
+import { 
+	getBuildings
+} from '#helpers/game/static.helpers.js';
+
 import {
-	isBuildingNameAvailable,
+	findBuildingName,
 	getCharacterBuildings
 } from '#helpers/game/state.helpers.js';
 
@@ -44,8 +51,9 @@ export const getManageBuildings = async (characterId,
 };
 
 //--- Set manage buildings ----------------------------------------------------------------------//
-export const setManageBuildings = async (characterId,
-										 action,
+export const setManageBuildings = async (action,
+										 characterId, 
+										 worldId,
 										 trx = knex) => {
 	// Validate action
 	const validatedAction = manageBuildingsSchema.safeParse(action);
@@ -60,21 +68,21 @@ export const setManageBuildings = async (characterId,
 		.where('owner_id', characterId)
 		
 	const ownedBuildingIds = new Set(ownedBuildings.map(b => b.id));
-	const demolishedBuildingIds = validatedAction.demolish;
+	const demolishedBuildingIds = validatedAction.data.demolish;
 	
 	if (!demolishedBuildingIds.every(id => ownedBuildingIds.has(id))) {
 		throw new BadRequestError(MSG_NOT_OWNED_BUILDING);
 	}
 	
 	// Validate constructed buildings
-	const allBuildings = await getAllBuildings(trx);
-	const constructedBuildingIds = validatedAction.construct.map(b => b.building_id);
+	const buildings = await getBuildings(trx);
+	const constructedBuildingIds = validatedAction.data.construct.map(b => b.buildingId);
 	
-	if (!constructedBuildingIds.every(id => allBuildings.has(id))) {
+	if (!constructedBuildingIds.every(id => buildings.has(id))) {
 		throw new BadRequestError(MSG_INVALID_BUILDING);
 	}
 	
-	const constructedBuildingNames = validatedAction.construct.map(b => b.name);
+	const constructedBuildingNames = validatedAction.data.construct.map(b => b.name);
 	
 	if (new Set(constructedBuildingNames).size < constructedBuildingNames.length) {
 		throw new BadRequestError(MSG_NO_UNIQUE_BUILDING_NAMES);
@@ -82,13 +90,13 @@ export const setManageBuildings = async (characterId,
 	
 	// Validate new building names
 	for (const buildingName of constructedBuildingNames) {
-		const available = await isBuildingNameAvailable(
-			worldId, 
+		const duplicate = await findBuildingName(
 			buildingName, 
+			worldId, 
 			trx
 		);
 		
-		if (!available) {
+		if (duplicate) {
 			throw new ConflictError(MSG_BUILDING_NAME_TAKEN,
 									{ type: 'building' });
 		}
@@ -107,19 +115,19 @@ export const setManageBuildings = async (characterId,
 		.del();
 	
 	// Insert new action
-	if (validatedAction.demolish.length > 0) {
+	if (validatedAction.data.demolish.length > 0) {
 		await trx('action_demolish').insert(
-			validatedAction.demolish.map(id => ({ building_id: id }))
+			validatedAction.data.demolish.map(id => ({ building_id: id }))
 		);
 	}
 	
-	if (validatedAction.construct.length > 0) {
+	if (validatedAction.data.construct.length > 0) {
 		await trx('action_construct').insert(
-			validatedAction.construct.map(b => ({ 
+			validatedAction.data.construct.map(b => ({ 
 				owner_id: characterId,
 				building_id: b.buildingId,
 				name: b.name,
-				size: b.size
+				size_factor: b.sizeFactor
 			}))
 		);
 	}

@@ -11,7 +11,8 @@ export const getManageGroup = async (characterId,
 };
 
 //--- Set manage group --------------------------------------------------------------------------//
-export const setManageGroup = async (characterId,
+export const setManageGroup = async (action,
+									 characterId,
 									 trx = knex) => {
 	
 };
