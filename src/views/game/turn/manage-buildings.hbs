@@ -160,7 +160,7 @@ turn.page.loadAction = function() {
 	
 	const ownedBuildings = characterState.ownedBuildings.map(ob => {
 		const building = buildings.find(b => b.id === ob.buildingId);
-		const isDemolished = action.demolish.includes(ob.buildingId);
+		const isDemolished = action.demolish.some(d => d.buildingId === ob.id);
 		const size = building.baseSize * ob.sizeFactor;
 		const unit = size === 1 ? 'tegel' : 'tegels';
 		
@@ -173,6 +173,9 @@ turn.page.loadAction = function() {
 			label: `${ob.name} <small>(${building.type} ${size} ${unit})</small>`
 		};
 	});
+	
+	console.log(turn.page.action);
+	console.table(ownedBuildings);
 	
 	const plannedBuildings = action.construct.map(c => {
 		const building = buildings.find(b => b.id === c.buildingId);

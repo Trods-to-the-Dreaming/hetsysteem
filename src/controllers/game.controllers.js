@@ -349,7 +349,7 @@ export const finishTurn = async (req, res, next) => {
 				worldId,
 				trx
 			);
-			await setManageEmploymentContracts(
+			/*await setManageEmploymentContracts(
 				characterActions[2], 
 				characterId,
 				trx
@@ -383,7 +383,7 @@ export const finishTurn = async (req, res, next) => {
 				characterActions[8], 
 				characterId,
 				trx
-			);
+			);*/
 		});
 
 		res.status(200).json({ success: true });

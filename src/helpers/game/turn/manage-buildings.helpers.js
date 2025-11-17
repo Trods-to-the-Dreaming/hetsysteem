@@ -1,7 +1,8 @@
 //=== Imports ===================================================================================//
 import knex from '#utils/db.js';
 import { 
-	BadRequestError
+	BadRequestError,
+	ConflictError
 } from '#utils/errors.js';
 
 import { 
@@ -31,7 +32,7 @@ export const getManageBuildings = async (characterId,
 										 trx = knex) => {
 	const demolish = await trx('action_demolish as ad')
 		.select(
-			'ad.id as id',
+			//'ad.id as id',
 			'cb.id as buildingId'
 		)
 		.innerJoin('character_buildings as cb', 'cb.id', 'ad.building_id')
@@ -39,12 +40,15 @@ export const getManageBuildings = async (characterId,
 	
 	const construct = await trx('action_construct')
 		.select(
-			'id',
+			//'id',
 			'name',
 			'building_id as buildingId',
 			'size_factor as sizeFactor'
 		)
 		.where('owner_id', characterId)
+	
+	console.table(demolish);
+	console.table(construct);
 	
 	return { demolish,
 			 construct };
@@ -55,6 +59,18 @@ export const setManageBuildings = async (action,
 										 characterId, 
 										 worldId,
 										 trx = knex) => {
+	// Delete existing action
+	await trx('action_demolish')
+		.whereIn(
+			'building_id',
+			trx('character_buildings').select('id').where('owner_id', characterId)
+		)
+		.del();
+	
+	await trx('action_construct')
+		.where('owner_id', characterId)
+		.del();
+	
 	// Validate action
 	const validatedAction = manageBuildingsSchema.safeParse(action);
 	
@@ -101,18 +117,6 @@ export const setManageBuildings = async (action,
 									{ type: 'building' });
 		}
 	}
-	
-	// Delete existing action
-	await trx('action_demolish')
-		.whereIn(
-			'building_id',
-			trx('character_buildings').select('id').where('owner_id', characterId)
-		)
-		.del();
-	
-	await trx('action_construct')
-		.where('owner_id', characterId)
-		.del();
 	
 	// Insert new action
 	if (validatedAction.data.demolish.length > 0) {

@@ -66,7 +66,12 @@ export const setCustomizeCharacter = async (action,
 		return;
 	}
 	
-	// Validate action
+	// Delete existing action
+	await trx('action_customize')
+		.where('character_id', characterId)
+		.del();
+	
+	// Validate new action
 	const validatedAction = customizeCharacterSchema.safeParse(action);
 	
 	if (!validatedAction.success) {
@@ -112,11 +117,6 @@ export const setCustomizeCharacter = async (action,
 		throw new ConflictError(MSG_CHARACTER_NAME_TAKEN,
 								{ type: 'character' });
 	}
-	
-	// Delete existing action
-	await trx('action_customize')
-		.where('character_id', characterId)
-		.del();
   
 	// Insert new action
 	await trx('action_customize')
