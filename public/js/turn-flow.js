@@ -85,10 +85,11 @@ show() {
 		controls.finishButton.classList.add('d-none');
 	}
 	
-	if (isCurrentPage) {
+	if (isCurrentPage &&
+		!turn.areActionsSubmitted) {
 		controls.editButton.classList.add('d-none');
 		this.disabled = false;
-	}
+	}	
 	
 	this.updateUI();
 	controls.containerDiv.classList.remove('d-none');	
@@ -149,7 +150,8 @@ confirmEdit() {
 	for (let i = this.index + 1; i <= turn.lastRelevantPageIndex; i++) {
 		localStorage.removeItem(`turn.page${i}.action`);
 	}
-	localStorage.setItem('turn.currentPageIndex', this.index);
+	localStorage.setItem('turn.currentPageIndex', JSON.stringify(this.index));
+	localStorage.setItem('turn.areActionsSubmitted', JSON.stringify(false));
 	
 	turn.currentPageIndex = this.index;
 },
@@ -194,7 +196,7 @@ turn.nextPage = async function() {
 		
 		if (turn.page.index === turn.currentPageIndex) {
 			turn.page.saveAction();
-			localStorage.setItem('turn.currentPageIndex', nextPageIndex);
+			localStorage.setItem('turn.currentPageIndex', JSON.stringify(nextPageIndex));
 		}
 		
 		location.assign(turn.actionPages[nextPageIndex].url);
@@ -223,17 +225,17 @@ turn.previousPage = function() {
 turn.finish = async function() {
 	if (turn.page.index === turn.currentPageIndex) {
 		turn.page.saveAction();
-		localStorage.setItem('turn.currentPageIndex', turn.lastRelevantPageIndex + 1);
+		localStorage.setItem('turn.currentPageIndex', JSON.stringify(turn.lastRelevantPageIndex + 1));
 	}
 	
 	const characterActions = [];
 
 	for (let index = 0; index < turn.actionPages.length; index++) {
-		const action = localStorage.getItem(`turn.page${index}.action`);
-		characterActions.push(JSON.parse(action));
+		const action = JSON.parse(localStorage.getItem(`turn.page${index}.action`));
+		characterActions.push(action);
 	}
 	
-	console.log('characterActions:', JSON.stringify(characterActions, null, 2));
+	//console.log('characterActions:', JSON.stringify(characterActions, null, 2));
 	
 	try {
         const res = await fetch('/game/turn/finish', {

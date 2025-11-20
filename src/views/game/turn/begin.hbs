@@ -25,13 +25,15 @@
 	const firstRelevantPageIndex = {{firstRelevantPageIndex}};
 	const lastRelevantPageIndex = {{lastRelevantPageIndex}};
 	const currentPageIndex = {{currentPageIndex}};
+	const areActionsSubmitted = {{areActionsSubmitted}};
 
 	localStorage.setItem('turn.actionPages', JSON.stringify(actionPages));
-	localStorage.setItem('turn.firstRelevantPageIndex', firstRelevantPageIndex);
-	localStorage.setItem('turn.lastRelevantPageIndex', lastRelevantPageIndex);
-	localStorage.setItem('turn.currentPageIndex', currentPageIndex);
+	localStorage.setItem('turn.firstRelevantPageIndex', JSON.stringify(firstRelevantPageIndex));
+	localStorage.setItem('turn.lastRelevantPageIndex', JSON.stringify(lastRelevantPageIndex));
+	localStorage.setItem('turn.currentPageIndex', JSON.stringify(currentPageIndex));
+	localStorage.setItem('turn.areActionsSubmitted', JSON.stringify(areActionsSubmitted));
 	
-	localStorage.setItem('turn.begin', true);
+	localStorage.setItem('turn.begin', JSON.stringify(true));
 	
 	location.replace(actionPages[currentPageIndex].url);
 </script>

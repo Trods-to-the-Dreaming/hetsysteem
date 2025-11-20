@@ -40,7 +40,8 @@ import {
 	getEmployeeContracts,
 	getEmployerContracts,
 	getTenantAgreements,
-	getLandlordAgreements
+	getLandlordAgreements,
+	markActionsSubmitted
 } from '#helpers/game/state.helpers.js';
 
 import {
@@ -216,7 +217,7 @@ export const beginTurn = async (req, res, next) => {
 		]);
 		
 		const actionPages = [
-			{ url: '/game/turn/customize-character', isRelevant: !characterState.isCustomized },
+			{ url: '/game/turn/customize-character', isRelevant: !characterState.isCustomized }, // put in a different place?
 			{ url: '/game/turn/manage-buildings', isRelevant: true },
 			{ url: '/game/turn/manage-employment-contracts', isRelevant: true },
 			{ url: '/game/turn/manage-rental-agreements', isRelevant: true },
@@ -241,7 +242,8 @@ export const beginTurn = async (req, res, next) => {
 			actionPages,
 			firstRelevantPageIndex,
 			lastRelevantPageIndex,
-			currentPageIndex
+			currentPageIndex,
+			areActionsSubmitted: characterState.areActionsSubmitted // put in a different place?
 		});
 	} catch (err) {
 		next(err);
@@ -384,6 +386,10 @@ export const finishTurn = async (req, res, next) => {
 				characterId,
 				trx
 			);*/
+			await markActionsSubmitted( 
+				characterId,
+				trx
+			);
 		});
 
 		res.status(200).json({ success: true });

@@ -235,7 +235,7 @@ turn.page.updateUI = function() {
 	renderConstructList();
 	renderFreeTiles();
 	
-	const elements = turn.page.elements;
+	/*const elements = turn.page.elements;
 	
 	// Enable/disable all elements
 	elements.openDemolishWindow.disabled = turn.page.disabled;
@@ -247,7 +247,7 @@ turn.page.updateUI = function() {
 	elements.construct.querySelectorAll('li').forEach(li => {
 		const button = li.querySelector('button.btn-close');
 		button.disabled = turn.page.disabled;
-	});
+	});*/
 	
 	// Enable next button (always)
 	turn.page.setNextDisabled(false);
@@ -370,7 +370,6 @@ function handleConfirmDemolish() {
 	turn.page.updateUI();
 	
 	// Close offcanvas
-	const demolishOffcanvas = new bootstrap.Offcanvas(elements.demolishWindow);
 	turn.page.demolishOffcanvas.hide();
 }
 
@@ -434,6 +433,7 @@ function renderDemolishList() {
 				const button = document.createElement('button');
 				button.type = 'button';
 				button.classList.add('btn-close');
+				button.disabled = turn.page.disabled;
 				button.addEventListener('click', () => {
 					ob.isDemolished = false;
 					data.freeTiles -= ob.size;
@@ -474,7 +474,7 @@ function renderDemolishList() {
 	
 	// Enable/disable demolish window
 	const areAllBuildingDemolished = data.ownedBuildings.every(ob => ob.isDemolished);
-	elements.openDemolishWindow.disabled = areAllBuildingDemolished;
+	elements.openDemolishWindow.disabled = areAllBuildingDemolished || turn.page.disabled;
 }
 
 function renderConstructList() {
@@ -500,6 +500,7 @@ function renderConstructList() {
 		const button = document.createElement('button');
 		button.type = 'button';
 		button.classList.add('btn-close');
+		button.disabled = turn.page.disabled;
 		button.addEventListener('click', () => {
 			data.plannedBuildings.splice(index, 1);
 			data.freeTiles += pb.size;
@@ -541,7 +542,7 @@ function renderConstructList() {
 	
 	// Enable/disable construct window
 	const areAllTilesOccupied = (data.freeTiles === 0);
-	elements.openConstructWindow.disabled = areAllTilesOccupied;
+	elements.openConstructWindow.disabled = areAllTilesOccupied || turn.page.disabled;
 }
 
 function renderFreeTiles() {

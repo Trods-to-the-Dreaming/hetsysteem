@@ -47,9 +47,6 @@ export const getManageBuildings = async (characterId,
 		)
 		.where('owner_id', characterId)
 	
-	console.table(demolish);
-	console.table(construct);
-	
 	return { demolish,
 			 construct };
 };

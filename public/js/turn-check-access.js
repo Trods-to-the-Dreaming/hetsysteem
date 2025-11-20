@@ -5,7 +5,7 @@ turn.page = { ...turn.page,
 	
 //--- Check access ------------------------------------------------------------------------------//
 checkAccess() {
-	turn.begin = localStorage.getItem('turn.begin');
+	turn.begin = JSON.parse(localStorage.getItem('turn.begin'));
 	
 	// Check if the turn has begun
 	if (turn.begin === null) {
@@ -14,7 +14,7 @@ checkAccess() {
 	}
 	
 	turn.actionPages = JSON.parse(localStorage.getItem('turn.actionPages'));
-	turn.currentPageIndex = Number(localStorage.getItem('turn.currentPageIndex'));
+	turn.currentPageIndex = JSON.parse(localStorage.getItem('turn.currentPageIndex'));
 	
 	// Check if this page is allowed
 	if (!turn.actionPages[turn.page.index].isRelevant ||
@@ -23,8 +23,9 @@ checkAccess() {
 		return;
 	}
 	
-	turn.firstRelevantPageIndex = Number(localStorage.getItem('turn.firstRelevantPageIndex'));
-	turn.lastRelevantPageIndex = Number(localStorage.getItem('turn.lastRelevantPageIndex'));
+	turn.firstRelevantPageIndex = JSON.parse(localStorage.getItem('turn.firstRelevantPageIndex'));
+	turn.lastRelevantPageIndex = JSON.parse(localStorage.getItem('turn.lastRelevantPageIndex'));
+	turn.areActionsSubmitted = JSON.parse(localStorage.getItem('turn.areActionsSubmitted'));
 }
 
 //=== Page (end) ================================================================================//

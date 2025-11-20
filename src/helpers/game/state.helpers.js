@@ -70,7 +70,8 @@ export const getCharacterResources = async (characterId,
 										trx = knex) => {
 	const resources = await knex('characters')
 		.select(
-			'is_customized as isCustomized',
+			'are_actions_submitted as areActionsSubmitted', // put in a different function?
+			'is_customized as isCustomized', // put in a different function?
 			'owned_tiles as ownedTiles',
 			'hours_available as hoursAvailable'
 		)
@@ -186,4 +187,14 @@ export const getLandlordAgreements = async (characterId,
 		.where('cb.owner_id', characterId);
 	
 	return agreements;
+};
+
+
+
+//--- Mark actions submitted --------------------------------------------------------------------// 
+export const markActionsSubmitted = async (characterId, 
+										   trx = knex) => {
+	await trx('characters')
+		.where('id', characterId)
+		.update({ are_actions_submitted: true });
 };
