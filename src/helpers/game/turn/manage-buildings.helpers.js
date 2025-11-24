@@ -1,4 +1,5 @@
 //=== Imports ===================================================================================//
+
 import knex from '#utils/db.js';
 import { 
 	BadRequestError,
@@ -22,12 +23,11 @@ import {
 
 import {
 	findBuildingName,
-	getCharacterBuildings
+	getOwnedBuildings
 } from '#helpers/game/state.helpers.js';
 
 //=== Main ======================================================================================//
 
-//--- Get manage buildings ----------------------------------------------------------------------//
 export const getManageBuildings = async (characterId,
 										 trx = knex) => {
 	const demolish = await trx('action_demolish as ad')
@@ -50,8 +50,7 @@ export const getManageBuildings = async (characterId,
 	return { demolish,
 			 construct };
 };
-
-//--- Set manage buildings ----------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const setManageBuildings = async (action,
 										 characterId, 
 										 worldId,

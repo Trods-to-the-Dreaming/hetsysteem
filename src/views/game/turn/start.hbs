@@ -1,39 +1,37 @@
 {{#block "title"}}Begin beurt{{/block}}
 
+<!------------------------------------------------------------------------------------------------>
+
 <script>	
 	const products = {{{json products}}};
 	const recreations = {{{json recreations}}};
 	const buildings = {{{json buildings}}};
 	const sizeFactors = {{{json sizeFactors}}};
+	const characterState = {{{json characterState}}};
+	const characterActions = {{{json characterActions}}};
+	const actionPages = {{{json actionPages}}};
 	
 	localStorage.setItem('turn.products', JSON.stringify(products));
 	localStorage.setItem('turn.recreations', JSON.stringify(recreations));
 	localStorage.setItem('turn.buildings', JSON.stringify(buildings));
 	localStorage.setItem('turn.sizeFactors', JSON.stringify(sizeFactors));
-	
-	const characterState = {{{json characterState}}};
-	
 	localStorage.setItem('turn.characterState', JSON.stringify(characterState));
-	
-	const characterActions = {{{json characterActions}}};
-	
 	characterActions.forEach((action, index) => {
 		localStorage.setItem(`turn.page${index}.action`, JSON.stringify(action));
 	});
-	
-	const actionPages = {{{json actionPages}}};
-	const firstRelevantPageIndex = {{firstRelevantPageIndex}};
-	const lastRelevantPageIndex = {{lastRelevantPageIndex}};
-	const currentPageIndex = {{currentPageIndex}};
-	const areActionsSubmitted = {{areActionsSubmitted}};
-
 	localStorage.setItem('turn.actionPages', JSON.stringify(actionPages));
+	
+	const finished = {{{json finished}}};
+	
+	const firstRelevantPageIndex = actionPages.findIndex(page => page.isRelevant === true);
+	const lastRelevantPageIndex = actionPages.findLastIndex(page => page.isRelevant === true);
+	const currentPageIndex = finished ? actionPages.length : firstRelevantPageIndex;
+	
 	localStorage.setItem('turn.firstRelevantPageIndex', JSON.stringify(firstRelevantPageIndex));
 	localStorage.setItem('turn.lastRelevantPageIndex', JSON.stringify(lastRelevantPageIndex));
 	localStorage.setItem('turn.currentPageIndex', JSON.stringify(currentPageIndex));
-	localStorage.setItem('turn.areActionsSubmitted', JSON.stringify(areActionsSubmitted));
 	
-	localStorage.setItem('turn.begin', JSON.stringify(true));
+	localStorage.setItem('turn.started', JSON.stringify(true));
 	
-	location.replace(actionPages[currentPageIndex].url);
+	location.replace(actionPages[firstRelevantPageIndex].url);
 </script>

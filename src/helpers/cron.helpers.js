@@ -1,20 +1,18 @@
 //=== Imports ===================================================================================//
+
 import db from '#utils/db.js';
 
-//=== Constants =================================================================================//
-//const MSG_INVALID_CATEGORY = 'De gevraagde ordercategorie bestaat niet.';
+import { 
+	getWorlds
+} from '#helpers/game/static.helpers.js';
 
 //=== Main ======================================================================================//
 
-//--- Process character customization -----------------------------------------------------------//
-export const processCharacterCustomization = async (trx = knex) => {
+export const processCustomizeCharacter = async (trx = knex) => {
 	const customizations = await trx('action_customize')
 		.select('*');
 
-    if (customizations.length === 0) {
-      console.log('Geen aanpassingen gevonden.');
-      return;
-    }
+    if (customizations.length === 0) return;
 
     for (const action of customizations) {
 		await trx('characters')
@@ -31,9 +29,67 @@ export const processCharacterCustomization = async (trx = knex) => {
     }
 
     await trx('action_customize').del();
-
-    console.log(`${customizations.length} aanpassingen toegepast.`);
 };
+//-----------------------------------------------------------------------------------------------//
+export const processManageBuildings = async (trx = knex) => {
+	const demolitions = await trx('action_demolish')
+		.select('*');
+	
+	if (demolitions.length === 0) return;
+
+    for (const action of demolitions) { 
+		await trx('character_buildings')
+			.where('id', action.building_id)
+			.del();
+    }
+	
+	/*
+	// alternatief?
+	const ids = demolitions.map(d => d.building_id);
+
+	await trx('character_buildings')
+		.whereIn('id', ids)
+		.del();
+	
+	// overbodig dankzij ON DELETE CASCADE
+    await trx('action_demolish').del();
+	*/
+}
+//-----------------------------------------------------------------------------------------------//
+export const processManageEmploymentContracts = async (trx = knex) => {
+}
+//-----------------------------------------------------------------------------------------------//
+export const processManageRentalAgreements = async (trx = knex) => {
+}
+//-----------------------------------------------------------------------------------------------//
+export const processProduce = async (trx = knex) => {
+}
+//-----------------------------------------------------------------------------------------------//
+export const processTrade = async (trx = knex) => {
+}
+//-----------------------------------------------------------------------------------------------//
+export const processShare = async (trx = knex) => {
+}
+//-----------------------------------------------------------------------------------------------//
+export const processConsume = async (trx = knex) => {
+}
+//-----------------------------------------------------------------------------------------------//
+export const processManageGroup = async (trx = knex) => {
+}
+//-----------------------------------------------------------------------------------------------//
+export const processFinishTurn = async (trx = knex) => {
+	const worlds = await getWorlds(trx);
+		
+	for (const world of worlds.all){
+		await trx('world_state')
+			.where('world_id', world.id)
+			.increment('current_turn', 1);
+	}
+	
+	await trx('characters').update({ has_finished_turn: false });
+}
+
+
 
 //--- Process category orders -------------------------------------------------------------------//
 /*export const processCategoryOrders = async (category) => {

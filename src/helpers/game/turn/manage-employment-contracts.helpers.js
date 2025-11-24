@@ -1,9 +1,9 @@
 //=== Imports ===================================================================================//
+
 import knex from '#utils/db.js';
 
 //=== Main ======================================================================================//
 
-//--- Get manage employment contracts -----------------------------------------------------------//
 export const getManageEmploymentContracts = async (characterId,
 												   trx = knex) => {
 	const apply = await trx('action_apply')
@@ -47,8 +47,7 @@ export const getManageEmploymentContracts = async (characterId,
 			 recruit,
 			 dismiss };
 };
-
-//--- Set manage employment contracts -----------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const setManageEmploymentContracts = async (action,
 												   characterId,
 												   trx = knex) => {

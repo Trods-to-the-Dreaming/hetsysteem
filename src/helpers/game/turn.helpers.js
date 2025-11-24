@@ -1,4 +1,5 @@
-//=== Imports ===================================================================================//
+/*//=== Imports ===================================================================================//
+
 import db from '#utils/db.js';
 import { 
 	BadRequestError 
@@ -6,7 +7,6 @@ import {
 
 //=== Main ======================================================================================//
 
-//--- Get character context ---------------------------------------------------------------------//
 export const getCharacterContext = async (characterId, 
 										  connection = db) => {
 	const [[character]] = await connection.execute(
@@ -58,8 +58,7 @@ export const getCharacterContext = async (characterId,
 	
 	return character.owned_tiles;
 };
-
-//--- Get owned tiles ---------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const getOwnedTiles = async (characterId, 
 									connection = db) => {
 	const [[character]] = await connection.execute(
@@ -73,8 +72,7 @@ export const getOwnedTiles = async (characterId,
 	}
 	return character.owned_tiles;
 };
-
-//--- Get owned buildings -----------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const getOwnedBuildings = async (characterId, 
 										connection = db) => {
 	const [ownedBuildings] = await connection.execute(
@@ -89,8 +87,7 @@ export const getOwnedBuildings = async (characterId,
 	);
 	return ownedBuildings;
 };
-
-//--- Get all buildings -------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const getAllBuildings = async (characterId, 
 										connection = db) => {
 	const [ownedBuildings] = await connection.execute(
@@ -112,7 +109,7 @@ export const getAllBuildings = async (characterId,
 
 
 
-//--- Validate character id ---------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const validateCharacterId = async (characterId, 
 										  connection = db) => {
 	const [character] = await connection.execute(
@@ -125,8 +122,7 @@ export const validateCharacterId = async (characterId,
 		throw new BadRequestError(MSG_INVALID_CHARACTER);
 	}
 };
-
-//--- Has the character confirmed the action? ---------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const hasConfirmedAction = async (characterId, 
 										 action,
 										 connection = db) => {
@@ -145,8 +141,7 @@ export const hasConfirmedAction = async (characterId,
 	}
 	return character[0][`has_confirmed_${action}`];
 };
-
-//--- Confirm the action ------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const confirmAction = async (characterId, 
 									action,
 									connection = db) => {
@@ -161,8 +156,7 @@ export const confirmAction = async (characterId,
 		[characterId]
 	);
 };
-
-//--- Get food information ----------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const getFoodInfo = async (characterId, 
 								  connection = db) => {
 	const productIds = await getProductIds(connection);
@@ -197,8 +191,7 @@ export const getFoodInfo = async (characterId,
 		needed: 	GAME_RULES.FOOD.NEEDED
 	};
 };
-
-//--- Get medical care information --------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const getMedicalCareInfo = async (characterId, 
 										 connection = db) => {
 	const productIds = await getProductIds(connection);
@@ -233,8 +226,7 @@ export const getMedicalCareInfo = async (characterId,
 		needed: 	GAME_RULES.MEDICAL_CARE.NEEDED
 	};
 };
-
-//--- Validate consumption ----------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const validateConsumption = async (foodConsumed, 
 										  medicalCareConsumed) => {
 	if (!isValidInteger(foodConsumed, 0, GAME_RULES.FOOD.MAX)) {
@@ -245,8 +237,7 @@ export const validateConsumption = async (foodConsumed,
 		throw new BadRequestError(MSG_INVALID_QUANTITY);
 	}
 };
-
-//--- Update consumption ------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const updateConsumption = async (characterId,
 										foodConsumed, 
 										medicalCareConsumed, 
@@ -265,8 +256,7 @@ export const updateConsumption = async (characterId,
 		 medicalCareConsumed]
 	);
 };
-
-//--- Get product buy orders --------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const getProductBuyOrders = async (characterId, 
 										  connection = db) => {
 	const [productBuyOrders] = await connection.execute(
@@ -281,8 +271,7 @@ export const getProductBuyOrders = async (characterId,
 	);
 	return productBuyOrders;
 };
-
-//--- Get product sell orders -------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const getProductSellOrders = async (characterId, 
 										   connection = db) => {
 	const [productSellOrders] = await connection.execute(
@@ -297,8 +286,7 @@ export const getProductSellOrders = async (characterId,
 	);
 	return productSellOrders;
 };
-
-//--- Get building buy orders -------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const getBuildingBuyOrders = async (characterId, 
 										   connection = db) => {
 	const [buildingBuyOrders] = await connection.execute(
@@ -313,8 +301,7 @@ export const getBuildingBuyOrders = async (characterId,
 	);
 	return buildingBuyOrders;
 };
-
-//--- Get building sell orders ------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const getBuildingSellOrders = async (characterId, 
 											connection = db) => {
 	const [buildingSellOrders] = await connection.execute(
@@ -329,8 +316,7 @@ export const getBuildingSellOrders = async (characterId,
 	);
 	return buildingSellOrders;
 };
-
-//--- Get buyable products ----------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const getBuyableProducts = async (connection = db) => {
 	const [buyableProducts] = await connection.execute(
 		`SELECT id AS itemId,
@@ -340,8 +326,7 @@ export const getBuyableProducts = async (connection = db) => {
 	);
 	return buyableProducts;
 };
-
-//--- Get sellable products ---------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const getSellableProducts = async (characterId, 
 										  connection = db) => {
 	const [sellableProducts] = await connection.execute(
@@ -357,8 +342,7 @@ export const getSellableProducts = async (characterId,
 	);
 	return sellableProducts;
 };
-
-//--- Get buyable buildings ---------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const getBuyableBuildings = async (connection = db) => {
 	const [buyableBuildings] = await connection.execute(
 		`SELECT id AS itemId,
@@ -368,8 +352,7 @@ export const getBuyableBuildings = async (connection = db) => {
 	);
 	return buyableBuildings;
 };
-
-//--- Get sellable buildings --------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const getSellableBuildings = async (characterId, 
 										   connection = db) => {
 	const [sellableBuildings] = await connection.execute(
@@ -385,8 +368,7 @@ export const getSellableBuildings = async (characterId,
 	);
 	return sellableBuildings;
 };
-
-//--- Validate orders ---------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const validateOrders = async (buyOrders,
 									 sellOrders) => {
 	const seenIds = new Set();
@@ -410,8 +392,7 @@ export const validateOrders = async (buyOrders,
 		}
 	}
 };
-
-//--- Update orders -----------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const updateOrders = async (characterId, 
 								   type, 
 								   category, 
@@ -453,8 +434,7 @@ export const updateOrders = async (characterId,
 		valueParams
 	);
 };
-
-//--- Get available hours -----------------------------------------------------------------------//+
+//-----------------------------------------------------------------------------------------------//
 export const getAvailableHours = async (characterId, 
 										connection = db) => {
 	const [character] = await connection.execute(
@@ -468,8 +448,7 @@ export const getAvailableHours = async (characterId,
 	}
 	return character[0].hours_available;
 };
-
-//--- Get contracts -----------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const getContracts = async (characterId, 
 								   connection = db) => {
 	const [contracts] = await connection.execute(
@@ -488,8 +467,7 @@ export const getContracts = async (characterId,
 	);
 	return contracts;
 };
-
-//--- Validate hours ----------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const validateHours = async (characterId, 
 									jobHours, 
 									courseHours, 
@@ -540,8 +518,7 @@ export const validateHours = async (characterId,
 		throw new BadRequestError(MSG_INVALID_HOURS);
 	}
 };
-
-//--- Update hours ------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const updateHours = async (characterId, 
 								  contract,
 								  hours,
@@ -603,7 +580,6 @@ export const updateHours = async (characterId,
 
 //=== Extra =====================================================================================//
 
-//--- Is valid integer? -------------------------------------------------------------------------//
 function isValidInteger(value,
 						min = 0,
 						max = Number.POSITIVE_INFINITY) {	

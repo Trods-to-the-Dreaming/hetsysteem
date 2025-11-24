@@ -1,15 +1,19 @@
+//=== Imports ===================================================================================//
+
 import { turn } from '/js/turn.js';
 
-//=== Page (begin) ==============================================================================//
-turn.page = { ...turn.page,
-	
-//--- Check access ------------------------------------------------------------------------------//
+//=== Main ======================================================================================//
+
+turn.page = { // turn.page begin
+//-----------------------------------------------------------------------------------------------//
+...turn.page,
+//-----------------------------------------------------------------------------------------------//
 checkAccess() {
-	turn.begin = JSON.parse(localStorage.getItem('turn.begin'));
+	turn.started = JSON.parse(localStorage.getItem('turn.started'));
 	
-	// Check if the turn has begun
-	if (turn.begin === null) {
-		location.replace('/game/turn/begin');
+	// Check if the turn has started
+	if (turn.started === null) {
+		location.replace('/game/turn/start');
 		return;
 	}
 	
@@ -25,10 +29,8 @@ checkAccess() {
 	
 	turn.firstRelevantPageIndex = JSON.parse(localStorage.getItem('turn.firstRelevantPageIndex'));
 	turn.lastRelevantPageIndex = JSON.parse(localStorage.getItem('turn.lastRelevantPageIndex'));
-	turn.areActionsSubmitted = JSON.parse(localStorage.getItem('turn.areActionsSubmitted'));
 }
-
-//=== Page (end) ================================================================================//
-}
-
+//-----------------------------------------------------------------------------------------------//
+} // turn.page end
+//-----------------------------------------------------------------------------------------------//
 export { turn };

@@ -1,20 +1,22 @@
+//=== Imports ===================================================================================//
+
 import { turn } from '/js/turn.js';
 
-//=== Page (begin) ==============================================================================//
-turn.page = { ...turn.page,
-	
-//--- Disabled ----------------------------------------------------------------------------------//
-disabled: true,
+//=== Main ======================================================================================//
 
-//--- Initialize --------------------------------------------------------------------------------//
+turn.page = { // turn.page begin
+//-----------------------------------------------------------------------------------------------//
+...turn.page,
+//-----------------------------------------------------------------------------------------------//
+disabled: true,
+//-----------------------------------------------------------------------------------------------//
 initialize() {
 	this.addTurnFlowControls();
 	this.bindTurnFlowEvents();
 	this.loadAction();
 	this.show();
 },
-
-//--- Add turn flow controls ---------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 addTurnFlowControls() {
 	const controls = this.getTurnFlowControls();
 	const containerDiv = controls.containerDiv;
@@ -54,8 +56,7 @@ addTurnFlowControls() {
 		</div>`;
 	containerDiv.insertAdjacentHTML('afterend', editModal);
 },
-
-//--- Bind turn flow events ---------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 bindTurnFlowEvents() {
 	const controls = this.getTurnFlowControls();
 	
@@ -66,8 +67,7 @@ bindTurnFlowEvents() {
 	controls.backButton.addEventListener('click', turn.previousPage);
 	controls.cancelButton.addEventListener('click', turn.cancel);
 },
-
-//--- Show --------------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 show() {
 	const controls = this.getTurnFlowControls();
 	
@@ -85,8 +85,7 @@ show() {
 		controls.finishButton.classList.add('d-none');
 	}
 	
-	if (isCurrentPage &&
-		!turn.areActionsSubmitted) {
+	if (isCurrentPage) {
 		controls.editButton.classList.add('d-none');
 		this.disabled = false;
 	}	
@@ -94,8 +93,7 @@ show() {
 	this.updateUI();
 	controls.containerDiv.classList.remove('d-none');	
 },
-
-//--- Get turn flow controls --------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 getTurnFlowControls() {
 	const containerDiv = document.getElementById('container-div');
 	const nextButton = document.getElementById('next-button');
@@ -118,24 +116,21 @@ getTurnFlowControls() {
 		confirmEditButton
 	};
 },
-
-//--- Set next disabled -------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 setNextDisabled(isDisabled) {
 	const controls = this.getTurnFlowControls();
 	
 	controls.nextButton.disabled = isDisabled;
 	controls.finishButton.disabled = isDisabled;
 },
-
-//--- Edit --------------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 edit() {
 	const controls = this.getTurnFlowControls();
 	
 	const modal = new bootstrap.Modal(controls.editWarningDiv);
 	modal.show();
 },
-
-//--- Confirm edit ------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 confirmEdit() {
 	const controls = this.getTurnFlowControls();
 	
@@ -155,8 +150,7 @@ confirmEdit() {
 	
 	turn.currentPageIndex = this.index;
 },
-
-//--- Populate select ---------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 populateSelect(select, 
 			   table,
 			   columnName) {
@@ -176,11 +170,9 @@ populateSelect(select,
 		select.appendChild(option);
 	});
 }
-
-//=== Page (end) ================================================================================//
-}
-
-//--- Next page ---------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
+} // turn.page end
+//-----------------------------------------------------------------------------------------------//
 turn.nextPage = async function() {
 	try {
 		if (typeof turn.page.preventNext === 'function') {
@@ -204,8 +196,7 @@ turn.nextPage = async function() {
 		console.error('Fout bij nextPage:', err);
 	}
 }
-
-//--- Previous page -----------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 turn.previousPage = function() {
 	let previousPageIndex = turn.page.index - 1;
 	
@@ -220,8 +211,7 @@ turn.previousPage = function() {
 	
 	location.assign(turn.actionPages[previousPageIndex].url);
 }
-
-//--- Finish ------------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 turn.finish = async function() {
 	if (turn.page.index === turn.currentPageIndex) {
 		turn.page.saveAction();
@@ -255,8 +245,7 @@ turn.finish = async function() {
         console.error('Fout bij finish:', err);
     }
 }
-
-//--- Cancel ------------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 turn.cancel = function() {
 	// andere items ook wissen
 	localStorage.removeItem('turn.begin');
@@ -267,5 +256,5 @@ turn.cancel = function() {
 	
 	location.assign('/game');
 }
-
+//-----------------------------------------------------------------------------------------------//
 export { turn };

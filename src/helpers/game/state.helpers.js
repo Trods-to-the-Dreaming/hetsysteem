@@ -1,4 +1,5 @@
 //=== Imports ===================================================================================//
+
 import knex from '#utils/db.js';
 import { 
 	BadRequestError 
@@ -10,7 +11,6 @@ import {
 
 //=== Main ======================================================================================//
 
-//--- Find character name -----------------------------------------------------------------------//
 export const findCharacterName = async (firstName, 
 										lastName,
 										selfId,
@@ -40,8 +40,7 @@ export const findCharacterName = async (firstName,
 
 	return reserved;
 };
-
-//--- Find building name ------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const findBuildingName = async (buildingName,
 									   worldId,
 									   trx = knex) => {
@@ -64,14 +63,28 @@ export const findBuildingName = async (buildingName,
 
 	return reserved;
 };
+//-----------------------------------------------------------------------------------------------//
+export const getTurnData = async (characterId,
+								  trx = knex) => {
+	const turnData = await knex('characters')
+		.select(
+			'has_finished_turn as finished',
+			'is_customized as isCharacterCustomized'
+		)
+		.where('id', characterId)
+		.first();
 
-//--- Get character resources -------------------------------------------------------------------//
-export const getCharacterResources = async (characterId,
+	if (!turnData) {
+		throw new BadRequestError(MSG_INVALID_CHARACTER);
+	}
+	
+	return turnData;
+};
+//-----------------------------------------------------------------------------------------------//
+export const getOwnedResources = async (characterId,
 										trx = knex) => {
 	const resources = await knex('characters')
 		.select(
-			'are_actions_submitted as areActionsSubmitted', // put in a different function?
-			'is_customized as isCustomized', // put in a different function?
 			'owned_tiles as ownedTiles',
 			'hours_available as hoursAvailable'
 		)
@@ -84,10 +97,9 @@ export const getCharacterResources = async (characterId,
 	
 	return resources;
 };
-
-//--- Get character products --------------------------------------------------------------------//
-export const getCharacterProducts = async (characterId,
-										   trx = knex) => {
+//-----------------------------------------------------------------------------------------------//
+export const getOwnedProducts = async (characterId,
+									   trx = knex) => {
 	const products = await knex('character_products')
 		.select(
 			'product_id as productId',
@@ -98,10 +110,9 @@ export const getCharacterProducts = async (characterId,
 	
 	return products;
 };
-
-//--- Get character buildings -------------------------------------------------------------------//
-export const getCharacterBuildings = async (characterId,
-											trx = knex) => {
+//-----------------------------------------------------------------------------------------------//
+export const getOwnedBuildings = async (characterId,
+										trx = knex) => {
 	const buildings = await knex('character_buildings')
 		.select(
 			'id',
@@ -114,8 +125,7 @@ export const getCharacterBuildings = async (characterId,
 	
 	return buildings;
 };
-
-//--- Get employee contracts --------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const getEmployeeContracts = async (characterId,
 										   trx = knex) => {
 	const contracts = await knex('employment_contracts as ec')
@@ -133,8 +143,7 @@ export const getEmployeeContracts = async (characterId,
 	
 	return contracts;
 };
-
-//--- Get employer contracts --------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const getEmployerContracts = async (characterId, 
 										   trx = knex) => {
 	const contracts = await knex('employment_contracts as ec')
@@ -152,8 +161,7 @@ export const getEmployerContracts = async (characterId,
 	
 	return contracts;
 };
-
-//--- Get tenant agreements ---------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const getTenantAgreements = async (characterId, 
 										  trx = knex) => {
 	const agreements = await knex('rental_agreements as ra')
@@ -170,8 +178,7 @@ export const getTenantAgreements = async (characterId,
 	
 	return agreements;
 };
-
-//--- Get landlord agreements -------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const getLandlordAgreements = async (characterId, 
 											trx = knex) => {
 	const agreements = await knex('rental_agreements as ra')
@@ -188,13 +195,10 @@ export const getLandlordAgreements = async (characterId,
 	
 	return agreements;
 };
-
-
-
-//--- Mark actions submitted --------------------------------------------------------------------// 
-export const markActionsSubmitted = async (characterId, 
-										   trx = knex) => {
+//-----------------------------------------------------------------------------------------------//
+export const markTurnFinished = async (characterId, 
+									   trx = knex) => {
 	await trx('characters')
 		.where('id', characterId)
-		.update({ are_actions_submitted: true });
+		.update({ has_finished_turn: true });
 };

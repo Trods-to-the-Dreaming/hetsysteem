@@ -1,4 +1,5 @@
 //=== Imports ===================================================================================//
+
 import knex from '#utils/db.js';
 import { 
 	BadRequestError,
@@ -28,7 +29,6 @@ import {
 
 //=== Main ======================================================================================//
 
-//--- Get customize character -------------------------------------------------------------------//
 export const getCustomizeCharacter = async (characterId,
 											trx = knex) => {
 	const actions = await trx('action_customize')
@@ -46,8 +46,7 @@ export const getCustomizeCharacter = async (characterId,
 	
 	return actions;
 };
-
-//--- Set customize character -------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const setCustomizeCharacter = async (action,
 											characterId,
 											worldId,

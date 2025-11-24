@@ -1,4 +1,5 @@
 //=== Imports ===================================================================================//
+
 import knex from '#utils/db.js';
 import { 
 	getFromCache, 
@@ -8,7 +9,6 @@ import { BadRequestError } from '#utils/errors.js';
 
 //=== Main ======================================================================================//
 
-//--- Get all worlds ----------------------------------------------------------------------------//
 export async function getWorlds(trx = knex) {
 	const cached = getFromCache('worlds');
 	
@@ -29,8 +29,7 @@ export async function getWorlds(trx = knex) {
 	setInCache('worlds', cache);
 	return cache;
 }
-
-//--- Get all products --------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export async function getProducts(trx = knex) {
 	const cached = getFromCache('products');
 	
@@ -48,8 +47,7 @@ export async function getProducts(trx = knex) {
 	setInCache('products', cache);
 	return cache;
 }
-
-//--- Get all recreations -----------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export async function getRecreations(trx = knex) {
 	const cached = getFromCache('recreations');
 	
@@ -67,8 +65,7 @@ export async function getRecreations(trx = knex) {
 	setInCache('recreations', cache);
 	return cache;
 }
-
-//--- Get all buildings -------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export async function getBuildings(trx = knex) {
 	const cached = getFromCache('buildings');
 	
@@ -79,6 +76,7 @@ export async function getBuildings(trx = knex) {
 			'id', 
 			//'slug', 
 			'type', 
+			'is_constructible as isConstructible',
 			'base_size as baseSize',
 			'job',
 			'input_id as inputId',
@@ -99,7 +97,6 @@ export async function getBuildings(trx = knex) {
 
 //=== Extra =====================================================================================//
 
-//--- Build entity cache ------------------------------------------------------------------------//
 function buildEntityCache(rows) {
 	const idSet = new Set();
 	//const slugToId = {};

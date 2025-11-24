@@ -1,4 +1,5 @@
 //=== Imports ===================================================================================//
+
 import knex from '#utils/db.js';
 import { 
 	BadRequestError, 
@@ -16,7 +17,6 @@ import {
 
 //=== Main ======================================================================================//
 
-//--- Get world ---------------------------------------------------------------------------------//
 export const getWorld = async (id, 
 							   trx = knex) => {
 	const world = (await getWorlds(trx)).get(Number(id));
@@ -25,8 +25,7 @@ export const getWorld = async (id,
 	}
 	return world;
 };
-
-//--- Find the user's character -----------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const findUserCharacter = async (userId, 
 										worldId, 
 										trx = knex) => {
@@ -43,8 +42,7 @@ export const findUserCharacter = async (userId,
 	
 	return character || null;
 };
-
-//--- Claim an AI-character ---------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const claimAICharacter = async (userId, 
 									   worldId, 
 									   trx = knex) => {

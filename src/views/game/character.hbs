@@ -1,5 +1,7 @@
 {{#block "title"}}Personage{{/block}}
 
+<!------------------------------------------------------------------------------------------------>
+
 <div class="container-compact">	
 	{{#if isCustomized}}
 		<h1>{{firstName}} {{lastName}}</h1>
@@ -74,7 +76,7 @@
 		<ul class="list-compact">
 			<li class="list-item-justify">
 				<span>Bankrekening</span>
-				<span id="balance">{{balance}} {{currencySymbol}}</span>
+				<span id="balance">{{balance}}<!-- {{currencySymbol}}--></span>
 			</li>
 			<li class="list-item-justify">
 				<span>Land</span>
@@ -89,6 +91,8 @@
 
 	<a class="button-up" href="/game">↑ Spelmenu</a>
 </div>
+
+<!------------------------------------------------------------------------------------------------>
 
 <!--script src="/js/shared-ui.js"></script>
 <script>

@@ -66,9 +66,9 @@ turn.page.checkAccess();
 <!------------------------------------------------------------------------------------------------>
 
 <script type="module">
+//-----------------------------------------------------------------------------------------------//
 import { turn } from '/js/turn-flow.js';
-
-//--- Load action -------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 turn.page.loadAction = function() {	
 	// Get action
 	turn.page.action = JSON.parse(localStorage.getItem(`turn.page${turn.page.index}.action`));
@@ -121,8 +121,7 @@ turn.page.loadAction = function() {
 	elements.jobPreference3.value = action.jobPreference3;
 	elements.recreationPreference.value = action.recreationPreference;
 };
-
-//--- Save action -------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 turn.page.saveAction = function() {
 	// Write to action
 	const elements = turn.page.elements;
@@ -138,8 +137,7 @@ turn.page.saveAction = function() {
 	// Save to local storage
 	localStorage.setItem(`turn.page${turn.page.index}.action`, JSON.stringify(action));
 };
-
-//--- Prevent next ------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 turn.page.preventNext = async function() {
 	const elements = turn.page.elements;
 	
@@ -165,8 +163,7 @@ turn.page.preventNext = async function() {
 		return true;
 	}
 };
-
-//--- Update UI ---------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 turn.page.updateUI = function() {
 	const elements = turn.page.elements;
 	const inputs = [elements.firstName,
@@ -199,17 +196,15 @@ turn.page.updateUI = function() {
 	const isPageValid = inputs.every(input => input.checkValidity());
 	turn.page.setNextDisabled(!isPageValid);
 }
-
-//--- Event handlers ----------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 function handleFirstNameInput() {
 	handleNameInput(turn.page.elements.firstName);
 }
-
+//-----------------------------------------------------------------------------------------------//
 function handleLastNameInput() {
 	handleNameInput(turn.page.elements.lastName);
 }
-
-//--- Helpers -----------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 function handleNameInput(nameInput) {
 	turn.page.elements.characterNameError.textContent = '';
 	
@@ -231,9 +226,9 @@ function handleNameInput(nameInput) {
 	
 	turn.page.updateUI();
 }
-
-//--- DOM content loaded ------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
 	turn.page.initialize();
 });
+//-----------------------------------------------------------------------------------------------//
 </script>

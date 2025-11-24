@@ -1,5 +1,7 @@
 {{#block "title"}}Registreren{{/block}}
 
+<!------------------------------------------------------------------------------------------------>
+
 <div class="container-compact">
 	<h1>Registreren</h1>
 	
@@ -27,18 +29,20 @@
 	<p>Reeds lid? <a href="/account/login">Aanmelden</a>.</p>
 </div>
 
+<!------------------------------------------------------------------------------------------------>
+
 <script type="module">
-//--- Event handlers ----------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 function clearUsernameError() {
 	const usernameError = document.getElementById('username-error');
 	usernameError.textContent = '';
 }
-
+//-----------------------------------------------------------------------------------------------//
 function clearConfirmationError() {
 	const confirmedPassword = document.getElementById('confirmed-password-input');
 	confirmedPassword.setCustomValidity('');
 }
-
+//-----------------------------------------------------------------------------------------------//
 function handleFormSubmit(e) {
 	const password = document.getElementById('password-input');
 	const confirmedPassword = document.getElementById('confirmed-password-input');
@@ -56,8 +60,7 @@ function handleFormSubmit(e) {
 		form.reportValidity();
 	}
 }
-
-//--- DOM content loaded ------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
 	const username = document.getElementById('username-input');
 	const confirmedPassword = document.getElementById('confirmed-password-input');
@@ -67,4 +70,5 @@ document.addEventListener('DOMContentLoaded', () => {
 	confirmedPassword.addEventListener('input', clearConfirmationError);
 	form.addEventListener('submit', handleFormSubmit);
 });
+//-----------------------------------------------------------------------------------------------//
 </script>

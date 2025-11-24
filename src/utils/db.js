@@ -1,9 +1,11 @@
 //=== Imports ===================================================================================//
+
 import dotenv from 'dotenv';
 import path from 'path';
 import Knex from 'knex';
 
 //=== Main ======================================================================================//
+
 dotenv.config({ path: path.join(process.cwd(), '.env')});
 
 const knex = Knex({
@@ -22,4 +24,5 @@ const knex = Knex({
 });
 
 //=== Export ====================================================================================//
+
 export default knex;

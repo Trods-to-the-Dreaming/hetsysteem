@@ -1,6 +1,11 @@
 //=== Imports ===================================================================================//
+
 import knex from '#utils/db.js';
-import saveSession from '#utils/session.js';
+
+import { 
+	saveSession 
+} from '#utils/session.js';
+
 import { 
 	ConflictError
 } from '#utils/errors.js';
@@ -34,14 +39,15 @@ import {
 import {
 	findCharacterName,
 	findBuildingName,
-	getCharacterResources, 
-	getCharacterProducts,
-	getCharacterBuildings,
+	getTurnData,
+	getOwnedResources,
+	getOwnedProducts,
+	getOwnedBuildings,
 	getEmployeeContracts,
 	getEmployerContracts,
 	getTenantAgreements,
 	getLandlordAgreements,
-	markActionsSubmitted
+	markTurnFinished
 } from '#helpers/game/state.helpers.js';
 
 import {
@@ -91,7 +97,6 @@ import {
 
 //=== Main ======================================================================================//
 
-//--- Enter world -------------------------------------------------------------------------------//
 export const showEnterWorld = async (req, res, next) => {
 	try {
 		const worlds = await getWorlds();
@@ -103,7 +108,7 @@ export const showEnterWorld = async (req, res, next) => {
 		next(err);
 	}
 };
-
+//-----------------------------------------------------------------------------------------------//
 export const handleEnterWorld = async (req, res, next) => {
 	try {
 		const { userId } = req.session;
@@ -151,8 +156,7 @@ export const handleEnterWorld = async (req, res, next) => {
 		next(err);
 	}
 };
-
-//--- Menu --------------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const showMenu = async (req, res, next) => {
 	try {
 		return res.render('game/menu');
@@ -160,8 +164,7 @@ export const showMenu = async (req, res, next) => {
 		next(err);
 	}
 };
-
-//--- Character ---------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const showCharacter = async (req, res, next) => {
 	try {
 		const { characterId,
@@ -176,35 +179,44 @@ export const showCharacter = async (req, res, next) => {
 		next(err);
 	}
 };
-
-//--- Begin turn --------------------------------------------------------------------------------//
-export const beginTurn = async (req, res, next) => {
+//-----------------------------------------------------------------------------------------------//
+export const startTurn = async (req, res, next) => {
 	try {
 		const { characterId } = req.session;
 
 		const [
 			products,
 			recreations,
-			buildings
+			buildings,
+			turnData,
+			ownedResources,
+			ownedProducts,
+			ownedBuildings,
+			employeeContracts,
+			employerContracts,
+			tenantAgreements,
+			landlordAgreements,
+			customizeCharacter,
+			manageBuildings,
+			manageEmploymentContracts,
+			manageRentalAgreements,
+			produce,
+			trade,
+			share,
+			consume,
+			manageGroup
 		] = await Promise.all([
 			getProducts(),
 			getRecreations(),
-			getBuildings()
-		]);
-		
-		const characterState = {
-			...(await getCharacterResources(characterId)),
-			ownedProducts: await getCharacterProducts(characterId),
-			ownedBuildings: await getCharacterBuildings(characterId),
-			employeeContracts: await getEmployeeContracts(characterId),
-			employerContracts: await getEmployerContracts(characterId),
-			tenantAgreements: await getTenantAgreements(characterId),
-			landlordAgreements: await getLandlordAgreements(characterId)
-		};
-		
-		//const turnNumber = 0;
-		
-		const characterActions = await Promise.all([
+			getBuildings(),
+			getTurnData(characterId),
+			getOwnedResources(characterId),
+			getOwnedProducts(characterId),
+			getOwnedBuildings(characterId),
+			getEmployeeContracts(characterId),
+			getEmployerContracts(characterId),
+			getTenantAgreements(characterId),
+			getLandlordAgreements(characterId),
 			getCustomizeCharacter(characterId),
 			getManageBuildings(characterId),
 			getManageEmploymentContracts(characterId),
@@ -216,23 +228,46 @@ export const beginTurn = async (req, res, next) => {
 			getManageGroup(characterId)
 		]);
 		
-		const actionPages = [
-			{ url: '/game/turn/customize-character', isRelevant: !characterState.isCustomized }, // put in a different place?
-			{ url: '/game/turn/manage-buildings', isRelevant: true },
-			{ url: '/game/turn/manage-employment-contracts', isRelevant: true },
-			{ url: '/game/turn/manage-rental-agreements', isRelevant: true },
-			{ url: '/game/turn/produce', isRelevant: true },
-			{ url: '/game/turn/trade', isRelevant: true },
-			{ url: '/game/turn/share', isRelevant: true },
-			{ url: '/game/turn/consume', isRelevant: true },
-			{ url: '/game/turn/manage-group', isRelevant: true }
+		const characterState = {
+			...ownedResources,
+			ownedProducts,
+			ownedBuildings,
+			employeeContracts,
+			employerContracts,
+			tenantAgreements,
+			landlordAgreements
+		};
+		
+		const characterActions = [
+			customizeCharacter,
+			manageBuildings,
+			manageEmploymentContracts,
+			manageRentalAgreements,
+			produce,
+			trade,
+			share,
+			consume,
+			manageGroup
 		];
 		
-		const firstRelevantPageIndex = actionPages.findIndex(page => page.isRelevant === true);
-		const lastRelevantPageIndex = actionPages.findLastIndex(page => page.isRelevant === true);
-		const currentPageIndex = firstRelevantPageIndex;
+		const urls = [
+			'/game/turn/customize-character',
+			'/game/turn/manage-buildings',
+			'/game/turn/manage-employment-contracts',
+			'/game/turn/manage-rental-agreements',
+			'/game/turn/produce',
+			'/game/turn/trade',
+			'/game/turn/share',
+			'/game/turn/consume',
+			'/game/turn/manage-group'
+		];
 
-		res.render('game/turn/begin', {
+		const actionPages = urls.map((url, index) => ({
+			url,
+			isRelevant: index === 0 ? !turnData.isCharacterCustomized : true
+		}));
+
+		res.render('game/turn/start', {
 			products: products.all,
 			recreations: recreations.all,
 			buildings: buildings.all,
@@ -240,17 +275,13 @@ export const beginTurn = async (req, res, next) => {
 			characterState,
 			characterActions,
 			actionPages,
-			firstRelevantPageIndex,
-			lastRelevantPageIndex,
-			currentPageIndex,
-			areActionsSubmitted: characterState.areActionsSubmitted // put in a different place?
+			finished: turnData.finished
 		});
 	} catch (err) {
 		next(err);
 	}
 };
-
-//--- Customize character -----------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const showCustomizeCharacter = async (req, res, next) => {
 	try {
 		return res.render('game/turn/customize-character');
@@ -258,8 +289,7 @@ export const showCustomizeCharacter = async (req, res, next) => {
 		next(err);
 	}
 };
-
-//--- Manage buildings --------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const showManageBuildings = async (req, res, next) => {
 	try {
 		return res.render('game/turn/manage-buildings');
@@ -267,8 +297,7 @@ export const showManageBuildings = async (req, res, next) => {
 		next(err);
 	}
 };
-
-//--- Manage employment contracts ---------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const showManageEmploymentContracts = async (req, res, next) => {
 	try {
 		return res.render('game/turn/manage-employment-contracts');
@@ -276,8 +305,7 @@ export const showManageEmploymentContracts = async (req, res, next) => {
 		next(err);
 	}
 };
-
-//--- Manage rental agreements ------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const showManageRentalAgreements = async (req, res, next) => {
 	try {
 		return res.render('game/turn/manage-rental-agreements');
@@ -285,8 +313,7 @@ export const showManageRentalAgreements = async (req, res, next) => {
 		next(err);
 	}
 };
-
-//--- Produce -----------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const showProduce = async (req, res, next) => {
 	try {
 		return res.render('game/turn/produce');
@@ -294,8 +321,7 @@ export const showProduce = async (req, res, next) => {
 		next(err);
 	}
 };
-
-//--- Trade -------------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const showTrade = async (req, res, next) => {
 	try {
 		return res.render('game/turn/trade');
@@ -303,8 +329,7 @@ export const showTrade = async (req, res, next) => {
 		next(err);
 	}
 };
-
-//--- Share -------------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const showShare = async (req, res, next) => {
 	try {
 		return res.render('game/turn/share');
@@ -312,8 +337,7 @@ export const showShare = async (req, res, next) => {
 		next(err);
 	}
 };
-
-//--- Consume -----------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const showConsume = async (req, res, next) => {
 	try {
 		return res.render('game/turn/consume');
@@ -321,8 +345,7 @@ export const showConsume = async (req, res, next) => {
 		next(err);
 	}
 };
-
-//--- Manage group ------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const showManageGroup = async (req, res, next) => {
 	try {
 		return res.render('game/turn/manage-group');
@@ -330,8 +353,7 @@ export const showManageGroup = async (req, res, next) => {
 		next(err);
 	}
 };
-
-//--- Finish turn--------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const finishTurn = async (req, res, next) => {
 	try {
 		const { characterActions } = req.body;
@@ -386,7 +408,7 @@ export const finishTurn = async (req, res, next) => {
 				characterId,
 				trx
 			);*/
-			await markActionsSubmitted( 
+			await markTurnFinished( 
 				characterId,
 				trx
 			);
@@ -407,8 +429,7 @@ export const finishTurn = async (req, res, next) => {
 		next(err);
 	}
 };
-
-//--- Is character name available? --------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const isCharacterNameAvailable = async (req, res, next) => {
 	try {
 		const { firstName, 
@@ -428,8 +449,7 @@ export const isCharacterNameAvailable = async (req, res, next) => {
 		next(err);
 	}
 };
-
-//--- Is building name available? ---------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const isBuildingNameAvailable = async (req, res, next) => {
 	try {
 		const { buildingName } = req.query;
@@ -445,18 +465,15 @@ export const isBuildingNameAvailable = async (req, res, next) => {
 		next(err);
 	}
 };
-
-//--- Show character name conflict --------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const showCharacterNameConflict = async (req, res, next) => {
 	
 };
-
-//--- Show building names conflict --------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const showBuildingNamesConflict = async (req, res, next) => {
 	
 };
-
-//--- Show statistics page ----------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const showStatistics = async (req, res, next) => {
 	try {
 		return res.render('game/statistics');

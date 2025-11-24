@@ -1,6 +1,9 @@
+//=== Imports ===================================================================================//
+
 import { turn } from '/js/turn.js';
 
-//--- Submit actions ----------------------------------------------------------------------------//
+//=== Main ======================================================================================//
+
 turn.submitActions = async function() {
 	const actionPages = JSON.parse(localStorage.getItem('turn.actionPages'));
 	const characterActions = [];

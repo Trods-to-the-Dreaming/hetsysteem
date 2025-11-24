@@ -1,38 +1,35 @@
 //=== Imports ===================================================================================//
+
 import knex from '#utils/db.js';
 
 import {
-	//processCategoryOrders
-	processCharacterCustomization
+	processCustomizeCharacter,
+	processManageBuildings,
+	processManageEmploymentContracts,
+	processManageRentalAgreements,
+	processProduce,
+	processTrade,
+	processShare,
+	processConsume,
+	processManageGroup,
+	processFinishTurn
 } from '#helpers/cron.helpers.js';
-
-//=== Constants =================================================================================//
 
 //=== Main ======================================================================================//
 
-//--- Process orders ----------------------------------------------------------------------------//
-/*export const processOrders = async (req, res, next) => {
-	try {
-		await processCategoryOrders('product');
-		await processCategoryOrders('building');
-		
-		const html = `<html>
-					  <body>
-					  <h1>Gelukt?</h1>
-					  </body>
-					  </html>`;
-	
-		res.send(html);
-	} catch (err) {
-		next(err);
-	}
-};*/
-
-//--- Process action ----------------------------------------------------------------------------//
 export const processActions = async (req, res, next) => {
 	try {
 		await knex.transaction(async (trx) => {
-			await processCharacterCustomization(trx);
+			await processCustomizeCharacter(trx);
+			await processManageBuildings(trx);
+			await processManageEmploymentContracts(trx);
+			await processManageRentalAgreements(trx);
+			await processProduce(trx);
+			await processTrade(trx);
+			await processShare(trx);
+			await processConsume(trx);
+			await processManageGroup(trx);
+			await processFinishTurn(trx);
 		});
 		
 		const html = `<html>

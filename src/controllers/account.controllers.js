@@ -1,5 +1,8 @@
 //=== Imports ===================================================================================//
-import saveSession from '#utils/session.js';
+
+import { 
+	saveSession 
+} from '#utils/session.js';
 
 import { 
 	MSG_INVALID_LOGIN,
@@ -21,7 +24,6 @@ import {
 
 //=== Main ======================================================================================//
 
-//--- Log in ------------------------------------------------------------------------------------//
 export const showLogin = (req, res, next) => {
 	try {
 		return res.render('account/login');
@@ -29,7 +31,7 @@ export const showLogin = (req, res, next) => {
 		next(err); 
 	}
 };
-
+//-----------------------------------------------------------------------------------------------//
 export const handleLogin = async (req, res, next) => {
 	try {
 		const { username, 
@@ -62,8 +64,7 @@ export const handleLogin = async (req, res, next) => {
 		next(err); 
 	}
 };
-
-//--- Register ----------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const showRegister = (req, res, next) => {
 	try {
 		return res.render('account/register');
@@ -71,7 +72,7 @@ export const showRegister = (req, res, next) => {
 		next(err);
 	}
 };
-
+//-----------------------------------------------------------------------------------------------//
 export const handleRegister = async (req, res, next) => {
 	try {
 		const { username, 
@@ -106,8 +107,7 @@ export const handleRegister = async (req, res, next) => {
 		next(err);
 	}
 };
-
-//--- Log out -----------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const handleLogout = (req, res, next) => {
 	try {
 		req.session.destroy((error) => {
@@ -122,8 +122,7 @@ export const handleLogout = (req, res, next) => {
 		next(err);
 	}
 };
-
-//--- Account -----------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const showAccount = (req, res, next) => {
 	try {
 		return res.render('account/my-account');
@@ -131,8 +130,7 @@ export const showAccount = (req, res, next) => {
 		next(err); 
 	}
 };
-
-//--- Change username ---------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const showChangeUsername = async (req, res, next) => {
 	try {
 		const { username,
@@ -152,7 +150,7 @@ export const showChangeUsername = async (req, res, next) => {
 		next(err); 
 	}
 };
-
+//-----------------------------------------------------------------------------------------------//
 export const handleChangeUsername = async (req, res, next) => {
 	try {
 		const { userId,
@@ -195,8 +193,7 @@ export const handleChangeUsername = async (req, res, next) => {
 		next(err); 
 	}
 };
-
-//--- Change password ---------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export const showChangePassword = async (req, res, next) => {
 	try {
 		const { changeSaved, 
@@ -214,7 +211,7 @@ export const showChangePassword = async (req, res, next) => {
 		next(err); 
 	}
 };
-
+//-----------------------------------------------------------------------------------------------//
 export const handleChangePassword = async (req, res, next) => {
 	try {
 		const { userId } = req.session;

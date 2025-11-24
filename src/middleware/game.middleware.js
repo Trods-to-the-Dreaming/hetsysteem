@@ -1,4 +1,5 @@
 //=== Main ======================================================================================//
+
 export const requireWorldSession = (req, res, next) => {
 	if (req.session.worldId && 
 		req.session.worldType &&

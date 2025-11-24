@@ -1,6 +1,5 @@
 //=== Main ======================================================================================//
 
-//--- Bad request (400) -------------------------------------------------------------------------//
 export class BadRequestError extends Error {
 	constructor(message, redirect = '/') {
 		super(message);
@@ -10,8 +9,7 @@ export class BadRequestError extends Error {
 		this.redirect = redirect;
 	}
 }
-
-//--- Unauthorized (401) ------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export class UnauthorizedError extends Error {
 	constructor(message, redirect = '/') {
 		super(message);
@@ -21,8 +19,7 @@ export class UnauthorizedError extends Error {
 		this.redirect = redirect;
 	}
 }
-
-//--- Forbidden (403) ---------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export class ForbiddenError extends Error {
 	constructor(message, redirect = '/') {
 		super(message);
@@ -32,8 +29,7 @@ export class ForbiddenError extends Error {
 		this.redirect = redirect;
 	}
 }
-
-//--- Not found (404) ---------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export class NotFoundError extends Error {
 	constructor(message, redirect = '/') {
 		super(message);
@@ -43,8 +39,7 @@ export class NotFoundError extends Error {
 		this.redirect = redirect;
 	}
 }
-
-//--- Conflict (409) ----------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 export class ConflictError extends Error {
 	constructor(message, info = {}) {
 		super(message);

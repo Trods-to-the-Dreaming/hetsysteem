@@ -107,9 +107,9 @@ turn.page.checkAccess();
 <!------------------------------------------------------------------------------------------------>
 
 <script type="module">
+//-----------------------------------------------------------------------------------------------//
 import { turn } from '/js/turn-flow.js';
-
-//--- Load action -------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 turn.page.loadAction = function() {	
 	// Get action
 	turn.page.action = JSON.parse(localStorage.getItem(`turn.page${turn.page.index}.action`));
@@ -201,8 +201,7 @@ turn.page.loadAction = function() {
 		sizeFactors
 	};
 }
-
-//--- Save action -------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 turn.page.saveAction = function() {
 	const data = turn.page.data;
 	const action = turn.page.action;
@@ -228,8 +227,7 @@ turn.page.saveAction = function() {
 	// Save to local storage
 	localStorage.setItem(`turn.page${turn.page.index}.action`, JSON.stringify(action));
 }
-
-//--- Update UI ---------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 turn.page.updateUI = function() {
 	renderDemolishList();
 	renderConstructList();
@@ -252,8 +250,7 @@ turn.page.updateUI = function() {
 	// Enable next button (always)
 	turn.page.setNextDisabled(false);
 }
-
-//--- Event handlers ----------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 function handleNewBuildingChange() {
 	// Set available sizes of the chosen new building
 	const elements = turn.page.elements;
@@ -278,7 +275,7 @@ function handleNewBuildingChange() {
 	// Update local UI
 	updateConstructUI();
 }
-
+//-----------------------------------------------------------------------------------------------//
 function handleBuildingNameInput() {
 	const elements = turn.page.elements;
 	const data = turn.page.data;
@@ -315,7 +312,7 @@ function handleBuildingNameInput() {
 	// Update offcanvas UI
 	updateConstructUI();
 }
-
+//-----------------------------------------------------------------------------------------------//
 async function handleConfirmConstruct() {
 	// Check if someone has already chosen this name
 	const canConfirm = await canConfirmConstruct();
@@ -348,7 +345,7 @@ async function handleConfirmConstruct() {
 	// Close offcanvas
 	turn.page.constructOffcanvas.hide();
 }
-
+//-----------------------------------------------------------------------------------------------//
 function handleConfirmDemolish() {
 	// Write from elements to data object
 	const elements = turn.page.elements;
@@ -372,8 +369,7 @@ function handleConfirmDemolish() {
 	// Close offcanvas
 	turn.page.demolishOffcanvas.hide();
 }
-
-//--- Helpers -----------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 async function canConfirmConstruct() {
 	const elements = turn.page.elements;
 	
@@ -397,7 +393,7 @@ async function canConfirmConstruct() {
 		return false;
 	}
 };
-
+//-----------------------------------------------------------------------------------------------//
 function updateConstructUI() {
 	const elements = turn.page.elements;
 	
@@ -409,7 +405,7 @@ function updateConstructUI() {
 		elements.confirmConstruct.disabled = false;
 	}
 }
-
+//-----------------------------------------------------------------------------------------------//
 function renderDemolishList() {
 	// Write from data object to elements
 	const data = turn.page.data;
@@ -476,7 +472,7 @@ function renderDemolishList() {
 	const areAllBuildingDemolished = data.ownedBuildings.every(ob => ob.isDemolished);
 	elements.openDemolishWindow.disabled = areAllBuildingDemolished || turn.page.disabled;
 }
-
+//-----------------------------------------------------------------------------------------------//
 function renderConstructList() {
 	// Write from data object to elements
 	const data = turn.page.data;
@@ -519,13 +515,15 @@ function renderConstructList() {
 	emptyOption.hidden = true;
 	elements.newBuilding.appendChild(emptyOption);
 
-	data.buildings.forEach(b => {
-		const option = document.createElement('option');
-		option.value = b.id;
-		option.textContent = b.type;
-		option.disabled = (b.baseSize > data.freeTiles);
-		elements.newBuilding.appendChild(option);
-	});
+	data.buildings
+		.filter(b => b.isConstructible)
+		.forEach(b => {
+			const option = document.createElement('option');
+			option.value = b.id;
+			option.textContent = b.type;
+			option.disabled = (b.baseSize > data.freeTiles);
+			elements.newBuilding.appendChild(option);
+		});
 	
 	// Disable size factor select
 	elements.sizeFactor.disabled = true;
@@ -544,7 +542,7 @@ function renderConstructList() {
 	const areAllTilesOccupied = (data.freeTiles === 0);
 	elements.openConstructWindow.disabled = areAllTilesOccupied || turn.page.disabled;
 }
-
+//-----------------------------------------------------------------------------------------------//
 function renderFreeTiles() {
 	// Write from data object to elements
 	const data = turn.page.data;
@@ -552,9 +550,9 @@ function renderFreeTiles() {
 	
 	elements.freeTiles.textContent = data.freeTiles;
 }
-
-//--- DOM content loaded ------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
 	turn.page.initialize();
 });
+//-----------------------------------------------------------------------------------------------//
 </script>

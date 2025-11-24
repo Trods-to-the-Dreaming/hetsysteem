@@ -1,5 +1,7 @@
 {{#block "title"}}Gebruikersnaam wijzigen{{/block}}
 
+<!------------------------------------------------------------------------------------------------>
+
 <div class="container-compact">
 	<h1>Gebruikersnaam wijzigen</h1>
 	
@@ -33,19 +35,20 @@
 	<a class="button-up" href="/account">↑ Annuleren</a>
 </div>
 
+<!------------------------------------------------------------------------------------------------>
+
 <script>
-//--- Event handlers ----------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 function clearUsernameError() {
 	const usernameError = document.getElementById('username-error');
 	usernameError.textContent = '';
 }
-
+//-----------------------------------------------------------------------------------------------//
 function clearPasswordError() {
 	const passwordError = document.getElementById('password-error');
 	passwordError.textContent = '';
 }
-	
-//--- DOM content loaded ------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
 	const newUsername = document.getElementById('new-username-input');
 	const password = document.getElementById('password-input');
@@ -53,4 +56,5 @@ document.addEventListener('DOMContentLoaded', () => {
 	newUsername.addEventListener('input', clearUsernameError);
 	password.addEventListener('input', clearPasswordError);
 });
+//-----------------------------------------------------------------------------------------------//
 </script>

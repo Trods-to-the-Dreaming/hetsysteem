@@ -1,5 +1,7 @@
 {{#block "title"}}Naam personage al in gebruik{{/block}}
 
+<!------------------------------------------------------------------------------------------------>
+
 <div id="container-div" class="container-compact d-none">
 	<h1>Naam personage al in gebruik</h1>
 
@@ -21,20 +23,22 @@
 	</form>
 </div>
 
+<!------------------------------------------------------------------------------------------------>
+
 <script src="/js/character-name-validation.js"></script>
 <script src="/js/turn-submit.js"></script>
-<script>
+<script type="module">
 //--- Event handlers ----------------------------------------------------------------------------//
 function handleFirstNameInput() {
 	validateName(window.turn.action.fields.firstName);
 	validate();
 }
-
+//-----------------------------------------------------------------------------------------------//
 function handleLastNameInput() {
 	validateName(window.turn.action.fields.lastName);
 	validate();
 }
-
+//-----------------------------------------------------------------------------------------------//
 async function handleFormSubmit(e) {
 	e.preventDefault();
 
@@ -79,15 +83,13 @@ async function handleFormSubmit(e) {
 	  alert("Netwerkfout. Probeer later opnieuw.");
 	}
 });
-
-//--- Helpers -----------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 function validate() {
 	const formElements = Array.from(window.turn.action.fields);
 	const allValid = UI.formElements.every(el => el.checkValidity());
 	UI.nextButton.disabled = !allValid;
 }
-  
-//--- DOM content loaded ------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
 	window.turn.action.data = JSON.parse(localStorage.getItem('turn.action.0'));
 	
@@ -107,4 +109,5 @@ document.addEventListener('DOMContentLoaded', () => {
 	fields.lastName.addEventListener('input', handleLastNameInput);
 	form.addEventListener('submit', handleFormSubmit);
 });
+//-----------------------------------------------------------------------------------------------//
 </script>

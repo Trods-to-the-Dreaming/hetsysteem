@@ -1,4 +1,5 @@
 //=== Imports ===================================================================================//
+
 import knex from '#utils/db.js';
 import { 
 	BadRequestError 
@@ -16,7 +17,6 @@ import {
 
 //=== Main ======================================================================================//
 
-//--- Build character view ----------------------------------------------------------------------//
 export const buildCharacterView = async (characterId,
 										 worldId,
 										 trx = knex) => {
@@ -57,7 +57,7 @@ export const buildCharacterView = async (characterId,
 	}
 	
 	// Calculate age
-	character.age = (world.currentTurn - character.birthDate) * YEARS_PER_TURN;
+	character.age = (world.currentTurn - character.birthDate - 1) * YEARS_PER_TURN;
 	
 	// Calculate education level
 	const educationIndex = Math.floor(character.education); // TO DO: change formula
@@ -81,7 +81,6 @@ export const buildCharacterView = async (characterId,
 
 //=== Extra =====================================================================================//
 
-//--- Convert hours to years --------------------------------------------------------------------//
 function convertHoursToYears(hours) {
 	return Math.round((hours / HOURS_FULLTIME) * 10) / 10; // TO DO: change formula
 }

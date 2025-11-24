@@ -1,5 +1,7 @@
 {{#block "title"}}Wereld betreden{{/block}}
 
+<!------------------------------------------------------------------------------------------------>
+
 <div class="container-compact">
 	<h1>Wereld kiezen</h1>
 	
@@ -21,13 +23,14 @@
 	</form>
 </div>
 
-<script>
-//--- Event handlers ----------------------------------------------------------------------------//
+<!------------------------------------------------------------------------------------------------>
+
+<script type="module">
+//-----------------------------------------------------------------------------------------------//
 function handleWorldChange() {
 	worldError.textContent = '';
 }
-	
-//--- DOM content loaded ------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
 	const worldSelect = document.getElementById('world');
 	
@@ -35,4 +38,5 @@ document.addEventListener('DOMContentLoaded', () => {
 	
 	worldSelect.addEventListener('change', handleWorldChange);
 });
+//-----------------------------------------------------------------------------------------------//
 </script>
