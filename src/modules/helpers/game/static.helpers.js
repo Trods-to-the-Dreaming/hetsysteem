@@ -17,7 +17,7 @@ export async function getWorlds(trx = knex) {
 	const rows = await trx('worlds')
 		.select(
 			'id',
-			//'slug',
+			'slug',
 			'type',
 			'money_system as moneySystem',
 			'n_characters as nCharacters',
@@ -25,9 +25,8 @@ export async function getWorlds(trx = knex) {
 			'created_at as createdAt'
 		);
 	
-	const cache = buildEntityCache(rows);
-	setInCache('worlds', cache);
-	return cache;
+	setInCache('worlds', rows);
+	return rows;
 }
 //-----------------------------------------------------------------------------------------------//
 export async function getProducts(trx = knex) {
@@ -38,14 +37,13 @@ export async function getProducts(trx = knex) {
 	const rows = await trx('products')
 		.select(
 			'id',
-			//'slug',
+			'slug',
 			'type',
 			'volume'
 		);
 	
-	const cache = buildEntityCache(rows);
-	setInCache('products', cache);
-	return cache;
+	setInCache('products', rows);
+	return rows;
 }
 //-----------------------------------------------------------------------------------------------//
 export async function getRecreations(trx = knex) {
@@ -56,14 +54,13 @@ export async function getRecreations(trx = knex) {
 	const rows = await trx('recreations as r')
 		.select(
 			'r.product_id as id',
-			//'p.slug as slug',
+			'p.slug as slug',
 			'p.type as type'
 		)
 		.innerJoin('products as p', 'r.product_id', 'p.id');
 	
-	const cache = buildEntityCache(rows);
-	setInCache('recreations', cache);
-	return cache;
+	setInCache('recreations', rows);
+	return rows;
 }
 //-----------------------------------------------------------------------------------------------//
 export async function getBuildings(trx = knex) {
@@ -74,7 +71,7 @@ export async function getBuildings(trx = knex) {
 	const rows = await trx('buildings')
 		.select(
 			'id', 
-			//'slug', 
+			'slug', 
 			'type', 
 			'is_constructible as isConstructible',
 			'base_size as baseSize',
@@ -90,35 +87,6 @@ export async function getBuildings(trx = knex) {
 			'boost_factor as boostFactor'
 		);
 	
-	const cache = buildEntityCache(rows);
-	setInCache('buildings', cache);
-	return cache;
-}
-
-//=== Extra =====================================================================================//
-
-function buildEntityCache(rows) {
-	const idSet = new Set();
-	//const slugToId = {};
-	const idToFull = {};
-	//const options = [];
-
-	for (const row of rows) {
-		const id = row.id;
-		//const slug = row['slug'];
-		//const type = row['type'];
-
-		idSet.add(id);
-		//slugToId[slug] = id;
-		idToFull[id] = row;
-		//options.push({ id, type });
-	}
-
-	return {
-		has: (id) => idSet.has(id),
-		//getId: (slug) => slugToId[slug],
-		get: (id) => idToFull[id],
-		//options,
-		all: rows
-	};
+	setInCache('buildings', rows);
+	return rows;
 }

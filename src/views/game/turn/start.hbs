@@ -6,7 +6,7 @@
 	const products = {{{json products}}};
 	const recreations = {{{json recreations}}};
 	const buildings = {{{json buildings}}};
-	const sizeFactors = {{{json sizeFactors}}};
+	const sizes = {{{json sizes}}};
 	const characterState = {{{json characterState}}};
 	const characterActions = {{{json characterActions}}};
 	const actionPages = {{{json actionPages}}};
@@ -14,7 +14,7 @@
 	localStorage.setItem('turn.products', JSON.stringify(products));
 	localStorage.setItem('turn.recreations', JSON.stringify(recreations));
 	localStorage.setItem('turn.buildings', JSON.stringify(buildings));
-	localStorage.setItem('turn.sizeFactors', JSON.stringify(sizeFactors));
+	localStorage.setItem('turn.sizes', JSON.stringify(sizes));
 	localStorage.setItem('turn.characterState', JSON.stringify(characterState));
 	characterActions.forEach((action, index) => {
 		localStorage.setItem(`turn.page${index}.action`, JSON.stringify(action));

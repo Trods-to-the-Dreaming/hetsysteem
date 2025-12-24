@@ -30,8 +30,8 @@ export const findCharacterName = async (firstName,
 	if (existingCharacter) return existingCharacter;
 	
 	const reserved = await trx('action_customize as ac')
-		.join('characters as c', 'ac.character_id', 'c.id')
 		.select(1)
+		.innerJoin('characters as c', 'ac.character_id', 'c.id')
 		.where('c.id', '!=', selfId)
 		.andWhere('c.world_id', worldId)
 		.andWhereRaw('LOWER(ac.first_name) = ?', lowerCaseFirstName)
@@ -55,8 +55,8 @@ export const findBuildingName = async (buildingName,
 	if (existingBuilding) return existingBuilding;
 	
 	const reserved = await trx('action_construct as ac')
-		.join('characters as c', 'ac.owner_id', 'c.id')
 		.select(1)
+		.innerJoin('characters as c', 'ac.owner_id', 'c.id')
 		.where('c.world_id', worldId)
 		.andWhereRaw('LOWER(ac.name) = ?', lowerCaseName)
 		.first();
@@ -105,7 +105,7 @@ export const getOwnedProducts = async (characterId,
 			'product_id as productId',
 			'quantity'
 		)
-		.where('owner_id', characterId)
+		.where('character_id', characterId)
 		.orderBy('product_id', 'asc');
 	
 	return products;
@@ -120,10 +120,25 @@ export const getOwnedBuildings = async (characterId,
 			'size_factor as sizeFactor',
 			'building_id as buildingId'
 		)
-		.where('owner_id', characterId)
+		.where('character_id', characterId)
 		.orderBy('building_id', 'asc');
 	
 	return buildings;
+};//-----------------------------------------------------------------------------------------------//
+export const getOwnedConstructionSites = async (characterId,
+												trx = knex) => {
+	const constructionSites = await knex('character_construction_sites as ccs')
+		.select(
+			'ccs.character_building_id as id',
+			'ccs.building_id as buildingId',
+			'ccs.bricks_used as bricksUsed',
+			'ccs.bricks_needed as bricksNeeded'
+		)
+		.innerJoin('character_buildings as cb', 'cb.id', 'ccs.character_building_id')
+		.where('cb.character_id', characterId)
+		.orderBy('ccs.building_id', 'asc');
+	
+	return constructionSites;
 };
 //-----------------------------------------------------------------------------------------------//
 export const getEmployeeContracts = async (characterId,
@@ -138,7 +153,7 @@ export const getEmployeeContracts = async (characterId,
 			'c.last_name as employerLastName'
 		)
 		.innerJoin('character_buildings as cb', 'cb.id', 'ec.workplace_id')
-		.innerJoin('characters as c', 'c.id', 'cb.owner_id')
+		.innerJoin('characters as c', 'c.id', 'cb.character_id')
 		.where('ec.employee_id', characterId);
 	
 	return contracts;
@@ -157,7 +172,7 @@ export const getEmployerContracts = async (characterId,
 		)
 		.innerJoin('character_buildings as cb', 'cb.id', 'ec.workplace_id')
 		.innerJoin('characters as c', 'c.id', 'ec.employee_id')
-		.where('cb.owner_id', characterId);
+		.where('cb.character_id', characterId);
 	
 	return contracts;
 };
@@ -173,7 +188,7 @@ export const getTenantAgreements = async (characterId,
 			'c.last_name as landlordLastName'
 		)
 		.innerJoin('character_buildings as cb', 'cb.id', 'ra.residence_id')
-		.innerJoin('characters as c', 'c.id', 'cb.owner_id')
+		.innerJoin('characters as c', 'c.id', 'cb.character_id')
 		.where('ra.tenant_id', characterId);
 	
 	return agreements;
@@ -191,7 +206,7 @@ export const getLandlordAgreements = async (characterId,
 		)
 		.innerJoin('character_buildings as cb', 'cb.id', 'ra.residence_id')
 		.innerJoin('characters as c', 'c.id', 'ra.tenant_id')
-		.where('cb.owner_id', characterId);
+		.where('cb.character_id', characterId);
 	
 	return agreements;
 };

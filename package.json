@@ -10,13 +10,9 @@
   },
   "imports": {
     "#root/*": "./src/*",
-    "#constants/*": "./src/constants/*",
-    "#controllers/*": "./src/controllers/*",
-    "#helpers/*": "./src/helpers/*",
     "#middleware/*": "./src/middleware/*",
-    "#routes/*": "./src/routes/*",
+    "#modules/*": "./src/modules/*",
     "#utils/*": "./src/utils/*",
-    "#validation/*": "./src/validation/*",
     "#views/*": "./src/views/*"
   },
   "repository": {

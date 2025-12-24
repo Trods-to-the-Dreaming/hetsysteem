@@ -19,7 +19,7 @@ import {
 
 export const getWorld = async (id, 
 							   trx = knex) => {
-	const world = (await getWorlds(trx)).get(Number(id));
+	const world = (await getWorlds(trx)).find(w => w.id === id);
 	if (!world) {
 		throw new BadRequestError(MSG_INVALID_WORLD);
 	}
@@ -39,7 +39,6 @@ export const findUserCharacter = async (userId,
 		.where('user_id', userId)
 		.andWhere('world_id', worldId)
 		.first();
-	
 	return character || null;
 };
 //-----------------------------------------------------------------------------------------------//

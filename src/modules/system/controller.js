@@ -1,6 +1,4 @@
-//=== Main ======================================================================================//
-
-export const showIndex = (req, res, next) => {
+export async function showHome(req, res, next) {
 	try {
 		return res.redirect('/about');
 	} catch (err) {
@@ -8,17 +6,17 @@ export const showIndex = (req, res, next) => {
 	}
 };
 //-----------------------------------------------------------------------------------------------//
-export const showAbout = (req, res, next) => {
+export async function showAbout(req, res, next) {
 	try {
-		return res.render('about');
+		return res.render('system/about');
 	} catch (err) {
 		next(err);  
 	}
 };
 //-----------------------------------------------------------------------------------------------//
-export const showGameMechanics = (req, res, next) => {
+export async function showGameMechanics(req, res, next) {
 	try {
-		return res.render('game-mechanics');
+		return res.render('system/game-mechanics');
 	} catch (err) {
 		next(err); 
 	}

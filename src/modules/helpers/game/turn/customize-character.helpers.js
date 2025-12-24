@@ -79,14 +79,14 @@ export const setCustomizeCharacter = async (action,
 	
 	// Validate job preferences
 	const jobs = await getBuildings(trx);
-	
+	const jobIds = new Set(jobs.map(b => b.job));
 	const jobPreferenceIds = [
 		validatedAction.data.jobPreference1,
 		validatedAction.data.jobPreference2,
 		validatedAction.data.jobPreference3
 	];
 	
-	if (!jobPreferenceIds.every(id => jobs.has(id))) {
+	if (!jobPreferenceIds.every(id => jobIds.has(id))) {
 		throw new BadRequestError(MSG_INVALID_JOB);
 	}
 	
@@ -96,10 +96,10 @@ export const setCustomizeCharacter = async (action,
 	
 	// Validate recreation preferences
 	const recreations = await getRecreations(trx);
-	
+	const recreationIds = new Set(recreations.map(r => r.id));
 	const recreationPreferenceId = validatedAction.data.recreationPreference;
 	
-	if (!recreations.has(recreationPreferenceId)) {
+	if (!recreationIds.has(recreationPreferenceId)) {
 		throw new BadRequestError(MSG_INVALID_RECREATION);
 	}
 	

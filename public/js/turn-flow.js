@@ -153,7 +153,7 @@ confirmEdit() {
 //-----------------------------------------------------------------------------------------------//
 populateSelect(select, 
 			   table,
-			   columnName) {
+			   columnName = null) {
 	select.innerHTML = '';
 	
 	const emptyOption = document.createElement('option');
@@ -165,8 +165,13 @@ populateSelect(select,
 
 	table.forEach(row => {
 		const option = document.createElement('option');
-		option.value = row.id;
-		option.textContent = row[columnName];
+		if (columnName) {
+			option.value = row.id;
+			option.textContent = row[columnName];
+		} else {
+			option.value = row;
+			option.textContent = row;
+		}
 		select.appendChild(option);
 	});
 }
@@ -224,8 +229,6 @@ turn.finish = async function() {
 		const action = JSON.parse(localStorage.getItem(`turn.page${index}.action`));
 		characterActions.push(action);
 	}
-	
-	//console.log('characterActions:', JSON.stringify(characterActions, null, 2));
 	
 	try {
         const res = await fetch('/game/turn/finish', {

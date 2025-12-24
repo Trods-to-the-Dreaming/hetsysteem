@@ -15,16 +15,16 @@ turn.page.checkAccess();
 
 <div id="container-div" class="container-compact d-none">
 	<h1>Gebouwen beheren</h1>
-	
+
 	<div id="demolish-div" class="field">
 		<h2>💥 Slopen</h2>
 		
 		<button id="open-demolish-window-button" class="button-2" type="button" 
 				data-bs-toggle="offcanvas" data-bs-target="#demolish-window">
-			Bestaand gebouw slopen
+			Gebouwen slopen
 		</button>
 		
-		<ul id="demolish-ul" class="list-compact d-none"></ul>
+		<ul id="demolished-buildings-ul" class="list-compact d-none"></ul>
 	</div>
 	
 	<div id="build-div" class="field">
@@ -34,10 +34,10 @@ turn.page.checkAccess();
 		
 		<button id="open-construct-window-button" class="button-2" type="button" 
 				data-bs-toggle="offcanvas" data-bs-target="#construct-window">
-			Nieuwbouw plaatsen
+			Nieuw gebouw plaatsen
 		</button>
 		
-		<ul id="construct-ul" class="list-compact d-none"></ul>
+		<ul id="new-construction-sites-ul" class="list-compact d-none"></ul>
 	</div>
 	
 	<hr>
@@ -46,15 +46,15 @@ turn.page.checkAccess();
 <div id="demolish-window" class="offcanvas offcanvas-start" 
 	 data-bs-backdrop="true" data-bs-scroll="false" tabindex="-1">
 	<div class="offcanvas-header">
-		<h2>💥 Slopen</h2>
+		<h2>Gebouwen slopen</h2>
 		
 		<button class="btn-close" type="button" data-bs-dismiss="offcanvas"></button>
 	</div>
 	
 	<div class="offcanvas-body">
-		<p>Vink de te slopen gebouwen aan:</p>
+		<p>Vink de gebouwen aan:</p>
 		
-		<div id="existing-buildings-div" class="field"></div>
+		<div id="preserved-buildings-div" class="field"></div>
 		
 		<div class="container-compact">
 			<button id="confirm-demolish-button" class="button-2" type="button">
@@ -67,7 +67,7 @@ turn.page.checkAccess();
 <div id="construct-window" class="offcanvas offcanvas-start" 
 	 data-bs-backdrop="true" data-bs-scroll="false" tabindex="-1">
 	<div class="offcanvas-header">
-		<h2>🏗️ Bouwen</h2>
+		<h2>Nieuw gebouw plaatsen</h2>
 		
 		<button class="btn-close" type="button" data-bs-dismiss="offcanvas"></button>
 	</div>
@@ -81,10 +81,10 @@ turn.page.checkAccess();
 		</div>
 		
 		<div class="field">
-			<label for="size-factor-select" class="form-label">
+			<label for="size-select" class="form-label">
 				Kies een grootte:
 			</label>
-			<select id="size-factor-select" class="form-select" required disabled></select>
+			<select id="size-select" class="form-select" required></select>
 		</div>
 		
 		<div class="field">
@@ -124,22 +124,22 @@ turn.page.loadAction = function() {
 	// Get game state
 	const characterState = JSON.parse(localStorage.getItem(`turn.characterState`));
 	const buildings = JSON.parse(localStorage.getItem(`turn.buildings`));
-	const sizeFactors = JSON.parse(localStorage.getItem(`turn.sizeFactors`));
+	const sizes = JSON.parse(localStorage.getItem(`turn.sizes`));
 	
 	// Get input elements
 	turn.page.elements = {
-		demolish: document.getElementById('demolish-ul'),
-		construct: document.getElementById('construct-ul'),
-		openDemolishWindow: document.getElementById('open-demolish-window-button'),
-		openConstructWindow: document.getElementById('open-construct-window-button'),
 		demolishWindow: document.getElementById('demolish-window'),
 		constructWindow: document.getElementById('construct-window'),
+		openDemolishWindow: document.getElementById('open-demolish-window-button'),
+		openConstructWindow: document.getElementById('open-construct-window-button'),
 		confirmDemolish: document.getElementById('confirm-demolish-button'),
 		confirmConstruct: document.getElementById('confirm-construct-button'),
+		demolishedBuildings: document.getElementById('demolished-buildings-ul'),
+		newConstructionSites: document.getElementById('new-construction-sites-ul'),
+		preservedBuildings: document.getElementById('preserved-buildings-div'),
 		freeTiles: document.getElementById('free-tiles-span'),
-		existingBuildings: document.getElementById('existing-buildings-div'),
 		newBuilding: document.getElementById('new-building-select'),
-		sizeFactor: document.getElementById('size-factor-select'),
+		size: document.getElementById('size-select'),
 		buildingName: document.getElementById('building-name-input'),
 		buildingNameError: document.getElementById('building-name-error')
 	};
@@ -150,56 +150,83 @@ turn.page.loadAction = function() {
 	turn.page.constructOffcanvas = new bootstrap.Offcanvas(elements.constructWindow);
 	
 	// Add event listeners
-	elements.newBuilding.addEventListener('change', handleNewBuildingChange);
-	elements.buildingName.addEventListener('input', handleBuildingNameInput);
 	elements.confirmDemolish.addEventListener('click', handleConfirmDemolish);
 	elements.confirmConstruct.addEventListener('click', handleConfirmConstruct);
+	elements.buildingName.addEventListener('input', handleBuildingNameInput);
+	
+	// Write to elements
+	const constructibleBuildings = buildings.filter(b => b.isConstructible);
+	turn.page.populateSelect(elements.newBuilding, constructibleBuildings, 'type');
+	turn.page.populateSelect(elements.size, sizes);
 	
 	// Write to data object
 	let freeTiles = characterState.ownedTiles;
 	
+	const ownedConstructionSites = characterState.ownedConstructionSites;
+	
 	const ownedBuildings = characterState.ownedBuildings.map(ob => {
 		const building = buildings.find(b => b.id === ob.buildingId);
-		const isDemolished = action.demolish.some(d => d.buildingId === ob.id);
-		const size = building.baseSize * ob.sizeFactor;
-		const unit = size === 1 ? 'tegel' : 'tegels';
+		const isDemolished = action.demolish.some(d => d.id === ob.id);
 		
-		freeTiles -= isDemolished ? 0 : size;
-
+		let type;
+		let progress;
+		if (building.slug === 'construction-site') {
+			const constructionSite = ownedConstructionSites.find(ocs => ocs.id === ob.id);
+			const newBuilding = buildings.find(b => b.id === constructionSite.buildingId);
+			type = newBuilding.type;
+			progress = `${constructionSite.bricksUsed}/${constructionSite.bricksNeeded}`;
+		} else {
+			type = building.type;
+		}
+		
+		const label = getBuildingLabel({ name: ob.name,
+										 type,
+										 size: ob.size,
+										 progress });
+		
+		if (!isDemolished) freeTiles -= ob.size;
+		
 		return {
 			id: ob.id,
 			isDemolished,
-			size,
-			label: `${ob.name} <small>(${building.type} ${size} ${unit})</small>`
+			size: ob.size,
+			label
 		};
 	});
 	
-	console.log(turn.page.action);
-	console.table(ownedBuildings);
-	
-	const plannedBuildings = action.construct.map(c => {
+	const newConstructionSites = action.construct.map(c => {
 		const building = buildings.find(b => b.id === c.buildingId);
-		const size = building.baseSize * c.sizeFactor;
-		const unit = size === 1 ? 'tegel' : 'tegels';
+		const label = getBuildingLabel({ name: c.name,
+										 type: building.type,
+										 size: c.size });
 		
-		freeTiles -= size;
+		freeTiles -= c.size;
 		
 		return {
-			id: c.buildingId,
+			buildingId: c.buildingId,
 			name: c.name,
-			sizeFactor: c.sizeFactor,
-			size,
-			label: `${c.name} <small>(${building.type} ${size} ${unit})</small>`
+			size: c.size,
+			label
 		};
 	});
 	
 	turn.page.data = {
 		freeTiles,
 		ownedBuildings,
-		plannedBuildings,
+		newConstructionSites,
 		buildings,
-		sizeFactors
+		sizes
 	};
+}
+//-----------------------------------------------------------------------------------------------//
+function getBuildingLabel({ name,
+							type,
+							size,
+							progress = null }) {
+	const unit = size === 1 ? 'tegel' : 'tegels';
+	return progress ? 
+		   `${name} <small>(${type}, ${size} ${unit}, ${progress} voltooid)</small>` : 
+		   `${name} <small>(${type}, ${size} ${unit})</small>`;
 }
 //-----------------------------------------------------------------------------------------------//
 turn.page.saveAction = function() {
@@ -216,11 +243,11 @@ turn.page.saveAction = function() {
 	
 	// Construct
 	action.construct = [];
-	data.plannedBuildings.forEach(pb => {
+	data.newConstructionSites.forEach(ncs => {
 		action.construct.push({
-			buildingId: pb.id,
-			name: pb.name,
-			sizeFactor: pb.sizeFactor
+			buildingId: ncs.buildingId,
+			name: ncs.name,
+			size: ncs.size
 		});
 	});
 	
@@ -250,6 +277,54 @@ turn.page.updateUI = function() {
 	// Enable next button (always)
 	turn.page.setNextDisabled(false);
 }
+//-----------------------------------------------------------------------------------------------//
+function handleConfirmDemolish() {
+	// Write from elements to data object
+	const elements = turn.page.elements;
+	const data = turn.page.data;
+
+	const checkboxes = elements.preservedBuildings.querySelectorAll('input[type="checkbox"]');
+
+	checkboxes.forEach(checkbox => {
+		if (checkbox.checked) {
+			const buildingId = Number(checkbox.dataset.buildingId);
+			const building = data.ownedBuildings.find(b => b.id === buildingId);
+			building.isDemolished = checkbox.checked;
+
+			data.freeTiles += building.size;
+		}
+	});
+	
+	// Update UI
+	turn.page.updateUI();
+	
+	// Close offcanvas
+	turn.page.demolishOffcanvas.hide();
+}
+//-----------------------------------------------------------------------------------------------//
+async function canConfirmConstruct() {
+	const elements = turn.page.elements;
+	
+	const buildingName = elements.buildingName.value;
+
+	try {
+		const params = new URLSearchParams({
+			buildingName
+		});
+		const res = await fetch(`/game/turn/is-building-name-available?${params}`);
+		const { available } = await res.json();
+
+		if (!available) {
+			elements.buildingNameError.textContent = 'Deze naam is al in gebruik.';
+			return false;
+		}
+		
+		return true;
+	} catch (err) {
+		console.error(err);
+		return false;
+	}
+};
 //-----------------------------------------------------------------------------------------------//
 function handleNewBuildingChange() {
 	// Set available sizes of the chosen new building
@@ -302,7 +377,7 @@ function handleBuildingNameInput() {
 	nameInput.reportValidity();
 	
 	// Check if the user has already chosen this name
-	const nameConflict = data.plannedBuildings.some(
+	const nameConflict = data.newConstructionSites.some(
 		b => b.name.toLowerCase() === name.toLowerCase()
 	);
     if (nameConflict) {
@@ -325,16 +400,16 @@ async function handleConfirmConstruct() {
 	const newBuildingId = Number(elements.newBuilding.value);
 	const newBuilding = data.buildings.find(b => b.id === newBuildingId);
 	const name = elements.buildingName.value;
-	const sizeFactor = Number(elements.sizeFactor.value);
-	const size = newBuilding.baseSize * sizeFactor;
-	const unit = (size === 1 ? 'tegel' : 'tegels');
+	const size = Number(elements.size.value);
+	const label = getBuildingLabel({ name,
+									 type: newBuilding.type,
+									 size });
 	
-	data.plannedBuildings.push({
+	data.newConstructionSites.push({
 		id: newBuildingId,
 		name,
-		sizeFactor,
 		size,
-		label: `${name} <small>(${newBuilding.type} ${size} ${unit})</small>`
+		label
 	});
 	
 	data.freeTiles -= size;
@@ -345,54 +420,7 @@ async function handleConfirmConstruct() {
 	// Close offcanvas
 	turn.page.constructOffcanvas.hide();
 }
-//-----------------------------------------------------------------------------------------------//
-function handleConfirmDemolish() {
-	// Write from elements to data object
-	const elements = turn.page.elements;
-	const data = turn.page.data;
 
-	const checkboxes = elements.existingBuildings.querySelectorAll('input[type="checkbox"]');
-
-	checkboxes.forEach(checkbox => {
-		if (checkbox.checked) {
-			const buildingId = Number(checkbox.dataset.buildingId);
-			const building = data.ownedBuildings.find(b => b.id === buildingId);
-			building.isDemolished = checkbox.checked;
-
-			data.freeTiles += building.size;
-		}
-	});
-	
-	// Update UI
-	turn.page.updateUI();
-	
-	// Close offcanvas
-	turn.page.demolishOffcanvas.hide();
-}
-//-----------------------------------------------------------------------------------------------//
-async function canConfirmConstruct() {
-	const elements = turn.page.elements;
-	
-	const buildingName = elements.buildingName.value;
-
-	try {
-		const params = new URLSearchParams({
-			buildingName
-		});
-		const res = await fetch(`/game/turn/is-building-name-available?${params}`);
-		const { available } = await res.json();
-
-		if (!available) {
-			elements.buildingNameError.textContent = 'Deze naam is al in gebruik.';
-			return false;
-		}
-		
-		return true;
-	} catch (err) {
-		console.error(err);
-		return false;
-	}
-};
 //-----------------------------------------------------------------------------------------------//
 function updateConstructUI() {
 	const elements = turn.page.elements;
@@ -411,12 +439,12 @@ function renderDemolishList() {
 	const data = turn.page.data;
 	const elements = turn.page.elements;
 	
-	elements.demolish.innerHTML = '';
-	elements.existingBuildings.innerHTML = '';
+	elements.demolishedBuildings.innerHTML = '';
+	elements.preservedBuildings.innerHTML = '';
 	
 	data.ownedBuildings.forEach(ob => {
 		if (ob.isDemolished) {
-			// Add to demolish list
+			// Add to demolished buildings list
 			const li = document.createElement('li');
 			li.className = 'list-item-justify';
 			li.dataset.buildingId = ob.id;
@@ -438,9 +466,9 @@ function renderDemolishList() {
 				li.appendChild(button);
 			}
 
-			elements.demolish.appendChild(li);
+			elements.demolishedBuildings.appendChild(li);
 		} else {
-			// Add to existing buildings list
+			// Add to preserved buildings list
 			const div = document.createElement('div');
 			div.className = 'form-check';
 			
@@ -457,20 +485,20 @@ function renderDemolishList() {
 			label.innerHTML = ob.label;
 			div.appendChild(label);
 			
-			elements.existingBuildings.appendChild(div);
+			elements.preservedBuildings.appendChild(div);
 		}
 	});
 	
-	// Show/hide demolish list
-	if (elements.demolish.children.length === 0) {
-		elements.demolish.classList.add('d-none');
+	// Show/hide demolished buildings list
+	if (elements.demolishedBuildings.children.length === 0) {
+		elements.demolishedBuildings.classList.add('d-none');
 	} else {
-		elements.demolish.classList.remove('d-none');
+		elements.demolishedBuildings.classList.remove('d-none');
 	}
 	
 	// Enable/disable demolish window
-	const areAllBuildingDemolished = data.ownedBuildings.every(ob => ob.isDemolished);
-	elements.openDemolishWindow.disabled = areAllBuildingDemolished || turn.page.disabled;
+	const areAllBuildingsDemolished = data.ownedBuildings.every(ob => ob.isDemolished);
+	elements.openDemolishWindow.disabled = areAllBuildingsDemolished || turn.page.disabled;
 }
 //-----------------------------------------------------------------------------------------------//
 function renderConstructList() {
@@ -478,19 +506,16 @@ function renderConstructList() {
 	const data = turn.page.data;
 	const elements = turn.page.elements;
 	
-	elements.construct.innerHTML = '';
-	elements.newBuilding.innerHTML = '';
-	elements.sizeFactor.innerHTML = '';
-	elements.buildingName.value = '';
+	elements.newConstructionSites.innerHTML = '';
 	
-	data.plannedBuildings.forEach((pb, index) => {
-		// Add to construct list
+	data.newConstructionSites.forEach((ncs, index) => {
+		// Add to new construction sites list
 		const li = document.createElement('li');
 		li.className = 'list-item-justify';
 		li.dataset.buildingId = 'nb_' + index; // temporary id
 		
 		const span = document.createElement('span');
-		span.innerHTML = pb.label;
+		span.innerHTML = ncs.label;
 		li.appendChild(span);
 		
 		const button = document.createElement('button');
@@ -498,44 +523,31 @@ function renderConstructList() {
 		button.classList.add('btn-close');
 		button.disabled = turn.page.disabled;
 		button.addEventListener('click', () => {
-			data.plannedBuildings.splice(index, 1);
-			data.freeTiles += pb.size;
+			data.newConstructionSites.splice(index, 1);
+			data.freeTiles += ncs.size;
 			turn.page.updateUI();
 		});
 		li.appendChild(button);
 		
-		elements.construct.appendChild(li);
+		elements.newConstructionSites.appendChild(li);
 	});
 	
-	// Disable new buildings that are too large
-	const emptyOption = document.createElement('option');
-	emptyOption.value = '';
-	emptyOption.disabled = true;
-	emptyOption.selected = true;
-	emptyOption.hidden = true;
-	elements.newBuilding.appendChild(emptyOption);
-
-	data.buildings
-		.filter(b => b.isConstructible)
-		.forEach(b => {
-			const option = document.createElement('option');
-			option.value = b.id;
-			option.textContent = b.type;
-			option.disabled = (b.baseSize > data.freeTiles);
-			elements.newBuilding.appendChild(option);
-		});
-	
-	// Disable size factor select
-	elements.sizeFactor.disabled = true;
+	elements.newBuilding.value = '';
+	elements.buildingName.value = '';
+	elements.size.value = '';
+	for (const option of elements.size.options) {
+		const tiles = Number(option.value);
+		option.disabled = tiles > data.freeTiles;
+	}
 	
 	// Update offcanvas UI
 	updateConstructUI();
 	
-	// Show/hide construct list
-	if (elements.construct.children.length === 0) {
-		elements.construct.classList.add('d-none');
+	// Show/hide new construction sites list
+	if (elements.newConstructionSites.children.length === 0) {
+		elements.newConstructionSites.classList.add('d-none');
 	} else {
-		elements.construct.classList.remove('d-none');
+		elements.newConstructionSites.classList.remove('d-none');
 	}
 	
 	// Enable/disable construct window

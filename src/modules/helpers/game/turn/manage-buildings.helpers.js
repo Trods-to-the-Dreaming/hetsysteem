@@ -22,32 +22,37 @@ import {
 } from '#helpers/game/static.helpers.js';
 
 import {
-	findBuildingName,
-	getOwnedBuildings
+	findBuildingName
 } from '#helpers/game/state.helpers.js';
 
 //=== Main ======================================================================================//
 
 export const getManageBuildings = async (characterId,
 										 trx = knex) => {
+	const undo = await trx('action_undo as au')
+		.select(
+			'au.character_building_id as id'
+		)
+		.innerJoin('character_buildings as cb', 'cb.id', 'au.character_building_id')
+		.where('cb.character_id', characterId)
+		
 	const demolish = await trx('action_demolish as ad')
 		.select(
-			//'ad.id as id',
-			'cb.id as buildingId'
+			'ad.character_building_id as id'
 		)
-		.innerJoin('character_buildings as cb', 'cb.id', 'ad.building_id')
-		.where('cb.owner_id', characterId)
+		.innerJoin('character_buildings as cb', 'cb.id', 'ad.character_building_id')
+		.where('cb.character_id', characterId)
 	
 	const construct = await trx('action_construct')
 		.select(
-			//'id',
 			'name',
 			'building_id as buildingId',
 			'size_factor as sizeFactor'
 		)
-		.where('owner_id', characterId)
+		.where('character_id', characterId)
 	
-	return { demolish,
+	return { undo,
+			 demolish,
 			 construct };
 };
 //-----------------------------------------------------------------------------------------------//
@@ -59,12 +64,12 @@ export const setManageBuildings = async (action,
 	await trx('action_demolish')
 		.whereIn(
 			'building_id',
-			trx('character_buildings').select('id').where('owner_id', characterId)
+			trx('character_buildings').select('id').where('character_id', characterId)
 		)
 		.del();
 	
 	await trx('action_construct')
-		.where('owner_id', characterId)
+		.where('character_id', characterId)
 		.del();
 	
 	// Validate action
@@ -77,7 +82,7 @@ export const setManageBuildings = async (action,
 	// Validate demolished buildings
 	const ownedBuildings = await trx('character_buildings')
 		.select('id')
-		.where('owner_id', characterId)
+		.where('character_id', characterId)
 		
 	const ownedBuildingIds = new Set(ownedBuildings.map(b => b.id));
 	const demolishedBuildingIds = validatedAction.data.demolish;

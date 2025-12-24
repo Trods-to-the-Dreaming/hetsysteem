@@ -108,10 +108,9 @@ CREATE TABLE products (
 	id TINYINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	slug VARCHAR(32) NOT NULL UNIQUE,
 	type VARCHAR(32) NOT NULL UNIQUE,
+	is_tradeable BOOLEAN NOT NULL,
 	volume TINYINT UNSIGNED NOT NULL DEFAULT 1
 );
-
--- tradeable_products?
 
 CREATE TABLE recreations (
     product_id TINYINT UNSIGNED PRIMARY KEY,
@@ -123,7 +122,6 @@ CREATE TABLE buildings (
 	slug VARCHAR(32) NOT NULL UNIQUE,
 	type VARCHAR(32) NOT NULL,
 	is_constructible BOOLEAN NOT NULL,
-	base_size TINYINT UNSIGNED NOT NULL,
 	job VARCHAR(32) NOT NULL UNIQUE,
 	input_id TINYINT UNSIGNED,
 	output_id TINYINT UNSIGNED NOT NULL,
@@ -189,29 +187,36 @@ CREATE TABLE characters (
 );
 
 CREATE TABLE character_products (
-	owner_id INT UNSIGNED NOT NULL,
+	character_id INT UNSIGNED NOT NULL,
 	product_id TINYINT UNSIGNED NOT NULL,
 	quantity INT UNSIGNED NOT NULL DEFAULT 0,
-	PRIMARY KEY (owner_id, product_id),
-	FOREIGN KEY (owner_id) REFERENCES characters(id) ON DELETE CASCADE,
+	PRIMARY KEY (character_id, product_id),
+	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
 	FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
 CREATE TABLE character_buildings (
 	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	world_id TINYINT UNSIGNED NOT NULL, -- for name uniqueness
-	owner_id INT UNSIGNED NOT NULL,
+	character_id INT UNSIGNED NOT NULL,
 	building_id TINYINT UNSIGNED NOT NULL,
 	name VARCHAR(32) NOT NULL,
-	size_factor TINYINT UNSIGNED NOT NULL DEFAULT 1,
+	size TINYINT UNSIGNED NOT NULL DEFAULT 1,
 	boosted_working_hours SMALLINT UNSIGNED NOT NULL DEFAULT 0,
 	UNIQUE (world_id, name),
 	FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE,
-	FOREIGN KEY (owner_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
 	FOREIGN KEY (building_id) REFERENCES buildings(id)
 );
 
--- construction_sites
+CREATE TABLE character_construction_sites (
+	character_building_id INT UNSIGNED PRIMARY KEY,
+	building_id TINYINT UNSIGNED NOT NULL,
+	bricks_used TINYINT UNSIGNED NOT NULL DEFAULT 0,
+	bricks_needed TINYINT UNSIGNED NOT NULL,
+	FOREIGN KEY (character_building_id) REFERENCES character_buildings(id) ON DELETE CASCADE,
+	FOREIGN KEY (building_id) REFERENCES buildings(id)
+);
 
 CREATE TABLE residences (
     character_building_id INT UNSIGNED PRIMARY KEY,
@@ -264,18 +269,17 @@ CREATE TABLE action_customize (
 );
 
 CREATE TABLE action_demolish (
-    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	building_id INT UNSIGNED NOT NULL,
-	FOREIGN KEY (building_id) REFERENCES character_buildings(id) ON DELETE CASCADE
+    character_building_id INT UNSIGNED PRIMARY KEY,
+	FOREIGN KEY (character_building_id) REFERENCES character_buildings(id) ON DELETE CASCADE
 );
 
 CREATE TABLE action_construct (
 	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	owner_id INT UNSIGNED NOT NULL,
+	character_id INT UNSIGNED NOT NULL,
 	building_id TINYINT UNSIGNED NOT NULL,
 	name VARCHAR(32) NOT NULL,
-	size_factor TINYINT UNSIGNED NOT NULL,
-	FOREIGN KEY (owner_id) REFERENCES characters(id) ON DELETE CASCADE,
+	size TINYINT UNSIGNED NOT NULL,
+	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
 	FOREIGN KEY (building_id) REFERENCES buildings(id)
 );
 
@@ -332,30 +336,30 @@ INSERT INTO worlds
 ('De tijd brengt raad',  'time', 'growing_limits', 3,            10);
 
 INSERT INTO products 
-(slug,               type,                 volume) VALUES
-('food',             'Voedsel',            1), -- id = 1
-('medical-care',     'Medische zorg',      1), -- id = 2
-('domestic-help',    'Huishoudhulp',       1), -- id = 3
-('education',        'Onderwijs',          1), -- id = 4
-('order-processing', 'Orderverwerking',    1), -- id = 5
-('procedures',       'Procedures',         1), -- id = 6
-('energy',           'Energie',            1), -- id = 7
-('information',      'Informatie',         1), -- id = 8
-('concert',          'Concert',            1), -- id = 9
-('video-game',       'Videospel',          1), -- id = 10
-('fashion-show',     'Modeshow',           1), -- id = 11
-('infrastructure',   'Infrastructuur',     1), -- id = 12
-('trash',            'Vuilnis',            1), -- id = 13
-('raw-materials',    'Grondstoffen',       1), -- id = 14
-('tools',            'Gereedschap',        1), -- id = 15
-('machines',         'Machines',           1), -- id = 16
-('intermediates',    'Halffabricaten',     1), -- id = 17
-('instruments',      'Muziekinstrumenten', 1), -- id = 18
-('electronics',      'Elektronica',        1), -- id = 19
-('clothing',         'Kleding',            1), -- id = 20
-('bricks',           'Bakstenen',          1), -- id = 21
-('ores',             'Ertsen',             1), -- id = 22
-('litter',           'Zwerfvuil',          1); -- id = 23
+(slug,               type,                 is_tradeable, volume) VALUES
+('food',             'Voedsel',            true,         1), -- id = 1
+('medical-care',     'Medische zorg',      true,         1), -- id = 2
+('domestic-help',    'Huishoudhulp',       true,         1), -- id = 3
+('education',        'Onderwijs',          true,         1), -- id = 4
+('order-processing', 'Orderverwerking',    true,         1), -- id = 5
+('procedures',       'Procedures',         true,         1), -- id = 6
+('energy',           'Energie',            true,         1), -- id = 7
+('information',      'Informatie',         true,         1), -- id = 8
+('concert',          'Concert',            true,         1), -- id = 9
+('video-game',       'Videospel',          true,         1), -- id = 10
+('fashion-show',     'Modeshow',           true,         1), -- id = 11
+('infrastructure',   'Infrastructuur',     true,         1), -- id = 12
+('trash',            'Vuilnis',            true,         1), -- id = 13
+('raw-materials',    'Grondstoffen',       true,         1), -- id = 14
+('tools',            'Gereedschap',        true,         1), -- id = 15
+('machines',         'Machines',           true,         1), -- id = 16
+('intermediates',    'Halffabricaten',     true,         1), -- id = 17
+('instruments',      'Muziekinstrumenten', true,         1), -- id = 18
+('electronics',      'Elektronica',        true,         1), -- id = 19
+('clothing',         'Kleding',            true,         1), -- id = 20
+('bricks',           'Bakstenen',          false,        1), -- id = 21
+('ores',             'Ertsen',             true,         1), -- id = 22
+('litter',           'Zwerfvuil',          true,         1); -- id = 23
 
 -- tradeable_products?
 
@@ -421,20 +425,20 @@ INSERT INTO characters
 (3);
 
 INSERT INTO character_products
-(owner_id, product_id, quantity) VALUES
-(1,             1,         6),
-(1,             6,         2),
-(2,             8,         1),
-(2,            12,         3),
-(3,            18,         5);
+(character_id, product_id, quantity) VALUES
+(1,             1,        6),
+(1,             6,        2),
+(2,             8,        1),
+(2,            12,        3),
+(3,            18,        5);
 
 INSERT INTO character_buildings
-(world_id, owner_id, building_id, name,                 size_factor, boosted_working_hours) VALUES
-(1,        1,         1,          'De Appelgaard',      1,           0),
-(1,        1,         6,          'Kwaliteitskompas',   1,           0),
-(1,        1,         8,          'Innovatiehub',       2,           0),
-(1,        2,        12,          'Mobipark',           1,           0),
-(1,        2,        18,          'De Stemmige Snaren', 1,           0);
+(world_id, character_id, building_id, name,                 size_factor, boosted_working_hours) VALUES
+(1,        1,             1,          'De Appelgaard',      1,           0),
+(1,        1,             6,          'Kwaliteitskompas',   1,           0),
+(1,        1,             8,          'Innovatiehub',       2,           0),
+(1,        2,            12,          'Mobipark',           1,           0),
+(1,        2,            18,          'De Stemmige Snaren', 1,           0);
 
 
 

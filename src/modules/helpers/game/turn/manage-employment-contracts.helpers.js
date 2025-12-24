@@ -31,7 +31,7 @@ export const getManageEmploymentContracts = async (characterId,
 			'ar.max_hourly_wage as maxHourlyWage'
 		)
 		.innerJoin('character_buildings as cb', 'cb.id', 'ar.job_id')
-		.where('cb.owner_id', characterId);
+		.where('cb.character_id', characterId);
 	
 	const dismiss = await trx('action_dismiss as ad')
 		.select(
@@ -40,7 +40,7 @@ export const getManageEmploymentContracts = async (characterId,
 		)
 		.innerJoin('employment_contracts as ec', 'ec.id', 'ad.contract_id')
 		.innerJoin('character_buildings as cb', 'cb.id', 'ec.workplace_id')
-		.where('cb.owner_id', characterId);
+		.where('cb.character_id', characterId);
 	
 	return { apply,
 			 resign,

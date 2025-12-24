@@ -1,38 +1,36 @@
-//=== Imports ===================================================================================//
-
 import bcrypt from 'bcrypt';
 
 import knex from '#utils/db.js';
 
-//=== Main ======================================================================================//
+//===============================================================================================//
 
-export const findUserById = async (id) => {
+export async function findUserById(id) {
 	return await knex('users')
 		.where('id', id)
 		.first();
-};
+}
 //-----------------------------------------------------------------------------------------------//
-export const findUserByName = async (name) => {
+export async function findUserByName(name) {
 	return await knex('users')
 		.where('name', name)
 		.first();
-};
+}
 //-----------------------------------------------------------------------------------------------//
-export const isUsernameTaken = async (username) => {
+export async function isUsernameTaken(username) {
 	const user = await knex('users')
 		.select('id')
 		.where('name', username)
 		.first();
 	return !!user;
-};
+}
 //-----------------------------------------------------------------------------------------------//
-export const isPasswordCorrect = async (user, 
-										password) => {
+export async function isPasswordCorrect(user, 
+										password) {
 	return await bcrypt.compare(password, user.password);
-};
+}
 //-----------------------------------------------------------------------------------------------//
-export const registerUser = async (username, 
-								   password) => {
+export async function registerUser(username, 
+								   password) {
 	const hashedPassword = await bcrypt.hash(password, 8);
 	const [id] = await knex('users')
 		.insert({
@@ -40,17 +38,19 @@ export const registerUser = async (username,
 			password: hashedPassword,
 		});
 	return await findUserById(id);
-};
+}
 //-----------------------------------------------------------------------------------------------//
-export const updateUsername = async (userId, newUsername) => {
+export async function updateUsername(userId, 
+									 newUsername) {
 	await knex('users')
 		.where('id', userId)
 		.update({ name: newUsername });
-};
+}
 //-----------------------------------------------------------------------------------------------//
-export const updatePassword = async (userId, newPassword) => {
+export async function updatePassword(userId, 
+									 newPassword) {
 	const hashedPassword = await bcrypt.hash(newPassword, 8);
 	await knex('users')
 		.where('id', userId)
 		.update({ password: hashedPassword });
-};
+}

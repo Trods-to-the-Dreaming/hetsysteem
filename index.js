@@ -1,20 +1,28 @@
-//=== Imports ===================================================================================//
 import express from 'express';
 import expressSession from 'express-session';
 import expressHandlebars from 'express-handlebars';
 
 import path from 'path';
+
 import fs from 'fs';
+
 import { pathToFileURL } from 'url';
 
 import knex from './src/utils/db.js';
 import { ConnectSessionKnexStore } from 'connect-session-knex';
 
-//=== Constants =================================================================================//
+import systemRoutes from '#modules/system/routes.js';
+import accountRoutes from '#modules/account/routes.js';
+import gameRoutes from '#modules/game/routes.js';
+//import cronRoutes from '#modules/cron/cron.routes.js';
+
+//===============================================================================================//
+
 const MSG_SERVER_STARTED = 'Server gestart via poort ';
 const MSG_MYSQLSTORE_READY = 'Knex MySQL store klaar voor gebruik';
 
-//=== Initialization ============================================================================//
+//===============================================================================================//
+
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
@@ -23,7 +31,8 @@ app.use(express.json());
 const publicDir = path.join(process.cwd(), 'public');
 app.use(express.static(publicDir));
 
-//=== Session setup =============================================================================//
+//===============================================================================================//
+
 const sessionStore = new ConnectSessionKnexStore ({
 	knex:        knex,
 	tablename:   'sessions',
@@ -46,7 +55,8 @@ app.use(expressSession({
 	}
 }));
 
-//=== View engine ===============================================================================//
+//===============================================================================================//
+
 app.engine('hbs',
 	expressHandlebars.engine({
 		helpers: {
@@ -79,7 +89,8 @@ app.engine('hbs',
 app.set('view engine', 'hbs');
 app.set('views', path.join(process.cwd(), 'src/views'));
 
-//=== View locals ===============================================================================//
+//===============================================================================================//
+
 app.use((req, res, next) => {
 	if (req.session && req.session.username) {
 		res.locals.authenticated = true;
@@ -90,32 +101,33 @@ app.use((req, res, next) => {
 	next();
 });
 
-//=== Routing ===================================================================================//
-const routersPath = path.join(process.cwd(), 'src/routes');
-const routerImports = fs.readdirSync(routersPath).map(async (file) => {
-	if (file.endsWith('.js')) {
-		const fullPath = path.join(routersPath, file);
-		const module = await import(pathToFileURL(fullPath).href);
-		const { path: basePath, router } = module.default;
-		app.use(basePath, router);
-	}
-});
-await Promise.all(routerImports);
+//===============================================================================================//
 
-//=== Error handling ============================================================================//
+app.use(systemRoutes.path, systemRoutes.router);
+app.use(accountRoutes.path, accountRoutes.router);
+app.use(gameRoutes.basePath, gameRoutes.router);
+//app.use(cronRoutes.basePath, cronRoutes.router);
+
+//===============================================================================================//
+
 app.use((err, req, res, next) => {
 	console.error(err);
-
+	
 	const status = err.status || 500;
-	const redirect = err.redirect || req.get('Referer') || '/';
+	const message = err.message;
+	const referer = req.get('Referer');
+	const redirect = err.redirect ??
+					 (referer?.startsWith('/') ? referer : '/') ??
+					 '/';
 	
 	res.status(status).render(`errors/${status}`, {
-		message: err.expose ? err.message : null,
+		message,
 		redirect
 	});
 });
 
-//=== Start server ==============================================================================//
+//===============================================================================================//
+
 app.listen(process.env.APP_PORT, () => {
 	console.log(MSG_SERVER_STARTED + process.env.APP_PORT);
 	console.log(MSG_MYSQLSTORE_READY);

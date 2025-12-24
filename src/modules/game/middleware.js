@@ -1,6 +1,8 @@
-//=== Main ======================================================================================//
+import { ForbiddenError } from '#utils/errors.js';
 
-export const requireWorldSession = (req, res, next) => {
+//===============================================================================================//
+
+export function requireWorldSession(req, res, next) {
 	if (req.session.worldId && 
 		req.session.worldType &&
 		req.session.characterId) {
@@ -16,8 +18,10 @@ export const requireWorldSession = (req, res, next) => {
 				res.locals.worldClass = 'time-world';
 				break;
 		}
-		next();
-	} else {
-		res.redirect('/game/choose-world');
+		return next();
 	}
-};
+	throw new ForbiddenError(
+		'U moet eerst een wereld kiezen.',
+		'/game/choose-world'
+	);
+}
