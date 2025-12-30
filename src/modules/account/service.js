@@ -1,21 +1,27 @@
 import bcrypt from 'bcrypt';
 
+import { ok, fail } from '#utils/result.js';
+
+import { ACCOUNT } from './reasons.js';
+
 import {
 	findUserById,
 	findUserByName,
-	createUser
+	insertUser,
+	updateUsername,
+	updatePassword
 } from './repository.js';
 
 //===============================================================================================//
 
-export async function authenticate(username, password) {
+export async function login(username, password) {
 	const user = await findUserByName(username);
-	if (!user) return null;
+	if (!user) return fail(ACCOUNT.REASON.INVALID_CREDENTIALS);
 
 	const passwordOK = await bcrypt.compare(password, user.password);
-	if (!passwordOK ) return null;
+	if (!passwordOK ) return fail(ACCOUNT.REASON.INVALID_CREDENTIALS);
 
-	return user;
+	return ok(user);
 }
 //-----------------------------------------------------------------------------------------------//
 export async function register(username, 
@@ -24,142 +30,49 @@ export async function register(username,
 	
 	let id;
 	try {
-		[id] = await createUser(username, hashedPassword);
+		[id] = await insertUser(username, hashedPassword);
 	} catch (err) {
 		if (err.code === 'ER_DUP_ENTRY') {
-			return null;
+			return fail(ACCOUNT.REASON.USERNAME_TAKEN);
 		}
 		throw err;
 	}
+	
+	const user = await findUserById(id);
 
-	return findUserById(id);
+	return ok(user);
 }
 //-----------------------------------------------------------------------------------------------//
-export async function changeUsername(userId, 
-									 newUsername, 
+export async function changeUsername(userId,
+									 newUsername,
 									 password) {
 	const user = await findUserById(userId);
-
+	
 	const passwordOK = await bcrypt.compare(password, user.password);
-	if (!passwordOK) return { isPasswordWrong: true };
+	if (!passwordOK) return fail(ACCOUNT.REASON.PASSWORD_WRONG);
 
 	try {
 		await updateUsername(userId, newUsername);
 	} catch (err) {
 		if (err.code === 'ER_DUP_ENTRY') {
-			return { isUsernameTaken: true };
+			return fail(ACCOUNT.REASON.USERNAME_TAKEN);
 		}
 		throw err;
 	}
 
-	return {};
+	return ok();
 }
-
-
-
-
-
-
-try {
-	const { userId,
-			username } = req.session;
-	const { newUsername, 
-			password } = req.validatedData;
-	
-	// Check if new username is taken
-	if (await isUsernameTaken(newUsername)) {
-		return res.render('account/change-username', {
-			username,
-			newUsername:   newUsername,
-			usernameError: MSG_USERNAME_TAKEN
-		});
-	}
-
-	// Find user
-	const user = await findUserById(userId);
-
-	// Verify password
-	if (!(await isPasswordCorrect(user, password))) {
-		return res.render('account/change-username', {
-			username,
-			newUsername:   newUsername,
-			passwordError: MSG_PASSWORD_WRONG
-		});
-	}
-
-	// Update username
-	await updateUsername(userId, newUsername);
-
-	// Save session
-	req.session.username = newUsername;
-	req.session.changeSaved = true;
-	req.session.changeMessage = MSG_USERNAME_CHANGED;
-	await saveSession(req);
-	
-	return res.redirect('/account/change-username');
-} catch (err) {
-	next(err); 
-}
-
-
-
-
-
+//-----------------------------------------------------------------------------------------------//
 export async function changePassword(userId, 
-									 newPassword) {
-	const passwordHash = await bcrypt.hash(newPassword, 8);
-	await updatePassword(userId, hash);
-}
+									 newPassword,
+									 password) {
+	const user = await findUserById(userId);
+	
+	const passwordOK = await bcrypt.compare(password, user.password);
+	if (!passwordOK) return fail(ACCOUNT.REASON.PASSWORD_WRONG);
+	
+	const hashedNewPassword = await bcrypt.hash(newPassword, 8);
+	await updatePassword(userId, hashedNewPassword);
 
-
-
-export async function findUserById(id) {
-	return await knex('users')
-		.where('id', id)
-		.first();
-}
-//-----------------------------------------------------------------------------------------------//
-export async function findUserByName(name) {
-	return await knex('users')
-		.where('name', name)
-		.first();
-}
-//-----------------------------------------------------------------------------------------------//
-export async function isUsernameTaken(username) {
-	const user = await knex('users')
-		.select('id')
-		.where('name', username)
-		.first();
-	return !!user;
-}
-//-----------------------------------------------------------------------------------------------//
-export function isPasswordCorrect(user, 
-								  password) {
-	return bcrypt.compare(password, user.password);
-}
-//-----------------------------------------------------------------------------------------------//
-export async function registerUser(username, 
-								   password) {
-	const hashedPassword = await bcrypt.hash(password, 8);
-	const [id] = await knex('users')
-		.insert({
-			name: username,
-			password: hashedPassword,
-		});
-	return await findUserById(id);
-}
-//-----------------------------------------------------------------------------------------------//
-export async function updateUsername(userId, 
-									 newUsername) {
-	await knex('users')
-		.where('id', userId)
-		.update({ name: newUsername });
-}
-//-----------------------------------------------------------------------------------------------//
-export async function updatePassword(userId, 
-									 newPassword) {
-	const hashedPassword = await bcrypt.hash(newPassword, 8);
-	await knex('users')
-		.where('id', userId)
-		.update({ password: hashedPassword });
+	return ok();
 }

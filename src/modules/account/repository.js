@@ -2,57 +2,41 @@ import knex from '#utils/db.js';
 
 //===============================================================================================//
 
-export function findUserById(id,
+export function findUserById(userId,
 							 trx = knex) {
 	return trx('users')
-		.where('id', id)
+		.where('id', userId)
 		.first();
 }
 //-----------------------------------------------------------------------------------------------//
-export function findUserByName(name,
+export function findUserByName(username,
 							   trx = knex) {
 	return trx('users')
-		.where('name', name)
+		.where('name', username)
 		.first();
 }
 //-----------------------------------------------------------------------------------------------//
-export function createUser(name,
+export function insertUser(username,
 						   hashedPassword,
 						   trx = knex) {
 	return trx('users').insert({
-		name,
+		name: username,
 		password: hashedPassword,
 	});
 }
 //-----------------------------------------------------------------------------------------------//
 export async function updateUsername(userId, 
-									 name,
+									 newUsername,
 									 trx = knex) {
 	await trx('users')
 		.where('id', userId)
-		.update({ name });
+		.update({ name: newUsername });
 }
 //-----------------------------------------------------------------------------------------------//
 export async function updatePassword(userId, 
-									 hashedPassword,
+									 hashedNewPassword,
 									 trx = knex) {
 	await trx('users')
 		.where('id', userId)
-		.update({ password: hashedPassword });
+		.update({ password: hashedNewPassword });
 }
-/*export async function isUsernameTaken(username) {
-	const user = await knex('users')
-		.select('id')
-		.where('name', username)
-		.first();
-	return Boolean(user);
-}*/
-//-----------------------------------------------------------------------------------------------//
-/*export async function createUser(name,
-								 hashedPassword) {
-	const [id] = await knex('users').insert({
-		name,
-		password: hashedPassword,
-	});
-	return findUserById(id);
-}*/

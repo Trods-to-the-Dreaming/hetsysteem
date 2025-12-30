@@ -13,7 +13,7 @@ import { ConnectSessionKnexStore } from 'connect-session-knex';
 
 import systemRoutes from '#modules/system/routes.js';
 import accountRoutes from '#modules/account/routes.js';
-import gameRoutes from '#modules/game/routes.js';
+//import gameRoutes from '#modules/game/routes.js';
 //import cronRoutes from '#modules/cron/cron.routes.js';
 
 //===============================================================================================//
@@ -105,7 +105,7 @@ app.use((req, res, next) => {
 
 app.use(systemRoutes.path, systemRoutes.router);
 app.use(accountRoutes.path, accountRoutes.router);
-app.use(gameRoutes.basePath, gameRoutes.router);
+//app.use(gameRoutes.basePath, gameRoutes.router);
 //app.use(cronRoutes.basePath, cronRoutes.router);
 
 //===============================================================================================//

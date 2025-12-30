@@ -1,6 +1,11 @@
 import express from 'express';
 
-import { loginRateLimiter } from '#middleware/rate-limit.js';
+import { 
+	loginRateLimiter,
+	registerRateLimiter,
+	changeUsernameRateLimiter,
+	changePasswordRateLimiter
+} from '#middleware/rate-limit.js';
 import { 
 	requireGuest,
 	requireAuthenticated
@@ -56,7 +61,7 @@ router.get('/register',
 //-----------------------------------------------------------------------------------------------//
 router.post('/register',
 	requireGuest,
-	loginRateLimiter,
+	registerRateLimiter,
 	validate(registerSchema, '/account/register'),
 	handleRegister
 );
@@ -73,6 +78,7 @@ router.get('/change-username',
 //-----------------------------------------------------------------------------------------------//
 router.post('/change-username',
 	requireAuthenticated,
+	changeUsernameRateLimiter,
 	validate(changeUsernameSchema, '/account/change-username'),
 	handleChangeUsername
 );
@@ -84,6 +90,7 @@ router.get('/change-password',
 //-----------------------------------------------------------------------------------------------//
 router.post('/change-password',
 	requireAuthenticated,
+	changePasswordRateLimiter,
 	validate(changePasswordSchema, '/account/change-password'),
 	handleChangePassword
 );

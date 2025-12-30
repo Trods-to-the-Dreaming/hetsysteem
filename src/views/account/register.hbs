@@ -5,13 +5,11 @@
 <div class="container-compact">
 	<h1>Registreren</h1>
 	
-	<form id="register-form" method="POST" action="/account/register">
+	<form id="form" method="POST" action="/account/register">
 		<div class="field">
 			<label for="username-input" class="form-label">Gebruikersnaam:</label>
 			<input id="username-input" class="form-control" type="text" name="username" value="{{username}}" required>
 		</div>
-		
-		<p id="username-error" class="error">{{usernameError}}</p>
 		
 		<div class="field">
 			<label for="password-input" class="form-label">Wachtwoord:</label>
@@ -23,6 +21,8 @@
 			<input id="confirmed-password-input" class="form-control" type="password" name="confirmedPassword" required>
 		</div>
 		
+		<p id="error" class="error">{{errorMessage}}</p>
+		
 		<button class="button-1" type="submit">Registreren</button>
 	</form>
 	
@@ -33,28 +33,39 @@
 
 <script type="module">
 //-----------------------------------------------------------------------------------------------//
-function clearUsernameError() {
-	const usernameError = document.getElementById('username-error');
-	usernameError.textContent = '';
+import { validateUsername } from '/js/username.validation.js';
+import { validatePassword } from '/js/password.validation.js';
+import { validatePasswordConfirmation } from '/js/password-confirmation.validation.js';
+//-----------------------------------------------------------------------------------------------//
+function clearError() {
+	const error = document.getElementById('error');
+	error.textContent = '';
 }
 //-----------------------------------------------------------------------------------------------//
-function clearConfirmationError() {
+function handleUsernameInput() {
+	clearError();
+	
+	const username = document.getElementById('username-input');
+	validateUsername(username);
+}
+//-----------------------------------------------------------------------------------------------//
+function handlePasswordInput() {
+	clearError();
+	
+	const password = document.getElementById('password-input');
+	validatePassword(password);
+}
+//-----------------------------------------------------------------------------------------------//
+function handleConfirmedPasswordInput() {
+	clearError();
+	
+	const password = document.getElementById('password-input');
 	const confirmedPassword = document.getElementById('confirmed-password-input');
-	confirmedPassword.setCustomValidity('');
+	validatePasswordConfirmation(password, confirmedPassword);
 }
 //-----------------------------------------------------------------------------------------------//
 function handleFormSubmit(e) {
-	const password = document.getElementById('password-input');
-	const confirmedPassword = document.getElementById('confirmed-password-input');
-	const form = document.getElementById('register-form');
-	
-	if (confirmedPassword.value && 
-		password.value !== confirmedPassword.value) {
-		confirmedPassword.setCustomValidity('De wachtwoorden komen niet overeen.');
-	} else {
-		confirmedPassword.setCustomValidity('');
-	}
-	
+	const form = document.getElementById('form');
 	if (!form.checkValidity()) {
 		e.preventDefault();
 		form.reportValidity();
@@ -63,11 +74,13 @@ function handleFormSubmit(e) {
 //-----------------------------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
 	const username = document.getElementById('username-input');
+	const password = document.getElementById('password-input');
 	const confirmedPassword = document.getElementById('confirmed-password-input');
-	const form = document.getElementById('register-form');
+	const form = document.getElementById('form');
 	
-	username.addEventListener('input', clearUsernameError);
-	confirmedPassword.addEventListener('input', clearConfirmationError);
+	username.addEventListener('input', handleUsernameInput);
+	password.addEventListener('input', handlePasswordInput);
+	confirmedPassword.addEventListener('input', handleConfirmedPasswordInput);
 	form.addEventListener('submit', handleFormSubmit);
 });
 //-----------------------------------------------------------------------------------------------//

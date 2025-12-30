@@ -5,13 +5,13 @@
 <div class="container-compact">
 	<h1>Gebruikersnaam wijzigen</h1>
 	
-	{{#if change_saved}}
-		<p id="change-saved" class="success">{{change_message}}</p>
+	{{#if changeSaved}}
+		<p id="change-saved" class="success">{{changeMessage}}</p>
 	{{else}}
-		<form id="change-username-form" method="POST" action="/account/change-username">
+		<form id="form" method="POST" action="/account/change-username">
 			<div class="field">
-				<label for="current-username-input" class="form-label">Huidige gebruikersnaam:</label>
-				<input id="current-username-input" class="form-control" type="text" value="{{username}}" readonly>
+				<label for="username-input" class="form-label">Huidige gebruikersnaam:</label>
+				<input id="username-input" class="form-control" type="text" value="{{username}}" readonly>
 			</div>
 			
 			<div class="field">
@@ -19,14 +19,12 @@
 				<input id="new-username-input" class="form-control" type="text" name="newUsername" value="{{newUsername}}" required>
 			</div>
 			
-			<p id="username-error" class="error">{{usernameError}}</p>
-			
 			<div class="field">
 				<label for="password-input" class="form-label">Wachtwoord:</label>
 				<input id="password-input" class="form-control" type="password" name="password" required>
 			</div>
 			
-			<p id="password-error" class="error">{{passwordError}}</p>
+			<p id="error" class="error">{{errorMessage}}</p>
 			
 			<button class="button-1" type="submit">Bewaren</button>
 		</form>
@@ -37,24 +35,43 @@
 
 <!------------------------------------------------------------------------------------------------>
 
-<script>
+<script type="module">
 //-----------------------------------------------------------------------------------------------//
-function clearUsernameError() {
-	const usernameError = document.getElementById('username-error');
-	usernameError.textContent = '';
+import { validateUsername } from '/js/username.validation.js';
+//-----------------------------------------------------------------------------------------------//
+function clearError() {
+	const error = document.getElementById('error');
+	error.textContent = '';
 }
 //-----------------------------------------------------------------------------------------------//
-function clearPasswordError() {
-	const passwordError = document.getElementById('password-error');
-	passwordError.textContent = '';
+function handleNewUsernameInput() {
+	clearError();
+	
+	const username = document.getElementById('username-input');
+	const newUsername = document.getElementById('new-username-input');
+	if (newUsername.value === username.value) {
+		newUsername.setCustomValidity('De nieuwe gebruikersnaam moet anders zijn.');
+	} else {
+		validateUsername(newUsername);
+	}
+}
+//-----------------------------------------------------------------------------------------------//
+function handleFormSubmit(e) {	
+	const form = document.getElementById('form');
+	if (!form.checkValidity()) {
+		e.preventDefault();
+		form.reportValidity();
+	}
 }
 //-----------------------------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
 	const newUsername = document.getElementById('new-username-input');
 	const password = document.getElementById('password-input');
+	const form = document.getElementById('form');
 	
-	newUsername.addEventListener('input', clearUsernameError);
-	password.addEventListener('input', clearPasswordError);
+	newUsername.addEventListener('input', handleNewUsernameInput);
+	password.addEventListener('input', clearError);
+	form.addEventListener('submit', handleFormSubmit);
 });
 //-----------------------------------------------------------------------------------------------//
 </script>

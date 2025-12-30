@@ -147,7 +147,7 @@ export async function handleEnterWorld(req, res, next) {
 
 
 
-		HIER WAS IK MEE BEZIG
+/*		HIER WAS IK MEE BEZIG
 		
 		
 		let character;
@@ -260,7 +260,7 @@ const { world, character } = await enterWorldForUser({
 
 
 
-
+*/
 
 
 //-----------------------------------------------------------------------------------------------//
@@ -305,7 +305,7 @@ export const startTurn = async (req, res, next) => {
 		});
 		
 
-
+/*
 // constants/turnFlow.js
 export function buildActionPages(turnData) {
 	return ACTION_PAGES.map(p => ({
@@ -327,7 +327,7 @@ export function buildActionPages(turnData) {
 		characterActions: turn.characterActions,
 		actionPages: buildActionPages(turn.turnData),
 		finished: turn.turnData.finished
-	};
+	};*/
 		
 		
 		const [

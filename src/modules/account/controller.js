@@ -4,42 +4,28 @@ import {
 	destroySession
 } from '#utils/session.js';
 
-import { 
-	findUserById,
-	findUserByName,
-	isUsernameTaken,
-	createUser,
-	updateUsername,
-	updatePassword
-} from './repository.js';
+import { ACCOUNT } from './reasons.js';
 
 import { 
-	authenticate
-	/*findUserById,
-	findUserByName,
-	isUsernameTaken,
-	isPasswordCorrect,
-	registerUser,
-	updateUsername,
-	updatePassword*/
+	login,
+	register,
+	changeUsername,
+	changePassword
 } from './service.js';
 
 //===============================================================================================//
 
-const MSG_INVALID_LOGIN	   = 'Ongeldige gebruikersnaam of wachtwoord.';
-const MSG_USERNAME_TAKEN   = 'Deze naam is al in gebruik.';
-const MSG_PASSWORD_WRONG   = 'Dit is niet uw wachtwoord.';
 const MSG_USERNAME_CHANGED = 'Uw gebruikersnaam is gewijzigd.';
 const MSG_PASSWORD_CHANGED = 'Uw wachtwoord is gewijzigd.';
 
 //===============================================================================================//
 
 export function showLogin(req, res, next) {
-	const loginError = req.session.loginError;
+	const errorMessage = req.session.loginError;
 	delete req.session.loginError;
 
 	return res.render('account/login', {
-		loginError
+		errorMessage
 	});
 }
 //-----------------------------------------------------------------------------------------------//
@@ -48,13 +34,15 @@ export async function handleLogin(req, res, next) {
 			password } = req.validatedData;
 	
 	try {
-		const user = await authenticate(username, password);
-		if (!user) {
+		const result = await login(username, password);
+		if (!result.ok) {
 			return res.render('account/login', {
 				username,
-				loginError: MSG_INVALID_LOGIN,
+				errorMessage: ACCOUNT.MESSAGE[result.reason]
 			});
 		}
+		
+		const user = result.value;
 		
 		await regenerateSession(req);
 		req.session.userId = user.id;
@@ -88,13 +76,15 @@ export async function handleRegister(req, res, next) {
 			password } = req.validatedData;
 	
 	try { 
-		const user = await registerUser(username, password);
-		if (!user) {
+		const result = await register(username, password);
+		if (!result.ok) {
 			return res.render('account/register', {
 				username,
-				usernameError: MSG_USERNAME_TAKEN,
+				errorMessage: ACCOUNT.MESSAGE[result.reason]
 			});
 		}
+		
+		const user = result.value;
 
 		await regenerateSession(req);
 		req.session.userId = user.id;
@@ -144,40 +134,18 @@ export async function handleChangeUsername(req, res, next) {
 			password } = req.validatedData;
 	
 	try {
-		
-		KAN DIT COMPACTER WORDEN GEMAAKT MET 1 ERROR IN HBS?
-		ZIE CHATGPT LAATSTE BERICHT 24/12/2025
-		
-		if (newUsername === username) {
+		const result = await changeUsername(userId, newUsername, password);
+		if (!result.ok) {
 			return res.render('account/change-username', {
 				username,
 				newUsername,
-				usernameError: MSG_USERNAME_UNCHANGED
-			});
-		}
-		
-		const { isUsernameTaken,
-				isPasswordWrong } = await changeUsername(userId, newUsername, password);
-		
-		if (isUsernameTaken) {
-			return res.render('account/change-username', {
-				username,
-				newUsername,
-				usernameError: MSG_USERNAME_TAKEN
-			});
-		}
-
-		if (isPasswordWrong) {
-			return res.render('account/change-username', {
-				username,
-				newUsername,
-				passwordError: MSG_PASSWORD_WRONG
+				errorMessage: ACCOUNT.MESSAGE[result.reason]
 			});
 		}
 		
 		req.session.username = newUsername;
 		req.session.changeSaved = true;
-		req.session.changeMessage = MSG_USERNAME_CHANGED;
+		req.session.changeMessage = 'Uw gebruikersnaam is gewijzigd.';
 		await saveSession(req);
 		
 		return res.redirect('/account/change-username');
@@ -209,28 +177,18 @@ export async function showChangePassword(req, res, next) {
 export async function handleChangePassword(req, res, next) {
 	const { userId } = req.session;
 	const { newPassword,
-			currentPassword } = req.validatedData;
+			password } = req.validatedData;
 	
 	try {
-		const { isUsernameTaken,
-				isPasswordWrong } = await changePassword(userId, newPassword, currentPassword);
-		
-		// Find user
-		const user = await findUserById(userId);
-
-		// Verify current password
-		if (!(await isPasswordCorrect(user, currentPassword))) {
+		const result = await changePassword(userId, newPassword, password);
+		if (!result.ok) {
 			return res.render('account/change-password', {
-				passwordError: MSG_PASSWORD_WRONG
+				errorMessage: ACCOUNT.MESSAGE[result.reason]
 			});
 		}
 
-		// Update password
-		await updatePassword(userId, newPassword);
-
-		// Save session
 		req.session.changeSaved = true;
-		req.session.changeMessage = MSG_PASSWORD_CHANGED;
+		req.session.changeMessage = 'Uw wachtwoord is gewijzigd.';
 		await saveSession(req);
 		
 		return res.redirect('/account/change-password');

@@ -2,25 +2,28 @@ import { z } from 'zod';
 
 //===============================================================================================//
 
-const MIN_USR_LENGTH = 4;
-const MAX_USR_LENGTH = 32;
+const MIN_USR_LENGTH = 3;
+const MAX_USR_LENGTH = 20;
 
-const MIN_PWD_LENGTH = 10;
-const MAX_PWD_LENGTH = 128;
+const MIN_PWD_LENGTH = 8;
+const MAX_PWD_LENGTH = 64;
 
 //===============================================================================================//
 
 const usernameSchema = z
-	.string('Ongeldige gebruikersnaam.')
+	.string()
 	.min(MIN_USR_LENGTH)
 	.max(MAX_USR_LENGTH)
-	.refine(usr => /^[a-zA-Z0-9]+$/.test(usr));
+	.refine(usr => !usr.startsWith('_'))
+	.refine(usr => !usr.endsWith('_'))
+	.refine(usr => !/__/.test(usr))
+	.refine(usr => /^[a-zA-Z0-9_]+$/.test(usr));
 
 const passwordSchema = z
 	.string()
 	.min(MIN_PWD_LENGTH)
 	.max(MAX_PWD_LENGTH)
-	.refine(pwd => pwd.trim().replace(/\s+/g, " ") === pwd);
+	.refine(pwd => pwd.trim() === pwd);
 
 //===============================================================================================//
 
@@ -50,7 +53,7 @@ export const changeUsernameSchema = z.object({
 	});
 //-----------------------------------------------------------------------------------------------//
 export const changePasswordSchema = z.object({
-		currentPassword: z.string(),
+		password: z.string(),
 		newPassword: passwordSchema,
 		confirmedNewPassword: z.string()
 	}).refine(
