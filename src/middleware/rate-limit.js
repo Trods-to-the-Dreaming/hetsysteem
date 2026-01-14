@@ -2,21 +2,21 @@ import rateLimit from 'express-rate-limit';
 
 //===============================================================================================//
 
-export const loginRateLimiter = rateLimit({
+export const limitLoginRate = rateLimit({
 	windowMs: 60 * 1000,
 	max: 5,
 	standardHeaders: true,
 	legacyHeaders: false,
 });
 //-----------------------------------------------------------------------------------------------//
-export const registerRateLimiter = rateLimit({
+export const limitRegisterRate = rateLimit({
 	windowMs: 60 * 60 * 1000,
 	max: 5,
 	standardHeaders: true,
 	legacyHeaders: false,
 });
 //-----------------------------------------------------------------------------------------------//
-export const changeUsernameRateLimiter = rateLimit({
+export const limitChangeUsernameRate = rateLimit({
 	windowMs: 10 * 60 * 1000,
 	max: 5,
 	standardHeaders: true,
@@ -25,7 +25,7 @@ export const changeUsernameRateLimiter = rateLimit({
 });
 
 //-----------------------------------------------------------------------------------------------//
-export const changePasswordRateLimiter = rateLimit({
+export const limitChangePasswordRate = rateLimit({
 	windowMs: 10 * 60 * 1000,
 	max: 3,
 	standardHeaders: true,

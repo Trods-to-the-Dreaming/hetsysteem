@@ -1,20 +1,20 @@
 import express from 'express';
 import expressSession from 'express-session';
 import expressHandlebars from 'express-handlebars';
-
+//-----------------------------------------------------------------------------------------------//
 import path from 'path';
-
+//-----------------------------------------------------------------------------------------------//
 import fs from 'fs';
-
+//-----------------------------------------------------------------------------------------------//
 import { pathToFileURL } from 'url';
-
+//-----------------------------------------------------------------------------------------------//
 import knex from './src/utils/db.js';
 import { ConnectSessionKnexStore } from 'connect-session-knex';
-
+//-----------------------------------------------------------------------------------------------//
 import systemRoutes from '#modules/system/routes.js';
 import accountRoutes from '#modules/account/routes.js';
-//import gameRoutes from '#modules/game/routes.js';
-//import cronRoutes from '#modules/cron/cron.routes.js';
+import gameRoutes from '#modules/game/routes.js';
+import cronRoutes from '#modules/cron/routes.js';
 
 //===============================================================================================//
 
@@ -105,8 +105,12 @@ app.use((req, res, next) => {
 
 app.use(systemRoutes.path, systemRoutes.router);
 app.use(accountRoutes.path, accountRoutes.router);
-//app.use(gameRoutes.basePath, gameRoutes.router);
-//app.use(cronRoutes.basePath, cronRoutes.router);
+app.use(gameRoutes.path, gameRoutes.router);
+app.use(cronRoutes.path, cronRoutes.router);
+
+app.use((req, res) => {
+	res.status(404).render('404');
+});
 
 //===============================================================================================//
 
@@ -115,14 +119,9 @@ app.use((err, req, res, next) => {
 	
 	const status = err.status || 500;
 	const message = err.message;
-	const referer = req.get('Referer');
-	const redirect = err.redirect ??
-					 (referer?.startsWith('/') ? referer : '/') ??
-					 '/';
 	
 	res.status(status).render(`errors/${status}`, {
-		message,
-		redirect
+		message
 	});
 });
 

@@ -151,6 +151,16 @@ turn.page.preventNext = async function() {
 		});
 		const res = await fetch(`/game/turn/is-character-name-available?${params}`);
 		const { available } = await res.json();
+		
+		
+		/* MAAK ER POST VAN!!!
+		
+		const response = await fetch('/turn/check-names', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ characterName, buildingNames })
+});*/
+		
 
 		if (!available) {
 			elements.characterNameError.textContent = 'Deze naam is al in gebruik.';
@@ -221,7 +231,7 @@ function handleNameInput(nameInput) {
 		nameInput.setCustomValidity('Dit is geen geldige naam.');
 	} else {
 		nameInput.setCustomValidity('');
-	}	
+	}
 	nameInput.reportValidity();
 	
 	turn.page.updateUI();

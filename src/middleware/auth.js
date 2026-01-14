@@ -1,17 +1,26 @@
+import { 
+	saveSession 
+} from '#utils/session.js';
+
+//===============================================================================================//
+
+const MSG_LOGIN_ERROR = 'U moet eerst inloggen.';
+
+//===============================================================================================//
+
 export function requireGuest(req, res, next) {
-	if (!(req.session.userId && req.session.username)) {
+	if (!req.session.user)
 		return next();
-	}
 	
-	return res.redirect('/game/choose-world');
+	return res.redirect('/game/enter-world');
 }
 //-----------------------------------------------------------------------------------------------//
-export function requireAuthenticated(req, res, next) {
-	if (req.session.userId && req.session.username) {
-		res.locals.authenticated = true;
+export async function requireLogin(req, res, next) {
+	if (req.session.user)
 		return next();
-	}
 	
-	req.session.loginError = 'U moet eerst inloggen.';
+	req.session.loginError = MSG_LOGIN_ERROR;
+	await saveSession(req);
+	
 	return res.redirect('/account/login');
 }

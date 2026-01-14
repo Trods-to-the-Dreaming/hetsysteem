@@ -1,8 +1,203 @@
-import knex from '#utils/db.js';
-
-import { saveSession } from '#utils/session.js';
-
 import { 
+	saveSession
+} from '#utils/session.js';
+//-----------------------------------------------------------------------------------------------//
+import { 
+	GAME
+} from './reasons.js';
+import { 
+	getWorlds 
+} from './static-data/service.js';
+import { 
+	enterWorld
+} from './enter-world/service.js';
+import { 
+	buildCharacterView 
+} from './character/service.js';
+import { 
+	buildTurnView,
+	finishTurn,
+	checkCharacterName,
+	checkBuildingName,
+	processActions 
+} from './turn/service.js';
+
+//===============================================================================================//
+
+export async function showEnterWorld(req, res) {
+	const { enterWorldError } = req.session;
+	delete req.session.enterWorldError;
+
+	const worlds = await getWorlds();
+	
+	return res.render('game/enter-world', {
+		worlds,
+		errorMessage: enterWorldError
+	});
+}
+//-----------------------------------------------------------------------------------------------//
+export async function handleEnterWorld(req, res) {
+	const { user } = req.session;
+	const { worldId } = req.validatedData;
+	
+	const result = await enterWorld({ 
+		worldId, 
+		userId: user.id
+	});
+	if (!result.ok) {
+		const worlds = await getWorlds();
+		
+		return res.render('game/enter-world', {
+			worlds,
+			selectedWorldId: worldId,
+			errorMessage: GAME.MESSAGE[result.reason]
+		});
+	}
+	
+	const { world,
+			character } = result.value;
+	
+	req.session.world = world;
+	req.session.character = character;
+	await saveSession(req);
+	
+	return res.redirect('/game');
+}
+//-----------------------------------------------------------------------------------------------//
+export function showMenu(req, res) {
+	return res.render('game/menu');
+};
+//-----------------------------------------------------------------------------------------------//
+export async function showCharacter(req, res) {
+	const { character,
+			world } = req.session;
+			
+	const characterView = await buildCharacterView({ 
+		characterId: character.id,
+		worldId: world.id
+	});
+	
+	return res.render('game/character', characterView);
+};
+//-----------------------------------------------------------------------------------------------//
+export async function showStartTurn(req, res) {
+	const { character } = req.session;
+
+	const turnView = await buildTurnView(character.id);
+	
+	return res.render('game/turn/start', turnView);
+};
+//-----------------------------------------------------------------------------------------------//
+export function showCustomizeCharacter(req, res) {
+	return res.render('game/turn/customize-character');
+};
+//-----------------------------------------------------------------------------------------------//
+export function showManageBuildings(req, res) {
+	return res.render('game/turn/manage-buildings');
+};
+//-----------------------------------------------------------------------------------------------//
+export function showManageEmploymentContracts(req, res) {
+	return res.render('game/turn/manage-employment-contracts');
+};
+//-----------------------------------------------------------------------------------------------//
+export function showManageRentalAgreements(req, res) {
+	return res.render('game/turn/manage-rental-agreements');
+};
+//-----------------------------------------------------------------------------------------------//
+export function showProduce(req, res) {
+	return res.render('game/turn/produce');
+};
+//-----------------------------------------------------------------------------------------------//
+export function showTrade(req, res) {
+	return res.render('game/turn/trade');
+};
+//-----------------------------------------------------------------------------------------------//
+export function showShare(req, res) {
+	return res.render('game/turn/share');
+};
+//-----------------------------------------------------------------------------------------------//
+export function showConsume(req, res) {
+	return res.render('game/turn/consume');
+};
+//-----------------------------------------------------------------------------------------------//
+export function showManageGroup(req, res) {
+	return res.render('game/turn/manage-group');
+};
+//-----------------------------------------------------------------------------------------------//
+export async function handleFinishTurn(req, res) {
+	const { character,
+			world } = req.session;
+	const { phases } = req.validatedData;
+	
+	const result = await finishTurn({ 
+		characterId: character.id, 
+		worldId: world.id, 
+		phases 
+	});
+	if (!result.ok) {
+		return res.status(409).json({
+			errorMessage: GAME.MESSAGE[result.reason],
+			nameConflicts: result.meta
+		});
+	}
+	
+	return res.status(200).json({ success: true });
+};
+//-----------------------------------------------------------------------------------------------//
+export async function handleCheckCharacterName(req, res) {
+	const { character,
+			world } = req.session;
+	const { firstName, 
+			lastName } = req.validatedData;
+
+	const result = await checkCharacterName({ 
+		characterId: character.id, 
+		worldId: world.id, 
+		firstName, 
+		lastName 
+	});
+	if (!result.ok) {
+		return res.status(409).json({
+			errorMessage: GAME.MESSAGE[result.reason]
+		});
+	}
+	
+	return res.status(200).json({ success: true });
+};
+//-----------------------------------------------------------------------------------------------//
+export async function handleCheckBuildingName(req, res) {
+	const { world } = req.session;
+	const { buildingName } = req.validatedData;
+	
+	const result = await checkBuildingName({ 
+		worldId: world.id, 
+		buildingName
+	});
+	if (!result.ok) {
+		return res.status(409).json({
+			errorMessage: GAME.MESSAGE[result.reason]
+		});
+	}
+	
+	return res.status(200).json({ success: true });
+};
+//-----------------------------------------------------------------------------------------------//
+export function showResolveNameConflicts(req, res) {
+	return res.render('game/turn/resolve-name-conflicts');
+};
+//-----------------------------------------------------------------------------------------------//
+export async function triggerProcessActions(req, res) {
+	await processActions();
+	
+	return res.sendStatus(204);
+};
+//-----------------------------------------------------------------------------------------------//
+export function showStatistics(req, res) {
+	return res.render('game/statistics');
+};
+
+
+/*import { 
 	ConflictError
 } from '#utils/errors.js';
 
@@ -94,216 +289,97 @@ import {
 import {
 	getManageGroup,
 	setManageGroup
-} from '#helpers/game/turn/manage-group.helpers.js';
+} from '#helpers/game/turn/manage-group.helpers.js';*/
 
-//=== Main ======================================================================================//
 
-export async function showEnterWorld(req, res, next) {
-	try {
-		const worlds = await getWorlds();
+	/*try {
 		
-		return res.render('game/enter-world', {
-			worlds
-		});
-	} catch (err) {
-		next(err);
-	}
-}
-//-----------------------------------------------------------------------------------------------//
-export async function handleEnterWorld(req, res, next) {
-	try {
-		const { userId } = req.session;
-		const { worldId } = req.validatedData;
-		
-		let result;
-		await knex.transaction(async (trx) => {
-			result = await enterWorld({ userId, worldId, trx });
-		});
-		
-		if (!result.character) {
-			// All AI-characters have been claimed
-			const worlds = await getWorlds();
-
-			return res.render('game/enter-world', {
-				worlds,
-				selectedWorldId: worldId,
-				worldError:	     MSG_NO_NEW_CHARACTERS
-			});
-		}
-		
-		// Save session
-		setWorldSession(req.session, result.world, result.character);
-		await saveSession(req);
-		
-		// Enter world
-		return res.redirect('/game');
-	} catch (err) {
-		next(err);
-	}
-};
-
-
-
-
-
-
-/*		HIER WAS IK MEE BEZIG
-		
-		
-		let character;
 		
 		await knex.transaction(async (trx) => {
-			// Get the selected world
-			const world = await getWorld(worldId, trx);
-
-			// Find the user's character
-			character = await findUserCharacter(userId, worldId, trx);
-			
-			if (!character) {
-				// Claim an AI-character
-				character = await claimAICharacter(userId, worldId, trx);
-			}
-			
-			if (character) {
-				// Save session
-				req.session.worldId = world.id;
-				req.session.worldType = world.type;
-				req.session.characterId = character.id;
-				req.session.characterFirstName = character.firstName;
-				req.session.characterLastName = character.lastName;
-				await saveSession(req);
-			}
+			await setCustomizeCharacter(
+				characterActions[0], 
+				characterId, 
+				worldId,
+				trx
+			);
+			await setManageBuildings(
+				characterActions[1], 
+				characterId, 
+				worldId,
+				trx
+			);
+			await setManageEmploymentContracts(
+				characterActions[2], 
+				characterId,
+				trx
+			);
+			await setManageRentalAgreements(
+				characterActions[3], 
+				characterId,
+				trx
+			);
+			await setProduce(
+				characterActions[4], 
+				characterId,
+				trx
+			);
+			await setTrade(
+				characterActions[5], 
+				characterId,
+				trx
+			);
+			await setShare(
+				characterActions[6], 
+				characterId,
+				trx
+			);
+			await setConsume(
+				characterActions[7], 
+				characterId,
+				trx
+			);
+			await setManageGroup(
+				characterActions[8], 
+				characterId,
+				trx
+			);
+			await markTurnFinished( 
+				characterId,
+				trx
+			);
 		});
-		
-		if (!character) {
-			// All AI-characters have been claimed
-			const worlds = await getWorlds();
 
-			return res.render('game/enter-world', {
-				worlds,
-				selectedWorldId: worldId,
-				worldError:	     MSG_NO_NEW_CHARACTERS
+		res.status(200).json({ success: true });
+	} catch (err) {
+		if (err instanceof ConflictError) {			
+			return res.status(err.status).json({ 
+				success: false,
+				error: err.message,
+				redirect: err.info?.type === 'character' 
+						  ? '/game/turn/character-name-conflict'
+						  : '/game/turn/building-name-conflict',
+				info: err.info
 			});
 		}
-				
-		// Enter world
-		return res.redirect('/game');
+		next(err);
+	}*/
 
+/*export const startTurn = async (req, res) => {
+	const { character } = req.session;
 
-let character;
-		
-await knex.transaction(async (trx) => {
-	// Get the selected world
-	const world = await getWorld(worldId, trx);
-
-	// Find the user's character
-	character = await findUserCharacter(userId, worldId, trx);
+	const turn = await composeTurn(characterId);
 	
-	if (!character) {
-		// Claim an AI-character
-		character = await claimAICharacter(userId, worldId, trx);
-	}
-	
-	if (character) {
-		// Save session
-		req.session.worldId = world.id;
-		req.session.worldType = world.type;
-		req.session.characterId = character.id;
-		req.session.characterFirstName = character.firstName;
-		req.session.characterLastName = character.lastName;
-		await saveSession(req);
-	}
-});
-
-if (!character) {
-	// All AI-characters have been claimed
-	const worlds = await getWorlds();
-
-	return res.render('game/enter-world', {
-		worlds,
-		selectedWorldId: worldId,
-		worldError:	     MSG_NO_NEW_CHARACTERS
+	res.render('game/turn/start', {
+		products: turn.products,
+		recreations: turn.recreations,
+		buildings: turn.buildings,
+		sizes: BUILDING_SIZES,
+		characterState: turn.characterState,
+		characterActions: turn.characterActions,
+		actionPages: buildActionPages(turn.turnData),
+		finished: turn.turnData.finished
 	});
-}
-		
-// Enter world
-return res.redirect('/game');
-		
-		
-		
-		
-
-// services/enterWorldService.js
-export const enterWorldForUser = async ({ userId, worldId, trx }) => {
-  const world = await getWorld(worldId, trx);
-
-  let character = await findUserCharacter(userId, worldId, trx);
-  if (!character) {
-    character = await claimAICharacter(userId, worldId, trx);
-  }
-
-  return { world, character };
-};
-
-
-const { world, character } = await enterWorldForUser({
-  userId,
-  worldId,
-  trx
-});
-
-
-
-
-
-
-
-
-
 */
-
-
-//-----------------------------------------------------------------------------------------------//
-export const showMenu = async (req, res, next) => {
-	try {
-		return res.render('game/menu');
-	} catch (err) {
-		next(err);
-	}
-};
-//-----------------------------------------------------------------------------------------------//
-export const showCharacter = async (req, res, next) => {
-	try {
-		const { characterId,
-				worldId } = req.session;
-		
-		const character = await buildCharacterView(characterId, worldId);
-		
-		return res.render('game/character', { 
-			...character
-		});
-	} catch (err) {
-		next(err);
-	}
-};
-//-----------------------------------------------------------------------------------------------//
-export const startTurn = async (req, res, next) => {
-	try {
-		const { characterId } = req.session;
-
-		const turn = await composeTurn(characterId);
-		
-		res.render('game/turn/start', {
-			products: turn.products,
-			recreations: turn.recreations,
-			buildings: turn.buildings,
-			sizes: BUILDING_SIZES,
-			characterState: turn.characterState,
-			characterActions: turn.characterActions,
-			actionPages: buildActionPages(turn.turnData),
-			finished: turn.turnData.finished
-		});
-		
 
 /*
 // constants/turnFlow.js
@@ -329,7 +405,7 @@ export function buildActionPages(turnData) {
 		finished: turn.turnData.finished
 	};*/
 		
-		
+/*		
 		const [
 			products,
 			recreations,
@@ -462,154 +538,6 @@ export function buildActionPages(turnData) {
 	}
 };
 //-----------------------------------------------------------------------------------------------//
-export const showCustomizeCharacter = async (req, res, next) => {
-	try {
-		return res.render('game/turn/customize-character');
-	} catch (err) {
-		next(err);
-	}
-};
-//-----------------------------------------------------------------------------------------------//
-export const showManageBuildings = async (req, res, next) => {
-	try {
-		return res.render('game/turn/manage-buildings');
-	} catch (err) {
-		next(err);
-	}
-};
-//-----------------------------------------------------------------------------------------------//
-export const showManageEmploymentContracts = async (req, res, next) => {
-	try {
-		return res.render('game/turn/manage-employment-contracts');
-	} catch (err) {
-		next(err);
-	}
-};
-//-----------------------------------------------------------------------------------------------//
-export const showManageRentalAgreements = async (req, res, next) => {
-	try {
-		return res.render('game/turn/manage-rental-agreements');
-	} catch (err) {
-		next(err);
-	}
-};
-//-----------------------------------------------------------------------------------------------//
-export const showProduce = async (req, res, next) => {
-	try {
-		return res.render('game/turn/produce');
-	} catch (err) {
-		next(err);
-	}
-};
-//-----------------------------------------------------------------------------------------------//
-export const showTrade = async (req, res, next) => {
-	try {
-		return res.render('game/turn/trade');
-	} catch (err) {
-		next(err);
-	}
-};
-//-----------------------------------------------------------------------------------------------//
-export const showShare = async (req, res, next) => {
-	try {
-		return res.render('game/turn/share');
-	} catch (err) {
-		next(err);
-	}
-};
-//-----------------------------------------------------------------------------------------------//
-export const showConsume = async (req, res, next) => {
-	try {
-		return res.render('game/turn/consume');
-	} catch (err) {
-		next(err);
-	}
-};
-//-----------------------------------------------------------------------------------------------//
-export const showManageGroup = async (req, res, next) => {
-	try {
-		return res.render('game/turn/manage-group');
-	} catch (err) {
-		next(err);
-	}
-};
-//-----------------------------------------------------------------------------------------------//
-export const finishTurn = async (req, res, next) => {
-	try {
-		const { characterActions } = req.body;
-		const { characterId,
-				worldId } = req.session;
-		
-		await knex.transaction(async (trx) => {
-			await setCustomizeCharacter(
-				characterActions[0], 
-				characterId, 
-				worldId,
-				trx
-			);
-			await setManageBuildings(
-				characterActions[1], 
-				characterId, 
-				worldId,
-				trx
-			);
-			/*await setManageEmploymentContracts(
-				characterActions[2], 
-				characterId,
-				trx
-			);
-			await setManageRentalAgreements(
-				characterActions[3], 
-				characterId,
-				trx
-			);
-			await setProduce(
-				characterActions[4], 
-				characterId,
-				trx
-			);
-			await setTrade(
-				characterActions[5], 
-				characterId,
-				trx
-			);
-			await setShare(
-				characterActions[6], 
-				characterId,
-				trx
-			);
-			await setConsume(
-				characterActions[7], 
-				characterId,
-				trx
-			);
-			await setManageGroup(
-				characterActions[8], 
-				characterId,
-				trx
-			);*/
-			await markTurnFinished( 
-				characterId,
-				trx
-			);
-		});
-
-		res.status(200).json({ success: true });
-	} catch (err) {
-		if (err instanceof ConflictError) {			
-			return res.status(err.status).json({ 
-				success: false,
-				error: err.message,
-				redirect: err.info?.type === 'character' 
-						  ? '/game/turn/character-name-conflict'
-						  : '/game/turn/building-name-conflict',
-				info: err.info
-			});
-		}
-		next(err);
-	}
-};
-//-----------------------------------------------------------------------------------------------//
 export const isCharacterNameAvailable = async (req, res, next) => {
 	try {
 		const { firstName, 
@@ -649,15 +577,4 @@ export const isBuildingNameAvailable = async (req, res, next) => {
 export const showCharacterNameConflict = async (req, res, next) => {
 	
 };
-//-----------------------------------------------------------------------------------------------//
-export const showBuildingNamesConflict = async (req, res, next) => {
-	
-};
-//-----------------------------------------------------------------------------------------------//
-export const showStatistics = async (req, res, next) => {
-	try {
-		return res.render('game/statistics');
-	} catch (err) {
-		next(err);
-	}
-};
+*/

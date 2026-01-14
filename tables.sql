@@ -98,10 +98,8 @@ CREATE TABLE worlds (
 	id TINYINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	slug VARCHAR(32) NOT NULL UNIQUE,
 	type VARCHAR(32) NOT NULL UNIQUE,
-	money_system ENUM('fixed_amount', 'loan_interest', 'growing_limits') NOT NULL,
 	n_characters INT UNSIGNED NOT NULL,
-	n_tiles INT UNSIGNED NOT NULL,
-	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	n_tiles INT UNSIGNED NOT NULL
 );
 
 CREATE TABLE products (
@@ -166,7 +164,7 @@ CREATE TABLE characters (
 	job_preference_3_id TINYINT UNSIGNED DEFAULT NULL,
 	recreation_preference_id TINYINT UNSIGNED DEFAULT NULL,
 	is_customized BOOLEAN NOT NULL DEFAULT FALSE,
-	birth_date SMALLINT UNSIGNED NOT NULL DEFAULT 1,
+	birth_turn SMALLINT UNSIGNED NOT NULL DEFAULT 1,
 	health TINYINT UNSIGNED NOT NULL DEFAULT 100,
 	life_expectancy TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	happiness SMALLINT UNSIGNED NOT NULL DEFAULT 0,
@@ -261,6 +259,7 @@ CREATE TABLE action_customize (
 	job_preference_2_id TINYINT UNSIGNED NOT NULL,
 	job_preference_3_id TINYINT UNSIGNED NOT NULL,
 	recreation_preference_id TINYINT UNSIGNED NOT NULL,
+	UNIQUE(character_id),
 	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
 	FOREIGN KEY (job_preference_1_id) REFERENCES buildings(id),
 	FOREIGN KEY (job_preference_2_id) REFERENCES buildings(id),
@@ -275,18 +274,24 @@ CREATE TABLE action_demolish (
 
 CREATE TABLE action_construct (
 	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	world_id TINYINT UNSIGNED NOT NULL,
 	character_id INT UNSIGNED NOT NULL,
 	building_id TINYINT UNSIGNED NOT NULL,
 	name VARCHAR(32) NOT NULL,
 	size TINYINT UNSIGNED NOT NULL,
+	FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE,
 	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
 	FOREIGN KEY (building_id) REFERENCES buildings(id)
 );
 
 CREATE TABLE action_resign (
-    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	contract_id INT UNSIGNED NOT NULL,
-	FOREIGN KEY (contract_id) REFERENCES employment_contracts(id)
+	employment_contract_id INT UNSIGNED NOT NULL,
+	FOREIGN KEY (employment_contract_id) REFERENCES employment_contracts(id)
+);
+
+CREATE TABLE action_dismiss (
+	employment_contract_id INT UNSIGNED NOT NULL,
+	FOREIGN KEY (employment_contract_id) REFERENCES employment_contracts(id)
 );
 
 CREATE TABLE action_apply (
@@ -299,18 +304,19 @@ CREATE TABLE action_apply (
 	FOREIGN KEY (job_id) REFERENCES buildings(id)
 );
 
-CREATE TABLE action_dismiss (
-    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	contract_id INT UNSIGNED NOT NULL,
-	FOREIGN KEY (contract_id) REFERENCES employment_contracts(id)
-);
-
 CREATE TABLE action_recruit (
     id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	job_id INT UNSIGNED NOT NULL,
+	company_id INT UNSIGNED NOT NULL,
 	working_hours TINYINT UNSIGNED NOT NULL,
 	max_hourly_wage INT UNSIGNED NOT NULL,
-	FOREIGN KEY (job_id) REFERENCES character_buildings(id) ON DELETE CASCADE
+	FOREIGN KEY (company_id) REFERENCES character_buildings(id) ON DELETE CASCADE
+);
+
+CREATE TABLE action_acquire_projects (
+    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	company_id INT UNSIGNED NOT NULL,
+	working_hours TINYINT UNSIGNED NOT NULL,
+	FOREIGN KEY (company_id) REFERENCES character_buildings(id) ON DELETE CASCADE
 );
 
 CREATE TABLE action_rent (
@@ -328,6 +334,19 @@ CREATE TABLE action_rent_out (
 	min_daily_rent INT UNSIGNED NOT NULL,
 	FOREIGN KEY (residence_id) REFERENCES residences(character_building_id)
 );
+
+
+CREATE TABLE cron_process_actions (
+	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	started_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	finished_at DATETIME DEFAULT NULL,
+	status ENUM('running', 'success', 'failed') NOT NULL DEFAULT 'running',
+	error_message VARCHAR(255) DEFAULT NULL,
+	INDEX idx_status (status),
+	INDEX idx_started_at (started_at)
+);
+
+
 
 INSERT INTO worlds
 (type,                   slug,   money_system,     n_characters, n_tiles) VALUES

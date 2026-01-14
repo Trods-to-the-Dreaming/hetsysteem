@@ -2105,7 +2105,7 @@ progress {
   color: var(--bs-secondary-color);
 }
 
-.form-control, .list-input-price, .list-input-quantity {
+.form-control, .list-input-quantity, .list-input-price {
   display: block;
   width: 100%;
   padding: 0.375rem 0.75rem;
@@ -2121,41 +2121,41 @@ progress {
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 @media (prefers-reduced-motion: reduce) {
-  .form-control, .list-input-price, .list-input-quantity {
+  .form-control, .list-input-quantity, .list-input-price {
     transition: none;
   }
 }
-.form-control[type=file], [type=file].list-input-price, [type=file].list-input-quantity {
+.form-control[type=file], [type=file].list-input-quantity, [type=file].list-input-price {
   overflow: hidden;
 }
-.form-control[type=file]:not(:disabled):not([readonly]), [type=file].list-input-price:not(:disabled):not([readonly]), [type=file].list-input-quantity:not(:disabled):not([readonly]) {
+.form-control[type=file]:not(:disabled):not([readonly]), [type=file].list-input-quantity:not(:disabled):not([readonly]), [type=file].list-input-price:not(:disabled):not([readonly]) {
   cursor: pointer;
 }
-.form-control:focus, .list-input-price:focus, .list-input-quantity:focus {
+.form-control:focus, .list-input-quantity:focus, .list-input-price:focus {
   color: var(--bs-body-color);
   background-color: var(--bs-body-bg);
   border-color: rgb(134, 182.5, 254);
   outline: 0;
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
-.form-control::-webkit-date-and-time-value, .list-input-price::-webkit-date-and-time-value, .list-input-quantity::-webkit-date-and-time-value {
+.form-control::-webkit-date-and-time-value, .list-input-quantity::-webkit-date-and-time-value, .list-input-price::-webkit-date-and-time-value {
   min-width: 85px;
   height: 1.5em;
   margin: 0;
 }
-.form-control::-webkit-datetime-edit, .list-input-price::-webkit-datetime-edit, .list-input-quantity::-webkit-datetime-edit {
+.form-control::-webkit-datetime-edit, .list-input-quantity::-webkit-datetime-edit, .list-input-price::-webkit-datetime-edit {
   display: block;
   padding: 0;
 }
-.form-control::placeholder, .list-input-price::placeholder, .list-input-quantity::placeholder {
+.form-control::placeholder, .list-input-quantity::placeholder, .list-input-price::placeholder {
   color: var(--bs-secondary-color);
   opacity: 1;
 }
-.form-control:disabled, .list-input-price:disabled, .list-input-quantity:disabled {
+.form-control:disabled, .list-input-quantity:disabled, .list-input-price:disabled {
   background-color: var(--bs-secondary-bg);
   opacity: 1;
 }
-.form-control::file-selector-button, .list-input-price::file-selector-button, .list-input-quantity::file-selector-button {
+.form-control::file-selector-button, .list-input-quantity::file-selector-button, .list-input-price::file-selector-button {
   padding: 0.375rem 0.75rem;
   margin: -0.375rem -0.75rem;
   margin-inline-end: 0.75rem;
@@ -2170,11 +2170,11 @@ progress {
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 @media (prefers-reduced-motion: reduce) {
-  .form-control::file-selector-button, .list-input-price::file-selector-button, .list-input-quantity::file-selector-button {
+  .form-control::file-selector-button, .list-input-quantity::file-selector-button, .list-input-price::file-selector-button {
     transition: none;
   }
 }
-.form-control:hover:not(:disabled):not([readonly])::file-selector-button, .list-input-price:hover:not(:disabled):not([readonly])::file-selector-button, .list-input-quantity:hover:not(:disabled):not([readonly])::file-selector-button {
+.form-control:hover:not(:disabled):not([readonly])::file-selector-button, .list-input-quantity:hover:not(:disabled):not([readonly])::file-selector-button, .list-input-price:hover:not(:disabled):not([readonly])::file-selector-button {
   background-color: var(--bs-secondary-bg);
 }
 
@@ -2221,7 +2221,7 @@ progress {
   margin-inline-end: 1rem;
 }
 
-textarea.form-control, textarea.list-input-price, textarea.list-input-quantity {
+textarea.form-control, textarea.list-input-quantity, textarea.list-input-price {
   min-height: calc(1.5em + 0.75rem + calc(var(--bs-border-width) * 2));
 }
 textarea.form-control-sm {
@@ -2254,7 +2254,7 @@ textarea.form-control-lg {
   height: calc(1.5em + 1rem + calc(var(--bs-border-width) * 2));
 }
 
-.form-select, .card-select, .list-select {
+.form-select, .list-select, .card-select {
   --bs-form-select-bg-img: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
   display: block;
   width: 100%;
@@ -2274,23 +2274,23 @@ textarea.form-control-lg {
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 @media (prefers-reduced-motion: reduce) {
-  .form-select, .card-select, .list-select {
+  .form-select, .list-select, .card-select {
     transition: none;
   }
 }
-.form-select:focus, .card-select:focus, .list-select:focus {
+.form-select:focus, .list-select:focus, .card-select:focus {
   border-color: rgb(134, 182.5, 254);
   outline: 0;
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
-.form-select[multiple], [multiple].card-select, [multiple].list-select, .form-select[size]:not([size="1"]), [size].card-select:not([size="1"]), [size].list-select:not([size="1"]) {
+.form-select[multiple], [multiple].list-select, [multiple].card-select, .form-select[size]:not([size="1"]), [size].list-select:not([size="1"]), [size].card-select:not([size="1"]) {
   padding-right: 0.75rem;
   background-image: none;
 }
-.form-select:disabled, .card-select:disabled, .list-select:disabled {
+.form-select:disabled, .list-select:disabled, .card-select:disabled {
   background-color: var(--bs-secondary-bg);
 }
-.form-select:-moz-focusring, .card-select:-moz-focusring, .list-select:-moz-focusring {
+.form-select:-moz-focusring, .list-select:-moz-focusring, .card-select:-moz-focusring {
   color: transparent;
   text-shadow: 0 0 0 var(--bs-body-color);
 }
@@ -2311,7 +2311,7 @@ textarea.form-control-lg {
   border-radius: var(--bs-border-radius-lg);
 }
 
-[data-bs-theme=dark] .form-select, [data-bs-theme=dark] .card-select, [data-bs-theme=dark] .list-select {
+[data-bs-theme=dark] .form-select, [data-bs-theme=dark] .list-select, [data-bs-theme=dark] .card-select {
   --bs-form-select-bg-img: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23dee2e6' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
 }
 
@@ -2435,7 +2435,7 @@ textarea.form-control-lg {
   clip: rect(0, 0, 0, 0);
   pointer-events: none;
 }
-.btn-check[disabled] + .btn, .btn-check[disabled] + .button-cancel, .btn-check[disabled] + .button-ok, .btn-check[disabled] + .button-up, .btn-check[disabled] + .button-2, .btn-check[disabled] + .button-1, .btn-check[disabled] + .card-button, .btn-check:disabled + .btn, .btn-check:disabled + .button-cancel, .btn-check:disabled + .button-ok, .btn-check:disabled + .button-up, .btn-check:disabled + .button-2, .btn-check:disabled + .button-1, .btn-check:disabled + .card-button {
+.btn-check[disabled] + .btn, .btn-check[disabled] + .card-button, .btn-check[disabled] + .button-1, .btn-check[disabled] + .button-2, .btn-check[disabled] + .button-up, .btn-check:disabled + .btn, .btn-check:disabled + .card-button, .btn-check:disabled + .button-1, .btn-check:disabled + .button-2, .btn-check:disabled + .button-up {
   pointer-events: none;
   filter: none;
   opacity: 0.65;
@@ -2530,11 +2530,11 @@ textarea.form-control-lg {
 .form-floating {
   position: relative;
 }
-.form-floating > .form-control, .form-floating > .list-input-price, .form-floating > .list-input-quantity,
+.form-floating > .form-control, .form-floating > .list-input-quantity, .form-floating > .list-input-price,
 .form-floating > .form-control-plaintext,
 .form-floating > .form-select,
-.form-floating > .card-select,
-.form-floating > .list-select {
+.form-floating > .list-select,
+.form-floating > .card-select {
   height: calc(3.5rem + calc(var(--bs-border-width) * 2));
   min-height: calc(3.5rem + calc(var(--bs-border-width) * 2));
   line-height: 1.25;
@@ -2562,41 +2562,41 @@ textarea.form-control-lg {
     transition: none;
   }
 }
-.form-floating > .form-control, .form-floating > .list-input-price, .form-floating > .list-input-quantity,
+.form-floating > .form-control, .form-floating > .list-input-quantity, .form-floating > .list-input-price,
 .form-floating > .form-control-plaintext {
   padding: 1rem 0.75rem;
 }
-.form-floating > .form-control::placeholder, .form-floating > .list-input-price::placeholder, .form-floating > .list-input-quantity::placeholder,
+.form-floating > .form-control::placeholder, .form-floating > .list-input-quantity::placeholder, .form-floating > .list-input-price::placeholder,
 .form-floating > .form-control-plaintext::placeholder {
   color: transparent;
 }
-.form-floating > .form-control:focus, .form-floating > .list-input-price:focus, .form-floating > .list-input-quantity:focus, .form-floating > .form-control:not(:placeholder-shown), .form-floating > .list-input-price:not(:placeholder-shown), .form-floating > .list-input-quantity:not(:placeholder-shown),
+.form-floating > .form-control:focus, .form-floating > .list-input-quantity:focus, .form-floating > .list-input-price:focus, .form-floating > .form-control:not(:placeholder-shown), .form-floating > .list-input-quantity:not(:placeholder-shown), .form-floating > .list-input-price:not(:placeholder-shown),
 .form-floating > .form-control-plaintext:focus,
 .form-floating > .form-control-plaintext:not(:placeholder-shown) {
   padding-top: 1.625rem;
   padding-bottom: 0.625rem;
 }
-.form-floating > .form-control:-webkit-autofill, .form-floating > .list-input-price:-webkit-autofill, .form-floating > .list-input-quantity:-webkit-autofill,
+.form-floating > .form-control:-webkit-autofill, .form-floating > .list-input-quantity:-webkit-autofill, .form-floating > .list-input-price:-webkit-autofill,
 .form-floating > .form-control-plaintext:-webkit-autofill {
   padding-top: 1.625rem;
   padding-bottom: 0.625rem;
 }
-.form-floating > .form-select, .form-floating > .card-select, .form-floating > .list-select {
+.form-floating > .form-select, .form-floating > .list-select, .form-floating > .card-select {
   padding-top: 1.625rem;
   padding-bottom: 0.625rem;
   padding-left: 0.75rem;
 }
-.form-floating > .form-control:focus ~ label, .form-floating > .list-input-price:focus ~ label, .form-floating > .list-input-quantity:focus ~ label,
+.form-floating > .form-control:focus ~ label, .form-floating > .list-input-quantity:focus ~ label, .form-floating > .list-input-price:focus ~ label,
 .form-floating > .form-control:not(:placeholder-shown) ~ label,
-.form-floating > .list-input-price:not(:placeholder-shown) ~ label,
 .form-floating > .list-input-quantity:not(:placeholder-shown) ~ label,
+.form-floating > .list-input-price:not(:placeholder-shown) ~ label,
 .form-floating > .form-control-plaintext ~ label,
 .form-floating > .form-select ~ label,
-.form-floating > .card-select ~ label,
-.form-floating > .list-select ~ label {
+.form-floating > .list-select ~ label,
+.form-floating > .card-select ~ label {
   transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
 }
-.form-floating > .form-control:-webkit-autofill ~ label, .form-floating > .list-input-price:-webkit-autofill ~ label, .form-floating > .list-input-quantity:-webkit-autofill ~ label {
+.form-floating > .form-control:-webkit-autofill ~ label, .form-floating > .list-input-quantity:-webkit-autofill ~ label, .form-floating > .list-input-price:-webkit-autofill ~ label {
   transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
 }
 .form-floating > textarea:focus ~ label::after,
@@ -2627,28 +2627,28 @@ textarea.form-control-lg {
   align-items: stretch;
   width: 100%;
 }
-.input-group > .form-control, .input-group > .list-input-price, .input-group > .list-input-quantity,
+.input-group > .form-control, .input-group > .list-input-quantity, .input-group > .list-input-price,
 .input-group > .form-select,
-.input-group > .card-select,
 .input-group > .list-select,
+.input-group > .card-select,
 .input-group > .form-floating {
   position: relative;
   flex: 1 1 auto;
   width: 1%;
   min-width: 0;
 }
-.input-group > .form-control:focus, .input-group > .list-input-price:focus, .input-group > .list-input-quantity:focus,
+.input-group > .form-control:focus, .input-group > .list-input-quantity:focus, .input-group > .list-input-price:focus,
 .input-group > .form-select:focus,
-.input-group > .card-select:focus,
 .input-group > .list-select:focus,
+.input-group > .card-select:focus,
 .input-group > .form-floating:focus-within {
   z-index: 5;
 }
-.input-group .btn, .input-group .button-cancel, .input-group .button-ok, .input-group .button-up, .input-group .button-2, .input-group .button-1, .input-group .card-button {
+.input-group .btn, .input-group .card-button, .input-group .button-1, .input-group .button-2, .input-group .button-up {
   position: relative;
   z-index: 2;
 }
-.input-group .btn:focus, .input-group .button-cancel:focus, .input-group .button-ok:focus, .input-group .button-up:focus, .input-group .button-2:focus, .input-group .button-1:focus, .input-group .card-button:focus {
+.input-group .btn:focus, .input-group .card-button:focus, .input-group .button-1:focus, .input-group .button-2:focus, .input-group .button-up:focus {
   z-index: 5;
 }
 
@@ -2667,66 +2667,62 @@ textarea.form-control-lg {
   border-radius: var(--bs-border-radius);
 }
 
-.input-group-lg > .form-control, .input-group-lg > .list-input-price, .input-group-lg > .list-input-quantity,
+.input-group-lg > .form-control, .input-group-lg > .list-input-quantity, .input-group-lg > .list-input-price,
 .input-group-lg > .form-select,
-.input-group-lg > .card-select,
 .input-group-lg > .list-select,
+.input-group-lg > .card-select,
 .input-group-lg > .input-group-text,
 .input-group-lg > .btn,
-.input-group-lg > .button-cancel,
-.input-group-lg > .button-ok,
-.input-group-lg > .button-up,
-.input-group-lg > .button-2,
+.input-group-lg > .card-button,
 .input-group-lg > .button-1,
-.input-group-lg > .card-button {
+.input-group-lg > .button-2,
+.input-group-lg > .button-up {
   padding: 0.5rem 1rem;
   font-size: 1.25rem;
   border-radius: var(--bs-border-radius-lg);
 }
 
-.input-group-sm > .form-control, .input-group-sm > .list-input-price, .input-group-sm > .list-input-quantity,
+.input-group-sm > .form-control, .input-group-sm > .list-input-quantity, .input-group-sm > .list-input-price,
 .input-group-sm > .form-select,
-.input-group-sm > .card-select,
 .input-group-sm > .list-select,
+.input-group-sm > .card-select,
 .input-group-sm > .input-group-text,
 .input-group-sm > .btn,
-.input-group-sm > .button-cancel,
-.input-group-sm > .button-ok,
-.input-group-sm > .button-up,
-.input-group-sm > .button-2,
+.input-group-sm > .card-button,
 .input-group-sm > .button-1,
-.input-group-sm > .card-button {
+.input-group-sm > .button-2,
+.input-group-sm > .button-up {
   padding: 0.25rem 0.5rem;
   font-size: 0.875rem;
   border-radius: var(--bs-border-radius-sm);
 }
 
-.input-group-lg > .form-select, .input-group-lg > .card-select, .input-group-lg > .list-select,
+.input-group-lg > .form-select, .input-group-lg > .list-select, .input-group-lg > .card-select,
 .input-group-sm > .form-select,
-.input-group-sm > .card-select,
-.input-group-sm > .list-select {
+.input-group-sm > .list-select,
+.input-group-sm > .card-select {
   padding-right: 3rem;
 }
 
 .input-group:not(.has-validation) > :not(:last-child):not(.dropdown-toggle):not(.dropdown-menu):not(.form-floating),
 .input-group:not(.has-validation) > .dropdown-toggle:nth-last-child(n+3),
 .input-group:not(.has-validation) > .form-floating:not(:last-child) > .form-control,
-.input-group:not(.has-validation) > .form-floating:not(:last-child) > .list-input-price,
 .input-group:not(.has-validation) > .form-floating:not(:last-child) > .list-input-quantity,
+.input-group:not(.has-validation) > .form-floating:not(:last-child) > .list-input-price,
 .input-group:not(.has-validation) > .form-floating:not(:last-child) > .form-select,
-.input-group:not(.has-validation) > .form-floating:not(:last-child) > .card-select,
-.input-group:not(.has-validation) > .form-floating:not(:last-child) > .list-select {
+.input-group:not(.has-validation) > .form-floating:not(:last-child) > .list-select,
+.input-group:not(.has-validation) > .form-floating:not(:last-child) > .card-select {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
 .input-group.has-validation > :nth-last-child(n+3):not(.dropdown-toggle):not(.dropdown-menu):not(.form-floating),
 .input-group.has-validation > .dropdown-toggle:nth-last-child(n+4),
 .input-group.has-validation > .form-floating:nth-last-child(n+3) > .form-control,
-.input-group.has-validation > .form-floating:nth-last-child(n+3) > .list-input-price,
 .input-group.has-validation > .form-floating:nth-last-child(n+3) > .list-input-quantity,
+.input-group.has-validation > .form-floating:nth-last-child(n+3) > .list-input-price,
 .input-group.has-validation > .form-floating:nth-last-child(n+3) > .form-select,
-.input-group.has-validation > .form-floating:nth-last-child(n+3) > .card-select,
-.input-group.has-validation > .form-floating:nth-last-child(n+3) > .list-select {
+.input-group.has-validation > .form-floating:nth-last-child(n+3) > .list-select,
+.input-group.has-validation > .form-floating:nth-last-child(n+3) > .card-select {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
@@ -2735,10 +2731,10 @@ textarea.form-control-lg {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
-.input-group > .form-floating:not(:first-child) > .form-control, .input-group > .form-floating:not(:first-child) > .list-input-price, .input-group > .form-floating:not(:first-child) > .list-input-quantity,
+.input-group > .form-floating:not(:first-child) > .form-control, .input-group > .form-floating:not(:first-child) > .list-input-quantity, .input-group > .form-floating:not(:first-child) > .list-input-price,
 .input-group > .form-floating:not(:first-child) > .form-select,
-.input-group > .form-floating:not(:first-child) > .card-select,
-.input-group > .form-floating:not(:first-child) > .list-select {
+.input-group > .form-floating:not(:first-child) > .list-select,
+.input-group > .form-floating:not(:first-child) > .card-select {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
@@ -2772,7 +2768,7 @@ textarea.form-control-lg {
   display: block;
 }
 
-.was-validated .form-control:valid, .was-validated .list-input-price:valid, .was-validated .list-input-quantity:valid, .form-control.is-valid, .is-valid.list-input-price, .is-valid.list-input-quantity {
+.was-validated .form-control:valid, .was-validated .list-input-quantity:valid, .was-validated .list-input-price:valid, .form-control.is-valid, .is-valid.list-input-quantity, .is-valid.list-input-price {
   border-color: var(--bs-form-valid-border-color);
   padding-right: calc(1.5em + 0.75rem);
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1'/%3e%3c/svg%3e");
@@ -2780,26 +2776,26 @@ textarea.form-control-lg {
   background-position: right calc(0.375em + 0.1875rem) center;
   background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
 }
-.was-validated .form-control:valid:focus, .was-validated .list-input-price:valid:focus, .was-validated .list-input-quantity:valid:focus, .form-control.is-valid:focus, .is-valid.list-input-price:focus, .is-valid.list-input-quantity:focus {
+.was-validated .form-control:valid:focus, .was-validated .list-input-quantity:valid:focus, .was-validated .list-input-price:valid:focus, .form-control.is-valid:focus, .is-valid.list-input-quantity:focus, .is-valid.list-input-price:focus {
   border-color: var(--bs-form-valid-border-color);
   box-shadow: 0 0 0 0.25rem rgba(var(--bs-success-rgb), 0.25);
 }
 
-.was-validated textarea.form-control:valid, .was-validated textarea.list-input-price:valid, .was-validated textarea.list-input-quantity:valid, textarea.form-control.is-valid, textarea.is-valid.list-input-price, textarea.is-valid.list-input-quantity {
+.was-validated textarea.form-control:valid, .was-validated textarea.list-input-quantity:valid, .was-validated textarea.list-input-price:valid, textarea.form-control.is-valid, textarea.is-valid.list-input-quantity, textarea.is-valid.list-input-price {
   padding-right: calc(1.5em + 0.75rem);
   background-position: top calc(0.375em + 0.1875rem) right calc(0.375em + 0.1875rem);
 }
 
-.was-validated .form-select:valid, .was-validated .card-select:valid, .was-validated .list-select:valid, .form-select.is-valid, .is-valid.card-select, .is-valid.list-select {
+.was-validated .form-select:valid, .was-validated .list-select:valid, .was-validated .card-select:valid, .form-select.is-valid, .is-valid.list-select, .is-valid.card-select {
   border-color: var(--bs-form-valid-border-color);
 }
-.was-validated .form-select:valid:not([multiple]):not([size]), .was-validated .card-select:valid:not([multiple]):not([size]), .was-validated .list-select:valid:not([multiple]):not([size]), .was-validated .form-select:valid:not([multiple])[size="1"], .was-validated .card-select:valid:not([multiple])[size="1"], .was-validated .list-select:valid:not([multiple])[size="1"], .form-select.is-valid:not([multiple]):not([size]), .is-valid.card-select:not([multiple]):not([size]), .is-valid.list-select:not([multiple]):not([size]), .form-select.is-valid:not([multiple])[size="1"], .is-valid.card-select:not([multiple])[size="1"], .is-valid.list-select:not([multiple])[size="1"] {
+.was-validated .form-select:valid:not([multiple]):not([size]), .was-validated .list-select:valid:not([multiple]):not([size]), .was-validated .card-select:valid:not([multiple]):not([size]), .was-validated .form-select:valid:not([multiple])[size="1"], .was-validated .list-select:valid:not([multiple])[size="1"], .was-validated .card-select:valid:not([multiple])[size="1"], .form-select.is-valid:not([multiple]):not([size]), .is-valid.list-select:not([multiple]):not([size]), .is-valid.card-select:not([multiple]):not([size]), .form-select.is-valid:not([multiple])[size="1"], .is-valid.list-select:not([multiple])[size="1"], .is-valid.card-select:not([multiple])[size="1"] {
   --bs-form-select-bg-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1'/%3e%3c/svg%3e");
   padding-right: 4.125rem;
   background-position: right 0.75rem center, center right 2.25rem;
   background-size: 16px 12px, calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
 }
-.was-validated .form-select:valid:focus, .was-validated .card-select:valid:focus, .was-validated .list-select:valid:focus, .form-select.is-valid:focus, .is-valid.card-select:focus, .is-valid.list-select:focus {
+.was-validated .form-select:valid:focus, .was-validated .list-select:valid:focus, .was-validated .card-select:valid:focus, .form-select.is-valid:focus, .is-valid.list-select:focus, .is-valid.card-select:focus {
   border-color: var(--bs-form-valid-border-color);
   box-shadow: 0 0 0 0.25rem rgba(var(--bs-success-rgb), 0.25);
 }
@@ -2825,13 +2821,13 @@ textarea.form-control-lg {
   margin-left: 0.5em;
 }
 
-.was-validated .input-group > .form-control:not(:focus):valid, .was-validated .input-group > .list-input-price:not(:focus):valid, .was-validated .input-group > .list-input-quantity:not(:focus):valid, .input-group > .form-control:not(:focus).is-valid, .input-group > .list-input-price:not(:focus).is-valid, .input-group > .list-input-quantity:not(:focus).is-valid,
+.was-validated .input-group > .form-control:not(:focus):valid, .was-validated .input-group > .list-input-quantity:not(:focus):valid, .was-validated .input-group > .list-input-price:not(:focus):valid, .input-group > .form-control:not(:focus).is-valid, .input-group > .list-input-quantity:not(:focus).is-valid, .input-group > .list-input-price:not(:focus).is-valid,
 .was-validated .input-group > .form-select:not(:focus):valid,
-.was-validated .input-group > .card-select:not(:focus):valid,
 .was-validated .input-group > .list-select:not(:focus):valid,
+.was-validated .input-group > .card-select:not(:focus):valid,
 .input-group > .form-select:not(:focus).is-valid,
-.input-group > .card-select:not(:focus).is-valid,
 .input-group > .list-select:not(:focus).is-valid,
+.input-group > .card-select:not(:focus).is-valid,
 .was-validated .input-group > .form-floating:not(:focus-within):valid,
 .input-group > .form-floating:not(:focus-within).is-valid {
   z-index: 3;
@@ -2866,7 +2862,7 @@ textarea.form-control-lg {
   display: block;
 }
 
-.was-validated .form-control:invalid, .was-validated .list-input-price:invalid, .was-validated .list-input-quantity:invalid, .form-control.is-invalid, .is-invalid.list-input-price, .is-invalid.list-input-quantity {
+.was-validated .form-control:invalid, .was-validated .list-input-quantity:invalid, .was-validated .list-input-price:invalid, .form-control.is-invalid, .is-invalid.list-input-quantity, .is-invalid.list-input-price {
   border-color: var(--bs-form-invalid-border-color);
   padding-right: calc(1.5em + 0.75rem);
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
@@ -2874,26 +2870,26 @@ textarea.form-control-lg {
   background-position: right calc(0.375em + 0.1875rem) center;
   background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
 }
-.was-validated .form-control:invalid:focus, .was-validated .list-input-price:invalid:focus, .was-validated .list-input-quantity:invalid:focus, .form-control.is-invalid:focus, .is-invalid.list-input-price:focus, .is-invalid.list-input-quantity:focus {
+.was-validated .form-control:invalid:focus, .was-validated .list-input-quantity:invalid:focus, .was-validated .list-input-price:invalid:focus, .form-control.is-invalid:focus, .is-invalid.list-input-quantity:focus, .is-invalid.list-input-price:focus {
   border-color: var(--bs-form-invalid-border-color);
   box-shadow: 0 0 0 0.25rem rgba(var(--bs-danger-rgb), 0.25);
 }
 
-.was-validated textarea.form-control:invalid, .was-validated textarea.list-input-price:invalid, .was-validated textarea.list-input-quantity:invalid, textarea.form-control.is-invalid, textarea.is-invalid.list-input-price, textarea.is-invalid.list-input-quantity {
+.was-validated textarea.form-control:invalid, .was-validated textarea.list-input-quantity:invalid, .was-validated textarea.list-input-price:invalid, textarea.form-control.is-invalid, textarea.is-invalid.list-input-quantity, textarea.is-invalid.list-input-price {
   padding-right: calc(1.5em + 0.75rem);
   background-position: top calc(0.375em + 0.1875rem) right calc(0.375em + 0.1875rem);
 }
 
-.was-validated .form-select:invalid, .was-validated .card-select:invalid, .was-validated .list-select:invalid, .form-select.is-invalid, .is-invalid.card-select, .is-invalid.list-select {
+.was-validated .form-select:invalid, .was-validated .list-select:invalid, .was-validated .card-select:invalid, .form-select.is-invalid, .is-invalid.list-select, .is-invalid.card-select {
   border-color: var(--bs-form-invalid-border-color);
 }
-.was-validated .form-select:invalid:not([multiple]):not([size]), .was-validated .card-select:invalid:not([multiple]):not([size]), .was-validated .list-select:invalid:not([multiple]):not([size]), .was-validated .form-select:invalid:not([multiple])[size="1"], .was-validated .card-select:invalid:not([multiple])[size="1"], .was-validated .list-select:invalid:not([multiple])[size="1"], .form-select.is-invalid:not([multiple]):not([size]), .is-invalid.card-select:not([multiple]):not([size]), .is-invalid.list-select:not([multiple]):not([size]), .form-select.is-invalid:not([multiple])[size="1"], .is-invalid.card-select:not([multiple])[size="1"], .is-invalid.list-select:not([multiple])[size="1"] {
+.was-validated .form-select:invalid:not([multiple]):not([size]), .was-validated .list-select:invalid:not([multiple]):not([size]), .was-validated .card-select:invalid:not([multiple]):not([size]), .was-validated .form-select:invalid:not([multiple])[size="1"], .was-validated .list-select:invalid:not([multiple])[size="1"], .was-validated .card-select:invalid:not([multiple])[size="1"], .form-select.is-invalid:not([multiple]):not([size]), .is-invalid.list-select:not([multiple]):not([size]), .is-invalid.card-select:not([multiple]):not([size]), .form-select.is-invalid:not([multiple])[size="1"], .is-invalid.list-select:not([multiple])[size="1"], .is-invalid.card-select:not([multiple])[size="1"] {
   --bs-form-select-bg-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
   padding-right: 4.125rem;
   background-position: right 0.75rem center, center right 2.25rem;
   background-size: 16px 12px, calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
 }
-.was-validated .form-select:invalid:focus, .was-validated .card-select:invalid:focus, .was-validated .list-select:invalid:focus, .form-select.is-invalid:focus, .is-invalid.card-select:focus, .is-invalid.list-select:focus {
+.was-validated .form-select:invalid:focus, .was-validated .list-select:invalid:focus, .was-validated .card-select:invalid:focus, .form-select.is-invalid:focus, .is-invalid.list-select:focus, .is-invalid.card-select:focus {
   border-color: var(--bs-form-invalid-border-color);
   box-shadow: 0 0 0 0.25rem rgba(var(--bs-danger-rgb), 0.25);
 }
@@ -2919,19 +2915,19 @@ textarea.form-control-lg {
   margin-left: 0.5em;
 }
 
-.was-validated .input-group > .form-control:not(:focus):invalid, .was-validated .input-group > .list-input-price:not(:focus):invalid, .was-validated .input-group > .list-input-quantity:not(:focus):invalid, .input-group > .form-control:not(:focus).is-invalid, .input-group > .list-input-price:not(:focus).is-invalid, .input-group > .list-input-quantity:not(:focus).is-invalid,
+.was-validated .input-group > .form-control:not(:focus):invalid, .was-validated .input-group > .list-input-quantity:not(:focus):invalid, .was-validated .input-group > .list-input-price:not(:focus):invalid, .input-group > .form-control:not(:focus).is-invalid, .input-group > .list-input-quantity:not(:focus).is-invalid, .input-group > .list-input-price:not(:focus).is-invalid,
 .was-validated .input-group > .form-select:not(:focus):invalid,
-.was-validated .input-group > .card-select:not(:focus):invalid,
 .was-validated .input-group > .list-select:not(:focus):invalid,
+.was-validated .input-group > .card-select:not(:focus):invalid,
 .input-group > .form-select:not(:focus).is-invalid,
-.input-group > .card-select:not(:focus).is-invalid,
 .input-group > .list-select:not(:focus).is-invalid,
+.input-group > .card-select:not(:focus).is-invalid,
 .was-validated .input-group > .form-floating:not(:focus-within):invalid,
 .input-group > .form-floating:not(:focus-within).is-invalid {
   z-index: 4;
 }
 
-.btn, .button-cancel, .button-ok, .button-up, .button-2, .button-1, .card-button {
+.btn, .card-button, .button-1, .button-2, .button-up {
   --bs-btn-padding-x: 0.75rem;
   --bs-btn-padding-y: 0.375rem;
   --bs-btn-font-family: ;
@@ -2965,44 +2961,44 @@ textarea.form-control-lg {
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 @media (prefers-reduced-motion: reduce) {
-  .btn, .button-cancel, .button-ok, .button-up, .button-2, .button-1, .card-button {
+  .btn, .card-button, .button-1, .button-2, .button-up {
     transition: none;
   }
 }
-.btn:hover, .button-cancel:hover, .button-ok:hover, .button-up:hover, .button-2:hover, .button-1:hover, .card-button:hover {
+.btn:hover, .card-button:hover, .button-1:hover, .button-2:hover, .button-up:hover {
   color: var(--bs-btn-hover-color);
   background-color: var(--bs-btn-hover-bg);
   border-color: var(--bs-btn-hover-border-color);
 }
-.btn-check + .btn:hover, .btn-check + .button-cancel:hover, .btn-check + .button-ok:hover, .btn-check + .button-up:hover, .btn-check + .button-2:hover, .btn-check + .button-1:hover, .btn-check + .card-button:hover {
+.btn-check + .btn:hover, .btn-check + .card-button:hover, .btn-check + .button-1:hover, .btn-check + .button-2:hover, .btn-check + .button-up:hover {
   color: var(--bs-btn-color);
   background-color: var(--bs-btn-bg);
   border-color: var(--bs-btn-border-color);
 }
-.btn:focus-visible, .button-cancel:focus-visible, .button-ok:focus-visible, .button-up:focus-visible, .button-2:focus-visible, .button-1:focus-visible, .card-button:focus-visible {
+.btn:focus-visible, .card-button:focus-visible, .button-1:focus-visible, .button-2:focus-visible, .button-up:focus-visible {
   color: var(--bs-btn-hover-color);
   background-color: var(--bs-btn-hover-bg);
   border-color: var(--bs-btn-hover-border-color);
   outline: 0;
   box-shadow: var(--bs-btn-focus-box-shadow);
 }
-.btn-check:focus-visible + .btn, .btn-check:focus-visible + .button-cancel, .btn-check:focus-visible + .button-ok, .btn-check:focus-visible + .button-up, .btn-check:focus-visible + .button-2, .btn-check:focus-visible + .button-1, .btn-check:focus-visible + .card-button {
+.btn-check:focus-visible + .btn, .btn-check:focus-visible + .card-button, .btn-check:focus-visible + .button-1, .btn-check:focus-visible + .button-2, .btn-check:focus-visible + .button-up {
   border-color: var(--bs-btn-hover-border-color);
   outline: 0;
   box-shadow: var(--bs-btn-focus-box-shadow);
 }
-.btn-check:checked + .btn, .btn-check:checked + .button-cancel, .btn-check:checked + .button-ok, .btn-check:checked + .button-up, .btn-check:checked + .button-2, .btn-check:checked + .button-1, .btn-check:checked + .card-button, :not(.btn-check) + .btn:active, :not(.btn-check) + .button-cancel:active, :not(.btn-check) + .button-ok:active, :not(.btn-check) + .button-up:active, :not(.btn-check) + .button-2:active, :not(.btn-check) + .button-1:active, :not(.btn-check) + .card-button:active, .btn:first-child:active, .button-cancel:first-child:active, .button-ok:first-child:active, .button-up:first-child:active, .button-2:first-child:active, .button-1:first-child:active, .card-button:first-child:active, .btn.active, .active.button-cancel, .active.button-ok, .active.button-up, .active.button-2, .active.button-1, .active.card-button, .btn.show, .show.button-cancel, .show.button-ok, .show.button-up, .show.button-2, .show.button-1, .show.card-button {
+.btn-check:checked + .btn, .btn-check:checked + .card-button, .btn-check:checked + .button-1, .btn-check:checked + .button-2, .btn-check:checked + .button-up, :not(.btn-check) + .btn:active, :not(.btn-check) + .card-button:active, :not(.btn-check) + .button-1:active, :not(.btn-check) + .button-2:active, :not(.btn-check) + .button-up:active, .btn:first-child:active, .card-button:first-child:active, .button-1:first-child:active, .button-2:first-child:active, .button-up:first-child:active, .btn.active, .active.card-button, .active.button-1, .active.button-2, .active.button-up, .btn.show, .show.card-button, .show.button-1, .show.button-2, .show.button-up {
   color: var(--bs-btn-active-color);
   background-color: var(--bs-btn-active-bg);
   border-color: var(--bs-btn-active-border-color);
 }
-.btn-check:checked + .btn:focus-visible, .btn-check:checked + .button-cancel:focus-visible, .btn-check:checked + .button-ok:focus-visible, .btn-check:checked + .button-up:focus-visible, .btn-check:checked + .button-2:focus-visible, .btn-check:checked + .button-1:focus-visible, .btn-check:checked + .card-button:focus-visible, :not(.btn-check) + .btn:active:focus-visible, :not(.btn-check) + .button-cancel:active:focus-visible, :not(.btn-check) + .button-ok:active:focus-visible, :not(.btn-check) + .button-up:active:focus-visible, :not(.btn-check) + .button-2:active:focus-visible, :not(.btn-check) + .button-1:active:focus-visible, :not(.btn-check) + .card-button:active:focus-visible, .btn:first-child:active:focus-visible, .button-cancel:first-child:active:focus-visible, .button-ok:first-child:active:focus-visible, .button-up:first-child:active:focus-visible, .button-2:first-child:active:focus-visible, .button-1:first-child:active:focus-visible, .card-button:first-child:active:focus-visible, .btn.active:focus-visible, .active.button-cancel:focus-visible, .active.button-ok:focus-visible, .active.button-up:focus-visible, .active.button-2:focus-visible, .active.button-1:focus-visible, .active.card-button:focus-visible, .btn.show:focus-visible, .show.button-cancel:focus-visible, .show.button-ok:focus-visible, .show.button-up:focus-visible, .show.button-2:focus-visible, .show.button-1:focus-visible, .show.card-button:focus-visible {
+.btn-check:checked + .btn:focus-visible, .btn-check:checked + .card-button:focus-visible, .btn-check:checked + .button-1:focus-visible, .btn-check:checked + .button-2:focus-visible, .btn-check:checked + .button-up:focus-visible, :not(.btn-check) + .btn:active:focus-visible, :not(.btn-check) + .card-button:active:focus-visible, :not(.btn-check) + .button-1:active:focus-visible, :not(.btn-check) + .button-2:active:focus-visible, :not(.btn-check) + .button-up:active:focus-visible, .btn:first-child:active:focus-visible, .card-button:first-child:active:focus-visible, .button-1:first-child:active:focus-visible, .button-2:first-child:active:focus-visible, .button-up:first-child:active:focus-visible, .btn.active:focus-visible, .active.card-button:focus-visible, .active.button-1:focus-visible, .active.button-2:focus-visible, .active.button-up:focus-visible, .btn.show:focus-visible, .show.card-button:focus-visible, .show.button-1:focus-visible, .show.button-2:focus-visible, .show.button-up:focus-visible {
   box-shadow: var(--bs-btn-focus-box-shadow);
 }
-.btn-check:checked:focus-visible + .btn, .btn-check:checked:focus-visible + .button-cancel, .btn-check:checked:focus-visible + .button-ok, .btn-check:checked:focus-visible + .button-up, .btn-check:checked:focus-visible + .button-2, .btn-check:checked:focus-visible + .button-1, .btn-check:checked:focus-visible + .card-button {
+.btn-check:checked:focus-visible + .btn, .btn-check:checked:focus-visible + .card-button, .btn-check:checked:focus-visible + .button-1, .btn-check:checked:focus-visible + .button-2, .btn-check:checked:focus-visible + .button-up {
   box-shadow: var(--bs-btn-focus-box-shadow);
 }
-.btn:disabled, .button-cancel:disabled, .button-ok:disabled, .button-up:disabled, .button-2:disabled, .button-1:disabled, .card-button:disabled, .btn.disabled, .disabled.button-cancel, .disabled.button-ok, .disabled.button-up, .disabled.button-2, .disabled.button-1, .disabled.card-button, fieldset:disabled .btn, fieldset:disabled .button-cancel, fieldset:disabled .button-ok, fieldset:disabled .button-up, fieldset:disabled .button-2, fieldset:disabled .button-1, fieldset:disabled .card-button {
+.btn:disabled, .card-button:disabled, .button-1:disabled, .button-2:disabled, .button-up:disabled, .btn.disabled, .disabled.card-button, .disabled.button-1, .disabled.button-2, .disabled.button-up, fieldset:disabled .btn, fieldset:disabled .card-button, fieldset:disabled .button-1, fieldset:disabled .button-2, fieldset:disabled .button-up {
   color: var(--bs-btn-disabled-color);
   pointer-events: none;
   background-color: var(--bs-btn-disabled-bg);
@@ -3010,7 +3006,7 @@ textarea.form-control-lg {
   opacity: var(--bs-btn-disabled-opacity);
 }
 
-.btn-primary, .button-ok, .button-1, .card-button {
+.btn-primary, .card-button, .button-1 {
   --bs-btn-color: #fff;
   --bs-btn-bg: #0d6efd;
   --bs-btn-border-color: #0d6efd;
@@ -3027,7 +3023,7 @@ textarea.form-control-lg {
   --bs-btn-disabled-border-color: #0d6efd;
 }
 
-.btn-secondary, .button-cancel, .button-2 {
+.btn-secondary, .button-2 {
   --bs-btn-color: #fff;
   --bs-btn-bg: #6c757d;
   --bs-btn-border-color: #6c757d;
@@ -3304,14 +3300,14 @@ textarea.form-control-lg {
   color: var(--bs-btn-hover-color);
 }
 
-.btn-lg, .btn-group-lg > .btn, .btn-group-lg > .button-cancel, .btn-group-lg > .button-ok, .btn-group-lg > .button-up, .btn-group-lg > .button-2, .btn-group-lg > .button-1, .btn-group-lg > .card-button {
+.btn-lg, .btn-group-lg > .btn, .btn-group-lg > .card-button, .btn-group-lg > .button-1, .btn-group-lg > .button-2, .btn-group-lg > .button-up {
   --bs-btn-padding-y: 0.5rem;
   --bs-btn-padding-x: 1rem;
   --bs-btn-font-size: 1.25rem;
   --bs-btn-border-radius: var(--bs-border-radius-lg);
 }
 
-.btn-sm, .btn-group-sm > .btn, .btn-group-sm > .button-cancel, .btn-group-sm > .button-ok, .btn-group-sm > .button-up, .btn-group-sm > .button-2, .btn-group-sm > .button-1, .btn-group-sm > .card-button {
+.btn-sm, .btn-group-sm > .btn, .btn-group-sm > .card-button, .btn-group-sm > .button-1, .btn-group-sm > .button-2, .btn-group-sm > .button-up {
   --bs-btn-padding-y: 0.25rem;
   --bs-btn-padding-x: 0.5rem;
   --bs-btn-font-size: 0.875rem;
@@ -3678,95 +3674,71 @@ textarea.form-control-lg {
   display: inline-flex;
   vertical-align: middle;
 }
-.btn-group > .btn, .btn-group > .button-cancel, .btn-group > .button-ok, .btn-group > .button-up, .btn-group > .button-2, .btn-group > .button-1, .btn-group > .card-button,
+.btn-group > .btn, .btn-group > .card-button, .btn-group > .button-1, .btn-group > .button-2, .btn-group > .button-up,
 .btn-group-vertical > .btn,
-.btn-group-vertical > .button-cancel,
-.btn-group-vertical > .button-ok,
-.btn-group-vertical > .button-up,
-.btn-group-vertical > .button-2,
+.btn-group-vertical > .card-button,
 .btn-group-vertical > .button-1,
-.btn-group-vertical > .card-button {
+.btn-group-vertical > .button-2,
+.btn-group-vertical > .button-up {
   position: relative;
   flex: 1 1 auto;
 }
-.btn-group > .btn-check:checked + .btn, .btn-group > .btn-check:checked + .button-cancel, .btn-group > .btn-check:checked + .button-ok, .btn-group > .btn-check:checked + .button-up, .btn-group > .btn-check:checked + .button-2, .btn-group > .btn-check:checked + .button-1, .btn-group > .btn-check:checked + .card-button,
+.btn-group > .btn-check:checked + .btn, .btn-group > .btn-check:checked + .card-button, .btn-group > .btn-check:checked + .button-1, .btn-group > .btn-check:checked + .button-2, .btn-group > .btn-check:checked + .button-up,
 .btn-group > .btn-check:focus + .btn,
-.btn-group > .btn-check:focus + .button-cancel,
-.btn-group > .btn-check:focus + .button-ok,
-.btn-group > .btn-check:focus + .button-up,
-.btn-group > .btn-check:focus + .button-2,
-.btn-group > .btn-check:focus + .button-1,
 .btn-group > .btn-check:focus + .card-button,
+.btn-group > .btn-check:focus + .button-1,
+.btn-group > .btn-check:focus + .button-2,
+.btn-group > .btn-check:focus + .button-up,
 .btn-group > .btn:hover,
-.btn-group > .button-cancel:hover,
-.btn-group > .button-ok:hover,
-.btn-group > .button-up:hover,
-.btn-group > .button-2:hover,
-.btn-group > .button-1:hover,
 .btn-group > .card-button:hover,
+.btn-group > .button-1:hover,
+.btn-group > .button-2:hover,
+.btn-group > .button-up:hover,
 .btn-group > .btn:focus,
-.btn-group > .button-cancel:focus,
-.btn-group > .button-ok:focus,
-.btn-group > .button-up:focus,
-.btn-group > .button-2:focus,
-.btn-group > .button-1:focus,
 .btn-group > .card-button:focus,
+.btn-group > .button-1:focus,
+.btn-group > .button-2:focus,
+.btn-group > .button-up:focus,
 .btn-group > .btn:active,
-.btn-group > .button-cancel:active,
-.btn-group > .button-ok:active,
-.btn-group > .button-up:active,
-.btn-group > .button-2:active,
-.btn-group > .button-1:active,
 .btn-group > .card-button:active,
+.btn-group > .button-1:active,
+.btn-group > .button-2:active,
+.btn-group > .button-up:active,
 .btn-group > .btn.active,
-.btn-group > .active.button-cancel,
-.btn-group > .active.button-ok,
-.btn-group > .active.button-up,
-.btn-group > .active.button-2,
-.btn-group > .active.button-1,
 .btn-group > .active.card-button,
+.btn-group > .active.button-1,
+.btn-group > .active.button-2,
+.btn-group > .active.button-up,
 .btn-group-vertical > .btn-check:checked + .btn,
-.btn-group-vertical > .btn-check:checked + .button-cancel,
-.btn-group-vertical > .btn-check:checked + .button-ok,
-.btn-group-vertical > .btn-check:checked + .button-up,
-.btn-group-vertical > .btn-check:checked + .button-2,
-.btn-group-vertical > .btn-check:checked + .button-1,
 .btn-group-vertical > .btn-check:checked + .card-button,
+.btn-group-vertical > .btn-check:checked + .button-1,
+.btn-group-vertical > .btn-check:checked + .button-2,
+.btn-group-vertical > .btn-check:checked + .button-up,
 .btn-group-vertical > .btn-check:focus + .btn,
-.btn-group-vertical > .btn-check:focus + .button-cancel,
-.btn-group-vertical > .btn-check:focus + .button-ok,
-.btn-group-vertical > .btn-check:focus + .button-up,
-.btn-group-vertical > .btn-check:focus + .button-2,
-.btn-group-vertical > .btn-check:focus + .button-1,
 .btn-group-vertical > .btn-check:focus + .card-button,
+.btn-group-vertical > .btn-check:focus + .button-1,
+.btn-group-vertical > .btn-check:focus + .button-2,
+.btn-group-vertical > .btn-check:focus + .button-up,
 .btn-group-vertical > .btn:hover,
-.btn-group-vertical > .button-cancel:hover,
-.btn-group-vertical > .button-ok:hover,
-.btn-group-vertical > .button-up:hover,
-.btn-group-vertical > .button-2:hover,
-.btn-group-vertical > .button-1:hover,
 .btn-group-vertical > .card-button:hover,
+.btn-group-vertical > .button-1:hover,
+.btn-group-vertical > .button-2:hover,
+.btn-group-vertical > .button-up:hover,
 .btn-group-vertical > .btn:focus,
-.btn-group-vertical > .button-cancel:focus,
-.btn-group-vertical > .button-ok:focus,
-.btn-group-vertical > .button-up:focus,
-.btn-group-vertical > .button-2:focus,
-.btn-group-vertical > .button-1:focus,
 .btn-group-vertical > .card-button:focus,
+.btn-group-vertical > .button-1:focus,
+.btn-group-vertical > .button-2:focus,
+.btn-group-vertical > .button-up:focus,
 .btn-group-vertical > .btn:active,
-.btn-group-vertical > .button-cancel:active,
-.btn-group-vertical > .button-ok:active,
-.btn-group-vertical > .button-up:active,
-.btn-group-vertical > .button-2:active,
-.btn-group-vertical > .button-1:active,
 .btn-group-vertical > .card-button:active,
+.btn-group-vertical > .button-1:active,
+.btn-group-vertical > .button-2:active,
+.btn-group-vertical > .button-up:active,
 .btn-group-vertical > .btn.active,
-.btn-group-vertical > .active.button-cancel,
-.btn-group-vertical > .active.button-ok,
-.btn-group-vertical > .active.button-up,
-.btn-group-vertical > .active.button-2,
+.btn-group-vertical > .active.card-button,
 .btn-group-vertical > .active.button-1,
-.btn-group-vertical > .active.card-button {
+.btn-group-vertical > .active.button-2,
+.btn-group-vertical > .active.button-up {
   z-index: 1;
 }
 
@@ -3782,43 +3754,35 @@ textarea.form-control-lg {
 .btn-group {
   border-radius: var(--bs-border-radius);
 }
-.btn-group > :not(.btn-check:first-child) + .btn, .btn-group > :not(.btn-check:first-child) + .button-cancel, .btn-group > :not(.btn-check:first-child) + .button-ok, .btn-group > :not(.btn-check:first-child) + .button-up, .btn-group > :not(.btn-check:first-child) + .button-2, .btn-group > :not(.btn-check:first-child) + .button-1, .btn-group > :not(.btn-check:first-child) + .card-button,
+.btn-group > :not(.btn-check:first-child) + .btn, .btn-group > :not(.btn-check:first-child) + .card-button, .btn-group > :not(.btn-check:first-child) + .button-1, .btn-group > :not(.btn-check:first-child) + .button-2, .btn-group > :not(.btn-check:first-child) + .button-up,
 .btn-group > .btn-group:not(:first-child) {
   margin-left: calc(-1 * var(--bs-border-width));
 }
-.btn-group > .btn:not(:last-child):not(.dropdown-toggle), .btn-group > .button-cancel:not(:last-child):not(.dropdown-toggle), .btn-group > .button-ok:not(:last-child):not(.dropdown-toggle), .btn-group > .button-up:not(:last-child):not(.dropdown-toggle), .btn-group > .button-2:not(:last-child):not(.dropdown-toggle), .btn-group > .button-1:not(:last-child):not(.dropdown-toggle), .btn-group > .card-button:not(:last-child):not(.dropdown-toggle),
+.btn-group > .btn:not(:last-child):not(.dropdown-toggle), .btn-group > .card-button:not(:last-child):not(.dropdown-toggle), .btn-group > .button-1:not(:last-child):not(.dropdown-toggle), .btn-group > .button-2:not(:last-child):not(.dropdown-toggle), .btn-group > .button-up:not(:last-child):not(.dropdown-toggle),
 .btn-group > .btn.dropdown-toggle-split:first-child,
-.btn-group > .dropdown-toggle-split.button-cancel:first-child,
-.btn-group > .dropdown-toggle-split.button-ok:first-child,
-.btn-group > .dropdown-toggle-split.button-up:first-child,
-.btn-group > .dropdown-toggle-split.button-2:first-child,
-.btn-group > .dropdown-toggle-split.button-1:first-child,
 .btn-group > .dropdown-toggle-split.card-button:first-child,
+.btn-group > .dropdown-toggle-split.button-1:first-child,
+.btn-group > .dropdown-toggle-split.button-2:first-child,
+.btn-group > .dropdown-toggle-split.button-up:first-child,
 .btn-group > .btn-group:not(:last-child) > .btn,
-.btn-group > .btn-group:not(:last-child) > .button-cancel,
-.btn-group > .btn-group:not(:last-child) > .button-ok,
-.btn-group > .btn-group:not(:last-child) > .button-up,
-.btn-group > .btn-group:not(:last-child) > .button-2,
+.btn-group > .btn-group:not(:last-child) > .card-button,
 .btn-group > .btn-group:not(:last-child) > .button-1,
-.btn-group > .btn-group:not(:last-child) > .card-button {
+.btn-group > .btn-group:not(:last-child) > .button-2,
+.btn-group > .btn-group:not(:last-child) > .button-up {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
-.btn-group > .btn:nth-child(n+3), .btn-group > .button-cancel:nth-child(n+3), .btn-group > .button-ok:nth-child(n+3), .btn-group > .button-up:nth-child(n+3), .btn-group > .button-2:nth-child(n+3), .btn-group > .button-1:nth-child(n+3), .btn-group > .card-button:nth-child(n+3),
+.btn-group > .btn:nth-child(n+3), .btn-group > .card-button:nth-child(n+3), .btn-group > .button-1:nth-child(n+3), .btn-group > .button-2:nth-child(n+3), .btn-group > .button-up:nth-child(n+3),
 .btn-group > :not(.btn-check) + .btn,
-.btn-group > :not(.btn-check) + .button-cancel,
-.btn-group > :not(.btn-check) + .button-ok,
-.btn-group > :not(.btn-check) + .button-up,
-.btn-group > :not(.btn-check) + .button-2,
-.btn-group > :not(.btn-check) + .button-1,
 .btn-group > :not(.btn-check) + .card-button,
+.btn-group > :not(.btn-check) + .button-1,
+.btn-group > :not(.btn-check) + .button-2,
+.btn-group > :not(.btn-check) + .button-up,
 .btn-group > .btn-group:not(:first-child) > .btn,
-.btn-group > .btn-group:not(:first-child) > .button-cancel,
-.btn-group > .btn-group:not(:first-child) > .button-ok,
-.btn-group > .btn-group:not(:first-child) > .button-up,
-.btn-group > .btn-group:not(:first-child) > .button-2,
+.btn-group > .btn-group:not(:first-child) > .card-button,
 .btn-group > .btn-group:not(:first-child) > .button-1,
-.btn-group > .btn-group:not(:first-child) > .card-button {
+.btn-group > .btn-group:not(:first-child) > .button-2,
+.btn-group > .btn-group:not(:first-child) > .button-up {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
@@ -3834,12 +3798,12 @@ textarea.form-control-lg {
   margin-right: 0;
 }
 
-.btn-sm + .dropdown-toggle-split, .btn-group-sm > .btn + .dropdown-toggle-split, .btn-group-sm > .button-cancel + .dropdown-toggle-split, .btn-group-sm > .button-ok + .dropdown-toggle-split, .btn-group-sm > .button-up + .dropdown-toggle-split, .btn-group-sm > .button-2 + .dropdown-toggle-split, .btn-group-sm > .button-1 + .dropdown-toggle-split, .btn-group-sm > .card-button + .dropdown-toggle-split {
+.btn-sm + .dropdown-toggle-split, .btn-group-sm > .btn + .dropdown-toggle-split, .btn-group-sm > .card-button + .dropdown-toggle-split, .btn-group-sm > .button-1 + .dropdown-toggle-split, .btn-group-sm > .button-2 + .dropdown-toggle-split, .btn-group-sm > .button-up + .dropdown-toggle-split {
   padding-right: 0.375rem;
   padding-left: 0.375rem;
 }
 
-.btn-lg + .dropdown-toggle-split, .btn-group-lg > .btn + .dropdown-toggle-split, .btn-group-lg > .button-cancel + .dropdown-toggle-split, .btn-group-lg > .button-ok + .dropdown-toggle-split, .btn-group-lg > .button-up + .dropdown-toggle-split, .btn-group-lg > .button-2 + .dropdown-toggle-split, .btn-group-lg > .button-1 + .dropdown-toggle-split, .btn-group-lg > .card-button + .dropdown-toggle-split {
+.btn-lg + .dropdown-toggle-split, .btn-group-lg > .btn + .dropdown-toggle-split, .btn-group-lg > .card-button + .dropdown-toggle-split, .btn-group-lg > .button-1 + .dropdown-toggle-split, .btn-group-lg > .button-2 + .dropdown-toggle-split, .btn-group-lg > .button-up + .dropdown-toggle-split {
   padding-right: 0.75rem;
   padding-left: 0.75rem;
 }
@@ -3849,40 +3813,34 @@ textarea.form-control-lg {
   align-items: flex-start;
   justify-content: center;
 }
-.btn-group-vertical > .btn, .btn-group-vertical > .button-cancel, .btn-group-vertical > .button-ok, .btn-group-vertical > .button-up, .btn-group-vertical > .button-2, .btn-group-vertical > .button-1, .btn-group-vertical > .card-button,
+.btn-group-vertical > .btn, .btn-group-vertical > .card-button, .btn-group-vertical > .button-1, .btn-group-vertical > .button-2, .btn-group-vertical > .button-up,
 .btn-group-vertical > .btn-group {
   width: 100%;
 }
-.btn-group-vertical > .btn:not(:first-child), .btn-group-vertical > .button-cancel:not(:first-child), .btn-group-vertical > .button-ok:not(:first-child), .btn-group-vertical > .button-up:not(:first-child), .btn-group-vertical > .button-2:not(:first-child), .btn-group-vertical > .button-1:not(:first-child), .btn-group-vertical > .card-button:not(:first-child),
+.btn-group-vertical > .btn:not(:first-child), .btn-group-vertical > .card-button:not(:first-child), .btn-group-vertical > .button-1:not(:first-child), .btn-group-vertical > .button-2:not(:first-child), .btn-group-vertical > .button-up:not(:first-child),
 .btn-group-vertical > .btn-group:not(:first-child) {
   margin-top: calc(-1 * var(--bs-border-width));
 }
-.btn-group-vertical > .btn:not(:last-child):not(.dropdown-toggle), .btn-group-vertical > .button-cancel:not(:last-child):not(.dropdown-toggle), .btn-group-vertical > .button-ok:not(:last-child):not(.dropdown-toggle), .btn-group-vertical > .button-up:not(:last-child):not(.dropdown-toggle), .btn-group-vertical > .button-2:not(:last-child):not(.dropdown-toggle), .btn-group-vertical > .button-1:not(:last-child):not(.dropdown-toggle), .btn-group-vertical > .card-button:not(:last-child):not(.dropdown-toggle),
+.btn-group-vertical > .btn:not(:last-child):not(.dropdown-toggle), .btn-group-vertical > .card-button:not(:last-child):not(.dropdown-toggle), .btn-group-vertical > .button-1:not(:last-child):not(.dropdown-toggle), .btn-group-vertical > .button-2:not(:last-child):not(.dropdown-toggle), .btn-group-vertical > .button-up:not(:last-child):not(.dropdown-toggle),
 .btn-group-vertical > .btn-group:not(:last-child) > .btn,
-.btn-group-vertical > .btn-group:not(:last-child) > .button-cancel,
-.btn-group-vertical > .btn-group:not(:last-child) > .button-ok,
-.btn-group-vertical > .btn-group:not(:last-child) > .button-up,
-.btn-group-vertical > .btn-group:not(:last-child) > .button-2,
+.btn-group-vertical > .btn-group:not(:last-child) > .card-button,
 .btn-group-vertical > .btn-group:not(:last-child) > .button-1,
-.btn-group-vertical > .btn-group:not(:last-child) > .card-button {
+.btn-group-vertical > .btn-group:not(:last-child) > .button-2,
+.btn-group-vertical > .btn-group:not(:last-child) > .button-up {
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
 }
-.btn-group-vertical > .btn:nth-child(n+3), .btn-group-vertical > .button-cancel:nth-child(n+3), .btn-group-vertical > .button-ok:nth-child(n+3), .btn-group-vertical > .button-up:nth-child(n+3), .btn-group-vertical > .button-2:nth-child(n+3), .btn-group-vertical > .button-1:nth-child(n+3), .btn-group-vertical > .card-button:nth-child(n+3),
+.btn-group-vertical > .btn:nth-child(n+3), .btn-group-vertical > .card-button:nth-child(n+3), .btn-group-vertical > .button-1:nth-child(n+3), .btn-group-vertical > .button-2:nth-child(n+3), .btn-group-vertical > .button-up:nth-child(n+3),
 .btn-group-vertical > :not(.btn-check) + .btn,
-.btn-group-vertical > :not(.btn-check) + .button-cancel,
-.btn-group-vertical > :not(.btn-check) + .button-ok,
-.btn-group-vertical > :not(.btn-check) + .button-up,
-.btn-group-vertical > :not(.btn-check) + .button-2,
-.btn-group-vertical > :not(.btn-check) + .button-1,
 .btn-group-vertical > :not(.btn-check) + .card-button,
+.btn-group-vertical > :not(.btn-check) + .button-1,
+.btn-group-vertical > :not(.btn-check) + .button-2,
+.btn-group-vertical > :not(.btn-check) + .button-up,
 .btn-group-vertical > .btn-group:not(:first-child) > .btn,
-.btn-group-vertical > .btn-group:not(:first-child) > .button-cancel,
-.btn-group-vertical > .btn-group:not(:first-child) > .button-ok,
-.btn-group-vertical > .btn-group:not(:first-child) > .button-up,
-.btn-group-vertical > .btn-group:not(:first-child) > .button-2,
+.btn-group-vertical > .btn-group:not(:first-child) > .card-button,
 .btn-group-vertical > .btn-group:not(:first-child) > .button-1,
-.btn-group-vertical > .btn-group:not(:first-child) > .card-button {
+.btn-group-vertical > .btn-group:not(:first-child) > .button-2,
+.btn-group-vertical > .btn-group:not(:first-child) > .button-up {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
@@ -4922,12 +4880,12 @@ textarea.form-control-lg {
   display: none;
 }
 
-.btn .badge, .button-cancel .badge, .button-ok .badge, .button-up .badge, .button-2 .badge, .button-1 .badge, .card-button .badge {
+.btn .badge, .card-button .badge, .button-1 .badge, .button-2 .badge, .button-up .badge {
   position: relative;
   top: -1px;
 }
 
-.alert, .success, .error, .warning {
+.alert, .warning, .error, .success {
   --bs-alert-bg: transparent;
   --bs-alert-padding-x: 1rem;
   --bs-alert-padding-y: 1rem;
@@ -6870,7 +6828,7 @@ textarea.form-control-lg {
   background-color: currentcolor;
   opacity: 0.5;
 }
-.placeholder.btn::before, .placeholder.button-cancel::before, .placeholder.button-ok::before, .placeholder.button-up::before, .placeholder.button-2::before, .placeholder.button-1::before, .placeholder.card-button::before {
+.placeholder.btn::before, .placeholder.card-button::before, .placeholder.button-1::before, .placeholder.button-2::before, .placeholder.button-up::before {
   display: inline-block;
   content: "";
 }
@@ -7372,7 +7330,7 @@ textarea.form-control-lg {
   display: inline-block !important;
 }
 
-.d-block, .change, .list-fake-select {
+.d-block, .list-fake-select {
   display: block !important;
 }
 
@@ -7396,7 +7354,7 @@ textarea.form-control-lg {
   display: table-cell !important;
 }
 
-.d-flex, .card-field, .card-border, .list-item-justify, .page-wrapper {
+.d-flex, .page-wrapper, .list-item-justify, .card-border, .card-field {
   display: flex !important;
 }
 
@@ -7536,7 +7494,7 @@ textarea.form-control-lg {
   transform: translateY(-50%) !important;
 }
 
-.border, .card-border, .list-compact {
+.border, .list-compact, .card-border {
   border: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;
 }
 
@@ -7710,11 +7668,11 @@ textarea.form-control-lg {
   width: 75% !important;
 }
 
-.w-100, .button-up, .button-2, .button-1, .container-compact, .page-wrapper {
+.w-100, .page-wrapper, .container-compact, .button-1, .button-2, .button-up {
   width: 100% !important;
 }
 
-.w-auto, .success, .error, .warning, .card-select, .list-fake-select, .list-select {
+.w-auto, .list-select, .list-fake-select, .card-select, .warning, .error, .success {
   width: auto !important;
 }
 
@@ -7770,7 +7728,7 @@ textarea.form-control-lg {
   flex-direction: row !important;
 }
 
-.flex-column, .card-border, .page-wrapper {
+.flex-column, .page-wrapper, .card-border {
   flex-direction: column !important;
 }
 
@@ -7842,7 +7800,7 @@ textarea.form-control-lg {
   align-items: flex-end !important;
 }
 
-.align-items-center, .card-field, .list-item-justify {
+.align-items-center, .list-item-justify, .card-field {
   align-items: center !important;
 }
 
@@ -7934,7 +7892,7 @@ textarea.form-control-lg {
   order: 6 !important;
 }
 
-.m-0, .card-field, .card-p, .page-wrapper, body {
+.m-0, body, .page-wrapper, .card-p, .card-field {
   margin: 0 !important;
 }
 
@@ -8032,7 +7990,7 @@ textarea.form-control-lg {
   margin-bottom: auto !important;
 }
 
-.mt-0, .change, .success, .error, .warning {
+.mt-0, .warning, .error, .success {
   margin-top: 0 !important;
 }
 
@@ -8088,7 +8046,7 @@ textarea.form-control-lg {
   margin-right: auto !important;
 }
 
-.mb-0, .change, .card-label {
+.mb-0, .card-label {
   margin-bottom: 0 !important;
 }
 
@@ -8100,7 +8058,7 @@ textarea.form-control-lg {
   margin-bottom: 0.5rem !important;
 }
 
-.mb-3, .button-up, .button-2, .button-1, .success, .error, .warning, .card-border, .list-compact, .field, h1, .h1 {
+.mb-3, h1, .field, .list-compact, .card-border, .warning, .error, .success, .button-1, .button-2, .button-up {
   margin-bottom: 1rem !important;
 }
 
@@ -8144,7 +8102,7 @@ textarea.form-control-lg {
   margin-left: auto !important;
 }
 
-.p-0, .card-field, .card-p {
+.p-0, .card-p, .card-field {
   padding: 0 !important;
 }
 
@@ -8152,7 +8110,7 @@ textarea.form-control-lg {
   padding: 0.25rem !important;
 }
 
-.p-2, .success, .error, .warning {
+.p-2, .warning, .error, .success {
   padding: 0.5rem !important;
 }
 
@@ -8260,7 +8218,7 @@ textarea.form-control-lg {
   padding-right: 0.25rem !important;
 }
 
-.pe-2, .change {
+.pe-2 {
   padding-right: 0.5rem !important;
 }
 
@@ -8328,7 +8286,7 @@ textarea.form-control-lg {
   gap: 0 !important;
 }
 
-.gap-1, .card-field, .card-border {
+.gap-1, .card-border, .card-field {
   gap: 0.25rem !important;
 }
 
@@ -8496,7 +8454,7 @@ textarea.form-control-lg {
   text-decoration: underline !important;
 }
 
-.text-decoration-line-through, .demolished {
+.text-decoration-line-through {
   text-decoration: line-through !important;
 }
 
@@ -8527,12 +8485,12 @@ textarea.form-control-lg {
 }
 
 /* rtl:end:remove */
-.text-primary, h1, .h1 {
+.text-primary, h1 {
   --bs-text-opacity: 1;
   color: rgba(var(--bs-primary-rgb), var(--bs-text-opacity)) !important;
 }
 
-.text-secondary, h2, .h2 {
+.text-secondary, h2 {
   --bs-text-opacity: 1;
   color: rgba(var(--bs-secondary-rgb), var(--bs-text-opacity)) !important;
 }
@@ -8552,7 +8510,7 @@ textarea.form-control-lg {
   color: rgba(var(--bs-warning-rgb), var(--bs-text-opacity)) !important;
 }
 
-.text-danger, .demolished {
+.text-danger {
   --bs-text-opacity: 1;
   color: rgba(var(--bs-danger-rgb), var(--bs-text-opacity)) !important;
 }
@@ -8577,7 +8535,7 @@ textarea.form-control-lg {
   color: rgba(var(--bs-white-rgb), var(--bs-text-opacity)) !important;
 }
 
-.text-body, h3, .h3 {
+.text-body, h3 {
   --bs-text-opacity: 1;
   color: rgba(var(--bs-body-color-rgb), var(--bs-text-opacity)) !important;
 }
@@ -12011,15 +11969,15 @@ textarea.form-control-lg {
     display: none !important;
   }
 }
-h1, .h1 {
+h1 {
   font-size: 1.3rem;
 }
 
-h2, .h2 {
+h2 {
   font-size: 1.15rem;
 }
 
-h3, .h3 {
+h3 {
   font-size: 1rem;
 }
 
@@ -12032,19 +11990,19 @@ h3, .h3 {
   border-bottom: 1px solid;
 }
 
-.gold-world {
+.world-gold {
   background-color: #fff8dc;
   color: #a67c00;
   border-color: #e0c97f;
 }
 
-.debt-world {
+.world-debt {
   background-color: rgb(215.3278688525, 231.2295081967, 254.6721311475);
   color: #0d6efd;
   border-color: rgb(114.1639344262, 170.6147540984, 253.8360655738);
 }
 
-.time-world {
+.world-time {
   background-color: #e6f9f1;
   color: #1f8f5f;
   border-color: #bce3d1;
@@ -12096,12 +12054,30 @@ h3, .h3 {
   display: inline-block;
 }
 
+/*.demolished {
+	@extend .text-decoration-line-through;
+	@extend .text-danger;
+}*/
+/*.button-ok {
+	@extend .btn;
+	@extend .btn-primary;
+}
+
+.button-cancel {
+	@extend .btn;
+	@extend .btn-secondary;
+}
+
 .button-test {
-  outline: none !important;
+	outline: none !important;
 }
 
 .change {
-  text-align: right;
-}
+	@extend .d-block;
+	@extend .mt-0;
+	@extend .mb-0;
+	@extend .pe-2;
+	text-align: right;
+}*/
 
 /*# sourceMappingURL=styles.css.map */

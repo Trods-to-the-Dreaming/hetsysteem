@@ -5,8 +5,8 @@
 <div class="container-compact">
 	<h1>Gebruikersnaam wijzigen</h1>
 	
-	{{#if changeSaved}}
-		<p id="change-saved" class="success">{{changeMessage}}</p>
+	{{#if successMessage}}
+		<p id="success" class="success">{{successMessage}}</p>
 	{{else}}
 		<form id="form" method="POST" action="/account/change-username">
 			<div class="field">

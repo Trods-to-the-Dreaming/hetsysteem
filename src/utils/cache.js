@@ -4,7 +4,8 @@ export function getFromCache(key) {
 	return cache.get(key) || null;
 }
 //-----------------------------------------------------------------------------------------------//
-export function setInCache(key, value) {
+export function setInCache(key, 
+						   value) {
 	cache.set(key, value);
 }
 //-----------------------------------------------------------------------------------------------//

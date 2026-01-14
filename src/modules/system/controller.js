@@ -1,23 +1,11 @@
-export async function showHome(req, res, next) {
-	try {
-		return res.redirect('/about');
-	} catch (err) {
-		next(err); 
-	}
+export function showHome(req, res) {
+	return res.redirect('/about');
 };
 //-----------------------------------------------------------------------------------------------//
-export async function showAbout(req, res, next) {
-	try {
-		return res.render('system/about');
-	} catch (err) {
-		next(err);  
-	}
+export function showAbout(req, res) {
+	return res.render('system/about');
 };
 //-----------------------------------------------------------------------------------------------//
-export async function showGameMechanics(req, res, next) {
-	try {
-		return res.render('system/game-mechanics');
-	} catch (err) {
-		next(err); 
-	}
+export function showGameMechanics(req, res) {
+	return res.render('system/game-mechanics');
 };

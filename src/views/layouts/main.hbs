@@ -18,9 +18,9 @@
 <body>
 	<div class="page-wrapper"-->
 		{{> navbar }}
-		{{#if world_type}}
-			<div class="active-world-banner {{world_class}}">
-				🌍 {{world_name}}
+		{{#if character && world}}
+			<div class="active-world-banner {{world.class}}">
+				👤 {{character.firstName}} {{character.lastName}} 🌍 {{world.name}}
 			</div>
 		{{/if}}
 		<div class="content-wrapper">

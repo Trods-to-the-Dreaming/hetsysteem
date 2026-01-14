@@ -5,10 +5,10 @@
 <div class="container-compact">
 	<h1>Wereld betreden</h1>
 	
-	<form id="enter-world-form" method="POST" action="/game/enter-world">
+	<form id="form" method="POST" action="/game/enter-world">
 		<div class="field">
-			<label for="world" class="form-label">Kies een wereld.</label>
-			<select id="world" class="form-select" name="worldId">
+			<label for="world-select" class="form-label">Kies een wereld.</label>
+			<select id="world-select" class="form-select" name="worldId">
 				{{#each worlds}}
 					<option value="{{this.id}}" {{#if (eq this.id ../selectedWorldId)}}selected{{/if}}>
 						{{this.type}}
@@ -17,7 +17,7 @@
 			</select>
 		</div>
 		
-		<p id="world-error" class="error">{{worldError}}</p>
+		<p id="error" class="error">{{errorMessage}}</p>
 		
 		<button class="button-1" type="submit">Betreden</button>
 	</form>
@@ -27,16 +27,15 @@
 
 <script type="module">
 //-----------------------------------------------------------------------------------------------//
-function handleWorldChange() {
-	worldError.textContent = '';
+function clearError() {
+	const error = document.getElementById('error');
+	error.textContent = '';
 }
 //-----------------------------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
-	const worldSelect = document.getElementById('world');
-	
-	const worldError = document.getElementById('world-error');
-	
-	worldSelect.addEventListener('change', handleWorldChange);
+	const world = document.getElementById('world-select');
+
+	world.addEventListener('change', clearError);
 });
 //-----------------------------------------------------------------------------------------------//
 </script>

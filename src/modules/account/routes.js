@@ -1,25 +1,25 @@
 import express from 'express';
-
+//-----------------------------------------------------------------------------------------------//
 import { 
-	loginRateLimiter,
-	registerRateLimiter,
-	changeUsernameRateLimiter,
-	changePasswordRateLimiter
+	limitLoginRate,
+	limitRegisterRate,
+	limitChangeUsernameRate,
+	limitChangePasswordRate
 } from '#middleware/rate-limit.js';
 import { 
 	requireGuest,
-	requireAuthenticated
+	requireLogin
 } from '#middleware/auth.js';
-
-import { validate } from '#utils/validate.js';
-
+import { 
+	validate
+} from '#middleware/validate.js';
+//-----------------------------------------------------------------------------------------------//
 import {
 	loginSchema,
 	registerSchema,
 	changeUsernameSchema,
 	changePasswordSchema
 } from './validation.js';
-
 import {
 	showLogin,
 	handleLogin,
@@ -43,14 +43,14 @@ router.get('/login',
 );
 //-----------------------------------------------------------------------------------------------//
 router.post('/login',
+	limitLoginRate,
 	requireGuest,
-	loginRateLimiter,
-	validate(loginSchema, '/account/login'),
+	validate(loginSchema),
 	handleLogin
 );
 //-----------------------------------------------------------------------------------------------//
 router.post('/logout',
-	requireAuthenticated,
+	requireLogin,
 	handleLogout
 );
 //-----------------------------------------------------------------------------------------------//
@@ -60,38 +60,38 @@ router.get('/register',
 );
 //-----------------------------------------------------------------------------------------------//
 router.post('/register',
+	limitRegisterRate,
 	requireGuest,
-	registerRateLimiter,
-	validate(registerSchema, '/account/register'),
+	validate(registerSchema),
 	handleRegister
 );
 //-----------------------------------------------------------------------------------------------//
 router.get('/',
-	requireAuthenticated,
+	requireLogin,
 	showAccount
 );
 //-----------------------------------------------------------------------------------------------//
 router.get('/change-username',
-	requireAuthenticated,
+	requireLogin,
 	showChangeUsername
 );
 //-----------------------------------------------------------------------------------------------//
 router.post('/change-username',
-	requireAuthenticated,
-	changeUsernameRateLimiter,
-	validate(changeUsernameSchema, '/account/change-username'),
+	limitChangeUsernameRate,
+	requireLogin,
+	validate(changeUsernameSchema),
 	handleChangeUsername
 );
 //-----------------------------------------------------------------------------------------------//
 router.get('/change-password',
-	requireAuthenticated,
+	requireLogin,
 	showChangePassword
 );
 //-----------------------------------------------------------------------------------------------//
 router.post('/change-password',
-	requireAuthenticated,
-	changePasswordRateLimiter,
-	validate(changePasswordSchema, '/account/change-password'),
+	limitChangePasswordRate,
+	requireLogin,
+	validate(changePasswordSchema),
 	handleChangePassword
 );
 

@@ -1,20 +1,28 @@
 import express from 'express';
-
-import { requireAuthenticated } from '#middleware/auth.js';
-import { requireWorldSession } from './middleware.js';
-
-import { validate } from '#utils/validate.js';
-
+//-----------------------------------------------------------------------------------------------//
+import { 
+	requireLogin
+} from '#middleware/auth.js';
+import { 
+	validate
+} from '#middleware/validate.js';
+//-----------------------------------------------------------------------------------------------//
+import { 
+	requireWorldEntered,
+	requireToken
+} from './middleware.js';
 import {
-	enterWorldSchema
+	enterWorldSchema,
+	finishTurnSchema,
+	checkCharacterNameSchema,
+	checkBuildingNameSchema
 } from './validation.js';
-
 import {
 	showEnterWorld,
 	handleEnterWorld,
 	showMenu,
 	showCharacter,
-	startTurn,
+	showStartTurn,
 	showCustomizeCharacter,
 	showManageBuildings,
 	showManageEmploymentContracts,
@@ -24,19 +32,19 @@ import {
 	showShare,
 	showConsume,
 	showManageGroup,
-	finishTurn,
-	isCharacterNameAvailable,
-	isBuildingNameAvailable,
-	showCharacterNameConflict,
-	showBuildingNamesConflict,
-	showStatistics
+	handleFinishTurn,
+	handleCheckCharacterName,
+	handleCheckBuildingName,
+	showResolveNameConflicts,
+	showStatistics,
+	triggerProcessActions
 } from './controller.js';
 
 //===============================================================================================//
 
 const requireGameAccess = [
-	requireAuthenticated,
-	requireWorldSession
+	requireLogin,
+	requireWorldEntered
 ];
 
 //===============================================================================================//
@@ -44,13 +52,13 @@ const requireGameAccess = [
 const router = express.Router();
 //-----------------------------------------------------------------------------------------------//
 router.get('/enter-world',
-	requireAuthenticated, 
+	requireLogin, 
 	showEnterWorld
 );
 //-----------------------------------------------------------------------------------------------//
 router.post('/enter-world',
-	requireAuthenticated,
-	validate(enterWorldSchema, '/game/enter-world'),
+	requireLogin,
+	validate(enterWorldSchema),
 	handleEnterWorld
 );
 //-----------------------------------------------------------------------------------------------//
@@ -66,7 +74,7 @@ router.get('/character',
 //-----------------------------------------------------------------------------------------------//
 router.get('/turn/start',
 	requireGameAccess,
-	startTurn
+	showStartTurn
 );
 //-----------------------------------------------------------------------------------------------//
 router.get('/turn/customize-character',
@@ -115,28 +123,30 @@ router.get('/turn/manage-group',
 //-----------------------------------------------------------------------------------------------//
 router.post('/turn/finish',
 	requireGameAccess,
-	validate(finishTurnSchema, '/game/turn/finish'),
-	finishTurn
+	validate(finishTurnSchema),
+	handleFinishTurn
 );
 //-----------------------------------------------------------------------------------------------//
-router.get('/turn/is-character-name-available',
+router.post('/turn/check-character-name',
 	requireGameAccess,
-	isCharacterNameAvailable
+	validate(checkCharacterNameSchema),
+	handleCheckCharacterName
 );
 //-----------------------------------------------------------------------------------------------//
-router.get('/turn/is-building-name-available',
+router.post('/turn/check-building-name',
 	requireGameAccess,
-	isBuildingNameAvailable
+	validate(checkBuildingNameSchema),
+	handleCheckBuildingName
 );
 //-----------------------------------------------------------------------------------------------//
-router.get('/turn/character-name-conflict',
+router.get('/turn/resolve-name-conflicts',
 	requireGameAccess,
-	showCharacterNameConflict
+	showResolveNameConflicts
 );
 //-----------------------------------------------------------------------------------------------//
-router.get('/turn/building-names-conflict',
-	requireGameAccess,
-	showBuildingNamesConflict
+router.get('/turn/process-actions',
+	requireToken,
+	triggerProcessActions
 );
 //-----------------------------------------------------------------------------------------------//
 router.get('/statistics',

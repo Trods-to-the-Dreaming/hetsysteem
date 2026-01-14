@@ -1,6 +1,6 @@
 export function regenerateSession(req) {
 	return new Promise((resolve, reject) => {
-		req.session.regenerate(err => {
+		req.session.regenerate((err) => {
 			if (err) reject(err);
 			resolve();
 		});
@@ -9,7 +9,7 @@ export function regenerateSession(req) {
 //-----------------------------------------------------------------------------------------------//
 export function saveSession(req) {
 	return new Promise((resolve, reject) => {
-		req.session.save(err => {
+		req.session.save((err) => {
 			if (err) reject(err);
 			resolve();
 		});
@@ -18,7 +18,7 @@ export function saveSession(req) {
 //-----------------------------------------------------------------------------------------------//
 export function destroySession(req) {
 	return new Promise((resolve, reject) => {
-		req.session.destroy(err => {
+		req.session.destroy((err) => {
 			if (err) return reject(err);
 			resolve();
 		});

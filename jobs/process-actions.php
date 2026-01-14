@@ -1,26 +1,27 @@
 <?php
 $env = getenv('NODE_ENV') ?: 'development';
+$cronToken = getenv('CRON_TOKEN');
 
 if ($env === 'production') {
-    $url = 'https://www.hetsysteem.site/cron/process-actions';
+    $url = 'https://www.hetsysteem.site/game/turn/process-actions';
 } else {
-    $url = 'http://localhost:3000/cron/process-actions';
+    $url = 'http://localhost:3000/game/turn/process-actions';
 }
 
 $options = [
-  'http' => [
-    'method' => 'GET',
-    'header' => "Authorization: Bearer 4321\r\n"
-  ]
+	'http' => [
+		'method' => 'GET',
+		'header' => "Authorization: Bearer $cronToken\r\n"
+	]
 ];
 
 $context = stream_context_create($options);
 $result = file_get_contents($url, false, $context);
 
 if ($result === FALSE) {
-  http_response_code(500);
-  echo "Cron job mislukt.";
+	http_response_code(500);
+	echo "Cron job mislukt.";
 } else {
-  echo "Cron job succesvol uitgevoerd.";
+	echo "Cron job succesvol uitgevoerd.";
 }
 ?>

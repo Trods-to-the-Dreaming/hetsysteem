@@ -1,4 +1,4 @@
-@import "../../node_modules/bootstrap/scss/bootstrap";
+@use "../../node_modules/bootstrap/scss/bootstrap" as *;
 
 body {
 	@extend .m-0;
@@ -40,19 +40,19 @@ h3 {
 	border-bottom: 1px solid;
 }
 
-.gold-world {
+.world-gold {
 	background-color: #fff8dc;
 	color: #a67c00;
 	border-color: #e0c97f;
 }
 
-.debt-world {
+.world-debt {
 	background-color: lighten($primary, 40%);
 	color: $primary;
 	border-color: lighten($primary, 20%);
 }
 
-.time-world {
+.world-time {
 	background-color: #e6f9f1;
 	color: #1f8f5f;
 	border-color: #bce3d1;
