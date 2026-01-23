@@ -1,11 +1,11 @@
-{{#block "title"}}Registreren{{/block}}
+{{#block "title"}}Inschrijven{{/block}}
 
 <!------------------------------------------------------------------------------------------------>
 
 <div class="container-compact">
-	<h1>Registreren</h1>
+	<h1>Inschrijven</h1>
 	
-	<form id="form" method="POST" action="/account/register">
+	<form id="register-form" method="POST" action="/account/register">
 		<div class="field">
 			<label for="username-input" class="form-label">Gebruikersnaam:</label>
 			<input id="username-input" class="form-control" type="text" name="username" value="{{username}}" required>
@@ -21,9 +21,14 @@
 			<input id="confirmed-password-input" class="form-control" type="password" name="confirmedPassword" required>
 		</div>
 		
-		<p id="error" class="error">{{errorMessage}}</p>
+		<div class="field">
+			<label for="invitation-token-input" class="form-label">Uitnodigingscode:</label>
+			<input id="invitation-token-input" class="form-control" type="text" name="invitationToken" required>
+		</div>
 		
-		<button class="button-1" type="submit">Registreren</button>
+		<p id="register-error" class="error">{{registerError}}</p>
+		
+		<button class="button-1" type="submit">Inschrijven</button>
 	</form>
 	
 	<p>Reeds lid? <a href="/account/login">Aanmelden</a>.</p>
@@ -36,52 +41,93 @@
 import { validateUsername } from '/js/username.validation.js';
 import { validatePassword } from '/js/password.validation.js';
 import { validatePasswordConfirmation } from '/js/password-confirmation.validation.js';
+import { validateInvitationToken } from '/js/invitation-token.validation.js';
 //-----------------------------------------------------------------------------------------------//
 function clearError() {
-	const error = document.getElementById('error');
-	error.textContent = '';
+	const registerErrorElement = document.getElementById('register-error');
+	registerErrorElement.textContent = '';
+}
+//-----------------------------------------------------------------------------------------------//
+function formatInvitationToken(token) {
+    const raw = token
+		.replace(/[^A-Za-z0-9]/g, '')
+		.toUpperCase()
+		.slice(0, 16);
+
+	return raw.match(/.{1,4}/g)?.join('-') ?? '';
 }
 //-----------------------------------------------------------------------------------------------//
 function handleUsernameInput() {
 	clearError();
 	
-	const username = document.getElementById('username-input');
-	validateUsername(username);
+	const usernameInput = document.getElementById('username-input');
+	validateUsername(usernameInput);
 }
 //-----------------------------------------------------------------------------------------------//
 function handlePasswordInput() {
 	clearError();
 	
-	const password = document.getElementById('password-input');
-	validatePassword(password);
+	const passwordInput = document.getElementById('password-input');
+	validatePassword(passwordInput);
 }
 //-----------------------------------------------------------------------------------------------//
 function handleConfirmedPasswordInput() {
 	clearError();
 	
-	const password = document.getElementById('password-input');
-	const confirmedPassword = document.getElementById('confirmed-password-input');
-	validatePasswordConfirmation(password, confirmedPassword);
+	const passwordInput = document.getElementById('password-input');
+	const confirmedPasswordInput = document.getElementById('confirmed-password-input');
+	validatePasswordConfirmation(passwordInput, confirmedPasswordInput);
 }
 //-----------------------------------------------------------------------------------------------//
-function handleFormSubmit(e) {
-	const form = document.getElementById('form');
-	if (!form.checkValidity()) {
+function handleInvitationTokenInput() {
+	clearError();
+	
+	const invitationTokenInput = document.getElementById('invitation-token-input');
+	
+	const rawCursorPos = invitationTokenInput.value
+		.slice(0, invitationTokenInput.selectionStart)
+		.replace(/[^A-Z0-9]/gi, '')
+		.length;
+	
+	invitationTokenInput.value = formatInvitationToken(invitationTokenInput.value);
+
+	let count = 0;
+	let cursor = invitationTokenInput.value.length;
+	for (let i = 0; i < invitationTokenInput.value.length; i++) {
+		if (/[A-Z0-9]/.test(invitationTokenInput.value[i])) {
+			count++;
+		}
+		if (count === rawCursorPos) {
+			cursor = i + 1;
+			break;
+		}
+	}
+
+	invitationTokenInput.setSelectionRange(cursor, cursor);
+	
+	validateInvitationToken(invitationTokenInput);
+}
+//-----------------------------------------------------------------------------------------------//
+function handleRegisterFormSubmit(e) {
+	const registerForm = document.getElementById('register-form');
+	if (!registerForm.checkValidity()) {
 		e.preventDefault();
-		form.reportValidity();
+		registerForm.reportValidity();
 	}
 }
 //-----------------------------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
-	const username = document.getElementById('username-input');
-	const password = document.getElementById('password-input');
-	const confirmedPassword = document.getElementById('confirmed-password-input');
-	const form = document.getElementById('form');
+	const usernameInput = document.getElementById('username-input');
+	const passwordInput = document.getElementById('password-input');
+	const confirmedPasswordInput = document.getElementById('confirmed-password-input');
+	const invitationTokenInput = document.getElementById('invitation-token-input');
+	const registerForm = document.getElementById('register-form');
 	
-	username.addEventListener('input', handleUsernameInput);
-	password.addEventListener('input', handlePasswordInput);
-	confirmedPassword.addEventListener('input', handleConfirmedPasswordInput);
-	form.addEventListener('submit', handleFormSubmit);
+	usernameInput.addEventListener('input', handleUsernameInput);
+	passwordInput.addEventListener('input', handlePasswordInput);
+	confirmedPasswordInput.addEventListener('input', handleConfirmedPasswordInput);
+	invitationTokenInput.addEventListener('input', handleInvitationTokenInput);
+	registerForm.addEventListener('submit', handleRegisterFormSubmit);
 });
 //-----------------------------------------------------------------------------------------------//
 </script>

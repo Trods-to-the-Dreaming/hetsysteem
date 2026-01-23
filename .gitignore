@@ -9,6 +9,9 @@ Formules.xlsx
 # Ignore environment variables and secrets
 .env
 
+# Ignore offline tables
+.env
+
 interesse.txt
 
 # Ignore OS-specific and editor files

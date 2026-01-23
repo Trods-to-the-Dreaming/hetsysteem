@@ -14,7 +14,7 @@ import { ConnectSessionKnexStore } from 'connect-session-knex';
 import systemRoutes from '#modules/system/routes.js';
 import accountRoutes from '#modules/account/routes.js';
 import gameRoutes from '#modules/game/routes.js';
-import cronRoutes from '#modules/cron/routes.js';
+//import cronRoutes from '#modules/cron/routes.js';
 
 //===============================================================================================//
 
@@ -92,12 +92,7 @@ app.set('views', path.join(process.cwd(), 'src/views'));
 //===============================================================================================//
 
 app.use((req, res, next) => {
-	if (req.session && req.session.username) {
-		res.locals.authenticated = true;
-		res.locals.username = req.session.username;
-	} else {
-		res.locals.authenticated = false;
-	}
+	res.locals.authenticated = Boolean(req.session?.user);
 	next();
 });
 
@@ -106,10 +101,10 @@ app.use((req, res, next) => {
 app.use(systemRoutes.path, systemRoutes.router);
 app.use(accountRoutes.path, accountRoutes.router);
 app.use(gameRoutes.path, gameRoutes.router);
-app.use(cronRoutes.path, cronRoutes.router);
+//app.use(cronRoutes.path, cronRoutes.router);
 
 app.use((req, res) => {
-	res.status(404).render('404');
+	res.status(404).render('errors/404');
 });
 
 //===============================================================================================//

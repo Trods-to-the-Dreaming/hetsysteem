@@ -10,6 +10,7 @@ import {
 import { 
 	login,
 	register,
+	deregister,
 	changeUsername,
 	changePassword
 } from './service.js';
@@ -26,13 +27,15 @@ export function showLogin(req, res) {
 	delete req.session.loginError;
 
 	return res.render('account/login', {
-		errorMessage: loginError
+		loginError
 	});
 }
 //-----------------------------------------------------------------------------------------------//
 export async function handleLogin(req, res) {
-	const { username, 
-			password } = req.validatedData;
+	const { 
+		username, 
+		password 
+	} = req.validatedData;
 	
 	try {
 		const result = await login({ 
@@ -40,16 +43,17 @@ export async function handleLogin(req, res) {
 			password
 		});
 		if (!result.ok) {
-			return res.render('account/login', {
+			return res.status(result.status).render('account/login', {
 				username,
-				errorMessage: ACCOUNT.MESSAGE[result.reason]
+				loginError: ACCOUNT.MESSAGE[result.reason]
 			});
 		}
 		
-		const user = result.value;
-		
 		await regenerateSession(req);
-		req.session.user = user;
+		req.session.user = {
+			id: result.value.id,
+			name: result.value.name
+		};
 		await saveSession(req);
 		
 		return res.redirect('/game/enter-world');
@@ -67,29 +71,39 @@ export async function handleLogout(req, res) {
 }
 //-----------------------------------------------------------------------------------------------//
 export function showRegister(req, res) {
-	return res.render('account/register');
+	const { registerError } = req.session;
+	delete req.session.registerError;
+	
+	return res.render('account/register', {
+		registerError
+	});
 }
 //-----------------------------------------------------------------------------------------------//
 export async function handleRegister(req, res) {
-	const { username, 
-			password } = req.validatedData;
+	const { 
+		username, 
+		password,
+		invitationToken
+	} = req.validatedData;
 	
 	try { 
 		const result = await register({ 
 			username, 
-			password 
+			password,
+			invitationToken
 		});
 		if (!result.ok) {
-			return res.render('account/register', {
+			return res.status(result.status).render('account/register', {
 				username,
-				errorMessage: ACCOUNT.MESSAGE[result.reason]
+				registerError: ACCOUNT.MESSAGE[result.reason]
 			});
 		}
-		
-		const user = result.value;
 
 		await regenerateSession(req);
-		req.session.user = user;
+		req.session.user = {
+			id: result.value.id,
+			name: result.value.name
+		};
 		await saveSession(req);
 		
 		return res.redirect('/game/enter-world');
@@ -99,25 +113,44 @@ export async function handleRegister(req, res) {
 	}
 }
 //-----------------------------------------------------------------------------------------------//
+export async function handleDeregister(req, res) {
+	const { user } = req.session;
+	
+	await deregister(user.id);
+	
+	await destroySession(req);
+	res.clearCookie('systeem_session_cookie');
+	
+	return res.redirect('/account/login');
+}
+//-----------------------------------------------------------------------------------------------//
 export function showAccount(req, res) {
-	return res.render('account/my-account');
+	const { 
+		user,
+		changeAccountSuccess 
+	} = req.session;
+	delete req.session.changeAccountSuccess;
+	
+	return res.render('account/my-account', {
+		username: user.name,
+		changeAccountSuccess
+	});
 }
 //-----------------------------------------------------------------------------------------------//
 export function showChangeUsername(req, res) {
-	const { user, 
-			usernameChanged } = req.session;
-	delete req.session.usernameChanged;
+	const { user } = req.session;
 
 	return res.render('account/change-username', {
-		username: user.name,
-		successMessage: usernameChanged
+		username: user.name
 	});
 }
 //-----------------------------------------------------------------------------------------------//
 export async function handleChangeUsername(req, res) {
 	const { user } = req.session;
-	const { newUsername, 
-			password } = req.validatedData;
+	const { 
+		newUsername, 
+		password 
+	} = req.validatedData;
 	
 	try {
 		const result = await changeUsername({ 
@@ -126,18 +159,18 @@ export async function handleChangeUsername(req, res) {
 			password 
 		});
 		if (!result.ok) {
-			return res.render('account/change-username', {
+			return res.status(result.status).render('account/change-username', {
 				username: user.name,
 				newUsername,
-				errorMessage: ACCOUNT.MESSAGE[result.reason]
+				changeUsernameError: ACCOUNT.MESSAGE[result.reason]
 			});
 		}
 		
 		req.session.user.name = newUsername;
-		req.session.usernameChanged = MSG_USERNAME_CHANGED;
+		req.session.changeAccountSuccess = MSG_USERNAME_CHANGED;
 		await saveSession(req);
 		
-		return res.redirect('/account/change-username');
+		return res.redirect('/account');
 	} catch (err) {
 		await destroySession(req);
 		throw err;
@@ -145,19 +178,15 @@ export async function handleChangeUsername(req, res) {
 }
 //-----------------------------------------------------------------------------------------------//
 export function showChangePassword(req, res) {
-	const { passwordChanged } = req.session;
-	delete req.session.passwordChanged;
-
-	return res.render('account/change-password', {
-		changeSaved,
-		successMessage: passwordChanged
-	});
+	return res.render('account/change-password');
 }
 //-----------------------------------------------------------------------------------------------//
 export async function handleChangePassword(req, res) {
 	const { user } = req.session;
-	const { newPassword,
-			password } = req.validatedData;
+	const { 
+		newPassword,
+		password 
+	} = req.validatedData;
 	
 	try {
 		const result = await changePassword({ 
@@ -166,15 +195,15 @@ export async function handleChangePassword(req, res) {
 			password
 		});
 		if (!result.ok) {
-			return res.render('account/change-password', {
-				errorMessage: ACCOUNT.MESSAGE[result.reason]
+			return res.status(result.status).render('account/change-password', {
+				changePasswordError: ACCOUNT.MESSAGE[result.reason]
 			});
 		}
 
-		req.session.passwordChanged = MSG_PASSWORD_CHANGED;
+		req.session.changeAccountSuccess = MSG_PASSWORD_CHANGED;
 		await saveSession(req);
 		
-		return res.redirect('/account/change-password');
+		return res.redirect('/account');
 	} catch (err) {
 		await destroySession(req);
 		throw err;

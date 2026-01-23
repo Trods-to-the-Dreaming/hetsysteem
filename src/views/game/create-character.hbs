@@ -1,0 +1,173 @@
+{{#block "title"}}Personage aanmaken{{/block}}
+
+<!------------------------------------------------------------------------------------------------>
+
+<div class="container-compact">
+	<h1>Personage aanmaken</h1>
+	
+	<form id="create-character-form" method="POST" action="/game/create-character">
+		<div class="field">
+			<label for="first-name-input" class="form-label">
+				Voornaam:
+			</label>
+			<input id="first-name-input" class="form-control" type="text" name="firstName" value="{{firstName}}" required>
+		</div>
+		
+		<div class="field">
+			<label for="last-name-input" class="form-label">
+				Achternaam:
+			</label>
+			<input id="last-name-input" class="form-control" type="text" name="lastName" value="{{lastName}}" required>
+		</div>
+		
+		<div class="field">
+			<label for="job-preference-1-select" class="form-label">
+				Jobvoorkeur (★★★):
+			</label>
+			<select id="job-preference-1-select" class="form-select" name="jobPreferenceIds[0]" required>
+				<option value="" {{#unless jobPreferenceIds.[0]}}selected{{/unless}} hidden disabled>
+					— kies een job —
+				</option>
+				{{#each jobs}}
+					<option value="{{id}}" {{#if (eq id ../jobPreferenceIds.[0])}}selected{{/if}}>
+						{{type}}
+					</option>
+				{{/each}}
+			</select>
+		</div>
+		
+		<div class="field">
+			<label for="job-preference-2-select" class="form-label">
+				Jobvoorkeur (★★):
+			</label>
+			<select id="job-preference-2-select" class="form-select" name="jobPreferenceIds[1]" required>
+				<option value="" {{#unless jobPreferenceIds.[1]}}selected{{/unless}} hidden disabled>
+					— kies een job —
+				</option>
+				{{#each jobs}}
+					<option value="{{id}}" {{#if (eq id ../jobPreferenceIds.[1])}}selected{{/if}}>
+						{{type}}
+					</option>
+				{{/each}}
+			</select>
+		</div>
+		
+		<div class="field">
+			<label for="job-preference-3-select" class="form-label">
+				Jobvoorkeur (★):
+			</label>
+			<select id="job-preference-3-select" class="form-select" name="jobPreferenceIds[2]" required>
+				<option value="" {{#unless jobPreferenceIds.[2]}}selected{{/unless}} hidden disabled>
+					— kies een job —
+				</option>
+				{{#each jobs}}
+					<option value="{{id}}" {{#if (eq id ../jobPreferenceIds.[2])}}selected{{/if}}>
+						{{type}}
+					</option>
+				{{/each}}
+			</select>
+		</div>
+		
+		<div class="field">
+			<label for="recreation-preference-select" class="form-label">
+				Ontspanningsvoorkeur (★★★):
+			</label>
+			<select id="recreation-preference-select" class="form-select" name="recreationPreferenceId" required>
+				<option value="" {{#unless recreationPreferenceId}}selected{{/unless}} hidden disabled>
+					— kies een activiteit —
+				</option>
+				{{#each recreations}}
+					<option value="{{id}}" {{#if (eq id ../recreationPreferenceId)}}selected{{/if}}>
+						{{type}}
+					</option>
+				{{/each}}
+			</select>
+		</div>
+		
+		<p id="create-character-error" class="error">{{createCharacterError}}</p>
+	
+		<button class="button-1" type="submit">Aanmaken</button>
+		
+		<hr>
+		
+		<a class="button-up" href="/game">↑ Annuleren</a>
+	</form>
+</div>
+
+<!------------------------------------------------------------------------------------------------>
+
+<script type="module">
+//-----------------------------------------------------------------------------------------------//
+import { validateCharacterFirstName } from '/js/character-first-name.validation.js';
+import { validateCharacterLastName } from '/js/character-last-name.validation.js';
+//-----------------------------------------------------------------------------------------------//
+function clearError() {
+	const createCharacterErrorElement = document.getElementById('create-character-error');
+	createCharacterErrorElement.textContent = '';
+}
+//-----------------------------------------------------------------------------------------------//
+function handleFirstNameInput() {
+	clearError();
+	
+	const firstNameInput = document.getElementById('first-name-input');
+	validateCharacterFirstName(firstNameInput);
+}
+//-----------------------------------------------------------------------------------------------//
+function handleLastNameInput() {
+	clearError();
+	
+	const lastNameInput = document.getElementById('last-name-input');
+	validateCharacterLastName(lastNameInput);
+}
+//-----------------------------------------------------------------------------------------------//
+function handleJobPreferenceSelect() {
+	clearError();
+	
+	const jobPreference1Select = document.getElementById('job-preference-1-select');
+	const jobPreference2Select = document.getElementById('job-preference-2-select');
+	const jobPreference3Select = document.getElementById('job-preference-3-select');
+	const selects = [jobPreference1Select, 
+					 jobPreference2Select, 
+					 jobPreference3Select];
+	const selectedValues = selects.map(select => select.value);
+	
+	selects.forEach((select, index) => {
+		const otherSelectedValues = selectedValues.filter((_, i) => i !== index);
+		
+		Array.from(select.options).forEach(option => {
+			option.disabled = otherSelectedValues.includes(option.value);
+		});
+	});
+}
+//-----------------------------------------------------------------------------------------------//
+function handleRecreationPreferenceSelect() {
+	clearError();
+}
+//-----------------------------------------------------------------------------------------------//
+function handleCreateCharacterFormSubmit(e) {
+	const createCharacterForm = document.getElementById('create-character-form');
+	if (!createCharacterForm.checkValidity()) {
+		e.preventDefault();
+		createCharacterForm.reportValidity();
+	}
+}
+//-----------------------------------------------------------------------------------------------//
+document.addEventListener('DOMContentLoaded', () => {
+	const firstNameInput = document.getElementById('first-name-input');
+	const lastNameInput = document.getElementById('last-name-input');
+	const jobPreference1Select = document.getElementById('job-preference-1-select');
+	const jobPreference2Select = document.getElementById('job-preference-2-select');
+	const jobPreference3Select = document.getElementById('job-preference-3-select');
+	const recreationPreferenceSelect = document.getElementById('recreation-preference-select');
+	const createCharacterForm = document.getElementById('create-character-form');
+	
+	firstNameInput.addEventListener('input', handleFirstNameInput);
+	lastNameInput.addEventListener('input', handleLastNameInput);
+	jobPreference1Select.addEventListener('change', handleJobPreferenceSelect);
+	jobPreference2Select.addEventListener('change', handleJobPreferenceSelect);
+	jobPreference3Select.addEventListener('change', handleJobPreferenceSelect);
+	recreationPreferenceSelect.addEventListener('change', handleRecreationPreferenceSelect);
+	createCharacterForm.addEventListener('submit', handleCreateCharacterFormSubmit);
+});
+//-----------------------------------------------------------------------------------------------//
+</script>

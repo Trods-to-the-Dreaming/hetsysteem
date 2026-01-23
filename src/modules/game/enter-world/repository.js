@@ -2,40 +2,39 @@ import knex from '#utils/db.js';
 
 //===============================================================================================//
 
-export function findCharacter({ worldId, 
-								userId, 
-								trx = knex }) {
-	return trx('characters')
+export function listWorlds(trx = knex) {
+	return trx('worlds')
+		.select({
+			id: 'id',
+			type: 'type'
+		})
+		.orderBy('id');
+}
+//-----------------------------------------------------------------------------------------------//
+export function findWorld({ worldId, 
+							trx = knex }) {
+	return trx('worlds')
+		.select({
+			id: 'id',
+			slug: 'slug',
+			type: 'type'
+		})
+		.where({ id: worldId })
+		.first();
+};
+//-----------------------------------------------------------------------------------------------//
+export function findCharacterName({ userId, 
+									worldId, 
+									trx = knex }) {
+	return trx('character_names')
 		.select({
 			id: 'id',
 			firstName: 'first_name',
 			lastName: 'last_name'
 		})
-		.where('world_id', worldId)
-		.andWhere('user_id', userId)
-		.first();
-};
-//-----------------------------------------------------------------------------------------------//
-export function findFreeCharacter({ worldId, 
-									trx = knex }) {
-	return trx('characters')
-		.select({
-			id: 'id'
-		})
-		.where('world_id', worldId)
-		.andWhere('user_id', null)
-		.forUpdate()
-		.first();
-};
-//-----------------------------------------------------------------------------------------------//
-export function claimCharacter({ characterId,
-								 userId,
-								 trx = knex }) {
-	return trx('characters')
-		.where('id', characterId)
-		.andWhere('user_id', null)
-		.update({
+		.where({ 
 			user_id: userId,
-			is_customized: false
-		});
+			world_id: worldId
+		})
+		.first();
 };

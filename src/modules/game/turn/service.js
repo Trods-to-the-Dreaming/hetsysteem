@@ -3,6 +3,9 @@ import {
 	BadRequestError 
 } from '#utils/errors.js';
 //-----------------------------------------------------------------------------------------------//
+import { 
+	GAME
+} from './../reasons.js';
 import {
 	getProducts,
 	getRecreations,
@@ -163,65 +166,64 @@ export async function buildTurnView(characterId) {
 export async function finishTurn({ characterId, 
 								   worldId, 
 								   phases }) {
-	await knex.transaction(async (trx) => {
-		await saveCustomizeCharacter({ 
-			characterId,
-			phase: phases.customizeCharacter,
-			trx
+	try {
+		await knex.transaction(async (trx) => {
+			await saveCustomizeCharacter({ 
+				characterId,
+				phase: phases.customizeCharacter,
+				trx
+			});
+			await saveManageBuildings({ 
+				characterId,
+				phase: phases.manageBuildings,
+				trx
+			});
+			await saveManageEmploymentContracts({ 
+				characterId,
+				phase: phases.manageEmploymentContracts,
+				trx
+			});
+			await saveManageRentalAgreements({ 
+				characterId,
+				phase: phases.manageRentalAgreements,
+				trx
+			});
+			await saveProduce({ 
+				characterId,
+				phase: phases.produce,
+				trx
+			});
+			await saveTrade({ 
+				characterId,
+				phase: phases.trade,
+				trx
+			});
+			await saveShare({ 
+				characterId,
+				phase: phases.share,
+				trx
+			});
+			await saveConsume({ 
+				characterId,
+				phase: phases.consume,
+				trx
+			});
+			await saveManageGroup({ 
+				characterId,
+				phase: phases.manageGroup,
+				trx
+			});
 		});
-		await saveManageBuildings({ 
-			characterId,
-			phase: phases.manageBuildings,
-			trx
-		});
-		await saveManageEmploymentContracts({ 
-			characterId,
-			phase: phases.manageEmploymentContracts,
-			trx
-		});
-		await saveManageRentalAgreements({ 
-			characterId,
-			phase: phases.manageRentalAgreements,
-			trx
-		});
-		await saveProduce({ 
-			characterId,
-			phase: phases.produce,
-			trx
-		});
-		await saveTrade({ 
-			characterId,
-			phase: phases.trade,
-			trx
-		});
-		await saveShare({ 
-			characterId,
-			phase: phases.share,
-			trx
-		});
-		await saveConsume({ 
-			characterId,
-			phase: phases.consume,
-			trx
-		});
-		await saveManageGroup({ 
-			characterId,
-			phase: phases.manageGroup,
-			trx
-		});
-	});
-	
-	
-	
-	
-	if (nameConflicts) {
-		return fail({
-			reason: GAME.REASON.NAME_TAKEN,
-			meta: nameConflicts
-		});
+	} catch (err) {
+		if (err instanceof ConflictError) {
+			return fail({
+				reason: err.code,
+				meta: err.meta
+			});
+		}
+		
+		throw err;
 	}
-	
-	return ok();
 }
 //-----------------------------------------------------------------------------------------------//
 export async function checkCharacterName({ selfId, 
@@ -237,7 +239,7 @@ export async function checkCharacterName({ selfId,
 		lowerCaseLastName
 	});
 	if (character) 
-		return fail({ reason: GAME.REASON.NAME_TAKEN });
+		return fail({ reason: GAME.REASON.CHARACTER_NAME_TAKEN });
 	
 	const action = await findOtherCustomizeAction({ 
 		selfId,
@@ -246,7 +248,7 @@ export async function checkCharacterName({ selfId,
 		lowerCaseLastName
 	});
 	if (action) 
-		return fail({ reason: GAME.REASON.NAME_TAKEN });
+		return fail({ reason: GAME.REASON.CHARACTER_NAME_TAKEN });
 	
 	return ok();
 }
@@ -261,7 +263,7 @@ export async function checkBuildingName({ selfId,
 		lowerCaseBuildingName
 	});
 	if (building) 
-		return fail({ reason: GAME.REASON.NAME_TAKEN });
+		return fail({ reason: GAME.REASON.BUILDING_NAME_TAKEN });
 	
 	const action = await findOtherConstructAction({
 		selfId,
@@ -269,7 +271,7 @@ export async function checkBuildingName({ selfId,
 		lowerCaseBuildingName
 	});
 	if (action) 
-		return fail({ reason: GAME.REASON.NAME_TAKEN });
+		return fail({ reason: GAME.REASON.BUILDING_NAME_TAKEN });
 	
 	return ok();
 }

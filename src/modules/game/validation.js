@@ -43,7 +43,7 @@ function uniqueArray({ schema,
 
 //===============================================================================================//
 
-const phasesSchema = z.strictObject({
+/*const phasesSchema = z.strictObject({
 	customizeCharacter: customizeCharacterSchema.optional().default(undefined),
 	manageBuildings: manageBuildingsSchema.optional().default(undefined),
 	manageEmploymentContracts: manageEmploymentContractsSchema.optional().default(undefined),
@@ -58,11 +58,11 @@ const phasesSchema = z.strictObject({
 const customizeCharacterSchema = z.strictObject({
 	firstName: firstNameSchema,
 	lastName: lastNameSchema,
-	jobPreferences: uniqueArray({
+	jobPreferenceIds: uniqueArray({
 			schema: rentOutSchema, 
 			length: 3
 		}),
-	recreationPreference: z.coerce.number().int().positive()
+	recreationPreferenceId: z.coerce.number().int().positive()
 });
 //-----------------------------------------------------------------------------------------------//
 const manageBuildingsSchema = z.strictObject({
@@ -112,7 +112,7 @@ const consumeSchema = z.strictObject({
 const manageGroupSchema = z.strictObject({
 	rent: rentSchema,
 	rentOut: uniqueArray({ schema: rentOutSchema, key: residenceId })
-});
+});*/
 //-----------------------------------------------------------------------------------------------//
 const firstNameSchema = z
 	.string()
@@ -128,7 +128,7 @@ const lastNameSchema = z
 	.regex(NAME_REGEX)
 	.refine((ln) => ln === ln.trim());
 //-----------------------------------------------------------------------------------------------//
-const buildingNameSchema = z
+/*const buildingNameSchema = z
 	.string()
 	.min(MIN_BUILDING_NAME_LENGTH)
 	.max(MAX_BUILDING_NAME_LENGTH)
@@ -154,7 +154,7 @@ const rentSchema = z.strictObject({
 });
 //-----------------------------------------------------------------------------------------------//
 const rentOutSchema = z.strictObject({
-});
+});*/
 
 //===============================================================================================//
 
@@ -162,7 +162,17 @@ export const enterWorldSchema = z.object({
 	worldId: z.coerce.number().int().positive()
 });
 //-----------------------------------------------------------------------------------------------//
-export const finishTurnSchema = z.object({
+export const createCharacterSchema = z.object({
+	firstName: firstNameSchema,
+	lastName: lastNameSchema,
+	jobPreferenceIds: uniqueArray({
+			schema: z.coerce.number().int().positive(),
+			length: 3
+		}),
+	recreationPreferenceId: z.coerce.number().int().positive()
+});
+//-----------------------------------------------------------------------------------------------//
+/*export const finishTurnSchema = z.object({
 	phases: phasesSchema
 });
 //-----------------------------------------------------------------------------------------------//
@@ -172,4 +182,4 @@ export const checkCharacterNameSchema = z.object({
 //-----------------------------------------------------------------------------------------------//
 export const checkBuildingNameSchema = z.object({
 	worldId: z.coerce.number().int().positive()
-});
+});*/

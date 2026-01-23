@@ -1,7 +1,8 @@
-export function validatePasswordConfirmation(password, confirmedPassword) {
-	if (password.value !== confirmedPassword.value) {
-		confirmedPassword.setCustomValidity('De wachtwoorden komen niet overeen.');
+export function validatePasswordConfirmation(passwordInput, 
+											 confirmedPasswordInput) {
+	if (passwordInput.value !== confirmedPasswordInput.value) {
+		confirmedPasswordInput.setCustomValidity('De wachtwoorden komen niet overeen.');
 	} else {
-		confirmedPassword.setCustomValidity('');
+		confirmedPasswordInput.setCustomValidity('');
 	}
 }

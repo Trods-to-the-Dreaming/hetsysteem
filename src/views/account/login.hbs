@@ -5,7 +5,7 @@
 <div class="container-compact">
 	<h1>Aanmelden</h1>
 	
-	<form id="form" method="POST" action="/account/login">
+	<form id="login-form" method="POST" action="/account/login">
 		<div class="field">
 			<label for="username-input" class="form-label">Gebruikersnaam:</label>
 			<input id="username-input" class="form-control" type="text" name="username" value="{{username}}" required>
@@ -16,12 +16,12 @@
 			<input id="password-input" class="form-control" type="password" name="password" required>
 		</div>
 		
-		<p id="error" class="error">{{errorMessage}}</p>
+		<p id="login-error" class="error">{{loginError}}</p>
 		
 		<button class="button-1" type="submit">Aanmelden</button>
 	</form>
 	
-	<p>Nog geen lid? <a href="/account/register">Registreren</a>.</p>
+	<p>Nog geen lid? <a href="/account/register">Inschrijven</a>.</p>
 </div>
 
 <!------------------------------------------------------------------------------------------------>
@@ -29,16 +29,16 @@
 <script type="module">
 //-----------------------------------------------------------------------------------------------//
 function clearError() {
-	const error = document.getElementById('error');
-	error.textContent = '';
+	const loginErrorElement = document.getElementById('login-error');
+	loginErrorElement.textContent = '';
 }
 //-----------------------------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
-	const username = document.getElementById('username-input');
-	const password = document.getElementById('password-input');
+	const usernameInput = document.getElementById('username-input');
+	const passwordInput = document.getElementById('password-input');
 	
-	username.addEventListener('input', clearError);
-	password.addEventListener('input', clearError);
+	usernameInput.addEventListener('input', clearError);
+	passwordInput.addEventListener('input', clearError);
 });
 //-----------------------------------------------------------------------------------------------//
 </script>

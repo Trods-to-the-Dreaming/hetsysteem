@@ -6,12 +6,19 @@ import {
 	GAME
 } from './reasons.js';
 import { 
-	getWorlds 
-} from './static-data/service.js';
-import { 
+	getEnterWorldOptions,
 	enterWorld
 } from './enter-world/service.js';
 import { 
+	listJobs,
+	listRecreations
+} from './create-character/repository.js';
+import { 
+	getCreateCharacterOptions,
+	getCreateCharacterFormState,
+	createCharacter
+} from './create-character/service.js';
+/*import { 
 	buildCharacterView 
 } from './character/service.js';
 import { 
@@ -20,57 +27,110 @@ import {
 	checkCharacterName,
 	checkBuildingName,
 	processActions 
-} from './turn/service.js';
+} from './turn/service.js';*/
 
 //===============================================================================================//
 
 export async function showEnterWorld(req, res) {
-	const { enterWorldError } = req.session;
-	delete req.session.enterWorldError;
-
-	const worlds = await getWorlds();
+	delete req.session.character;
+	delete req.session.world;
+	
+	const options = await getEnterWorldOptions();
 	
 	return res.render('game/enter-world', {
-		worlds,
-		errorMessage: enterWorldError
+		...options
 	});
 }
 //-----------------------------------------------------------------------------------------------//
 export async function handleEnterWorld(req, res) {
 	const { user } = req.session;
-	const { worldId } = req.validatedData;
+	const formState = req.validatedData;
 	
-	const result = await enterWorld({ 
-		worldId, 
-		userId: user.id
+	const {
+		world,
+		character
+	} = await enterWorld({ 
+		userId: user.id,
+		formState
 	});
-	if (!result.ok) {
-		const worlds = await getWorlds();
-		
-		return res.render('game/enter-world', {
-			worlds,
-			selectedWorldId: worldId,
-			errorMessage: GAME.MESSAGE[result.reason]
-		});
+	
+	req.session.world = { 
+		id: world.id,
+		class: world.class,
+		name: world.name
+	};
+	
+	if (character) {
+		req.session.character = {
+			id: character.id,
+			firstName: character.firstName,
+			lastName: character.lastName
+		};
+	} else {
+		delete req.session.character;
 	}
 	
-	const { world,
-			character } = result.value;
-	
-	req.session.world = world;
-	req.session.character = character;
 	await saveSession(req);
 	
 	return res.redirect('/game');
 }
 //-----------------------------------------------------------------------------------------------//
 export function showMenu(req, res) {
-	return res.render('game/menu');
-};
+	const hasCharacter = Boolean(req.session.character);
+	
+	return res.render('game/menu', {
+		hasCharacter
+	});
+}
 //-----------------------------------------------------------------------------------------------//
-export async function showCharacter(req, res) {
-	const { character,
-			world } = req.session;
+export async function showCreateCharacter(req, res) {
+	const { 
+		user,
+		world 
+	} = req.session;
+
+	const options = await getCreateCharacterOptions();
+	const formState = await getCreateCharacterFormState({ 
+		userId: user.id, 
+		worldId: world.id
+	});
+	
+	return res.render('game/create-character', {
+		...options,
+		...formState
+	});
+}
+//-----------------------------------------------------------------------------------------------//
+export async function handleCreateCharacter(req, res) {
+	const { 
+		user,
+		world 
+	} = req.session;
+	const formState = req.validatedData;
+	
+	const result = await createCharacter({
+		userId: user.id, 
+		worldId: world.id, 
+		formState
+	});
+	if (!result.ok) {
+		const options = await getCreateCharacterOptions();
+		
+		return res.status(result.status).render('game/create-character', {
+			...options,
+			...formState,
+			createCharacterError: GAME.MESSAGE[result.reason]
+		});
+	}
+	
+	return res.redirect('/game');
+}
+//-----------------------------------------------------------------------------------------------//
+/*export async function showCharacter(req, res) {
+	const { 
+		character,
+		world 
+	} = req.session;
 			
 	const characterView = await buildCharacterView({ 
 		characterId: character.id,
@@ -124,9 +184,36 @@ export function showManageGroup(req, res) {
 	return res.render('game/turn/manage-group');
 };
 //-----------------------------------------------------------------------------------------------//
+export async function handleReserveBuildingName(req, res) {
+	const { 
+		user,
+		world 
+	} = req.session;
+	const { buildingName } = req.validatedData;
+
+	const result = await reserveBuildingName({ 
+		userId: user.id, 
+		worldId: world.id, 
+		buildingName 
+	});
+	if (!result.ok) {
+		return res.status(409).json({
+			success: false,
+			error: {
+				code: result.reason,
+				message: GAME.MESSAGE[result.reason]
+			}
+		});
+	}
+	
+	return res.status(200).json({ success: true });
+}
+//-----------------------------------------------------------------------------------------------//
 export async function handleFinishTurn(req, res) {
-	const { character,
-			world } = req.session;
+	const { 
+		character,
+		world 
+	} = req.session;
 	const { phases } = req.validatedData;
 	
 	const result = await finishTurn({ 
@@ -145,10 +232,14 @@ export async function handleFinishTurn(req, res) {
 };
 //-----------------------------------------------------------------------------------------------//
 export async function handleCheckCharacterName(req, res) {
-	const { character,
-			world } = req.session;
-	const { firstName, 
-			lastName } = req.validatedData;
+	const { 
+		character,
+		world 
+	} = req.session;
+	const { 
+		firstName, 
+		lastName 
+	} = req.validatedData;
 
 	const result = await checkCharacterName({ 
 		characterId: character.id, 

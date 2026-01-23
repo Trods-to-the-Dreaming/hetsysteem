@@ -26,16 +26,14 @@ export function findCharacterState({ characterId,
 		.leftJoin('buildings as b3', 'c.job_preference_3_id', 'b3.id')
 		.leftJoin('recreations as r', 'c.recreation_preference_id', 'r.product_id')
 		.leftJoin('products as p', 'r.product_id', 'p.id')
-		.where('c.id', characterId)
+		.where({ 'c.id': characterId })
 		.first();
 };
 //-----------------------------------------------------------------------------------------------//
 export function findWorldState({ worldId,
 								 trx = knex }) {
 	return trx('world_state')
-		.select({
-			currentTurn: 'current_turn'
-		})
-		.where('world_id', worldId)
+		.select({ currentTurn: 'current_turn' })
+		.where({ world_id: worldId })
 		.first();
 };

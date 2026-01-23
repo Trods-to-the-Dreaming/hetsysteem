@@ -1,15 +1,15 @@
-export function validatePassword(password) {
-	const value = password.value;
+export function validatePassword(passwordInput) {
+	const value = passwordInput.value;
 	const minLength = 8;
 	const maxLength = 64;
 
 	if (value.length < minLength) {
-		password.setCustomValidity(`Minimaal ${minLength} tekens vereist.`);
+		passwordInput.setCustomValidity(`Het wachtwoord moet minstens ${minLength} tekens lang zijn.`);
 	} else if (value.length > maxLength) {
-		password.setCustomValidity(`Maximaal ${maxLength} tekens toegestaan.`);
+		passwordInput.setCustomValidity(`Het wachtwoord mag hoogstens ${maxLength} tekens lang zijn.`);
 	} else if (value !== value.trim()) {
-		password.setCustomValidity('Spaties aan het begin of einde zijn niet toegestaan.');
+		passwordInput.setCustomValidity('Spaties aan het begin of einde zijn niet toegestaan.');
 	} else {
-		password.setCustomValidity('');
+		passwordInput.setCustomValidity('');
 	}
 }

@@ -4,6 +4,8 @@
 
 <div class="container-compact">
 	<h1>Mijn account</h1>
+	
+	<p id="change-account-success" class="success">{{changeAccountSuccess}}</p>
 
 	<div class="field">
 		<label for="username" class="form-label">Gebruikersnaam:</label>
@@ -16,4 +18,27 @@
 		<input id="password" class="form-control" type="password" value="********" readonly>
 		<a class="change" href="/account/change-password">Wijzigen</a>
 	</div>
+	
+	<form id="deregister-form" method="POST" action="/account/deregister">
+		<button class="button-danger" type="submit">Uitschrijven</button>
+	</form>
+	
+	<hr>
+	
+	<a class="button-up" href="/game/enter-world">Spelen</a>
 </div>
+
+<script type="module">
+//-----------------------------------------------------------------------------------------------//
+function handleDeregisterFormSubmit(e) {	
+	if (!confirm('Uw account zal onherroepelijk worden verwijderd. Bent u zeker?')) {
+        e.preventDefault();
+	}
+}
+//-----------------------------------------------------------------------------------------------//
+document.addEventListener('DOMContentLoaded', () => {
+	const deregisterForm = document.getElementById('deregister-form');
+	deregisterForm.addEventListener('submit', handleDeregisterFormSubmit);
+});
+//-----------------------------------------------------------------------------------------------//
+</script>

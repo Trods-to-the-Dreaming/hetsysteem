@@ -5,7 +5,7 @@
 <div class="container-compact">
 	<h1>Wereld betreden</h1>
 	
-	<form id="form" method="POST" action="/game/enter-world">
+	<form id="enter-world-form" method="POST" action="/game/enter-world">
 		<div class="field">
 			<label for="world-select" class="form-label">Kies een wereld.</label>
 			<select id="world-select" class="form-select" name="worldId">
@@ -17,7 +17,7 @@
 			</select>
 		</div>
 		
-		<p id="error" class="error">{{errorMessage}}</p>
+		<p id="enter-world-error" class="error">{{enterWorldError}}</p>
 		
 		<button class="button-1" type="submit">Betreden</button>
 	</form>
@@ -28,14 +28,14 @@
 <script type="module">
 //-----------------------------------------------------------------------------------------------//
 function clearError() {
-	const error = document.getElementById('error');
-	error.textContent = '';
+	const enterWorldErrorElement = document.getElementById('enter-world-error');
+	enterWorldErrorElement.textContent = '';
 }
 //-----------------------------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
-	const world = document.getElementById('world-select');
+	const worldSelect = document.getElementById('world-select');
 
-	world.addEventListener('change', clearError);
+	worldSelect.addEventListener('change', clearError);
 });
 //-----------------------------------------------------------------------------------------------//
 </script>

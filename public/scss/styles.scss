@@ -21,6 +21,10 @@ h3 {
 	@extend .text-body;
 }
 
+hr {
+	@extend .mt-0;
+}
+
 .page-wrapper {
 	@extend .d-flex;
 	@extend .flex-column;
@@ -164,30 +168,25 @@ h3 {
 	@extend .mb-3;
 	@extend .p-2;
 	@extend .w-auto;
+	display: none;
+	&:not(:empty) {
+		display: inline-block;
+	}
 }
 
 .warning {
 	@include message;
 	@extend .alert-warning;
-	display: none;
-	&:not(:empty) {
-		display: inline-block;
-	}
 }
 
 .error {
 	@include message;
 	@extend .alert-danger;
-	display: none;
-	&:not(:empty) {
-		display: inline-block;
-	}
 }
 
 .success {
 	@include message;
 	@extend .alert-success;
-	display: inline-block;
 }
 
 /*.demolished {
@@ -209,6 +208,13 @@ h3 {
 	@extend .mb-3;
 }
 
+.button-danger {
+	@extend .btn;
+	@extend .btn-danger;
+	@extend .w-100;
+	@extend .mb-3;
+}
+
 .button-up {
 	@extend .btn;
 	@extend .btn-outline-primary;
@@ -216,9 +222,7 @@ h3 {
 	@extend .mb-3;
 }
 
-.button-cancel {
-	
-}
+
 
 /*.button-ok {
 	@extend .btn;

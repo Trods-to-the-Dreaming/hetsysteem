@@ -9,18 +9,23 @@ import {
 //-----------------------------------------------------------------------------------------------//
 import { 
 	requireWorldEntered,
+	requireCharacterCreated,
+	requireNoCharacterCreated,
 	requireToken
 } from './middleware.js';
 import {
 	enterWorldSchema,
+	createCharacterSchema/*,
 	finishTurnSchema,
 	checkCharacterNameSchema,
-	checkBuildingNameSchema
+	checkBuildingNameSchema*/
 } from './validation.js';
 import {
 	showEnterWorld,
 	handleEnterWorld,
 	showMenu,
+	showCreateCharacter,
+	handleCreateCharacter/*,
 	showCharacter,
 	showStartTurn,
 	showCustomizeCharacter,
@@ -37,22 +42,15 @@ import {
 	handleCheckBuildingName,
 	showResolveNameConflicts,
 	showStatistics,
-	triggerProcessActions
+	triggerProcessActions*/
 } from './controller.js';
-
-//===============================================================================================//
-
-const requireGameAccess = [
-	requireLogin,
-	requireWorldEntered
-];
 
 //===============================================================================================//
 
 const router = express.Router();
 //-----------------------------------------------------------------------------------------------//
 router.get('/enter-world',
-	requireLogin, 
+	requireLogin,
 	showEnterWorld
 );
 //-----------------------------------------------------------------------------------------------//
@@ -63,21 +61,41 @@ router.post('/enter-world',
 );
 //-----------------------------------------------------------------------------------------------//
 router.get('/',
-	requireGameAccess,
+	requireLogin,
+	requireWorldEntered,
 	showMenu
 );
 //-----------------------------------------------------------------------------------------------//
-router.get('/character',
-	requireGameAccess,
+router.get('/create-character',
+	requireLogin,
+	requireWorldEntered,
+	requireNoCharacterCreated,
+	showCreateCharacter
+);
+//-----------------------------------------------------------------------------------------------//
+router.post('/create-character',
+	requireLogin,
+	requireWorldEntered,
+	requireNoCharacterCreated,
+	validate(createCharacterSchema),
+	handleCreateCharacter
+);
+//-----------------------------------------------------------------------------------------------//
+/*router.get('/character',
+	requireLogin,
+	requireWorldEntered,
+	requireCharacterCreated,
 	showCharacter
 );
 //-----------------------------------------------------------------------------------------------//
 router.get('/turn/start',
-	requireGameAccess,
+	requireLogin,
+	requireWorldEntered,
+	requireCharacterCreated,
 	showStartTurn
 );
 //-----------------------------------------------------------------------------------------------//
-router.get('/turn/customize-character',
+/*router.get('/turn/customize-character',
 	requireGameAccess,
 	showCustomizeCharacter
 );
@@ -152,7 +170,7 @@ router.get('/turn/process-actions',
 router.get('/statistics',
 	requireGameAccess,
 	showStatistics
-);
+);*/
 
 //===============================================================================================//
 

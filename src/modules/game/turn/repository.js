@@ -8,7 +8,7 @@ export function findCharacter({ worldId,
 								trx = knex }) {
 	return trx('characters')
 		.select(1)
-		.where('world_id', worldId)
+		.where({ world_id: worldId })
 		.andWhereRaw('LOWER(first_name) = ?', lowerCaseFirstName)
 		.andWhereRaw('LOWER(last_name) = ?', lowerCaseLastName)
 		.first();
@@ -23,7 +23,7 @@ export function findOtherCustomizeAction({ selfId,
 		.select(1)
 		.innerJoin('characters as c', 'ac.character_id', 'c.id')
 		.where('c.id', '!=', selfId)
-		.andWhere('c.world_id', worldId)
+		.andWhere({ 'c.world_id': worldId })
 		.andWhereRaw('LOWER(ac.first_name) = ?', lowerCaseFirstName)
 		.andWhereRaw('LOWER(ac.last_name) = ?', lowerCaseLastName)
 		.first();
@@ -34,7 +34,7 @@ export function findBuilding({ worldId,
 							   trx = knex }) {
 	return trx('character_buildings')
 		.select(1)
-		.where('world_id', worldId)
+		.where({ world_id: worldId })
 		.andWhereRaw('LOWER(name) = ?', lowerCaseBuildingName)
 		.first();
 }
@@ -47,7 +47,7 @@ export function findOtherConstructAction({ selfId,
 		.select(1)
 		.innerJoin('characters as c', 'ac.character_id', 'c.id')
 		.where('c.id', '!=', selfId)
-		.andWhere('c.world_id', worldId)
+		.andWhere({ 'c.world_id': worldId })
 		.andWhereRaw('LOWER(ac.name) = ?', lowerCaseBuildingName)
 		.first();
 }

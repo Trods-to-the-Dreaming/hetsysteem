@@ -23,9 +23,10 @@ import {
 import {
 	showLogin,
 	handleLogin,
-	showRegister,
-	handleRegister,	
 	handleLogout,
+	showRegister,
+	handleRegister,
+	handleDeregister,
 	showAccount,
 	showChangeUsername,
 	handleChangeUsername,
@@ -64,6 +65,11 @@ router.post('/register',
 	requireGuest,
 	validate(registerSchema),
 	handleRegister
+);
+//-----------------------------------------------------------------------------------------------//
+router.post('/deregister',
+	requireLogin,
+	handleDeregister
 );
 //-----------------------------------------------------------------------------------------------//
 router.get('/',

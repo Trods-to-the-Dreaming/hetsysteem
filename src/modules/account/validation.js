@@ -24,6 +24,15 @@ const passwordSchema = z
 	.min(MIN_PASSWORD_LENGTH)
 	.max(MAX_PASSWORD_LENGTH)
 	.refine((pwd) => pwd.trim() === pwd);
+//-----------------------------------------------------------------------------------------------//
+const invitationTokenSchema = z
+	.string()
+	.trim()
+	.toUpperCase()
+	.transform((s) => s.replace(/-/g, ''))
+	.pipe(
+		z.string().regex(/^[A-Z0-9]{16}$/)
+	);
 
 //===============================================================================================//
 
@@ -41,7 +50,8 @@ export const loginSchema = z.object({
 export const registerSchema = z.object({
 		username: usernameSchema,
 		password: passwordSchema,
-		confirmedPassword: z.string()
+		confirmedPassword: z.string(),
+		invitationToken: invitationTokenSchema
 	}).refine(
 		passwordsMatch('password', 'confirmedPassword'),
 		{ path: ['confirmedPassword'] }

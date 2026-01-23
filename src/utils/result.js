@@ -3,9 +3,11 @@ export function ok(value = null) {
 			 value };
 }
 //-----------------------------------------------------------------------------------------------//
-export function fail({ reason, 
+export function fail({ status,
+					   reason,
 					   meta = null }) {
 	return { ok: false, 
+			 status,
 			 reason, 
 			 meta };
 }

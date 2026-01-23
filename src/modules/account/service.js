@@ -1,77 +1,149 @@
 import bcrypt from 'bcrypt';
 //-----------------------------------------------------------------------------------------------//
+import knex from '#utils/db.js';
 import { 
 	ok, 
 	fail 
 } from '#utils/result.js';
-import { 
-	BadRequestError 
-} from '#utils/errors.js';
 //-----------------------------------------------------------------------------------------------//
+import { 
+	AccountError 
+} from './errors.js';
 import { 
 	ACCOUNT 
 } from './reasons.js';
 import {
 	findUserById,
 	findUserByName,
+	lockInvitation,
 	insertUser,
+	deleteUser,
 	updateUsername,
-	updatePassword
+	updatePassword,
+	updateInvitation
 } from './repository.js';
-
-//===============================================================================================//
-
-const MSG_INVALID_USER = 'Deze gebruiker bestaat niet.';
 
 //===============================================================================================//
 
 export async function login({ username, 
 							  password }) {
 	const user = await findUserByName({ username });
-	if (!user) 
-		return fail({ reason: ACCOUNT.REASON.INVALID_CREDENTIALS });
+	if (!user) { 
+		return fail({ 
+			status: 401,
+			reason: ACCOUNT.REASON.INVALID_CREDENTIALS 
+		});
+	}
 
-	const passwordOK = await bcrypt.compare(password, user.password);
-	if (!passwordOK ) 
-		return fail({ reason: ACCOUNT.REASON.INVALID_CREDENTIALS });
+	const passwordOK = await bcrypt.compare(password, user.hashedPassword);
+	if (!passwordOK ) {
+		return fail({ 
+			status: 401,
+			reason: ACCOUNT.REASON.INVALID_CREDENTIALS 
+		});
+	}
 
 	return ok(user);
 }
 //-----------------------------------------------------------------------------------------------//
 export async function register({ username, 
-							     password }) {
-	const hashedPassword = await bcrypt.hash(password, 8);
-	
-	let userId;
+							     password,
+								 invitationToken }) {
 	try {
-		[userId] = await insertUser({ 
-			username, 
-			hashedPassword 
+		return await knex.transaction(async (trx) => {
+			const invitation = await lockInvitation({ 
+				invitationToken,
+				trx
+			});
+			if (!invitation || invitation.status !== 'unused') {
+				throw new AccountError({ 
+					status: 401,
+					code: ACCOUNT.REASON.INVALID_INVITATION_TOKEN 
+				});
+			}			
+			
+			const hashedPassword = await bcrypt.hash(password, 8);
+			
+			let userId;
+			try {
+				[userId] = await insertUser({ 
+					username, 
+					hashedPassword,
+					invitationId: invitation.id,
+					trx
+				});
+			} catch (err) {
+				if (err.code === 'ER_DUP_ENTRY') {
+					throw new AccountError({ 
+						status: 409,
+						code: ACCOUNT.REASON.USERNAME_TAKEN 
+					});
+				}
+				
+				throw err;
+			}
+			
+			await updateInvitation({
+				invitationId: invitation.id,
+				status: 'used',
+				usedAt: trx.fn.now(),
+				trx
+			});
+			
+			const user = await findUserById({ 
+				userId,
+				trx
+			});
+			
+			return ok(user);
 		});
 	} catch (err) {
-		if (err.code === 'ER_DUP_ENTRY')
-			return fail({ reason: ACCOUNT.REASON.USERNAME_TAKEN });
-		
-		throw err;
+		if (err instanceof AccountError) {
+            return fail({ 
+				status: err.status,
+				reason: err.code 
+			});
+		}
+        
+        throw err;
 	}
-	
-	const user = await findUserById({ userId });
-	if (!user) 
-		throw new BadRequestError(MSG_INVALID_USER);
-
-	return ok(user);
+}
+//-----------------------------------------------------------------------------------------------//
+export async function deregister(userId) {
+	return knex.transaction(async (trx) => {
+		const user = await findUserById({
+            userId,
+            trx
+        });
+		
+		await deleteUser({
+			userId,
+			trx
+		});
+		
+		await updateInvitation({
+			invitationId: user.invitationId,
+            status: 'released',
+            releasedAt: trx.fn.now(),
+			trx
+		});
+		
+		return ok();
+	});
 }
 //-----------------------------------------------------------------------------------------------//
 export async function changeUsername({ userId,
 									   newUsername,
 									   password }) {
 	const user = await findUserById({ userId });
-	if (!user) 
-		throw new BadRequestError(MSG_INVALID_USER);
 	
-	const passwordOK = await bcrypt.compare(password, user.password);
-	if (!passwordOK) 
-		return fail({ reason: ACCOUNT.REASON.PASSWORD_WRONG });
+	const passwordOK = await bcrypt.compare(password, user.hashedPassword);
+	if (!passwordOK) {
+		return fail({ 
+			status: 401,
+			reason: ACCOUNT.REASON.PASSWORD_WRONG 
+		});
+	}
 
 	try {
 		await updateUsername({ 
@@ -79,8 +151,12 @@ export async function changeUsername({ userId,
 			newUsername 
 		});
 	} catch (err) {
-		if (err.code === 'ER_DUP_ENTRY')
-			return fail({ reason: ACCOUNT.REASON.USERNAME_TAKEN });
+		if (err.code === 'ER_DUP_ENTRY') {
+			return fail({ 
+				status: 409,
+				reason: ACCOUNT.REASON.USERNAME_TAKEN 
+			});
+		}
 		
 		throw err;
 	}
@@ -92,12 +168,14 @@ export async function changePassword({ userId,
 									   newPassword,
 									   password }) {
 	const user = await findUserById({ userId });
-	if (!user) 
-		throw new BadRequestError(MSG_INVALID_USER);
 	
-	const passwordOK = await bcrypt.compare(password, user.password);
-	if (!passwordOK) 
-		return fail({ reason: ACCOUNT.REASON.PASSWORD_WRONG });
+	const passwordOK = await bcrypt.compare(password, user.hashedPassword);
+	if (!passwordOK) {
+		return fail({ 
+			status: 401,
+			reason: ACCOUNT.REASON.PASSWORD_WRONG 
+		});
+	}
 	
 	const hashedNewPassword = await bcrypt.hash(newPassword, 8);
 	await updatePassword({ 
