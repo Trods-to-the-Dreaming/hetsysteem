@@ -2,7 +2,7 @@ import knex from '#utils/db.js';
 
 //===============================================================================================//
 
-export function findCharacter({ worldId, 
+/*export function findCharacter({ worldId, 
 								lowerCaseFirstName, 
 								lowerCaseLastName,
 								trx = knex }) {
@@ -50,7 +50,7 @@ export function findOtherConstructAction({ selfId,
 		.andWhere({ 'c.world_id': worldId })
 		.andWhereRaw('LOWER(ac.name) = ?', lowerCaseBuildingName)
 		.first();
-}
+}*/
 //-----------------------------------------------------------------------------------------------//
 export function startProcessActions(trx = knex) {
 	return trx('cron_process_actions').insert({

@@ -1,9 +1,9 @@
 import knex from '#utils/db.js';
-import { 
+/*import { 
 	BadRequestError 
-} from '#utils/errors.js';
+} from '#utils/errors.js';*/
 //-----------------------------------------------------------------------------------------------//
-import { 
+/*import { 
 	GAME
 } from './../reasons.js';
 import {
@@ -13,13 +13,14 @@ import {
 } from './../static-data/service.js';
 import {
 	loadCharacterState
-} from './character-state/service.js';
+} from './character-state/service.js';*/
 import { 
-	loadCustomizeCharacter,
+	processCreateCharacter
+	/*loadCustomizeCharacter,
 	saveCustomizeCharacter,
-	processCustomizeCharacter
-} from './customize-character/service.js';
-import { 
+	processCustomizeCharacter*/
+} from './create-character/service.js';
+/*import { 
 	loadManageBuildings,
 	saveManageBuildings,
 	processManageBuildings
@@ -58,12 +59,12 @@ import {
 	loadManageGroup,
 	saveManageGroup,
 	processManageGroup
-} from './manage-group/service.js';
+} from './manage-group/service.js';*/
 import {
-	findCharacter,
+	/*findCharacter,
 	findOtherCustomizeAction,
 	findBuilding,
-	findOtherConstructAction,
+	findOtherConstructAction,*/
 	startProcessActions,
 	finishProcessActions
 } from './repository.js';
@@ -71,7 +72,7 @@ import {
 
 //===============================================================================================//
 
-export async function buildTurnView(characterId) {
+/*export async function buildTurnView(characterId) {
 	const [
 		products,
 		recreations,
@@ -274,15 +275,15 @@ export async function checkBuildingName({ selfId,
 		return fail({ reason: GAME.REASON.BUILDING_NAME_TAKEN });
 	
 	return ok();
-}
+}*/
 //-----------------------------------------------------------------------------------------------//
 export async function processActions() {
 	const [runId] = await startProcessActions();
 	
 	try {
 		await knex.transaction(async (trx) => {
-			await processCustomizeCharacter(trx);
-			await processManageBuildings(trx);
+			await processCreateCharacter(trx);
+			/*await processManageBuildings(trx);
 			await processManageEmploymentContracts(trx);
 			await processManageRentalAgreements(trx);
 			await processProduce(trx);
@@ -290,7 +291,7 @@ export async function processActions() {
 			await processShare(trx);
 			await processConsume(trx);
 			await processManageGroup(trx);
-			await processFinishTurn(trx);
+			await processFinishTurn(trx);*/ // voorlopig uitgeschakeld om te testen
 		});
 
 		await finishProcessActions({ 

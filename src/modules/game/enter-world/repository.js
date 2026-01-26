@@ -6,7 +6,7 @@ export function listWorlds(trx = knex) {
 	return trx('worlds')
 		.select({
 			id: 'id',
-			type: 'type'
+			name: 'name'
 		})
 		.orderBy('id');
 }
@@ -17,16 +17,16 @@ export function findWorld({ worldId,
 		.select({
 			id: 'id',
 			slug: 'slug',
-			type: 'type'
+			name: 'name'
 		})
 		.where({ id: worldId })
 		.first();
 };
 //-----------------------------------------------------------------------------------------------//
-export function findCharacterName({ userId, 
-									worldId, 
-									trx = knex }) {
-	return trx('character_names')
+export function findCharacter({ userId, 
+								worldId, 
+								trx = knex }) {
+	return trx('characters')
 		.select({
 			id: 'id',
 			firstName: 'first_name',
@@ -36,5 +36,13 @@ export function findCharacterName({ userId,
 			user_id: userId,
 			world_id: worldId
 		})
+		.first();
+};
+//-----------------------------------------------------------------------------------------------//
+export function findCharacterState({ characterId,
+									 trx = knex }) {
+	return trx('character_states')
+		.select(1)
+		.where({ character_id: characterId })
 		.first();
 };

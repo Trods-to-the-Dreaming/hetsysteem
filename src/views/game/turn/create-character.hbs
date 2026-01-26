@@ -5,7 +5,7 @@
 <div class="container-compact">
 	<h1>Personage aanmaken</h1>
 	
-	<form id="create-character-form" method="POST" action="/game/create-character">
+	<form id="create-character-form" method="POST" action="/game/turn/create-character">
 		<div class="field">
 			<label for="first-name-input" class="form-label">
 				Voornaam:
@@ -168,6 +168,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	jobPreference3Select.addEventListener('change', handleJobPreferenceSelect);
 	recreationPreferenceSelect.addEventListener('change', handleRecreationPreferenceSelect);
 	createCharacterForm.addEventListener('submit', handleCreateCharacterFormSubmit);
+	
+	handleJobPreferenceSelect();
 });
 //-----------------------------------------------------------------------------------------------//
 </script>

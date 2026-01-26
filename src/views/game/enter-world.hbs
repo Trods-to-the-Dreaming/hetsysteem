@@ -11,7 +11,7 @@
 			<select id="world-select" class="form-select" name="worldId">
 				{{#each worlds}}
 					<option value="{{this.id}}" {{#if (eq this.id ../selectedWorldId)}}selected{{/if}}>
-						{{this.type}}
+						{{this.name}}
 					</option>
 				{{/each}}
 			</select>

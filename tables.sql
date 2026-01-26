@@ -105,13 +105,13 @@ CREATE TABLE users (
 	FOREIGN KEY (invitation_id) REFERENCES invitations(id)
 );
 
--- static
 CREATE TABLE worlds (
 	id TINYINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	slug VARCHAR(32) NOT NULL UNIQUE,
-	type VARCHAR(32) NOT NULL UNIQUE,
+	name VARCHAR(32) NOT NULL UNIQUE,
 	n_characters INT UNSIGNED NOT NULL,
-	n_tiles INT UNSIGNED NOT NULL
+	n_tiles INT UNSIGNED NOT NULL,
+	current_turn SMALLINT UNSIGNED NOT NULL DEFAULT 1
 );
 
 CREATE TABLE products (
@@ -146,13 +146,6 @@ CREATE TABLE buildings (
 	FOREIGN KEY (output_id) REFERENCES products(id),
 	FOREIGN KEY (booster_id) REFERENCES products(id),
 	FOREIGN KEY (worn_booster_id) REFERENCES products(id)
-);
-
--- variable
-CREATE TABLE world_state (
-	world_id TINYINT UNSIGNED PRIMARY KEY,
-	current_turn SMALLINT UNSIGNED NOT NULL DEFAULT 1,
-	FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE
 );
 
 CREATE TABLE world_resources (
@@ -196,9 +189,25 @@ CREATE TABLE world_resources (
 );*/
 
 CREATE TABLE characters (
-	character_name_id INT UNSIGNED PRIMARY KEY,
+	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	user_id INT UNSIGNED NOT NULL,
 	world_id TINYINT UNSIGNED NOT NULL,
+	first_name VARCHAR(32) NOT NULL,
+	last_name VARCHAR(32) NOT NULL,
+	UNIQUE (user_id, world_id),
+	FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE,
+	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE UNIQUE INDEX unique_character
+ON characters (
+	world_id,
+	(LOWER(first_name)),
+	(LOWER(last_name))
+);
+
+CREATE TABLE character_states (
+	character_id INT UNSIGNED PRIMARY KEY,
 	has_finished_turn BOOLEAN NOT NULL DEFAULT TRUE,
 	job_preference_1_id TINYINT UNSIGNED NOT NULL,
 	job_preference_2_id TINYINT UNSIGNED NOT NULL,
@@ -214,40 +223,22 @@ CREATE TABLE characters (
 	hours_available TINYINT UNSIGNED NOT NULL DEFAULT 13, -- digitaal.scp.nl/eenweekinkaart2/een-week-in-vogelvlucht/
 	food_consumed TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	medical_care_consumed TINYINT UNSIGNED NOT NULL DEFAULT 0,
-	UNIQUE (user_id, world_id),
-	FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE,
+	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
 	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+	FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE,
 	FOREIGN KEY (job_preference_1_id) REFERENCES buildings(id),
 	FOREIGN KEY (job_preference_2_id) REFERENCES buildings(id),
 	FOREIGN KEY (job_preference_3_id) REFERENCES buildings(id),
 	FOREIGN KEY (recreation_preference_id) REFERENCES recreations(product_id)
 );
 
-CREATE TABLE character_names (
-	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	user_id INT UNSIGNED NOT NULL,
-	world_id TINYINT UNSIGNED NOT NULL,
-	first_name VARCHAR(32) NOT NULL,
-	last_name VARCHAR(32) NOT NULL,
-	UNIQUE (user_id, world_id),
-	FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE,
-	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
-CREATE UNIQUE INDEX unique_character_name
-ON character_names (
-	world_id,
-	(LOWER(first_name)),
-	(LOWER(last_name))
-);
-
-CREATE TABLE action_create_character (
-	character_name_id INT UNSIGNED PRIMARY KEY,
+CREATE TABLE actions_create_character (
+	character_id INT UNSIGNED PRIMARY KEY,
 	job_preference_1_id TINYINT UNSIGNED NOT NULL,
 	job_preference_2_id TINYINT UNSIGNED NOT NULL,
 	job_preference_3_id TINYINT UNSIGNED NOT NULL,
 	recreation_preference_id TINYINT UNSIGNED NOT NULL,
-	FOREIGN KEY (character_name_id) REFERENCES character_names(id) ON DELETE CASCADE,
+	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
 	FOREIGN KEY (job_preference_1_id) REFERENCES buildings(id),
 	FOREIGN KEY (job_preference_2_id) REFERENCES buildings(id),
 	FOREIGN KEY (job_preference_3_id) REFERENCES buildings(id),
@@ -468,7 +459,7 @@ CREATE TABLE cron_process_actions (
 
 
 INSERT INTO worlds
-(type,                   slug,   n_characters, n_tiles) VALUES
+(name,                   slug,   n_characters, n_tiles) VALUES
 ('Zo zuiver als goud',   'gold', 3,            10),
 ('Belofte maakt schuld', 'debt', 3,            10),
 ('De tijd brengt raad',  'time', 3,            10);
@@ -531,12 +522,6 @@ INSERT INTO buildings
 ('clothing-factory',    'Kledingfabriek',      true,             'Kledingproducent',      17,       20,         6,         NULL,            1,                5,                                 40,                1,            4), -- Halffabricaten → Kleding (Procedures)
 ('construction-site',   'Bouwwerf',            false,            'Bouwvakker',            14,       21,         7,         NULL,            1,                5,                                 40,                1,            4), -- Grondstoffen → Bakstenen (Energie)
 ('recycling-center',    'Recyclagecentrum',    true,             'Recycler',              13,       14,         7,         NULL,            1,                5,                                 40,                1,            4); -- Vuilnis → Grondstoffen (Energie)
-
-INSERT INTO world_state
-(world_id) VALUES
-(1),
-(2),
-(3);
 
 INSERT INTO world_resources
 (world_id, product_id, quantity) VALUES

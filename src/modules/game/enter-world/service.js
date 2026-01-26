@@ -5,7 +5,8 @@ import {
 import {
 	listWorlds,
 	findWorld,
-	findCharacterName
+	findCharacter,
+	findCharacterState
 } from './repository.js';
 
 //===============================================================================================//
@@ -28,19 +29,31 @@ export async function enterWorld({ userId,
 	if (!world)
 		throw new BadRequestError(MSG_INVALID_WORLD);
 
-	const worldData = {
-		id: world.id,
-		class: 'world-' + world.slug,
-		type: world.type
-	};
+	world.class = 'world-' + world.slug;
 
-	const characterData = await findCharacterName({ 
+	const character = await findCharacter({ 
 		userId,
 		worldId
 	});
+	if (!character) {
+		return {
+			world,
+			character: null
+		};
+	}
+
+	const characterState = await findCharacterState({ 
+		characterId: character.id
+	});
+	if (!characterState) {
+		return {
+			world,
+			character: null
+		};
+	}
 
 	return {
-		world: worldData,
-		character: characterData
+		world,
+		character
 	};
 }

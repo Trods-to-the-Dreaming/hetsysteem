@@ -24,9 +24,9 @@ import {
 	showEnterWorld,
 	handleEnterWorld,
 	showMenu,
+	showCharacter,
 	showCreateCharacter,
 	handleCreateCharacter/*,
-	showCharacter,
 	showStartTurn,
 	showCustomizeCharacter,
 	showManageBuildings,
@@ -40,9 +40,9 @@ import {
 	handleFinishTurn,
 	handleCheckCharacterName,
 	handleCheckBuildingName,
-	showResolveNameConflicts,
-	showStatistics,
-	triggerProcessActions*/
+	showResolveNameConflicts*/,
+	triggerProcessActions,
+	showStatistics
 } from './controller.js';
 
 //===============================================================================================//
@@ -66,14 +66,21 @@ router.get('/',
 	showMenu
 );
 //-----------------------------------------------------------------------------------------------//
-router.get('/create-character',
+router.get('/character',
+	requireLogin,
+	requireWorldEntered,
+	requireCharacterCreated,
+	showCharacter
+);
+//-----------------------------------------------------------------------------------------------//
+router.get('/turn/create-character',
 	requireLogin,
 	requireWorldEntered,
 	requireNoCharacterCreated,
 	showCreateCharacter
 );
 //-----------------------------------------------------------------------------------------------//
-router.post('/create-character',
+router.post('/turn/create-character',
 	requireLogin,
 	requireWorldEntered,
 	requireNoCharacterCreated,
@@ -81,21 +88,14 @@ router.post('/create-character',
 	handleCreateCharacter
 );
 //-----------------------------------------------------------------------------------------------//
-/*router.get('/character',
-	requireLogin,
-	requireWorldEntered,
-	requireCharacterCreated,
-	showCharacter
-);
-//-----------------------------------------------------------------------------------------------//
-router.get('/turn/start',
+/*router.get('/turn/start',
 	requireLogin,
 	requireWorldEntered,
 	requireCharacterCreated,
 	showStartTurn
 );
 //-----------------------------------------------------------------------------------------------//
-/*router.get('/turn/customize-character',
+router.get('/turn/customize-character',
 	requireGameAccess,
 	showCustomizeCharacter
 );
@@ -160,17 +160,18 @@ router.post('/turn/check-building-name',
 router.get('/turn/resolve-name-conflicts',
 	requireGameAccess,
 	showResolveNameConflicts
-);
+);*/
 //-----------------------------------------------------------------------------------------------//
 router.get('/turn/process-actions',
-	requireToken,
+	//requireToken,
 	triggerProcessActions
 );
 //-----------------------------------------------------------------------------------------------//
 router.get('/statistics',
-	requireGameAccess,
+	requireLogin,
+	requireWorldEntered,
 	showStatistics
-);*/
+);
 
 //===============================================================================================//
 
