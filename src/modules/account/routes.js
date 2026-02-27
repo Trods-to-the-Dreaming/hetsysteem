@@ -1,12 +1,6 @@
 import express from 'express';
 //-----------------------------------------------------------------------------------------------//
 import { 
-	limitLoginRate,
-	limitRegisterRate,
-	limitChangeUsernameRate,
-	limitChangePasswordRate
-} from '#middleware/rate-limit.js';
-import { 
 	requireGuest,
 	requireLogin
 } from '#middleware/auth.js';
@@ -14,6 +8,12 @@ import {
 	validate
 } from '#middleware/validate.js';
 //-----------------------------------------------------------------------------------------------//
+import { 
+	limitLoginRate,
+	limitRegisterRate,
+	limitChangeUsernameRate,
+	limitChangePasswordRate
+} from './middleware.js';
 import {
 	loginSchema,
 	registerSchema,

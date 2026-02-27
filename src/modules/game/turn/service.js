@@ -3,6 +3,12 @@ import knex from '#utils/db.js';
 	BadRequestError 
 } from '#utils/errors.js';*/
 //-----------------------------------------------------------------------------------------------//
+import { 
+	BUILDING_SIZES 
+} from '#modules/game/rules.js';
+import { 
+	PHASE_PAGES 
+} from '#modules/game/turn/config.js';
 /*import { 
 	GAME
 } from './../reasons.js';
@@ -16,11 +22,8 @@ import {
 } from './character-state/service.js';*/
 import { 
 	processCreateCharacter
-	/*loadCustomizeCharacter,
-	saveCustomizeCharacter,
-	processCustomizeCharacter*/
 } from './create-character/service.js';
-/*import { 
+import { 
 	loadManageBuildings,
 	saveManageBuildings,
 	processManageBuildings
@@ -59,34 +62,50 @@ import {
 	loadManageGroup,
 	saveManageGroup,
 	processManageGroup
-} from './manage-group/service.js';*/
+} from './manage-group/service.js';
 import {
-	/*findCharacter,
-	findOtherCustomizeAction,
+	/*findOtherCustomizeAction,
 	findBuilding,
 	findOtherConstructAction,*/
+	listProducts,
+	listBuildings,
+	findCharacter,
+	findCharacterState,
+	findOwnedProducts,
+	findOwnedBuildings,
+	findOwnedReservedBuildings,
+	findOwnedConstructionSites,
+	/*findEmployerContracts,
+	findEmployeeContracts,
+	findTenantAgreements,
+	findLandlordAgreements,*/
+	insertCharacterBuilding,
+	deleteCharacterBuilding,
 	startProcessActions,
 	finishProcessActions
 } from './repository.js';
 
-
 //===============================================================================================//
 
-/*export async function buildTurnView(characterId) {
+export async function buildTurnView({ userId,
+									  worldId }) {
+	const { id: characterId } = await findCharacter({
+		userId,
+		worldId
+	});
+	
 	const [
 		products,
-		recreations,
 		buildings,
-		turnData,
-		ownedResources,
+		characterState,
 		ownedProducts,
-		ownedConstructionSites,
 		ownedBuildings,
-		employeeContracts,
+		ownedReservedBuildings,
+		ownedConstructionSites,
+		/*employeeContracts,
 		employerContracts,
 		tenantAgreements,
-		landlordAgreements,
-		customizeCharacter,
+		landlordAgreements,*/
 		manageBuildings,
 		manageEmploymentContracts,
 		manageRentalAgreements,
@@ -96,186 +115,172 @@ import {
 		consume,
 		manageGroup
 	] = await Promise.all([
-		getProducts(),
-		getRecreations(),
-		getBuildings(),
-		findTurnData(characterId),
-		findOwnedResources(characterId),
-		findOwnedProducts(characterId),
-		findOwnedConstructionSites(characterId),
-		findOwnedBuildings(characterId),
-		findEmployeeContracts(characterId),
-		findEmployerContracts(characterId),
-		findTenantAgreements(characterId),
-		findLandlordAgreements(characterId),
-		loadCustomizeCharacter(characterId),
-		loadManageBuildings(characterId),
-		loadManageEmploymentContracts(characterId),
-		loadManageRentalAgreements(characterId),
-		loadProduce(characterId),
-		loadTrade(characterId),
-		loadShare(characterId),
-		loadConsume(characterId),
-		loadManageGroup(characterId)
+		listProducts(),
+		listBuildings(),
+		findCharacterState({ characterId }),
+		findOwnedProducts({ characterId }),
+		findOwnedBuildings({ characterId }),
+		findOwnedReservedBuildings({ characterId }),
+		findOwnedConstructionSites({ characterId }),
+		/*findEmployeeContracts({ characterId }),
+		findEmployerContracts({ characterId }),
+		findTenantAgreements({ characterId }),
+		findLandlordAgreements({ characterId }),*/
+		loadManageBuildings({ characterId }),
+		loadManageEmploymentContracts({ characterId }),
+		loadManageRentalAgreements({ characterId }),
+		loadProduce({ characterId }),
+		loadTrade({ characterId }),
+		loadShare({ characterId }),
+		loadConsume({ characterId }),
+		loadManageGroup({ characterId })
 	]);
-	
-	const characterState = {
-		...ownedResources,
-		ownedProducts,
-		ownedConstructionSites,
-		ownedBuildings,
-		employeeContracts,
-		employerContracts,
-		tenantAgreements,
-		landlordAgreements
-	};
-	
-	const characterActions = {
-		customizeCharacter,
-		manageBuildings,
-		manageEmploymentContracts,
-		manageRentalAgreements,
-		produce,
-		trade,
-		share,
-		consume,
-		manageGroup
-	};
 	
 	return {
 		products,
-		recreations,
 		buildings,
-		turnData,
-		characterState,
-		characterActions
-	};
-	
-	
-	res.render('game/turn/start', {
-		products: turn.products,
-		recreations: turn.recreations,
-		buildings: turn.buildings,
 		sizes: BUILDING_SIZES,
-		characterState: turn.characterState,
-		characterActions: turn.characterActions,
-		actionPages: buildActionPages(turn.turnData),
-		finished: turn.turnData.finished
+		characterState: {
+			hoursAvailable: characterState.hoursAvailable,
+			ownedTiles: characterState.ownedTiles,
+			ownedProducts,
+			ownedBuildings,
+			ownedReservedBuildings,
+			ownedConstructionSites/*,
+			employeeContracts,
+			employerContracts,
+			tenantAgreements,
+			landlordAgreements*/
+		},
+		characterPhases: {
+			manageBuildings,
+			manageEmploymentContracts,
+			manageRentalAgreements,
+			produce,
+			trade,
+			share,
+			consume,
+			manageGroup
+		},
+		phasePages: PHASE_PAGES,
+		hasFinishedTurn: characterState.hasFinishedTurn
+	};
+}
+//-----------------------------------------------------------------------------------------------//
+export async function finishTurn({ userId, 
+								   worldId, 
+								   phases }) {
+	await knex.transaction(async (trx) => {
+		const { id: characterId } = await findCharacter({
+			userId,
+			worldId,
+			trx
+		});
+		
+		await saveManageBuildings({ 
+			characterId,
+			phase: phases.manageBuildings,
+			trx
+		});
+		await saveManageEmploymentContracts({ 
+			characterId,
+			phase: phases.manageEmploymentContracts,
+			trx
+		});
+		await saveManageRentalAgreements({ 
+			characterId,
+			phase: phases.manageRentalAgreements,
+			trx
+		});
+		await saveProduce({ 
+			characterId,
+			phase: phases.produce,
+			trx
+		});
+		await saveTrade({ 
+			characterId,
+			phase: phases.trade,
+			trx
+		});
+		await saveShare({ 
+			characterId,
+			phase: phases.share,
+			trx
+		});
+		await saveConsume({ 
+			characterId,
+			phase: phases.consume,
+			trx
+		});
+		await saveManageGroup({ 
+			characterId,
+			phase: phases.manageGroup,
+			trx
+		});
 	});
 }
 //-----------------------------------------------------------------------------------------------//
-export async function finishTurn({ characterId, 
-								   worldId, 
-								   phases }) {
+export async function reserveBuildingName({ userId, 
+											worldId, 
+											characterBuildingName }) {
 	try {
-		await knex.transaction(async (trx) => {
-			await saveCustomizeCharacter({ 
-				characterId,
-				phase: phases.customizeCharacter,
+		return await knex.transaction(async (trx) => {
+			const { id: characterId } = await findCharacter({
+				userId,
+				worldId,
 				trx
 			});
-			await saveManageBuildings({ 
-				characterId,
-				phase: phases.manageBuildings,
-				trx
-			});
-			await saveManageEmploymentContracts({ 
-				characterId,
-				phase: phases.manageEmploymentContracts,
-				trx
-			});
-			await saveManageRentalAgreements({ 
-				characterId,
-				phase: phases.manageRentalAgreements,
-				trx
-			});
-			await saveProduce({ 
-				characterId,
-				phase: phases.produce,
-				trx
-			});
-			await saveTrade({ 
-				characterId,
-				phase: phases.trade,
-				trx
-			});
-			await saveShare({ 
-				characterId,
-				phase: phases.share,
-				trx
-			});
-			await saveConsume({ 
-				characterId,
-				phase: phases.consume,
-				trx
-			});
-			await saveManageGroup({ 
-				characterId,
-				phase: phases.manageGroup,
-				trx
-			});
+			
+			let characterBuildingId;
+			try {
+				[characterBuildingId] = await insertCharacterBuilding({
+					characterId,
+					worldId,
+					characterBuildingName,
+					trx
+				});
+			} catch (err) {
+				if (err.code === 'ER_DUP_ENTRY') {
+					throw new GameError({ 
+						status: 409,
+						code: GAME.REASON.BUILDING_NAME_TAKEN 
+					});
+				}
+				
+				throw err;
+			}
+			
+			return ok(characterBuildingId);
 		});
 	} catch (err) {
-		if (err instanceof ConflictError) {
-			return fail({
-				reason: err.code,
-				meta: err.meta
+		if (err instanceof GameError) {
+            return fail({ 
+				status: err.status,
+				reason: err.code 
 			});
 		}
-		
-		throw err;
+        
+        throw err;
 	}
 }
 //-----------------------------------------------------------------------------------------------//
-export async function checkCharacterName({ selfId, 
+export async function cancelBuildingName({ userId, 
 										   worldId, 
-										   firstName, 
-										   lastName }) {
-	const lowerCaseFirstName = firstName.toLowerCase();
-	const lowerCaseLastName = lastName.toLowerCase();
-	
-	const character = await findCharacter({ 
-		worldId, 
-		lowerCaseFirstName, 
-		lowerCaseLastName
+										   characterBuildingId }) {
+	return await knex.transaction(async (trx) => {
+		const { id: characterId } = await findCharacter({
+			userId,
+			worldId,
+			trx
+		});
+		
+		await deleteCharacterBuilding({
+			characterBuildingId,
+			characterId,
+			trx
+		});
 	});
-	if (character) 
-		return fail({ reason: GAME.REASON.CHARACTER_NAME_TAKEN });
-	
-	const action = await findOtherCustomizeAction({ 
-		selfId,
-		worldId,
-		lowerCaseFirstName, 
-		lowerCaseLastName
-	});
-	if (action) 
-		return fail({ reason: GAME.REASON.CHARACTER_NAME_TAKEN });
-	
-	return ok();
 }
-//-----------------------------------------------------------------------------------------------//
-export async function checkBuildingName({ selfId, 
-										  worldId, 
-										  buildingName }) {
-	const lowerCaseBuildingName = buildingName.toLowerCase();
-	
-	const building = await findBuilding({ 
-		worldId, 
-		lowerCaseBuildingName
-	});
-	if (building) 
-		return fail({ reason: GAME.REASON.BUILDING_NAME_TAKEN });
-	
-	const action = await findOtherConstructAction({
-		selfId,
-		worldId, 
-		lowerCaseBuildingName
-	});
-	if (action) 
-		return fail({ reason: GAME.REASON.BUILDING_NAME_TAKEN });
-	
-	return ok();
-}*/
 //-----------------------------------------------------------------------------------------------//
 export async function processActions() {
 	const [runId] = await startProcessActions();
@@ -283,7 +288,7 @@ export async function processActions() {
 	try {
 		await knex.transaction(async (trx) => {
 			await processCreateCharacter(trx);
-			/*await processManageBuildings(trx);
+			await processManageBuildings(trx);
 			await processManageEmploymentContracts(trx);
 			await processManageRentalAgreements(trx);
 			await processProduce(trx);
@@ -291,7 +296,7 @@ export async function processActions() {
 			await processShare(trx);
 			await processConsume(trx);
 			await processManageGroup(trx);
-			await processFinishTurn(trx);*/ // voorlopig uitgeschakeld om te testen
+			await processFinishTurn(trx);
 		});
 
 		await finishProcessActions({ 
@@ -304,6 +309,7 @@ export async function processActions() {
 			status: 'failed', 
 			errorMessage: err.message
 		});
+		
 		throw err;
 	}
 }

@@ -23,26 +23,15 @@ export function findWorld({ worldId,
 		.first();
 };
 //-----------------------------------------------------------------------------------------------//
-export function findCharacter({ userId, 
-								worldId, 
-								trx = knex }) {
-	return trx('characters')
-		.select({
-			id: 'id',
-			firstName: 'first_name',
-			lastName: 'last_name'
-		})
-		.where({ 
-			user_id: userId,
-			world_id: worldId
-		})
-		.first();
-};
-//-----------------------------------------------------------------------------------------------//
-export function findCharacterState({ characterId,
+export function findCharacterState({ userId, 
+									 worldId, 
 									 trx = knex }) {
-	return trx('character_states')
+	return trx('characters as c')
 		.select(1)
-		.where({ character_id: characterId })
+		.innerJoin('character_states as cs', 'cs.character_id', 'c.id')
+		.where({ 
+			'c.user_id': userId,
+			'c.world_id': worldId
+		})
 		.first();
 };

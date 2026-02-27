@@ -4,7 +4,11 @@ export const MAX_AGE = 90;
 export const HEALTH_GAIN_FACTOR = 0.1;
 export const HEALTH_LOSS_FACTOR = 1;
 
-export const BUILDING_SIZES = [1, 2, 4];
+export const BUILDING_SIZES = Object.freeze([
+	1, 
+	2, 
+	4
+]);
 
 export const FOOD = Object.freeze({
 	NEEDED: 3,

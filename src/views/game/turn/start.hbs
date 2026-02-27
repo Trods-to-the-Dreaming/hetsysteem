@@ -4,34 +4,32 @@
 
 <script>	
 	const products = {{{json products}}};
-	const recreations = {{{json recreations}}};
 	const buildings = {{{json buildings}}};
 	const sizes = {{{json sizes}}};
 	const characterState = {{{json characterState}}};
-	const characterActions = {{{json characterActions}}};
-	const actionPages = {{{json actionPages}}};
+	const characterPhases = {{{json characterPhases}}};
+	const phasePages = {{{json phasePages}}};
+	const hasFinishedTurn = {{{json hasFinishedTurn}}};
+	const currentPageIndex = hasFinishedTurn ? 0 : phasePages.length;
 	
 	localStorage.setItem('turn.products', JSON.stringify(products));
-	localStorage.setItem('turn.recreations', JSON.stringify(recreations));
 	localStorage.setItem('turn.buildings', JSON.stringify(buildings));
 	localStorage.setItem('turn.sizes', JSON.stringify(sizes));
 	localStorage.setItem('turn.characterState', JSON.stringify(characterState));
-	characterActions.forEach((action, index) => {
-		localStorage.setItem(`turn.page${index}.action`, JSON.stringify(action));
+	Object.values(characterPhases).forEach((phase, index) => {
+		localStorage.setItem(`turn.page${index}.actions`, JSON.stringify(phase));
 	});
-	localStorage.setItem('turn.actionPages', JSON.stringify(actionPages));
-	
-	const finished = {{{json finished}}};
-	
-	const firstRelevantPageIndex = actionPages.findIndex(page => page.isRelevant === true);
-	const lastRelevantPageIndex = actionPages.findLastIndex(page => page.isRelevant === true);
-	const currentPageIndex = finished ? actionPages.length : firstRelevantPageIndex;
-	
-	localStorage.setItem('turn.firstRelevantPageIndex', JSON.stringify(firstRelevantPageIndex));
-	localStorage.setItem('turn.lastRelevantPageIndex', JSON.stringify(lastRelevantPageIndex));
+	localStorage.setItem('turn.phasePages', JSON.stringify(phasePages));
 	localStorage.setItem('turn.currentPageIndex', JSON.stringify(currentPageIndex));
-	
 	localStorage.setItem('turn.started', JSON.stringify(true));
 	
-	location.replace(actionPages[firstRelevantPageIndex].url);
+	location.replace(phasePages[0].url);
+	
+	
+	
+	// de fasen apart 
+	// turn.manageBuildings
+	// turn.manageEmploymentContracts
+	// ...
+	
 </script>

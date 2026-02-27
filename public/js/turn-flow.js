@@ -13,7 +13,7 @@ disabled: true,
 initialize() {
 	this.addTurnFlowControls();
 	this.bindTurnFlowEvents();
-	this.loadAction();
+	this.load();
 	this.show();
 },
 //-----------------------------------------------------------------------------------------------//
@@ -71,15 +71,15 @@ bindTurnFlowEvents() {
 show() {
 	const controls = this.getTurnFlowControls();
 	
-	const isFirstRelevantPage = (this.index === turn.firstRelevantPageIndex);
-	const isLastRelevantPage = (this.index === turn.lastRelevantPageIndex);
+	const isFirstPage = (this.index === 0);
+	const isLastPage = (this.index === turn.phasePages.length - 1);
 	const isCurrentPage = (this.index === turn.currentPageIndex);
 	
-	if (isFirstRelevantPage) {
+	if (isFirstPage) {
 		controls.backButton.classList.add('d-none');
 	}
 	
-	if (isLastRelevantPage) {
+	if (isLastPage) {
 		controls.nextButton.classList.add('d-none');
 	} else {
 		controls.finishButton.classList.add('d-none');
@@ -142,11 +142,10 @@ confirmEdit() {
 	this.disabled = false;
 	this.updateUI();
 	
-	for (let i = this.index + 1; i <= turn.lastRelevantPageIndex; i++) {
-		localStorage.removeItem(`turn.page${i}.action`);
+	for (let i = this.index + 1; i < turn.phasePages.length - 1; i++) {
+		localStorage.removeItem(`turn.page${i}.actions`);
 	}
 	localStorage.setItem('turn.currentPageIndex', JSON.stringify(this.index));
-	localStorage.setItem('turn.areActionsSubmitted', JSON.stringify(false));
 	
 	turn.currentPageIndex = this.index;
 },
@@ -185,56 +184,45 @@ turn.nextPage = async function() {
 			if (prevent) return;
 		}
 		
-		let nextPageIndex = turn.page.index + 1;
-		while (nextPageIndex <= turn.lastRelevantPageIndex &&
-			   !turn.actionPages[nextPageIndex].isRelevant) {
-			nextPageIndex++;
-		}
+		const nextPageIndex = turn.page.index + 1;
 		
 		if (turn.page.index === turn.currentPageIndex) {
-			turn.page.saveAction();
+			turn.page.saveActions();
 			localStorage.setItem('turn.currentPageIndex', JSON.stringify(nextPageIndex));
 		}
 		
-		location.assign(turn.actionPages[nextPageIndex].url);
+		location.assign(turn.phasePages[nextPageIndex].url);
 	} catch (err) {
 		console.error('Fout bij nextPage:', err);
 	}
 }
 //-----------------------------------------------------------------------------------------------//
 turn.previousPage = function() {
-	let previousPageIndex = turn.page.index - 1;
-	
-	while (previousPageIndex >= turn.firstRelevantPageIndex &&
-		   !turn.actionPages[previousPageIndex].isRelevant) {
-		previousPageIndex--;
-	}
+	const previousPageIndex = turn.page.index - 1;
 	
 	if (turn.page.index === turn.currentPageIndex) {
-		turn.page.saveAction();
+		turn.page.saveActions();
 	}
 	
-	location.assign(turn.actionPages[previousPageIndex].url);
+	location.assign(turn.phasePages[previousPageIndex].url);
 }
 //-----------------------------------------------------------------------------------------------//
 turn.finish = async function() {
 	if (turn.page.index === turn.currentPageIndex) {
-		turn.page.saveAction();
-		localStorage.setItem('turn.currentPageIndex', JSON.stringify(turn.lastRelevantPageIndex + 1));
+		turn.page.saveActions();
+		localStorage.setItem('turn.currentPageIndex', JSON.stringify(turn.phasePages.length));
 	}
 	
-	const characterActions = [];
-
-	for (let index = 0; index < turn.actionPages.length; index++) {
-		const action = JSON.parse(localStorage.getItem(`turn.page${index}.action`));
-		characterActions.push(action);
-	}
+	const characterPhases = [];
+	turn.phasePages.forEach((page, index) => {
+		characterPhases[page.key] = JSON.parse(localStorage.getItem(`turn.page${index}.actions`));
+	});
 	
 	try {
         const res = await fetch('/game/turn/finish', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ characterActions })
+			body: JSON.stringify({ characterPhases })
 		});
 		
 		const json = await res.json();
@@ -252,9 +240,7 @@ turn.finish = async function() {
 turn.cancel = function() {
 	// andere items ook wissen
 	localStorage.removeItem('turn.begin');
-	localStorage.removeItem('turn.actionPages');
-	localStorage.removeItem('turn.firstRelevantPageIndex');
-	localStorage.removeItem('turn.lastRelevantPageIndex');
+	localStorage.removeItem('turn.phasePages');
 	localStorage.removeItem('turn.currentPageIndex');
 	
 	location.assign('/game');

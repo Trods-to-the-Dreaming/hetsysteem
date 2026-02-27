@@ -1,8 +1,6 @@
-//=== Imports ===================================================================================//
-
 import { turn } from '/js/turn.js';
 
-//=== Main ======================================================================================//
+//===============================================================================================//
 
 turn.page = { // turn.page begin
 //-----------------------------------------------------------------------------------------------//
@@ -17,18 +15,15 @@ checkAccess() {
 		return;
 	}
 	
-	turn.actionPages = JSON.parse(localStorage.getItem('turn.actionPages'));
+	turn.phasePages = JSON.parse(localStorage.getItem('turn.phasePages'));
 	turn.currentPageIndex = JSON.parse(localStorage.getItem('turn.currentPageIndex'));
+	this.index = turn.phasePages.findIndex(p => p.key === this.key)
 	
 	// Check if this page is allowed
-	if (!turn.actionPages[turn.page.index].isRelevant ||
-		turn.page.index > turn.currentPageIndex) {
-		location.replace(turn.actionPages[turn.currentPageIndex].url);
+	if (this.index > turn.currentPageIndex) {
+		location.replace(turn.phasePages[turn.currentPageIndex].url);
 		return;
 	}
-	
-	turn.firstRelevantPageIndex = JSON.parse(localStorage.getItem('turn.firstRelevantPageIndex'));
-	turn.lastRelevantPageIndex = JSON.parse(localStorage.getItem('turn.lastRelevantPageIndex'));
 }
 //-----------------------------------------------------------------------------------------------//
 } // turn.page end

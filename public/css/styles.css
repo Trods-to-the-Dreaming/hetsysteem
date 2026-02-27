@@ -8011,7 +8011,7 @@ textarea.form-control-lg {
   margin-bottom: auto !important;
 }
 
-.mt-0, hr, .warning, .error, .success {
+.mt-0, .warning, .error, .success {
   margin-top: 0 !important;
 }
 
@@ -12002,6 +12002,9 @@ h3 {
   font-size: 1rem;
 }
 
+/*hr {
+	@extend .mt-0;
+}*/
 .page-wrapper {
   max-width: 960px;
   min-height: 100vh;

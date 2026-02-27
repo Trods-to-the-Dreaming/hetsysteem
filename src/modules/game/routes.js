@@ -15,10 +15,10 @@ import {
 } from './middleware.js';
 import {
 	enterWorldSchema,
-	createCharacterSchema/*,
+	createCharacterSchema,
 	finishTurnSchema,
-	checkCharacterNameSchema,
-	checkBuildingNameSchema*/
+	reserveBuildingNameSchema,
+	cancelBuildingNameSchema
 } from './validation.js';
 import {
 	showEnterWorld,
@@ -26,9 +26,8 @@ import {
 	showMenu,
 	showCharacter,
 	showCreateCharacter,
-	handleCreateCharacter/*,
+	handleCreateCharacter,
 	showStartTurn,
-	showCustomizeCharacter,
 	showManageBuildings,
 	showManageEmploymentContracts,
 	showManageRentalAgreements,
@@ -38,9 +37,8 @@ import {
 	showConsume,
 	showManageGroup,
 	handleFinishTurn,
-	handleCheckCharacterName,
-	handleCheckBuildingName,
-	showResolveNameConflicts*/,
+	handleReserveBuildingName,
+	handleCancelBuildingName,
 	triggerProcessActions,
 	showStatistics
 } from './controller.js';
@@ -88,79 +86,91 @@ router.post('/turn/create-character',
 	handleCreateCharacter
 );
 //-----------------------------------------------------------------------------------------------//
-/*router.get('/turn/start',
+router.get('/turn/start',
 	requireLogin,
 	requireWorldEntered,
 	requireCharacterCreated,
 	showStartTurn
 );
 //-----------------------------------------------------------------------------------------------//
-router.get('/turn/customize-character',
-	requireGameAccess,
-	showCustomizeCharacter
-);
-//-----------------------------------------------------------------------------------------------//
 router.get('/turn/manage-buildings',
-	requireGameAccess,
+	requireLogin,
+	requireWorldEntered,
+	requireCharacterCreated,
 	showManageBuildings
 );
 //-----------------------------------------------------------------------------------------------//
 router.get('/turn/manage-employment-contracts',
-	requireGameAccess,
+	requireLogin,
+	requireWorldEntered,
+	requireCharacterCreated,
 	showManageEmploymentContracts
 );
 //-----------------------------------------------------------------------------------------------//
 router.get('/turn/manage-rental-agreements',
-	requireGameAccess,
+	requireLogin,
+	requireWorldEntered,
+	requireCharacterCreated,
 	showManageRentalAgreements
 );
 //-----------------------------------------------------------------------------------------------//
 router.get('/turn/produce',
-	requireGameAccess,
+	requireLogin,
+	requireWorldEntered,
+	requireCharacterCreated,
 	showProduce
 );//-----------------------------------------------------------------------------------------------//
 router.get('/turn/trade',
-	requireGameAccess,
+	requireLogin,
+	requireWorldEntered,
+	requireCharacterCreated,
 	showTrade
 );
 //-----------------------------------------------------------------------------------------------//
 router.get('/turn/share',
-	requireGameAccess,
+	requireLogin,
+	requireWorldEntered,
+	requireCharacterCreated,
 	showShare
 );
 //-----------------------------------------------------------------------------------------------//
 router.get('/turn/consume',
-	requireGameAccess,
+	requireLogin,
+	requireWorldEntered,
+	requireCharacterCreated,
 	showConsume
 );
 //-----------------------------------------------------------------------------------------------//
 router.get('/turn/manage-group',
-	requireGameAccess,
+	requireLogin,
+	requireWorldEntered,
+	requireCharacterCreated,
 	showManageGroup
 );
 //-----------------------------------------------------------------------------------------------//
 router.post('/turn/finish',
-	requireGameAccess,
+	requireLogin,
+	requireWorldEntered,
+	requireCharacterCreated,
 	validate(finishTurnSchema),
 	handleFinishTurn
 );
 //-----------------------------------------------------------------------------------------------//
-router.post('/turn/check-character-name',
-	requireGameAccess,
-	validate(checkCharacterNameSchema),
-	handleCheckCharacterName
+router.post('/turn/reserve-building-name',
+	requireLogin,
+	requireWorldEntered,
+	requireCharacterCreated,
+	validate(reserveBuildingNameSchema),
+	handleReserveBuildingName
 );
 //-----------------------------------------------------------------------------------------------//
-router.post('/turn/check-building-name',
-	requireGameAccess,
-	validate(checkBuildingNameSchema),
-	handleCheckBuildingName
+router.post('/turn/cancel-building-name',
+	requireLogin,
+	requireWorldEntered,
+	requireCharacterCreated,
+	validate(cancelBuildingNameSchema),
+	handleCancelBuildingName
 );
-//-----------------------------------------------------------------------------------------------//
-router.get('/turn/resolve-name-conflicts',
-	requireGameAccess,
-	showResolveNameConflicts
-);*/
 //-----------------------------------------------------------------------------------------------//
 router.get('/turn/process-actions',
 	//requireToken,

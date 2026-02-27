@@ -157,37 +157,6 @@ CREATE TABLE world_resources (
 	FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
-/*CREATE TABLE characters (
-	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	world_id TINYINT UNSIGNED NOT NULL,
-	user_id INT UNSIGNED DEFAULT NULL,
-	has_finished_turn BOOLEAN NOT NULL DEFAULT FALSE,
-	first_name VARCHAR(32) DEFAULT NULL,
-	last_name VARCHAR(32) DEFAULT NULL,
-	job_preference_1_id TINYINT UNSIGNED DEFAULT NULL,
-	job_preference_2_id TINYINT UNSIGNED DEFAULT NULL,
-	job_preference_3_id TINYINT UNSIGNED DEFAULT NULL,
-	recreation_preference_id TINYINT UNSIGNED DEFAULT NULL,
-	is_customized BOOLEAN NOT NULL DEFAULT FALSE,
-	birth_turn SMALLINT UNSIGNED NOT NULL DEFAULT 1,
-	health TINYINT UNSIGNED NOT NULL DEFAULT 100,
-	life_expectancy TINYINT UNSIGNED NOT NULL DEFAULT 0,
-	happiness SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-	education SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-	balance INT NOT NULL DEFAULT 0,
-	owned_tiles INT UNSIGNED NOT NULL DEFAULT 10,
-	hours_available TINYINT UNSIGNED NOT NULL DEFAULT 13, -- digitaal.scp.nl/eenweekinkaart2/een-week-in-vogelvlucht/
-	food_consumed TINYINT UNSIGNED NOT NULL DEFAULT 0,
-	medical_care_consumed TINYINT UNSIGNED NOT NULL DEFAULT 0,
-	UNIQUE (world_id, user_id),
-	FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE,
-	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-	FOREIGN KEY (job_preference_1_id) REFERENCES buildings(id),
-	FOREIGN KEY (job_preference_2_id) REFERENCES buildings(id),
-	FOREIGN KEY (job_preference_3_id) REFERENCES buildings(id),
-	FOREIGN KEY (recreation_preference_id) REFERENCES recreations(product_id)
-);*/
-
 CREATE TABLE characters (
 	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	user_id INT UNSIGNED NOT NULL,
@@ -224,12 +193,52 @@ CREATE TABLE character_states (
 	food_consumed TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	medical_care_consumed TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
-	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-	FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE,
 	FOREIGN KEY (job_preference_1_id) REFERENCES buildings(id),
 	FOREIGN KEY (job_preference_2_id) REFERENCES buildings(id),
 	FOREIGN KEY (job_preference_3_id) REFERENCES buildings(id),
 	FOREIGN KEY (recreation_preference_id) REFERENCES recreations(product_id)
+);
+
+CREATE TABLE character_products (
+	character_id INT UNSIGNED NOT NULL,
+	product_id TINYINT UNSIGNED NOT NULL,
+	quantity INT UNSIGNED NOT NULL DEFAULT 0,
+	PRIMARY KEY (character_id, product_id),
+	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+CREATE TABLE character_buildings (
+	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	character_id INT UNSIGNED NOT NULL,
+	world_id TINYINT UNSIGNED NOT NULL,
+	name VARCHAR(32) NOT NULL,
+	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE
+);
+
+CREATE UNIQUE INDEX unique_character_building
+ON character_buildings (
+	world_id,
+	(LOWER(name))
+);
+
+CREATE TABLE character_building_states (
+	character_building_id INT UNSIGNED PRIMARY KEY,
+	building_id TINYINT UNSIGNED NOT NULL,
+	size TINYINT UNSIGNED NOT NULL,
+	boosted_working_hours SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+	FOREIGN KEY (character_building_id) REFERENCES character_buildings(id) ON DELETE CASCADE,
+	FOREIGN KEY (building_id) REFERENCES buildings(id)
+);
+
+CREATE TABLE character_construction_sites (
+	character_building_id INT UNSIGNED PRIMARY KEY,
+	building_id TINYINT UNSIGNED NOT NULL,
+	bricks_needed TINYINT UNSIGNED NOT NULL,
+	bricks_used TINYINT UNSIGNED NOT NULL DEFAULT 0,
+	FOREIGN KEY (character_building_id) REFERENCES character_buildings(id) ON DELETE CASCADE,
+	FOREIGN KEY (building_id) REFERENCES buildings(id)
 );
 
 CREATE TABLE actions_create_character (
@@ -245,21 +254,25 @@ CREATE TABLE actions_create_character (
 	FOREIGN KEY (recreation_preference_id) REFERENCES recreations(product_id)
 );
 
-
-
-
-
-
-
-
-CREATE TABLE character_products (
-	character_id INT UNSIGNED NOT NULL,
-	product_id TINYINT UNSIGNED NOT NULL,
-	quantity INT UNSIGNED NOT NULL DEFAULT 0,
-	PRIMARY KEY (character_id, product_id),
-	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
-	FOREIGN KEY (product_id) REFERENCES products(id)
+CREATE TABLE actions_demolish (
+    character_building_id INT UNSIGNED PRIMARY KEY,
+	FOREIGN KEY (character_building_id) REFERENCES character_buildings(id) ON DELETE CASCADE
 );
+
+CREATE TABLE actions_construct (
+	character_building_id INT UNSIGNED PRIMARY KEY,
+	building_id TINYINT UNSIGNED NOT NULL,
+	size TINYINT UNSIGNED NOT NULL,
+	FOREIGN KEY (character_building_id) REFERENCES character_buildings(id) ON DELETE CASCADE,
+	FOREIGN KEY (building_id) REFERENCES buildings(id)
+);
+
+
+
+
+
+
+
 
 /*CREATE TABLE character_buildings (
 	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
@@ -274,59 +287,16 @@ CREATE TABLE character_products (
 	FOREIGN KEY (building_id) REFERENCES buildings(id)
 );*/
 
-CREATE TABLE character_buildings (
-	character_building_name_id INT UNSIGNED PRIMARY KEY,
-	character_id INT UNSIGNED NOT NULL,
-	building_id TINYINT UNSIGNED NOT NULL,
-	size TINYINT UNSIGNED NOT NULL DEFAULT 1,
-	boosted_working_hours SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-	FOREIGN KEY (character_building_name_id) REFERENCES character_building_names(id) ON DELETE CASCADE,
-	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
-	FOREIGN KEY (building_id) REFERENCES buildings(id)
-);
-
-CREATE TABLE character_building_names (
-	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	character_id INT UNSIGNED NOT NULL,
-	world_id TINYINT UNSIGNED NOT NULL,
-	name VARCHAR(32) NOT NULL,
-	FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE
-);
-
-CREATE UNIQUE INDEX unique_character_building_name
-ON character_building_names (
-	world_id,
-	LOWER(name)
-);
-
-CREATE TABLE action_demolish (
-    character_building_name_id INT UNSIGNED PRIMARY KEY,
-	FOREIGN KEY (character_building_name_id) REFERENCES character_building_names(id) ON DELETE CASCADE
-);
-
-CREATE TABLE action_construct (
-	character_building_name_id INT UNSIGNED PRIMARY KEY,
-	character_id INT UNSIGNED NOT NULL,
-	building_id TINYINT UNSIGNED NOT NULL,
-	size TINYINT UNSIGNED NOT NULL,
-	FOREIGN KEY (character_building_name_id) REFERENCES character_building_names(id) ON DELETE CASCADE,
-	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
-	FOREIGN KEY (building_id) REFERENCES buildings(id)
-);
 
 
 
 
 
 
-CREATE TABLE character_construction_sites (
-	character_building_id INT UNSIGNED PRIMARY KEY,
-	building_id TINYINT UNSIGNED NOT NULL,
-	bricks_used TINYINT UNSIGNED NOT NULL DEFAULT 0,
-	bricks_needed TINYINT UNSIGNED NOT NULL,
-	FOREIGN KEY (character_building_id) REFERENCES character_buildings(id) ON DELETE CASCADE,
-	FOREIGN KEY (building_id) REFERENCES buildings(id)
-);
+
+
+
+
 
 CREATE TABLE residences (
     character_building_id INT UNSIGNED PRIMARY KEY,

@@ -8,16 +8,14 @@ export async function requireWorldEntered(req, res, next) {
 }
 //-----------------------------------------------------------------------------------------------//
 export async function requireCharacterCreated(req, res, next) {
-	if (req.session.character) {
-		res.locals.character = req.session.character;
+	if (req.session.isCharacterCreated)
 		return next();
-	}
 	
 	return res.redirect('/game/create-character');
 }
 //-----------------------------------------------------------------------------------------------//
 export async function requireNoCharacterCreated(req, res, next) {
-	if (!req.session.character)
+	if (!req.session.isCharacterCreated)
 		return next();
 	
 	return res.redirect('/game/start-turn');

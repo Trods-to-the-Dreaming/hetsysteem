@@ -42,12 +42,12 @@ function passwordsMatch(password, confirmedPassword) {
 
 //===============================================================================================//
 
-export const loginSchema = z.object({
+export const loginSchema = z.strictObject({
 		username: z.string(),
 		password: z.string()
 	});
 //-----------------------------------------------------------------------------------------------//
-export const registerSchema = z.object({
+export const registerSchema = z.strictObject({
 		username: usernameSchema,
 		password: passwordSchema,
 		confirmedPassword: z.string(),
@@ -57,12 +57,12 @@ export const registerSchema = z.object({
 		{ path: ['confirmedPassword'] }
 	);
 //-----------------------------------------------------------------------------------------------//
-export const changeUsernameSchema = z.object({
+export const changeUsernameSchema = z.strictObject({
 		newUsername: usernameSchema,
 		password: z.string()
 	});
 //-----------------------------------------------------------------------------------------------//
-export const changePasswordSchema = z.object({
+export const changePasswordSchema = z.strictObject({
 		password: z.string(),
 		newPassword: passwordSchema,
 		confirmedNewPassword: z.string()

@@ -44,11 +44,12 @@ export function insertUser({ username,
 							 hashedPassword,
 							 invitationId,
 							 trx = knex }) {
-	return trx('users').insert({
-		name: username,
-		hashed_password: hashedPassword,
-		invitation_id: invitationId
-	});
+	return trx('users')
+		.insert({
+			name: username,
+			hashed_password: hashedPassword,
+			invitation_id: invitationId
+		});
 }
 //-----------------------------------------------------------------------------------------------//
 export function deleteUser({ userId,

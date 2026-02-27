@@ -10,29 +10,25 @@ import {
 	enterWorld
 } from './enter-world/service.js';
 import { 
-	listJobs,
-	listRecreations
-} from './turn/create-character/repository.js';
+	buildCharacterView 
+} from './character/service.js';
 import { 
 	getCreateCharacterOptions,
 	getCreateCharacterFormState,
 	createCharacter
 } from './turn/create-character/service.js';
-/*import { 
-	buildCharacterView 
-} from './character/service.js';*/
 import { 
-	/*buildTurnView,
+	buildTurnView,
+	reserveBuildingName,
+	cancelBuildingName,
 	finishTurn,
-	checkCharacterName,
-	checkBuildingName,*/
 	processActions 
 } from './turn/service.js';
 
 //===============================================================================================//
 
 export async function showEnterWorld(req, res) {
-	delete req.session.character;
+	delete req.session.isCharacterCreated;
 	delete req.session.world;
 	
 	const options = await getEnterWorldOptions();
@@ -46,7 +42,7 @@ export async function handleEnterWorld(req, res) {
 	
 	const {
 		world,
-		character
+		isCharacterCreated
 	} = await enterWorld({ 
 		userId: user.id,
 		formState
@@ -57,27 +53,17 @@ export async function handleEnterWorld(req, res) {
 		name: world.name,
 		class: world.class
 	};
-	
-	if (character) {
-		req.session.character = {
-			id: character.id,
-			firstName: character.firstName,
-			lastName: character.lastName
-		};
-	} else {
-		delete req.session.character;
-	}
-	
+	req.session.isCharacterCreated = isCharacterCreated;
 	await saveSession(req);
 	
 	return res.redirect('/game');
 }
 //-----------------------------------------------------------------------------------------------//
 export function showMenu(req, res) {
-	const hasCharacter = Boolean(req.session.character);
+	const { isCharacterCreated } = req.session;
 	
 	return res.render('game/menu', {
-		hasCharacter
+		isCharacterCreated
 	});
 }
 //-----------------------------------------------------------------------------------------------//
@@ -126,28 +112,30 @@ export async function handleCreateCharacter(req, res) {
 //-----------------------------------------------------------------------------------------------//
 export async function showCharacter(req, res) {
 	const { 
-		character,
+		user,
 		world 
 	} = req.session;
 			
 	const characterView = await buildCharacterView({ 
-		characterId: character.id,
+		userId: user.id, 
 		worldId: world.id
 	});
 	
 	return res.render('game/character', characterView);
 }
 //-----------------------------------------------------------------------------------------------//
-/*export async function showStartTurn(req, res) {
-	const { character } = req.session;
+export async function showStartTurn(req, res) {
+	const { 
+		user,
+		world 
+	} = req.session;
 
-	const turnView = await buildTurnView(character.id);
+	const turnView = await buildTurnView({ 
+		userId: user.id, 
+		worldId: world.id
+	});
 	
 	return res.render('game/turn/start', turnView);
-};
-//-----------------------------------------------------------------------------------------------//
-export function showCustomizeCharacter(req, res) {
-	return res.render('game/turn/customize-character');
 };
 //-----------------------------------------------------------------------------------------------//
 export function showManageBuildings(req, res) {
@@ -182,20 +170,36 @@ export function showManageGroup(req, res) {
 	return res.render('game/turn/manage-group');
 };
 //-----------------------------------------------------------------------------------------------//
+export async function handleFinishTurn(req, res) {
+	const { 
+		user,
+		world 
+	} = req.session;
+	const phases = req.validatedData;
+	
+	await finishTurn({ 
+		userId: user.id, 
+		worldId: world.id, 
+		phases 
+	});
+	
+	return res.redirect('/game');
+};
+//-----------------------------------------------------------------------------------------------//
 export async function handleReserveBuildingName(req, res) {
 	const { 
 		user,
 		world 
 	} = req.session;
-	const { buildingName } = req.validatedData;
+	const { characterBuildingName } = req.validatedData;
 
 	const result = await reserveBuildingName({ 
 		userId: user.id, 
 		worldId: world.id, 
-		buildingName 
+		characterBuildingName 
 	});
 	if (!result.ok) {
-		return res.status(409).json({
+		return res.status(result.status).json({
 			success: false,
 			error: {
 				code: result.reason,
@@ -204,76 +208,36 @@ export async function handleReserveBuildingName(req, res) {
 		});
 	}
 	
-	return res.status(200).json({ success: true });
+	return res.json({ 
+		success: true,
+		data: { characterBuildingId: result.value }
+	});
 }
 //-----------------------------------------------------------------------------------------------//
-export async function handleFinishTurn(req, res) {
+export async function handleCancelBuildingName(req, res) {
 	const { 
-		character,
+		user,
 		world 
 	} = req.session;
-	const { phases } = req.validatedData;
+	const { characterBuildingId } = req.validatedData;
 	
-	const result = await finishTurn({ 
-		characterId: character.id, 
+	const result = await cancelBuildingName({ 
+		userId: user.id, 
 		worldId: world.id, 
-		phases 
+		characterBuildingId 
 	});
 	if (!result.ok) {
-		return res.status(409).json({
-			errorMessage: GAME.MESSAGE[result.reason],
-			nameConflicts: result.meta
+		return res.status(result.status).json({
+			success: false,
+			error: {
+				code: result.reason,
+				message: GAME.MESSAGE[result.reason]
+			}
 		});
 	}
 	
-	return res.status(200).json({ success: true });
-};
-//-----------------------------------------------------------------------------------------------//
-export async function handleCheckCharacterName(req, res) {
-	const { 
-		character,
-		world 
-	} = req.session;
-	const { 
-		firstName, 
-		lastName 
-	} = req.validatedData;
-
-	const result = await checkCharacterName({ 
-		characterId: character.id, 
-		worldId: world.id, 
-		firstName, 
-		lastName 
-	});
-	if (!result.ok) {
-		return res.status(409).json({
-			errorMessage: GAME.MESSAGE[result.reason]
-		});
-	}
-	
-	return res.status(200).json({ success: true });
-};
-//-----------------------------------------------------------------------------------------------//
-export async function handleCheckBuildingName(req, res) {
-	const { world } = req.session;
-	const { buildingName } = req.validatedData;
-	
-	const result = await checkBuildingName({ 
-		worldId: world.id, 
-		buildingName
-	});
-	if (!result.ok) {
-		return res.status(409).json({
-			errorMessage: GAME.MESSAGE[result.reason]
-		});
-	}
-	
-	return res.status(200).json({ success: true });
-};
-//-----------------------------------------------------------------------------------------------//
-export function showResolveNameConflicts(req, res) {
-	return res.render('game/turn/resolve-name-conflicts');
-};*/
+	return res.json({ success: true });
+}
 //-----------------------------------------------------------------------------------------------//
 export async function triggerProcessActions(req, res) {
 	await processActions();

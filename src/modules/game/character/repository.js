@@ -2,7 +2,8 @@ import knex from '#utils/db.js';
 
 //===============================================================================================//
 
-export function findCharacterState({ characterId,
+export function findCharacterState({ userId,
+									 worldId,
 									 trx = knex }) {
 	return trx('character_states as cs')
 		.select({
@@ -26,7 +27,10 @@ export function findCharacterState({ characterId,
 		.innerJoin('buildings as b3', 'cs.job_preference_3_id', 'b3.id')
 		.innerJoin('recreations as r', 'cs.recreation_preference_id', 'r.product_id')
 		.innerJoin('products as p', 'r.product_id', 'p.id')
-		.where({ 'cs.character_id': characterId })
+		.where({ 
+			'c.user_id': userId,
+			'c.world_id': worldId
+		})
 		.first();
 };
 //-----------------------------------------------------------------------------------------------//

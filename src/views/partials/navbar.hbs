@@ -1,63 +1,36 @@
-<nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+<nav class="navbar navbar-dark bg-dark">
 	<div class="container-fluid">
-		<a class="navbar-brand mt-0 mb-0 ml-0 mr-2 p-0" href="/"><img src="/img/favicon.png" width="36" height="36"></a>
-		
-		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
-			<span class="navbar-toggler-icon"></span>
-		</button>
-		
-		<div id="mynavbar" class="collapse navbar-collapse">
-			<ul class="navbar-nav me-auto">
-				<li class="nav-item">
-					<a class="nav-link" href="/game-mechanics">Spelregels</a>
-				</li>
-			</ul>
-			
+
+		<a class="navbar-brand p-0" href="/">
+			<img src="/img/favicon.png" width="36" height="36">
+		</a>
+
+		<div class="ms-auto">
 			{{#if authenticated}}
-				<!-- Expanded navbar -->
-				<div class="dropdown d-none d-sm-block">
-					<a id="accountDropdown" class="nav-link" href="#" role="button" data-bs-toggle="dropdown">
+				<div class="dropdown">
+					<a id="accountDropdown"	class="nav-link" href="#" role="button" data-bs-toggle="dropdown">
 						<i class="bi bi-person-circle navbar-account-icon"></i>
 					</a>
-					
+
 					<ul class="dropdown-menu dropdown-menu-end">
 						<li><a class="dropdown-item" href="/game/enter-world">Spelen</a></li>
 						<li><a class="dropdown-item" href="/account">Mijn account</a></li>
-						<li class="nav-item"><hr class="dropdown-divider"></li>
+						<li><hr class="dropdown-divider"></li>
 						<li>
-							<form id="logoutExpanded" method="POST" action="/account/logout">
-								<button class="dropdown-item btn w-100 text-start" type="submit">
+							<form method="POST" action="/account/logout">
+								<button class="dropdown-item" type="submit">
 									Afmelden
 								</button>
 							</form>
 						</li>
 					</ul>
 				</div>
-				
-				<!-- Collapsed navbar -->
-				<ul class="navbar-nav d-sm-none">
-					<li class="nav-item"><a class="nav-link" href="/game/enter-world">Spelen</a></li>
-					<li class="nav-item"><a class="nav-link" href="/account">Mijn account</a></li>
-					<li class="nav-item">
-						<form id="logoutCollapsed" method="POST" action="/account/logout">
-							<button class="nav-link btn w-100 text-start" type="submit">
-								Afmelden
-							</button>
-						</form>
-					</li>
-				</ul>
-				
 			{{else}}
-				<!-- Expanded navbar -->
-				<div class="dropdown d-none d-sm-block">
-					<a class="btn btn-outline-light" href="/account/login">Aanmelden</a>
-				</div>
-				
-				<!-- Collapsed navbar -->
-				<ul class="navbar-nav d-sm-none">
-					<li class="nav-item"><a class="nav-link" href="/account/login">Aanmelden</a></li>     
-				</ul>
+				<a class="btn btn-outline-light" href="/account/login">
+					Aanmelden
+				</a>
 			{{/if}}
 		</div>
+
 	</div>
 </nav>

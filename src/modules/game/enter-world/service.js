@@ -1,17 +1,15 @@
 import { 
-	BadRequestError 
-} from '#utils/errors.js';
+	GameError 
+} from '#modules/game/errors.js';
+import { 
+	GAME
+} from '#modules/game/reasons.js';
 //-----------------------------------------------------------------------------------------------//
 import {
 	listWorlds,
 	findWorld,
-	findCharacter,
 	findCharacterState
 } from './repository.js';
-
-//===============================================================================================//
-
-const MSG_INVALID_WORLD = 'Deze wereld bestaat niet.';
 
 //===============================================================================================//
 
@@ -26,34 +24,24 @@ export async function enterWorld({ userId,
 	const { worldId } = formState;
 	
 	const world = await findWorld({ worldId });
-	if (!world)
-		throw new BadRequestError(MSG_INVALID_WORLD);
-
-	world.class = 'world-' + world.slug;
-
-	const character = await findCharacter({ 
-		userId,
-		worldId
-	});
-	if (!character) {
-		return {
-			world,
-			character: null
-		};
+	if (!world) {
+		throw new GameError({ 
+			status: 404,
+			code: GAME.REASON.INVALID_WORLD
+		});
 	}
 
 	const characterState = await findCharacterState({ 
-		characterId: character.id
+		userId,
+		worldId
 	});
-	if (!characterState) {
-		return {
-			world,
-			character: null
-		};
-	}
 
 	return {
-		world,
-		character
+		world: {
+			id: world.id,
+			name: world.name,
+			class: `world-${world.slug}`
+		},
+		isCharacterCreated: Boolean(characterState)
 	};
 }

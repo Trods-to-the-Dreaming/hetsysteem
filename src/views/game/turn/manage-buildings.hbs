@@ -6,7 +6,7 @@
 <script type="module">
 import { turn } from '/js/turn-check-access.js';
 
-turn.page.index = 1;
+turn.page.key = 'manageBuildings';
 turn.page.checkAccess();
 </script>
 {{/block}}
@@ -110,16 +110,45 @@ turn.page.checkAccess();
 //-----------------------------------------------------------------------------------------------//
 import { turn } from '/js/turn-flow.js';
 //-----------------------------------------------------------------------------------------------//
-turn.page.loadAction = function() {	
-	// Get action
-	turn.page.action = JSON.parse(localStorage.getItem(`turn.page${turn.page.index}.action`));
-	if (!turn.page.action) {
-		turn.page.action = {
+document.addEventListener('DOMContentLoaded', () => {
+	turn.page.initialize();
+});
+//-----------------------------------------------------------------------------------------------//
+turn.page.load = function() {
+	loadPageData();
+	cachePageElements();
+	createOffcanvasObjects();
+	
+	const data = turn.page.data;
+	const elements = turn.page.elements;
+	
+	// Add event listeners
+	elements.confirmDemolish.addEventListener('click', handleConfirmDemolish);
+	elements.confirmConstruct.addEventListener('click', handleConfirmConstruct);
+	elements.buildingName.addEventListener('input', handleBuildingNameInput);
+	
+	// Populate select elements
+	turn.page.populateSelect(elements.newBuilding, data.constructibleBuildings, 'type');
+	turn.page.populateSelect(elements.size, data.sizes);
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	// Get actions
+	turn.page.actions = JSON.parse(localStorage.getItem(`turn.page${turn.page.index}.actions`));
+	if (!turn.page.actions) {
+		turn.page.actions = {
 			demolish: [],
 			construct: []
 		};
 	}
-	const action = turn.page.action;
+	const actions = turn.page.actions;
 	
 	// Get game state
 	const characterState = JSON.parse(localStorage.getItem(`turn.characterState`));
@@ -166,7 +195,7 @@ turn.page.loadAction = function() {
 	
 	const ownedBuildings = characterState.ownedBuildings.map(ob => {
 		const building = buildings.find(b => b.id === ob.buildingId);
-		const isDemolished = action.demolish.some(d => d.id === ob.id);
+		const isDemolished = actions.demolish.some(d => d.id === ob.id);
 		
 		let type;
 		let progress;
@@ -194,7 +223,7 @@ turn.page.loadAction = function() {
 		};
 	});
 	
-	const newConstructionSites = action.construct.map(c => {
+	const newConstructionSites = actions.construct.map(c => {
 		const building = buildings.find(b => b.id === c.buildingId);
 		const label = getBuildingLabel({ name: c.name,
 										 type: building.type,
@@ -219,40 +248,32 @@ turn.page.loadAction = function() {
 	};
 }
 //-----------------------------------------------------------------------------------------------//
-function getBuildingLabel({ name,
-							type,
-							size,
-							progress = null }) {
-	const unit = size === 1 ? 'tegel' : 'tegels';
-	return progress ? 
-		   `${name} <small>(${type}, ${size} ${unit}, ${progress} voltooid)</small>` : 
-		   `${name} <small>(${type}, ${size} ${unit})</small>`;
-}
-//-----------------------------------------------------------------------------------------------//
-turn.page.saveAction = function() {
+turn.page.save = function() {
 	const data = turn.page.data;
-	const action = turn.page.action;
+	
+	const phase = {
+		demolish: [],
+		construct: []
+	};
 	
 	// Demolish
-	action.demolish = [];
-	data.ownedBuildings.forEach(ob => {
+	data.demolishableBuildings.forEach(ob => {
 		if (ob.isDemolished) {
-			action.demolish.push(ob.id);
+			phase.demolish.push(ob.id);
 		}
 	});
 	
 	// Construct
-	action.construct = [];
 	data.newConstructionSites.forEach(ncs => {
-		action.construct.push({
+		phase.construct.push({
+			characterBuildingId: ncs.characterBuildingId,
 			buildingId: ncs.buildingId,
-			name: ncs.name,
 			size: ncs.size
 		});
 	});
 	
 	// Save to local storage
-	localStorage.setItem(`turn.page${turn.page.index}.action`, JSON.stringify(action));
+	localStorage.setItem(`turn.manageBuildings`, JSON.stringify(phase));
 }
 //-----------------------------------------------------------------------------------------------//
 turn.page.updateUI = function() {
@@ -278,6 +299,120 @@ turn.page.updateUI = function() {
 	turn.page.setNextDisabled(false);
 }
 //-----------------------------------------------------------------------------------------------//
+function loadPageData() {
+	// Get actions
+	turn.page.actions = JSON.parse(localStorage.getItem(`turn.page${turn.page.index}.actions`));
+	if (!turn.page.actions) {
+		turn.page.actions = {
+			demolish: [],
+			construct: []
+		};
+	}
+	
+	
+	const phase = JSON.parse(localStorage.getItem(`turn.manageBuildings`));
+	const buildings = JSON.parse(localStorage.getItem(`turn.static.buildings`));
+	const buildingSizes = JSON.parse(localStorage.getItem(`turn.static.buildingSizes`));
+	const ownedTiles = JSON.parse(localStorage.getItem(`turn.characterState.ownedTiles`));
+	const ownedBuildings = JSON.parse(localStorage.getItem(`turn.characterState.ownedBuildings`));
+	const ownedReservedBuildings = JSON.parse(localStorage.getItem(`turn.characterState.ownedReservedBuildings`));
+	const ownedConstructionSites = JSON.parse(localStorage.getItem(`turn.characterState.ownedConstructionSites`));
+	
+	let freeTiles = ownedTiles;
+	
+	const constructibleBuildings = buildings.filter(b => b.isConstructible);
+	
+	const demolishableBuildings = ownedBuildings.map(ob => {
+		const building = buildings.find(b => b.id === ob.buildingId);
+		const isDemolished = phase.demolish.some(d => d.id === ob.id);
+		
+		let type;
+		let progress;
+		if (building.slug === 'construction-site') {
+			const constructionSite = ownedConstructionSites.find(ocs => ocs.id === ob.id);
+			const newBuilding = buildings.find(b => b.id === constructionSite.buildingId);
+			type = newBuilding.type;
+			progress = `${constructionSite.bricksUsed}/${constructionSite.bricksNeeded}`;
+		} else {
+			type = building.type;
+		}
+		
+		const label = getBuildingLabel({ name: ob.name,
+										 type,
+										 size: ob.size,
+										 progress });
+		
+		if (!isDemolished) freeTiles -= ob.size;
+		
+		return {
+			id: ob.id,
+			isDemolished,
+			size: ob.size,
+			label
+		};
+	});
+	
+	const newConstructionSites = phase.construct.map(c => {
+		const building = buildings.find(b => b.id === c.buildingId);
+		const label = getBuildingLabel({ name: c.name,
+										 type: building.type,
+										 size: c.size });
+		
+		freeTiles -= c.size;
+		
+		return {
+			buildingId: c.buildingId,
+			name: c.name,
+			size: c.size,
+			label
+		};
+	});
+	
+	turn.page.data = {
+		freeTiles,
+		ownedBuildings,
+		newConstructionSites,
+		buildings,
+		sizes
+	};
+}
+//-----------------------------------------------------------------------------------------------//
+function cachePageElements() {
+	turn.page.elements = {
+		demolishWindow: document.getElementById('demolish-window'),
+		constructWindow: document.getElementById('construct-window'),
+		openDemolishWindow: document.getElementById('open-demolish-window-button'),
+		openConstructWindow: document.getElementById('open-construct-window-button'),
+		confirmDemolish: document.getElementById('confirm-demolish-button'),
+		confirmConstruct: document.getElementById('confirm-construct-button'),
+		demolishedBuildings: document.getElementById('demolished-buildings-ul'),
+		newConstructionSites: document.getElementById('new-construction-sites-ul'),
+		preservedBuildings: document.getElementById('preserved-buildings-div'),
+		freeTiles: document.getElementById('free-tiles-span'),
+		newBuilding: document.getElementById('new-building-select'),
+		size: document.getElementById('size-select'),
+		buildingName: document.getElementById('building-name-input'),
+		buildingNameError: document.getElementById('building-name-error')
+	};
+}
+//-----------------------------------------------------------------------------------------------//
+function createOffcanvasObjects() {
+	turn.page.demolishOffcanvas = new bootstrap.Offcanvas(elements.demolishWindow);
+	turn.page.constructOffcanvas = new bootstrap.Offcanvas(elements.constructWindow);
+}
+
+
+function getBuildingLabel({ name,
+							type,
+							size,
+							progress = null }) {
+	const unit = size === 1 ? 'tegel' : 'tegels';
+	const progressText = progress ? `, ${progress} voltooid` : '';
+	return `${name} <small>(${type}, ${size} ${unit}${progressText})</small>`;
+
+}
+//-----------------------------------------------------------------------------------------------//
+
 function handleConfirmDemolish() {
 	// Write from elements to data object
 	const elements = turn.page.elements;
@@ -302,29 +437,33 @@ function handleConfirmDemolish() {
 	turn.page.demolishOffcanvas.hide();
 }
 //-----------------------------------------------------------------------------------------------//
-async function canConfirmConstruct() {
+async function canConfirmConstruct() {	
 	const elements = turn.page.elements;
-	
 	const buildingName = elements.buildingName.value;
 
 	try {
-		const params = new URLSearchParams({
-			buildingName
+		const res = await fetch('/game/turn/reserve-building-name', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ characterBuildingName })
 		});
-		const res = await fetch(`/game/turn/is-building-name-available?${params}`);
-		const { available } = await res.json();
 
-		if (!available) {
-			elements.buildingNameError.textContent = 'Deze naam is al in gebruik.';
+		const json = await res.json();
+		if (!json.success) {
+			elements.buildingNameError.textContent = json.error.message;
 			return false;
 		}
+
+		const characterBuildingId = json.data.characterBuildingId;
+		
+		
 		
 		return true;
 	} catch (err) {
 		console.error(err);
 		return false;
 	}
-};
+}
 //-----------------------------------------------------------------------------------------------//
 function handleNewBuildingChange() {
 	// Set available sizes of the chosen new building
@@ -389,12 +528,35 @@ function handleBuildingNameInput() {
 }
 //-----------------------------------------------------------------------------------------------//
 async function handleConfirmConstruct() {
-	// Check if someone has already chosen this name
-	const canConfirm = await canConfirmConstruct();
-	if (!canConfirm) return;
+	const elements = turn.page.elements;
+	const characterBuildingName = elements.buildingName.value;
+
+	// Check if this name is already taken
+	try {
+		const res = await fetch('/game/turn/reserve-building-name', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ characterBuildingName })
+		});
+
+		const json = await res.json();
+		if (!json.success) {
+			elements.buildingNameError.textContent = json.error.message;
+			return;
+		}
+	} catch (err) {
+		console.error(err);
+		return;
+	}
+	
+	
+	
+	const characterBuildingId = json.data.characterBuildingId;
+	
+	
+	
 	
 	// Write from elements to data object
-	const elements = turn.page.elements;
 	const data = turn.page.data;
 	
 	const newBuildingId = Number(elements.newBuilding.value);
@@ -563,8 +725,5 @@ function renderFreeTiles() {
 	elements.freeTiles.textContent = data.freeTiles;
 }
 //-----------------------------------------------------------------------------------------------//
-document.addEventListener('DOMContentLoaded', () => {
-	turn.page.initialize();
-});
-//-----------------------------------------------------------------------------------------------//
+
 </script>

@@ -3,6 +3,9 @@ import {
 	ok, 
 	fail 
 } from '#utils/result.js';
+import { 
+	BadRequestError
+} from '#utils/errors.js';
 //-----------------------------------------------------------------------------------------------//
 import { 
 	GameError 
@@ -24,6 +27,10 @@ import {
 	deleteActionCreateCharacter,
 	insertCharacterState
 } from './repository.js';
+
+//===============================================================================================//
+
+const MSG_INVALID_PREFERENCE = 'Ongeldige job- of recreatievoorkeur.'
 
 //===============================================================================================//
 
@@ -142,6 +149,8 @@ export async function createCharacter({ userId,
 				status: err.status,
 				reason: err.code 
 			});
+		} else if (err.code === 'ER_NO_REFERENCED_ROW_2') {
+			throw new BadRequestError(MSG_INVALID_PREFERENCE);
 		}
 		
 		throw err;

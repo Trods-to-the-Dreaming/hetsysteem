@@ -1,36 +1,42 @@
 import knex from '#utils/db.js';
 import { 
-	BadRequestError 
+	BadRequestError
 } from '#utils/errors.js';
 //-----------------------------------------------------------------------------------------------//
 import { 
-	findCharacter,
-	findOwnedBuildings,
-	findBuildings,
+	GameError 
+} from '#modules/game/errors.js';
+import { 
+	GAME 
+} from '#modules/game/reasons.js';
+
+import { 
 	listDemolishActions,
 	listConstructActions,
 	findDemolishActions,
 	findConstructActions,
-	upsertDemolishActions,
-	upsertConstructActions,
-	deleteDemolishAction,
 	deleteConstructAction,
+	deleteDemolishActions,
+	deleteConstructActions,
+	insertDemolishActions,
+	insertConstructActions,
+	findCharacter,
+	findCharacterBuildingsWithState,
+	findCharacterBuildingsWithoutState,
 	deleteCharacterBuilding,
-	insertCharacterBuilding,
+	insertCharacterBuildingState,
 	insertCharacterConstructionSite
 } from './repository.js';
 
 //===============================================================================================//
 
-const MSG_INVALID_CHARACTER	 = 'Dit personage bestaat niet.';
-const MSG_INVALID_WORLD		 = 'Deze wereld bestaat niet.';
-const MSG_NOT_OWNED_BUILDING = 'Het personage bezit dit gebouw niet.';
-const MSG_NOT_ENOUGH_TILES	 = 'Er zijn onvoldoende vrije landtegels.';
-const MSG_INVALID_BUILDING	 = 'Dit type gebouw bestaat niet.';
+const MSG_INVALID_CHARACTER_BUILDING = 'Het personage bezit dit gebouw niet.';
+const MSG_INVALID_BUILDING			 = 'Dit type gebouw bestaat niet.';
+const MSG_NOT_ENOUGH_TILES			 = 'Er zijn onvoldoende vrije landtegels.';
 
 //===============================================================================================//
 
-async function processDemolishActions({ trx = knex }) {
+async function processDemolishActions(trx) {
 	const actions = await listDemolishActions(trx);
 	for (const action of actions) {
 		const { characterBuildingId } = action;
@@ -42,8 +48,8 @@ async function processDemolishActions({ trx = knex }) {
 	}
 }
 //-----------------------------------------------------------------------------------------------//
-async function processConstructActions({ trx = knex }) {
-	const constructionSiteId = await findBuildingId({
+async function processConstructActions(trx) {
+	const { constructionSiteId } = await findBuildingId({
 		slug: 'construction-site',
 		trx
 	});
@@ -51,19 +57,14 @@ async function processConstructActions({ trx = knex }) {
 	const actions = await listConstructActions(trx);
 	for (const action of actions) {
 		const {
-			id: actionId
-			worldId,
-			characterId,
+			characterBuildingId,
 			buildingId,
-			name,
 			size
 		} = action;
-		
-		const [characterBuildingId] = await insertCharacterBuilding({
-			worldId,
-			characterId,
+
+		await insertCharacterBuildingState({
+			characterBuildingId,
 			buildingId: constructionSiteId,
-			name,
 			size,
 			trx
 		});
@@ -76,7 +77,7 @@ async function processConstructActions({ trx = knex }) {
 		});
 
 		await deleteConstructAction({ 
-			actionId, 
+			characterBuildingId, 
 			trx 
 		});
 	}
@@ -107,22 +108,8 @@ export async function loadManageBuildings({ characterId,
 }
 //-----------------------------------------------------------------------------------------------//
 export async function saveManageBuildings({ characterId,
-											worldId,
 											phase,
 											trx = knex }) {
-	// Check character
-	const character = await findCharacter({
-		characterId,
-		trx
-	});
-	if (!character) 
-		throw new BadRequestError(MSG_INVALID_CHARACTER);
-	
-	// Check world
-	if (worldId !== character.worldId)
-		throw new BadRequestError(MSG_INVALID_WORLD);
-	
-	// Check phase
 	if (!phase)
 		return;
 	
@@ -131,48 +118,72 @@ export async function saveManageBuildings({ characterId,
 		constructActions 
 	} = phase;
 	
-	// Check demolish actions
-	const ownedBuildings = await findOwnedBuildings({
-		demolishActions, 
-		trx
-	});
-	if (ownedBuildings.length !== demolishActions.length)
-		throw new BadRequestError(MSG_NOT_OWNED_BUILDING);
+	// Validate
+	if (demolishActions.length > 0) {
+		const validDemolishActions = await findCharacterBuildingsWithState({
+			characterId,
+			characterBuildingIds: demolishActions.map(d => d.characterBuildingId), 
+			trx
+		});
+		if (validDemolishActions.length !== demolishActions.length)
+			throw new BadRequestError(MSG_INVALID_CHARACTER_BUILDING);
+	}
 	
-	// Check construct actions
-	const totalSize = constructActions.reduce(
-		(sum, item) => sum + item.size,
-		0
-	);
-	if (totalSize > character.ownedTiles)
-		throw new BadRequestError(MSG_NOT_ENOUGH_TILES);
+	if (constructActions.length > 0) {
+		const character = await findCharacter({
+			characterId,
+			trx
+		});
+
+		const validConstructActions = await findCharacterBuildingsWithoutState({
+			characterId,
+			characterBuildingIds: constructActions.map(c => c.characterBuildingId),
+			trx
+		});
+		if (validConstructActions.length !== constructActions.length)
+			throw new BadRequestError(MSG_INVALID_CHARACTER_BUILDING);
+		
+		const totalSize = constructActions.reduce(
+			(sum, item) => sum + item.size,
+			0
+		);
+		if (totalSize > character.ownedTiles)
+			throw new BadRequestError(MSG_NOT_ENOUGH_TILES);	
+	}
 	
-	const newBuildings = constructActions.map(c => c.buildingId);
-	const validBuildings = await findBuildings({
-		buildingIds,
-		trx
-	});
-	if (validBuildings.length !== newBuildings.length)
-		throw new BadRequestError(MSG_INVALID_BUILDING);
-	
-	// Save demolish actions
+	// Delete
 	await deleteDemolishActions({
 		characterId,
 		trx
 	});
 	
-	await insertDemolishActions({
-		demolishActions,
+	await deleteConstructActions({
+		characterId,
 		trx
 	});
 	
-	// Save construct actions
-	await upsertConstructActions({
-		characterId,
-		worldId,
-		constructActions,
-		trx
-	});
+	// Insert
+	if (demolishActions.length > 0) {
+		await insertDemolishActions({
+			demolishActions,
+			trx
+		});
+	}
+	
+	if (constructActions.length > 0) {
+		try {
+			await insertConstructActions({
+				constructActions,
+				trx
+			});
+		} catch (err) {
+			if (err.code === 'ER_NO_REFERENCED_ROW_2') {
+				throw new BadRequestError(MSG_INVALID_BUILDING);
+			}
+			
+			throw err;
+		}
+	}
 }
 //-----------------------------------------------------------------------------------------------//
 export async function processManageBuildings(trx) {
