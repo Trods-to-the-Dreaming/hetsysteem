@@ -21,10 +21,10 @@ import {
 	lockCharacter,
 	insertCharacter,
 	updateCharacter,
-	findActionCreateCharacter,
-	upsertActionCreateCharacter,
-	listActionsCreateCharacter,
-	deleteActionCreateCharacter,
+	findCreateCharacterAction,
+	upsertCreateCharacterAction,
+	listCreateCharacterActions,
+	deleteCreateCharacterAction,
 	insertCharacterState
 } from './repository.js';
 
@@ -44,8 +44,8 @@ export async function getCreateCharacterOptions() {
 	}
 }
 //-----------------------------------------------------------------------------------------------//
-export async function getCreateCharacterFormState({ userId, 
-													worldId }) {
+export async function loadCreateCharacter({ userId, 
+											worldId }) {
 	const emptyState = {
 		firstName: '',
 		lastName: '',
@@ -61,16 +61,9 @@ export async function getCreateCharacterFormState({ userId,
 		return emptyState;
 	}
 
-	const action = await findActionCreateCharacter({
+	const action = await findCreateCharacterAction({
 		characterId: character.id
 	});
-	if (!action) {
-		return {
-			...emptyState,
-			firstName: character.firstName,
-			lastName: character.lastName
-		};
-	}
 
 	return {
 		firstName: character.firstName,
@@ -84,15 +77,15 @@ export async function getCreateCharacterFormState({ userId,
 	};
 }
 //-----------------------------------------------------------------------------------------------//
-export async function createCharacter({ userId, 
-										worldId, 
-										formState }) {
+export async function saveCreateCharacter({ userId, 
+											worldId, 
+											createCharacter }) {
 	const {
 		firstName,
 		lastName,
 		jobPreferenceIds,
 		recreationPreferenceId
-	} = formState;
+	} = createCharacter;
 
     try {
 		return await knex.transaction(async (trx) => {
@@ -132,7 +125,7 @@ export async function createCharacter({ userId,
 				throw err;
 			}
 
-			await upsertActionCreateCharacter({
+			await upsertCreateCharacterAction({
 				characterId,
 				jobPreference1Id: jobPreferenceIds[0],
 				jobPreference2Id: jobPreferenceIds[1],
@@ -158,7 +151,7 @@ export async function createCharacter({ userId,
 }
 //-----------------------------------------------------------------------------------------------//
 export async function processCreateCharacter(trx) {
-	const actions = await listActionsCreateCharacter(trx);
+	const actions = await listCreateCharacterActions(trx);
 	for (const action of actions) {
 		const {
 			characterId,
@@ -177,7 +170,7 @@ export async function processCreateCharacter(trx) {
 			trx
 		});
 
-		await deleteActionCreateCharacter({
+		await deleteCreateCharacterAction({
 			characterId,
 			trx
 		});

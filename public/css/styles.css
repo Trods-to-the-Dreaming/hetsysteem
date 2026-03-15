@@ -7171,7 +7171,7 @@ textarea.form-control-lg {
   align-self: stretch;
 }
 
-.vstack {
+.vstack, .form-block, .form-fields {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
@@ -8067,7 +8067,7 @@ textarea.form-control-lg {
   margin-right: auto !important;
 }
 
-.mb-0, .card-label {
+.mb-0, .card-label, .warning, .error, .success {
   margin-bottom: 0 !important;
 }
 
@@ -8079,7 +8079,7 @@ textarea.form-control-lg {
   margin-bottom: 0.5rem !important;
 }
 
-.mb-3, h1, .field, .list-compact, .card-border, .warning, .error, .success, .button-1, .button-2, .button-danger, .button-up {
+.mb-3, .form-block, .card-border {
   margin-bottom: 1rem !important;
 }
 
@@ -8315,11 +8315,11 @@ textarea.form-control-lg {
   gap: 0.5rem !important;
 }
 
-.gap-3 {
+.gap-3, .form-fields {
   gap: 1rem !important;
 }
 
-.gap-4 {
+.gap-4, .form-block {
   gap: 1.5rem !important;
 }
 
@@ -8427,7 +8427,7 @@ textarea.form-control-lg {
   font-weight: 500 !important;
 }
 
-.fw-semibold, .active-world-banner {
+.fw-semibold, .active-world-banner, .btn[class*=world-], [class*=world-].card-button, [class*=world-].button-1, [class*=world-].button-2, [class*=world-].button-danger, [class*=world-].button-up {
   font-weight: 600 !important;
 }
 
@@ -11992,14 +11992,32 @@ textarea.form-control-lg {
 }
 h1 {
   font-size: 1.3rem;
+  margin-top: 0em;
+  margin-bottom: 0.75em;
 }
 
 h2 {
   font-size: 1.15rem;
+  margin-top: 0.75em;
+  margin-bottom: 0.83em;
 }
 
 h3 {
   font-size: 1rem;
+  margin-top: 0.83em;
+  margin-bottom: 1em;
+}
+
+p {
+  font-size: 1rem;
+  margin-top: 1em;
+  margin-bottom: 1.12em;
+}
+
+ul {
+  font-size: 1rem;
+  margin-top: 1em;
+  margin-bottom: 1.12em;
 }
 
 /*hr {
@@ -12010,26 +12028,44 @@ h3 {
   min-height: 100vh;
 }
 
-.active-world-banner {
-  border-bottom: 1px solid;
-}
-
 .world-gold {
-  background-color: #fff8dc;
-  color: #a67c00;
-  border-color: #e0c97f;
+  --world-text: #a67c00;
+  --world-bg: #fff8dc;
+  --world-border: #e0c97f;
+  --world-hover-bg: #f8eec3;
 }
 
 .world-debt {
-  background-color: rgb(215.3278688525, 231.2295081967, 254.6721311475);
-  color: #0d6efd;
-  border-color: rgb(114.1639344262, 170.6147540984, 253.8360655738);
+  --world-text: #0d3bb9;
+  --world-bg: #d7e7ff;
+  --world-border: #72abfe;
+  --world-hover-bg: #c2d4ff;
 }
 
 .world-time {
-  background-color: #e6f9f1;
-  color: #1f8f5f;
-  border-color: #bce3d1;
+  --world-text: #1f8f2c;
+  --world-bg: #e6f9f1;
+  --world-border: #bce3d1;
+  --world-hover-bg: #c9f0df;
+}
+
+.active-world-banner {
+  background-color: var(--world-bg);
+  color: var(--world-text);
+  border-bottom: 2px solid var(--world-border);
+}
+
+.btn[class*=world-], [class*=world-].button-up, [class*=world-].button-danger, [class*=world-].button-2, [class*=world-].button-1, [class*=world-].card-button {
+  --bs-btn-border-width: 2px;
+  --bs-btn-bg: var(--world-bg);
+  --bs-btn-color: var(--world-text);
+  --bs-btn-border-color: var(--world-border);
+  --bs-btn-hover-bg: var(--world-hover-bg);
+  --bs-btn-hover-color: var(--world-text);
+  --bs-btn-hover-border-color: var(--world-border);
+  --bs-btn-active-bg: var(--world-hover-bg);
+  --bs-btn-active-color: var(--world-text);
+  --bs-btn-active-border-color: var(--world-border);
 }
 
 .navbar-account-icon {
@@ -12044,6 +12080,8 @@ h3 {
 
 .list-compact {
   max-width: 400px;
+  margin-top: 1em;
+  margin-bottom: 1.12em;
 }
 
 .list-input-quantity {

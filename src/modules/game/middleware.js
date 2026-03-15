@@ -1,3 +1,9 @@
+import { 
+	isCharacterCreated
+} from './service.js';
+
+//===============================================================================================//
+
 export async function requireWorldEntered(req, res, next) {
 	if (req.session.world) {
 		res.locals.world = req.session.world;
@@ -7,18 +13,20 @@ export async function requireWorldEntered(req, res, next) {
 	return res.redirect('/game/enter-world');
 }
 //-----------------------------------------------------------------------------------------------//
-export async function requireCharacterCreated(req, res, next) {
-	if (req.session.isCharacterCreated)
-		return next();
-	
-	return res.redirect('/game/create-character');
-}
-//-----------------------------------------------------------------------------------------------//
-export async function requireNoCharacterCreated(req, res, next) {
-	if (!req.session.isCharacterCreated)
-		return next();
-	
-	return res.redirect('/game/start-turn');
+export function requireCharacterCreated(condition = true) {
+	return async function(req, res, next) {
+		const { user, world } = req.session;
+		
+		const exists = await isCharacterCreated({
+			userId: user.id,
+			worldId: world.id
+		});
+		
+		if (exists === condition) 
+			return next();
+		
+		return res.redirect('/game');
+	};
 }
 //-----------------------------------------------------------------------------------------------//
 export function requireToken(req, res, next) {

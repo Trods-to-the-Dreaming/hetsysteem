@@ -5,30 +5,47 @@
 <div class="container-compact">
 	<h1>Inschrijven</h1>
 	
-	<form id="register-form" method="POST" action="/account/register">
-		<div class="field">
-			<label for="username-input" class="form-label">Gebruikersnaam:</label>
-			<input id="username-input" class="form-control" type="text" name="username" value="{{username}}" required>
-		</div>
-		
-		<div class="field">
-			<label for="password-input" class="form-label">Wachtwoord:</label>
-			<input id="password-input" class="form-control" type="password" name="password" required>
-		</div>
-		
-		<div class="field">
-			<label for="confirmed-password-input" class="form-label">Bevestig wachtwoord:</label>
-			<input id="confirmed-password-input" class="form-control" type="password" name="confirmedPassword" required>
-		</div>
-		
-		<div class="field">
-			<label for="invitation-token-input" class="form-label">Uitnodigingscode:</label>
-			<input id="invitation-token-input" class="form-control" type="text" name="invitationToken" required>
+	<form id="register-form" class="form-block" 
+		  method="POST" action="/account/register">
+		<div class="form-fields">
+			<div>
+				<label for="username-input" class="form-label">
+					Gebruikersnaam:
+				</label>
+				<input id="username-input" class="form-control" type="text" 
+					   name="username" value="{{username}}" required>
+			</div>
+			
+			<div>
+				<label for="password-input" class="form-label">
+					Wachtwoord:
+				</label>
+				<input id="password-input" class="form-control" type="password" 
+					   name="password" required>
+			</div>
+			
+			<div>
+				<label for="confirmed-password-input" class="form-label">
+					Bevestig wachtwoord:
+				</label>
+				<input id="confirmed-password-input" class="form-control" type="password" 
+					   name="confirmedPassword" required>
+			</div>
+			
+			<div>
+				<label for="invitation-token-input" class="form-label">
+					Uitnodigingscode:
+				</label>
+				<input id="invitation-token-input" class="form-control" type="text" 
+					   name="invitationToken" required>
+			</div>
 		</div>
 		
 		<p id="register-error" class="error">{{registerError}}</p>
 		
-		<button class="button-1" type="submit">Inschrijven</button>
+		<button class="button-1" type="submit">
+			Inschrijven
+		</button>
 	</form>
 	
 	<p>Reeds lid? <a href="/account/login">Aanmelden</a>.</p>
@@ -43,8 +60,14 @@ import { validatePassword } from '/js/password.validation.js';
 import { validatePasswordConfirmation } from '/js/password-confirmation.validation.js';
 import { validateInvitationToken } from '/js/invitation-token.validation.js';
 //-----------------------------------------------------------------------------------------------//
+let usernameInput;
+let passwordInput;
+let confirmedPasswordInput;
+let invitationTokenInput;
+let registerErrorElement;
+let registerForm;
+//-----------------------------------------------------------------------------------------------//
 function clearError() {
-	const registerErrorElement = document.getElementById('register-error');
 	registerErrorElement.textContent = '';
 }
 //-----------------------------------------------------------------------------------------------//
@@ -60,30 +83,24 @@ function formatInvitationToken(token) {
 function handleUsernameInput() {
 	clearError();
 	
-	const usernameInput = document.getElementById('username-input');
 	validateUsername(usernameInput);
 }
 //-----------------------------------------------------------------------------------------------//
 function handlePasswordInput() {
 	clearError();
 	
-	const passwordInput = document.getElementById('password-input');
 	validatePassword(passwordInput);
 }
 //-----------------------------------------------------------------------------------------------//
 function handleConfirmedPasswordInput() {
 	clearError();
 	
-	const passwordInput = document.getElementById('password-input');
-	const confirmedPasswordInput = document.getElementById('confirmed-password-input');
 	validatePasswordConfirmation(passwordInput, confirmedPasswordInput);
 }
 //-----------------------------------------------------------------------------------------------//
 function handleInvitationTokenInput() {
 	clearError();
-	
-	const invitationTokenInput = document.getElementById('invitation-token-input');
-	
+
 	const rawCursorPos = invitationTokenInput.value
 		.slice(0, invitationTokenInput.selectionStart)
 		.replace(/[^A-Z0-9]/gi, '')
@@ -108,20 +125,20 @@ function handleInvitationTokenInput() {
 	validateInvitationToken(invitationTokenInput);
 }
 //-----------------------------------------------------------------------------------------------//
-function handleRegisterFormSubmit(e) {
-	const registerForm = document.getElementById('register-form');
+function handleRegisterFormSubmit(event) {
 	if (!registerForm.checkValidity()) {
-		e.preventDefault();
+		event.preventDefault();
 		registerForm.reportValidity();
 	}
 }
 //-----------------------------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
-	const usernameInput = document.getElementById('username-input');
-	const passwordInput = document.getElementById('password-input');
-	const confirmedPasswordInput = document.getElementById('confirmed-password-input');
-	const invitationTokenInput = document.getElementById('invitation-token-input');
-	const registerForm = document.getElementById('register-form');
+	usernameInput = document.getElementById('username-input');
+	passwordInput = document.getElementById('password-input');
+	confirmedPasswordInput = document.getElementById('confirmed-password-input');
+	invitationTokenInput = document.getElementById('invitation-token-input');
+	registerErrorElement = document.getElementById('register-error');
+	registerForm = document.getElementById('register-form');
 	
 	usernameInput.addEventListener('input', handleUsernameInput);
 	passwordInput.addEventListener('input', handlePasswordInput);

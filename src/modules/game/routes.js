@@ -4,13 +4,12 @@ import {
 	requireLogin
 } from '#middleware/auth.js';
 import { 
-	validate
+	requireValidation
 } from '#middleware/validate.js';
 //-----------------------------------------------------------------------------------------------//
 import { 
 	requireWorldEntered,
 	requireCharacterCreated,
-	requireNoCharacterCreated,
 	requireToken
 } from './middleware.js';
 import {
@@ -36,6 +35,7 @@ import {
 	showShare,
 	showConsume,
 	showManageGroup,
+	showFinishTurn,
 	handleFinishTurn,
 	handleReserveBuildingName,
 	handleCancelBuildingName,
@@ -54,7 +54,7 @@ router.get('/enter-world',
 //-----------------------------------------------------------------------------------------------//
 router.post('/enter-world',
 	requireLogin,
-	validate(enterWorldSchema),
+	requireValidation(enterWorldSchema),
 	handleEnterWorld
 );
 //-----------------------------------------------------------------------------------------------//
@@ -67,108 +67,115 @@ router.get('/',
 router.get('/character',
 	requireLogin,
 	requireWorldEntered,
-	requireCharacterCreated,
+	requireCharacterCreated(),
 	showCharacter
 );
 //-----------------------------------------------------------------------------------------------//
 router.get('/turn/create-character',
 	requireLogin,
 	requireWorldEntered,
-	requireNoCharacterCreated,
+	requireCharacterCreated(false),
 	showCreateCharacter
 );
 //-----------------------------------------------------------------------------------------------//
 router.post('/turn/create-character',
 	requireLogin,
 	requireWorldEntered,
-	requireNoCharacterCreated,
-	validate(createCharacterSchema),
+	requireCharacterCreated(false),
+	requireValidation(createCharacterSchema),
 	handleCreateCharacter
 );
 //-----------------------------------------------------------------------------------------------//
 router.get('/turn/start',
 	requireLogin,
 	requireWorldEntered,
-	requireCharacterCreated,
+	requireCharacterCreated(),
 	showStartTurn
 );
 //-----------------------------------------------------------------------------------------------//
 router.get('/turn/manage-buildings',
 	requireLogin,
 	requireWorldEntered,
-	requireCharacterCreated,
+	requireCharacterCreated(),
 	showManageBuildings
 );
 //-----------------------------------------------------------------------------------------------//
 router.get('/turn/manage-employment-contracts',
 	requireLogin,
 	requireWorldEntered,
-	requireCharacterCreated,
+	requireCharacterCreated(),
 	showManageEmploymentContracts
 );
 //-----------------------------------------------------------------------------------------------//
 router.get('/turn/manage-rental-agreements',
 	requireLogin,
 	requireWorldEntered,
-	requireCharacterCreated,
+	requireCharacterCreated(),
 	showManageRentalAgreements
 );
 //-----------------------------------------------------------------------------------------------//
 router.get('/turn/produce',
 	requireLogin,
 	requireWorldEntered,
-	requireCharacterCreated,
+	requireCharacterCreated(),
 	showProduce
 );//-----------------------------------------------------------------------------------------------//
 router.get('/turn/trade',
 	requireLogin,
 	requireWorldEntered,
-	requireCharacterCreated,
+	requireCharacterCreated(),
 	showTrade
 );
 //-----------------------------------------------------------------------------------------------//
 router.get('/turn/share',
 	requireLogin,
 	requireWorldEntered,
-	requireCharacterCreated,
+	requireCharacterCreated(),
 	showShare
 );
 //-----------------------------------------------------------------------------------------------//
 router.get('/turn/consume',
 	requireLogin,
 	requireWorldEntered,
-	requireCharacterCreated,
+	requireCharacterCreated(),
 	showConsume
 );
 //-----------------------------------------------------------------------------------------------//
 router.get('/turn/manage-group',
 	requireLogin,
 	requireWorldEntered,
-	requireCharacterCreated,
+	requireCharacterCreated(),
 	showManageGroup
+);
+//-----------------------------------------------------------------------------------------------//
+router.get('/turn/finish',
+	requireLogin,
+	requireWorldEntered,
+	requireCharacterCreated(),
+	showFinishTurn
 );
 //-----------------------------------------------------------------------------------------------//
 router.post('/turn/finish',
 	requireLogin,
 	requireWorldEntered,
-	requireCharacterCreated,
-	validate(finishTurnSchema),
+	requireCharacterCreated(),
+	requireValidation(finishTurnSchema),
 	handleFinishTurn
 );
 //-----------------------------------------------------------------------------------------------//
 router.post('/turn/reserve-building-name',
 	requireLogin,
 	requireWorldEntered,
-	requireCharacterCreated,
-	validate(reserveBuildingNameSchema),
+	requireCharacterCreated(),
+	requireValidation(reserveBuildingNameSchema),
 	handleReserveBuildingName
 );
 //-----------------------------------------------------------------------------------------------//
 router.post('/turn/cancel-building-name',
 	requireLogin,
 	requireWorldEntered,
-	requireCharacterCreated,
-	validate(cancelBuildingNameSchema),
+	requireCharacterCreated(),
+	requireValidation(cancelBuildingNameSchema),
 	handleCancelBuildingName
 );
 //-----------------------------------------------------------------------------------------------//

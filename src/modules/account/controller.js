@@ -24,6 +24,7 @@ const MSG_PASSWORD_CHANGED = 'Uw wachtwoord is gewijzigd.';
 
 export function showLogin(req, res) {
 	const { loginError } = req.session;
+	
 	delete req.session.loginError;
 
 	return res.render('account/login', {
@@ -32,10 +33,7 @@ export function showLogin(req, res) {
 }
 //-----------------------------------------------------------------------------------------------//
 export async function handleLogin(req, res) {
-	const { 
-		username, 
-		password 
-	} = req.validatedData;
+	const { username, password } = req.validatedData;
 	
 	try {
 		const result = await login({ 
@@ -72,6 +70,7 @@ export async function handleLogout(req, res) {
 //-----------------------------------------------------------------------------------------------//
 export function showRegister(req, res) {
 	const { registerError } = req.session;
+	
 	delete req.session.registerError;
 	
 	return res.render('account/register', {
@@ -80,11 +79,7 @@ export function showRegister(req, res) {
 }
 //-----------------------------------------------------------------------------------------------//
 export async function handleRegister(req, res) {
-	const { 
-		username, 
-		password,
-		invitationToken
-	} = req.validatedData;
+	const { username, password, invitationToken } = req.validatedData;
 	
 	try { 
 		const result = await register({ 
@@ -125,10 +120,8 @@ export async function handleDeregister(req, res) {
 }
 //-----------------------------------------------------------------------------------------------//
 export function showAccount(req, res) {
-	const { 
-		user,
-		changeAccountSuccess 
-	} = req.session;
+	const { user, changeAccountSuccess } = req.session;
+	
 	delete req.session.changeAccountSuccess;
 	
 	return res.render('account/my-account', {
@@ -147,10 +140,7 @@ export function showChangeUsername(req, res) {
 //-----------------------------------------------------------------------------------------------//
 export async function handleChangeUsername(req, res) {
 	const { user } = req.session;
-	const { 
-		newUsername, 
-		password 
-	} = req.validatedData;
+	const { newUsername, password } = req.validatedData;
 	
 	try {
 		const result = await changeUsername({ 
@@ -183,10 +173,7 @@ export function showChangePassword(req, res) {
 //-----------------------------------------------------------------------------------------------//
 export async function handleChangePassword(req, res) {
 	const { user } = req.session;
-	const { 
-		newPassword,
-		password 
-	} = req.validatedData;
+	const { newPassword, password } = req.validatedData;
 	
 	try {
 		const result = await changePassword({ 

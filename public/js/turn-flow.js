@@ -1,249 +1,263 @@
-//=== Imports ===================================================================================//
-
 import { turn } from '/js/turn.js';
 
-//=== Main ======================================================================================//
+//===============================================================================================//
 
-turn.page = { // turn.page begin
+turn.phase = {
 //-----------------------------------------------------------------------------------------------//
-...turn.page,
+	...turn.phase,
 //-----------------------------------------------------------------------------------------------//
-disabled: true,
+	disabled: true,
 //-----------------------------------------------------------------------------------------------//
-initialize() {
-	this.addTurnFlowControls();
-	this.bindTurnFlowEvents();
-	this.load();
-	this.show();
-},
+	initialize() {
+		this.addTurnFlowControls();
+		this.load();
+		this.show();
+	},
 //-----------------------------------------------------------------------------------------------//
-addTurnFlowControls() {
-	const controls = this.getTurnFlowControls();
-	const containerDiv = controls.containerDiv;
-	
-	const buttons = `
-		<button id="finish-button" class="button-1" type="button">Voltooien</button>
-		<button id="next-button" class="button-1" type="button">Volgende →</button>
-		<button id="back-button" class="button-1" type="button">← Vorige</button>
-		<button id="edit-button" class="button-1" type="button">Bewerken</button>
-		<button id="cancel-button" class="button-up" type="button">↑ Annuleren</button>`;
-	containerDiv.insertAdjacentHTML('beforeend', buttons);
-	
-	const editModal = `
-		<div id="edit-warning-div" class="modal fade" tabindex="-1" role="dialog" 
-			 aria-hidden="true">
-			<div class="modal-dialog modal-dialog-centered" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title">Waarschuwing</h5>
-						<button class="btn-close" type="button" data-bs-dismiss="modal" 
-							    aria-label="Sluiten"></button>
-					</div>
-					<div class="modal-body">
-						Alle volgende acties worden gewist, 
-						wanneer u deze actie bewerkt.
-					</div>
-					<div class="modal-footer">
-						<button class="button-cancel" type="button" data-bs-dismiss="modal">
-							Annuleren
-						</button>
-						<button id="confirm-edit-button" class="button-ok" type="button">
-							Bewerken
-						</button>
-					</div>
-				</div>
-			</div>
-		</div>`;
-	containerDiv.insertAdjacentHTML('afterend', editModal);
-},
-//-----------------------------------------------------------------------------------------------//
-bindTurnFlowEvents() {
-	const controls = this.getTurnFlowControls();
-	
-	controls.editButton.addEventListener('click', this.edit.bind(this));
-	controls.confirmEditButton.addEventListener('click', this.confirmEdit.bind(this));
-	controls.finishButton.addEventListener('click', turn.finish);
-	controls.nextButton.addEventListener('click', turn.nextPage);
-	controls.backButton.addEventListener('click', turn.previousPage);
-	controls.cancelButton.addEventListener('click', turn.cancel);
-},
-//-----------------------------------------------------------------------------------------------//
-show() {
-	const controls = this.getTurnFlowControls();
-	
-	const isFirstPage = (this.index === 0);
-	const isLastPage = (this.index === turn.phasePages.length - 1);
-	const isCurrentPage = (this.index === turn.currentPageIndex);
-	
-	if (isFirstPage) {
-		controls.backButton.classList.add('d-none');
-	}
-	
-	if (isLastPage) {
-		controls.nextButton.classList.add('d-none');
-	} else {
-		controls.finishButton.classList.add('d-none');
-	}
-	
-	if (isCurrentPage) {
-		controls.editButton.classList.add('d-none');
-		this.disabled = false;
-	}	
-	
-	this.updateUI();
-	controls.containerDiv.classList.remove('d-none');	
-},
-//-----------------------------------------------------------------------------------------------//
-getTurnFlowControls() {
-	const containerDiv = document.getElementById('container-div');
-	const nextButton = document.getElementById('next-button');
-	const backButton = document.getElementById('back-button');
-	const editButton = document.getElementById('edit-button');
-	const finishButton = document.getElementById('finish-button');
-	const cancelButton = document.getElementById('cancel-button');
-	
-	const editWarningDiv = document.getElementById('edit-warning-div');
-	const confirmEditButton = document.getElementById('confirm-edit-button');
-	
-	return {
-		containerDiv,
-		nextButton,
-		backButton,
-		editButton,
-		finishButton,
-		cancelButton,
-		editWarningDiv,
-		confirmEditButton
-	};
-},
-//-----------------------------------------------------------------------------------------------//
-setNextDisabled(isDisabled) {
-	const controls = this.getTurnFlowControls();
-	
-	controls.nextButton.disabled = isDisabled;
-	controls.finishButton.disabled = isDisabled;
-},
-//-----------------------------------------------------------------------------------------------//
-edit() {
-	const controls = this.getTurnFlowControls();
-	
-	const modal = new bootstrap.Modal(controls.editWarningDiv);
-	modal.show();
-},
-//-----------------------------------------------------------------------------------------------//
-confirmEdit() {
-	const controls = this.getTurnFlowControls();
-	
-	const modal = bootstrap.Modal.getInstance(controls.editWarningDiv);
-	modal.hide();
-	
-	controls.editButton.classList.add('d-none');
-	
-	this.disabled = false;
-	this.updateUI();
-	
-	for (let i = this.index + 1; i < turn.phasePages.length - 1; i++) {
-		localStorage.removeItem(`turn.page${i}.actions`);
-	}
-	localStorage.setItem('turn.currentPageIndex', JSON.stringify(this.index));
-	
-	turn.currentPageIndex = this.index;
-},
-//-----------------------------------------------------------------------------------------------//
-populateSelect(select, 
-			   table,
-			   columnName = null) {
-	select.innerHTML = '';
-	
-	const emptyOption = document.createElement('option');
-	emptyOption.value = '';
-	emptyOption.disabled = true;
-	emptyOption.selected = true;
-	emptyOption.hidden = true;
-	select.appendChild(emptyOption);
-
-	table.forEach(row => {
-		const option = document.createElement('option');
-		if (columnName) {
-			option.value = row.id;
-			option.textContent = row[columnName];
-		} else {
-			option.value = row;
-			option.textContent = row;
-		}
-		select.appendChild(option);
-	});
-}
-//-----------------------------------------------------------------------------------------------//
-} // turn.page end
-//-----------------------------------------------------------------------------------------------//
-turn.nextPage = async function() {
-	try {
-		if (typeof turn.page.preventNext === 'function') {
-			const prevent = await turn.page.preventNext();
-			if (prevent) return;
+	addTurnFlowControls() {
+		function createButton({ btnId, 
+								btnClass, 
+								btnText, 
+								onClick }) {
+			const btn = document.createElement('button');
+			btn.id = btnId;
+			btn.classList.add(btnClass);
+			btn.type = 'button';
+			btn.textContent = btnText;
+			if (onClick) btn.addEventListener('click', onClick);
+			return btn;
 		}
 		
-		const nextPageIndex = turn.page.index + 1;
-		
-		if (turn.page.index === turn.currentPageIndex) {
-			turn.page.saveActions();
-			localStorage.setItem('turn.currentPageIndex', JSON.stringify(nextPageIndex));
-		}
-		
-		location.assign(turn.phasePages[nextPageIndex].url);
-	} catch (err) {
-		console.error('Fout bij nextPage:', err);
-	}
-}
-//-----------------------------------------------------------------------------------------------//
-turn.previousPage = function() {
-	const previousPageIndex = turn.page.index - 1;
-	
-	if (turn.page.index === turn.currentPageIndex) {
-		turn.page.saveActions();
-	}
-	
-	location.assign(turn.phasePages[previousPageIndex].url);
-}
-//-----------------------------------------------------------------------------------------------//
-turn.finish = async function() {
-	if (turn.page.index === turn.currentPageIndex) {
-		turn.page.saveActions();
-		localStorage.setItem('turn.currentPageIndex', JSON.stringify(turn.phasePages.length));
-	}
-	
-	const characterPhases = [];
-	turn.phasePages.forEach((page, index) => {
-		characterPhases[page.key] = JSON.parse(localStorage.getItem(`turn.page${index}.actions`));
-	});
-	
-	try {
-        const res = await fetch('/game/turn/finish', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ characterPhases })
+		// Game buttons
+		const confirmButton = createButton({ 
+			btnId: 'confirm-button', 
+			btnClass: 'button-1', 
+			btnText: 'Bevestigen', 
+			onClick: turn.handleConfirm
 		});
 		
-		const json = await res.json();
-		if (json.redirect) {
-			location.assign(json.redirect);
-			return;
-		} else {
-			location.assign('/game');
+		const finishButton = createButton({ 
+			btnId: 'finish-button', 
+			btnClass: 'button-1', 
+			btnText: 'Opslaan', 
+			onClick: turn.handleFinish
+		});
+		
+		const editButton = createButton({ 
+			btnId: 'edit-button', 
+			btnClass: 'button-1', 
+			btnText: 'Bewerken', 
+			onClick: this.handleEdit.bind(this)
+		});
+		
+		const nextButton = createButton({ 
+			btnId: 'next-button', 
+			btnClass: 'button-up', 
+			btnText: 'Volgende →', 
+			onClick: turn.handleNext
+		});
+		
+		const backButton = createButton({ 
+			btnId: 'back-button', 
+			btnClass: 'button-up', 
+			btnText: '← Vorige', 
+			onClick: turn.handleBack
+		});
+		
+		const cancelButton = createButton({ 
+			btnId: 'cancel-button', 
+			btnClass: 'button-up', 
+			btnText: '↑ Annuleren', 
+			onClick: turn.handleCancel
+		});
+		
+		const formDiv = document.getElementById('form-div');
+		formDiv.append(
+			confirmButton, 
+			finishButton, 
+			editButton
+		);
+		formDiv.after(
+			document.createElement('hr'),
+			nextButton,
+			backButton,
+			cancelButton
+		);
+		
+		// Edit warning modal
+		const editWarningDiv = document.createElement('div');
+		editWarningDiv.id = 'edit-warning-div';
+		editWarningDiv.classList.add('modal', 'fade');
+		editWarningDiv.tabIndex = -1;
+		editWarningDiv.setAttribute('role', 'dialog');
+		editWarningDiv.setAttribute('aria-hidden', 'true');
+
+		const dialogDiv = document.createElement('div');
+		dialogDiv.classList.add('modal-dialog', 'modal-dialog-centered');
+		dialogDiv.setAttribute('role', 'document');
+
+		const contentDiv = document.createElement('div');
+		contentDiv.classList.add('modal-content');
+
+		const headerDiv = document.createElement('div');
+		headerDiv.classList.add('modal-header');
+		
+		const title = document.createElement('h5');
+		title.classList.add('modal-title');
+		title.textContent = 'Waarschuwing';
+		
+		const closeButton = createButton({ btnClass: 'btn-close' });
+		closeButton.setAttribute('data-bs-dismiss', 'modal');
+		closeButton.setAttribute('aria-label', 'Sluiten');
+
+		const bodyDiv = document.createElement('div');
+		bodyDiv.classList.add('modal-body');
+		bodyDiv.textContent = 'Alle volgende acties worden gewist, wanneer u deze actie bewerkt.';
+
+		const footerDiv = document.createElement('div');
+		footerDiv.classList.add('modal-footer');
+		
+		const cancelEditButton = createButton({ 
+			btnClass: 'button-cancel', 
+			btnText: 'Annuleren'
+		});
+		cancelEditButton.setAttribute('data-bs-dismiss', 'modal');
+
+		const confirmEditButton = createButton({
+			btnId: 'confirm-edit-button',
+			btnClass: 'button-ok',
+			btnText: 'Bewerken',
+			type: 'button',
+			onClick: this.handleConfirmEdit.bind(this)
+		});
+
+		headerDiv.append(title, closeButton);
+		footerDiv.append(cancelEditButton, confirmEditButton);
+		contentDiv.append(headerDiv, bodyDiv, footerDiv);
+		dialogDiv.appendChild(contentDiv);
+		editWarningDiv.appendChild(dialogDiv);
+		
+		const containerDiv = document.getElementById('container-div');
+		containerDiv.after(editWarningDiv);
+		
+		this.controls = {
+			confirmButton,
+			finishButton,
+			editButton,
+			confirmEditButton,
+			nextButton,
+			backButton,
+			cancelButton,
+			containerDiv,
+			editWarningDiv
+		};
+	},
+//-----------------------------------------------------------------------------------------------//
+	show() {
+		const c = this.controls;
+		
+		const isFirstPhase = (this.index === 0);
+		const isLastPhase = (this.index === turn.phases.length - 1);
+		const isCurrentPhase = (this.index === turn.currentPhaseIndex);
+		
+		c.confirmButton.classList.toggle('d-none', !isCurrentPhase);
+		c.finishButton.classList.toggle('d-none', !isLastPhase);
+		c.editButton.classList.toggle('d-none', isCurrentPhase);
+		c.nextButton.classList.toggle('d-none', isCurrentPhase);
+		c.backButton.classList.toggle('d-none', isFirstPhase);
+		
+		this.disabled = !isCurrentPhase;
+		
+		this.updateUI();
+		c.containerDiv.classList.remove('d-none');
+	},
+//-----------------------------------------------------------------------------------------------//
+	handleEdit() {
+		const c = this.controls;
+		
+		const modal = new bootstrap.Modal(c.editWarningDiv);
+		modal.show();
+	},
+//-----------------------------------------------------------------------------------------------//
+	handleConfirmEdit() {
+		const c = this.controls;
+		
+		const modal = bootstrap.Modal.getInstance(c.editWarningDiv);
+		modal.hide();
+		
+		c.confirmButton.classList.remove('d-none');
+		c.editButton.classList.add('d-none');
+		c.nextButton.classList.add('d-none');
+		
+		for (let i = this.index + 1; i < turn.phases.length; i++) {
+			const key = turn.phases[i].key;
+			turn.storage.remove(`phases.${key}`);
 		}
-    } catch (err) {
-        console.error('Fout bij finish:', err);
-    }
+		
+		turn.storage.save('currentPhaseIndex', this.index);
+		turn.currentPhaseIndex = this.index;
+		
+		this.disabled = false;
+		this.updateUI();
+	},
+//-----------------------------------------------------------------------------------------------//
+	populateSelect({ select,
+					 optionName,
+					 items,
+					 textField = null }) {
+		select.innerHTML = '';
+		
+		const emptyOption = document.createElement('option');
+		emptyOption.value = '';
+		emptyOption.textContent = `— kies een ${optionName} —`;
+		emptyOption.disabled = true;
+		emptyOption.selected = true;
+		emptyOption.hidden = true;
+		select.appendChild(emptyOption);
+
+		items.forEach((item) => {
+			const option = document.createElement('option');
+			if (textField !== null) {
+				option.value = item.id;
+				option.textContent = item[textField];
+			} else {
+				option.value = item;
+				option.textContent = item;
+			}
+			select.appendChild(option);
+		});
+	}
+//-----------------------------------------------------------------------------------------------//
+} // turn.phase
+//-----------------------------------------------------------------------------------------------//
+turn.handleConfirm = function() {
+	turn.phase.save();
+	turn.storage.save('currentPhaseIndex', turn.phase.index + 1);
+	
+	turn.handleNext();
 }
 //-----------------------------------------------------------------------------------------------//
-turn.cancel = function() {
-	// andere items ook wissen
-	localStorage.removeItem('turn.begin');
-	localStorage.removeItem('turn.phasePages');
-	localStorage.removeItem('turn.currentPageIndex');
+turn.handleNext = function() {
+	location.assign(turn.phases[turn.phase.index + 1].url);
+}
+//-----------------------------------------------------------------------------------------------//
+turn.handleBack = function() {
+	location.assign(turn.phases[turn.phase.index - 1].url);
+}
+//-----------------------------------------------------------------------------------------------//
+turn.handleFinish = function() {
+	turn.phase.save();
+	turn.storage.save('currentPhaseIndex', turn.phases.length);
+	
+	location.assign('/game/turn/finish');
+}
+//-----------------------------------------------------------------------------------------------//
+turn.handleCancel = function() {
+	turn.storage.removeAll();
 	
 	location.assign('/game');
 }
-//-----------------------------------------------------------------------------------------------//
+
+//===============================================================================================//
+
 export { turn };

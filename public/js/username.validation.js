@@ -1,9 +1,10 @@
 export function validateUsername(usernameInput) {
 	const value = usernameInput.value;
+	
 	const minLength = 3;
 	const maxLength = 20;
 	const doubleUnderscores = /__/;
-	const allowedCharacters = /^[a-zA-Z0-9_]+$/;
+	const regex = /^[a-zA-Z0-9_]+$/;
 
 	if (value.length < minLength) {
 		usernameInput.setCustomValidity(
@@ -25,7 +26,7 @@ export function validateUsername(usernameInput) {
 		usernameInput.setCustomValidity(
 			'Dubbele underscores zijn niet toegestaan.'
 		);
-	} else if (!allowedCharacters.test(value)) {
+	} else if (!regex.test(value)) {
 		usernameInput.setCustomValidity(
 			'Enkel letters, cijfers en underscores zijn toegestaan.'
 		);

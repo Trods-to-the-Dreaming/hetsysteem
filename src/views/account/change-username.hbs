@@ -5,25 +5,39 @@
 <div class="container-compact">
 	<h1>Gebruikersnaam wijzigen</h1>
 
-	<form id="change-username-form" method="POST" action="/account/change-username">
-		<div class="field">
-			<label for="username-input" class="form-label">Huidige gebruikersnaam:</label>
-			<input id="username-input" class="form-control" type="text" value="{{username}}" readonly>
-		</div>
-		
-		<div class="field">
-			<label for="new-username-input" class="form-label">Nieuwe gebruikersnaam:</label>
-			<input id="new-username-input" class="form-control" type="text" name="newUsername" value="{{newUsername}}" required>
-		</div>
-		
-		<div class="field">
-			<label for="password-input" class="form-label">Wachtwoord:</label>
-			<input id="password-input" class="form-control" type="password" name="password" required>
+	<form id="change-username-form" class="form-block" 
+		  method="POST" action="/account/change-username">
+		<div class="form-fields">
+			<div>
+				<label for="username-input" class="form-label">
+					Huidige gebruikersnaam:
+				</label>
+				<input id="username-input" class="form-control" type="text"
+					   value="{{username}}" readonly>
+			</div>
+			
+			<div>
+				<label for="new-username-input" class="form-label">
+					Nieuwe gebruikersnaam:
+				</label>
+				<input id="new-username-input" class="form-control" type="text"
+					   name="newUsername" value="{{newUsername}}" required>
+			</div>
+			
+			<div>
+				<label for="password-input" class="form-label">
+					Wachtwoord:
+				</label>
+				<input id="password-input" class="form-control" type="password"
+					   name="password" required>
+			</div>
 		</div>
 		
 		<p id="change-username-error" class="error">{{changeUsernameError}}</p>
 		
-		<button class="button-1" type="submit">Bewaren</button>
+		<button class="button-1" type="submit">
+			Bewaren
+		</button>
 	</form>
 	
 	<hr>
@@ -37,16 +51,18 @@
 //-----------------------------------------------------------------------------------------------//
 import { validateUsername } from '/js/username.validation.js';
 //-----------------------------------------------------------------------------------------------//
+let newUsernameInput;
+let passwordInput;
+let changeUsernameErrorElement;
+let changeUsernameForm;
+//-----------------------------------------------------------------------------------------------//
 function clearError() {
-	const changeUsernameErrorElement = document.getElementById('change-username-error');
 	changeUsernameErrorElement.textContent = '';
 }
 //-----------------------------------------------------------------------------------------------//
 function handleNewUsernameInput() {
 	clearError();
 	
-	const usernameInput = document.getElementById('username-input');
-	const newUsernameInput = document.getElementById('new-username-input');
 	if (newUsernameInput.value === usernameInput.value) {
 		newUsernameInput.setCustomValidity('De nieuwe gebruikersnaam moet anders zijn.');
 	} else {
@@ -54,18 +70,18 @@ function handleNewUsernameInput() {
 	}
 }
 //-----------------------------------------------------------------------------------------------//
-function handleChangeUsernameFormSubmit(e) {	
-	const changeUsernameForm = document.getElementById('change-username-form');
+function handleChangeUsernameFormSubmit(event) {	
 	if (!changeUsernameForm.checkValidity()) {
-		e.preventDefault();
+		event.preventDefault();
 		changeUsernameForm.reportValidity();
 	}
 }
 //-----------------------------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
-	const newUsernameInput = document.getElementById('new-username-input');
-	const passwordInput = document.getElementById('password-input');
-	const changeUsernameForm = document.getElementById('change-username-form');
+	newUsernameInput = document.getElementById('new-username-input');
+	passwordInput = document.getElementById('password-input');
+	changeUsernameErrorElement = document.getElementById('change-username-error');
+	changeUsernameForm = document.getElementById('change-username-form');
 	
 	newUsernameInput.addEventListener('input', handleNewUsernameInput);
 	passwordInput.addEventListener('input', clearError);

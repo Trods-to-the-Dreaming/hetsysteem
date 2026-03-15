@@ -6,14 +6,13 @@ import {
 
 //===============================================================================================//
 
-export function validate(schema) {
-	function requireValidation(req, res, next) {
+export function requireValidation(schema) {
+	return function(req, res, next) {
 		const result = schema.safeParse(req.body);
 		if (result.success) {
 			req.validatedData = result.data;
 			return next();
 		}
 		throw new BadRequestError(z.prettifyError(result.error));
-	}
-	return requireValidation;
+	};
 }

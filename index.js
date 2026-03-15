@@ -78,7 +78,7 @@ app.engine('hbs',
 				}
 				return result;
 			},
-			json: context => JSON.stringify(context)
+			json: (context) => JSON.stringify(context)
 		},
 		extname:       'hbs',
 		defaultLayout: 'main',

@@ -1,0 +1,32 @@
+{{#block "title"}}Beëindig beurt{{/block}}
+
+<!------------------------------------------------------------------------------------------------>
+
+{{#block "headScripts"}}
+<script type="module">
+import { turn } from '/js/turn-check-access.js';
+turn.phase.checkAccess('finish');
+</script>
+{{/block}}
+
+<!------------------------------------------------------------------------------------------------>
+
+<form id="finish-form" method="POST" action="/game/turn/finish">
+	<input type="hidden" id="character-phases-input" name="characterPhases">
+</form>
+
+<!------------------------------------------------------------------------------------------------>
+
+<script type="module">
+//-----------------------------------------------------------------------------------------------//
+import { turn } from '/js/turn.js';
+//-----------------------------------------------------------------------------------------------//
+const characterPhases = turn.storage.loadNamespace('characterPhases');
+
+document.getElementById('character-phases-input').value = JSON.stringify(characterPhases);
+
+turn.storage.removeAll();
+
+document.getElementById('finish-form').submit();
+//-----------------------------------------------------------------------------------------------//
+</script>

@@ -7,16 +7,19 @@ import {
 //-----------------------------------------------------------------------------------------------//
 import {
 	listWorlds,
-	findWorld,
-	findCharacterState
+	findWorld
 } from './repository.js';
 
 //===============================================================================================//
 
 export async function getEnterWorldOptions() {
 	const worlds = await listWorlds();
-
-	return { worlds };
+	
+	return worlds.map(world => ({
+		id: world.id,
+		name: world.name,
+		class: `world-${world.slug}`
+	}));
 }
 //-----------------------------------------------------------------------------------------------//
 export async function enterWorld({ userId,
@@ -31,17 +34,11 @@ export async function enterWorld({ userId,
 		});
 	}
 
-	const characterState = await findCharacterState({ 
-		userId,
-		worldId
-	});
-
 	return {
 		world: {
 			id: world.id,
 			name: world.name,
 			class: `world-${world.slug}`
-		},
-		isCharacterCreated: Boolean(characterState)
+		}
 	};
 }

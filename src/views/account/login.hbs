@@ -5,20 +5,31 @@
 <div class="container-compact">
 	<h1>Aanmelden</h1>
 	
-	<form id="login-form" method="POST" action="/account/login">
-		<div class="field">
-			<label for="username-input" class="form-label">Gebruikersnaam:</label>
-			<input id="username-input" class="form-control" type="text" name="username" value="{{username}}" required>
-		</div>
-		
-		<div class="field">
-			<label for="password-input" class="form-label">Wachtwoord:</label>
-			<input id="password-input" class="form-control" type="password" name="password" required>
+	<form id="login-form" class="form-block" 
+		  method="POST" action="/account/login">
+		<div class="form-fields">
+			<div>
+				<label for="username-input" class="form-label">
+					Gebruikersnaam:
+				</label>
+				<input id="username-input" class="form-control" type="text" 
+					   name="username" value="{{username}}" required>
+			</div>
+			
+			<div>
+				<label for="password-input" class="form-label">
+					Wachtwoord:
+				</label>
+				<input id="password-input" class="form-control" type="password" 
+					   name="password" required>
+			</div>
 		</div>
 		
 		<p id="login-error" class="error">{{loginError}}</p>
 		
-		<button class="button-1" type="submit">Aanmelden</button>
+		<button class="button-1" type="submit">
+			Aanmelden
+		</button>
 	</form>
 	
 	<p>Nog geen lid? <a href="/account/register">Inschrijven</a>.</p>
@@ -28,14 +39,18 @@
 
 <script type="module">
 //-----------------------------------------------------------------------------------------------//
+let usernameInput;
+let passwordInput;
+let loginErrorElement;
+//-----------------------------------------------------------------------------------------------//
 function clearError() {
-	const loginErrorElement = document.getElementById('login-error');
 	loginErrorElement.textContent = '';
 }
 //-----------------------------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
-	const usernameInput = document.getElementById('username-input');
-	const passwordInput = document.getElementById('password-input');
+	usernameInput = document.getElementById('username-input');
+	passwordInput = document.getElementById('password-input');
+	loginErrorElement = document.getElementById('login-error');
 	
 	usernameInput.addEventListener('input', clearError);
 	passwordInput.addEventListener('input', clearError);

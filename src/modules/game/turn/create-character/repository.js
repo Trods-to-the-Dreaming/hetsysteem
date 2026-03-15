@@ -75,7 +75,7 @@ export function updateCharacter({ characterId,
 		});
 }
 //-----------------------------------------------------------------------------------------------//
-export function findActionCreateCharacter({ characterId,
+export function findCreateCharacterAction({ characterId,
 											trx = knex }) {
     return trx('actions_create_character')
         .select({
@@ -88,7 +88,7 @@ export function findActionCreateCharacter({ characterId,
 		.first();
 }
 //-----------------------------------------------------------------------------------------------//
-export function upsertActionCreateCharacter({ characterId, 
+export function upsertCreateCharacterAction({ characterId, 
 											  jobPreference1Id, 
 											  jobPreference2Id, 
 											  jobPreference3Id, 
@@ -111,7 +111,7 @@ export function upsertActionCreateCharacter({ characterId,
 		});
 }
 //-----------------------------------------------------------------------------------------------//
-export function listActionsCreateCharacter(trx = knex) {
+export function listCreateCharacterActions(trx = knex) {
 	return trx('actions_create_character')
 		.select({
 			characterId: 'character_id',
@@ -122,7 +122,7 @@ export function listActionsCreateCharacter(trx = knex) {
 		});
 }
 //-----------------------------------------------------------------------------------------------//
-export function deleteActionCreateCharacter({ characterId,
+export function deleteCreateCharacterAction({ characterId,
 											  trx = knex }) {
 	return trx('actions_create_character')
 		.where({ character_id: characterId })

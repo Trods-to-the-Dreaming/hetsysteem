@@ -9,8 +9,9 @@ import {
 import { 
 	GAME 
 } from '#modules/game/reasons.js';
-
-import { 
+//-----------------------------------------------------------------------------------------------//
+import {
+	findBuildingId,
 	listDemolishActions,
 	listConstructActions,
 	findDemolishActions,
@@ -97,10 +98,6 @@ export async function loadManageBuildings({ characterId,
 		trx
 	});
 
-	if (demolishActions.length === 0 && constructActions.length === 0) {
-		return undefined;
-	}
-
 	return {
 		demolishActions,
 		constructActions
@@ -122,7 +119,7 @@ export async function saveManageBuildings({ characterId,
 	if (demolishActions.length > 0) {
 		const validDemolishActions = await findCharacterBuildingsWithState({
 			characterId,
-			characterBuildingIds: demolishActions.map(d => d.characterBuildingId), 
+			characterBuildingIds: demolishActions.map((d) => d.characterBuildingId), 
 			trx
 		});
 		if (validDemolishActions.length !== demolishActions.length)
@@ -137,7 +134,7 @@ export async function saveManageBuildings({ characterId,
 
 		const validConstructActions = await findCharacterBuildingsWithoutState({
 			characterId,
-			characterBuildingIds: constructActions.map(c => c.characterBuildingId),
+			characterBuildingIds: constructActions.map((c) => c.characterBuildingId),
 			trx
 		});
 		if (validConstructActions.length !== constructActions.length)

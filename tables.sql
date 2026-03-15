@@ -87,6 +87,23 @@ DROP TABLE recreations;
 DROP TABLE products;
 DROP TABLE worlds;
 
+
+
+DROP TABLE actions_construct;
+DROP TABLE actions_demolish;
+DROP TABLE actions_create_character;
+DROP TABLE character_construction_sites;
+DROP TABLE character_building_states;
+DROP TABLE character_buildings;
+DROP TABLE character_products;
+DROP TABLE character_states;
+DROP TABLE characters;
+DROP TABLE world_resources;
+DROP TABLE buildings;
+DROP TABLE recreations;
+DROP TABLE products;
+DROP TABLE worlds;
+
 CREATE TABLE invitations (
 	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	token CHAR(16) NOT NULL UNIQUE,
@@ -269,9 +286,21 @@ CREATE TABLE actions_construct (
 
 
 
+INSERT INTO character_buildings
+(character_id, world_id, name                ) VALUES
+(1,            1,        'De Appelgaard'     ),
+(1,            1,        'Kwaliteitskompas'  ),
+(1,            1,        'Innovatiehub'      ),
+(2,            1,        'Mobipark'          ),
+(2,            1,        'De Stemmige Snaren');
 
-
-
+INSERT INTO character_building_states
+(character_building_id,  building_id, size, boosted_working_hours) VALUES
+(1,                       1,          1,    0),
+(2,                       6,          1,    0),
+(3,                       8,          2,    0),
+(4,                      12,          1,    0),
+(5,                      18,          1,    0);
 
 
 /*CREATE TABLE character_buildings (

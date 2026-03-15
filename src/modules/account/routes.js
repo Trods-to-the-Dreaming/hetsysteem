@@ -5,7 +5,7 @@ import {
 	requireLogin
 } from '#middleware/auth.js';
 import { 
-	validate
+	requireValidation
 } from '#middleware/validate.js';
 //-----------------------------------------------------------------------------------------------//
 import { 
@@ -46,7 +46,7 @@ router.get('/login',
 router.post('/login',
 	limitLoginRate,
 	requireGuest,
-	validate(loginSchema),
+	requireValidation(loginSchema),
 	handleLogin
 );
 //-----------------------------------------------------------------------------------------------//
@@ -63,7 +63,7 @@ router.get('/register',
 router.post('/register',
 	limitRegisterRate,
 	requireGuest,
-	validate(registerSchema),
+	requireValidation(registerSchema),
 	handleRegister
 );
 //-----------------------------------------------------------------------------------------------//
@@ -85,7 +85,7 @@ router.get('/change-username',
 router.post('/change-username',
 	limitChangeUsernameRate,
 	requireLogin,
-	validate(changeUsernameSchema),
+	requireValidation(changeUsernameSchema),
 	handleChangeUsername
 );
 //-----------------------------------------------------------------------------------------------//
@@ -97,7 +97,7 @@ router.get('/change-password',
 router.post('/change-password',
 	limitChangePasswordRate,
 	requireLogin,
-	validate(changePasswordSchema),
+	requireValidation(changePasswordSchema),
 	handleChangePassword
 );
 

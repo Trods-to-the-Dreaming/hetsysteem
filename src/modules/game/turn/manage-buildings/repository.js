@@ -2,6 +2,14 @@ import knex from '#utils/db.js';
 
 //===============================================================================================//
 
+export function findBuildingId({ slug,
+								 trx = knex }) {
+	return trx('buildings')
+		.select({ id: 'id' })
+		.where({ slug })
+		.first();
+}
+//-----------------------------------------------------------------------------------------------//
 export function listDemolishActions(trx = knex) {
 	return trx('actions_demolish')
 		.select({ characterBuildingId: 'character_building_id' });
@@ -69,7 +77,7 @@ export function insertDemolishActions({ demolishActions,
 										trx = knex }) {
     return trx('actions_demolish')
 		.insert(
-			demolishActions.map(a => ({
+			demolishActions.map((a) => ({
 				character_building_id: a.characterBuildingId
 			}))
 		);
@@ -78,7 +86,7 @@ export function insertDemolishActions({ demolishActions,
 export function insertConstructActions({ constructActions, 
 										 trx = knex }) {
     return trx('actions_construct').insert(
-        constructActions.map(a => ({
+        constructActions.map((a) => ({
             character_building_id: a.characterBuildingId,
             building_id: a.buildingId,
             size: a.size
@@ -118,7 +126,7 @@ export function findCharacterBuildingsWithoutState({ characterId,
 export function deleteCharacterBuilding({ characterBuildingId, 
 										  trx = knex }) {
 	return trx('character_buildings')
-		.where('id', characterBuildingId)
+		.where({ id: characterBuildingId })
 		.del();
 }
 //-----------------------------------------------------------------------------------------------//

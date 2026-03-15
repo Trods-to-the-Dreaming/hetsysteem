@@ -5,15 +5,21 @@ export function validateName(nameInput) {
 	const regex = /^[A-Za-z0-9À-ÖØ-öø-ÿĀ-ž?!.]+(?:[ '-][A-Za-z0-9À-ÖØ-öø-ÿĀ-ž?!.]+)*$/;
 
 	if (name.length < minLength) {
-		nameInput.setCustomValidity(`Minimaal ${minLength} tekens vereist.`);
-	} else if (name.length > maxLength) {
-		nameInput.setCustomValidity(`Maximaal ${maxLength} tekens toegestaan.`);
-	} else if (name !== name.trim()) {
 		nameInput.setCustomValidity(
-			'Spaties aan het begin of het einde zijn niet toegestaan.');
+			`De naam moet minstens ${minLength} tekens lang zijn.`
+		);
+	} else if (name.length > maxLength) {
+		nameInput.setCustomValidity(
+			`De naam mag hoogstens ${maxLength} tekens lang zijn.`
+		);
 	} else if (!regex.test(name)) {
 		nameInput.setCustomValidity(
-			'Dit is geen geldige naam.');
+			'Dit is geen geldige naam.'
+		);
+	} else if (name !== name.trim()) {
+		nameInput.setCustomValidity(
+			'Spaties aan het begin of het einde zijn niet toegestaan.'
+		);
 	} else {
 		nameInput.setCustomValidity('');
 	}

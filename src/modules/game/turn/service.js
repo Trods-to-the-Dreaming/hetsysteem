@@ -2,17 +2,25 @@ import knex from '#utils/db.js';
 /*import { 
 	BadRequestError 
 } from '#utils/errors.js';*/
+import { 
+	ok, 
+	fail 
+} from '#utils/result.js';
 //-----------------------------------------------------------------------------------------------//
 import { 
 	BUILDING_SIZES 
 } from '#modules/game/rules.js';
 import { 
-	PHASE_PAGES 
+	PHASES 
 } from '#modules/game/turn/config.js';
-/*import { 
+import { 
+	GameError 
+} from '#modules/game/errors.js';
+import { 
 	GAME
-} from './../reasons.js';
-import {
+} from '#modules/game/reasons.js';
+//-----------------------------------------------------------------------------------------------//
+/*import {
 	getProducts,
 	getRecreations,
 	getBuildings
@@ -137,9 +145,11 @@ export async function buildTurnView({ userId,
 	]);
 	
 	return {
-		products,
-		buildings,
-		sizes: BUILDING_SIZES,
+		constants: {
+			products,
+			buildings,
+			buildingSizes: BUILDING_SIZES
+		},
 		characterState: {
 			hoursAvailable: characterState.hoursAvailable,
 			ownedTiles: characterState.ownedTiles,
@@ -162,8 +172,8 @@ export async function buildTurnView({ userId,
 			consume,
 			manageGroup
 		},
-		phasePages: PHASE_PAGES,
-		hasFinishedTurn: characterState.hasFinishedTurn
+		phases: PHASES,
+		finished: characterState.hasFinishedTurn
 	};
 }
 //-----------------------------------------------------------------------------------------------//
@@ -250,7 +260,10 @@ export async function reserveBuildingName({ userId,
 				throw err;
 			}
 			
-			return ok(characterBuildingId);
+			return ok({ 
+				characterBuildingId,
+				characterBuildingName 
+			});
 		});
 	} catch (err) {
 		if (err instanceof GameError) {
@@ -296,7 +309,7 @@ export async function processActions() {
 			await processShare(trx);
 			await processConsume(trx);
 			await processManageGroup(trx);
-			await processFinishTurn(trx);
+			//await processFinishTurn(trx);
 		});
 
 		await finishProcessActions({ 

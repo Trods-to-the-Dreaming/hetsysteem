@@ -5,13 +5,15 @@
 <div class="container-compact">
 	<h1>Spelmenu</h1>
 	
-	{{#if isCharacterCreated}}
-		<a class="button-1" href="/game/character">Personage</a>
-		<a class="button-1" href="/game/turn/start">Beurt starten</a>
-	{{else}}
-		<a class="button-1" href="/game/turn/create-character">Personage aanmaken</a>
-	{{/if}}
-	<a class="button-1" href="/game/statistics">Statistieken</a>
+	<div class="form-fields">
+		{{#if isCharacterCreated}}
+			<a class="button-1" href="/game/character">Personage</a>
+			<a class="button-1" href="/game/turn/start">Beurt starten</a>
+		{{else}}
+			<a class="button-1" href="/game/turn/create-character">Personage aanmaken</a>
+		{{/if}}
+		<a class="button-1" href="/game/statistics">Statistieken</a>
+	</div>
 	
 	<hr>
 	

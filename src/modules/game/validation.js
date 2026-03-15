@@ -171,5 +171,8 @@ export const cancelBuildingNameSchema = z.strictObject({
 });
 //-----------------------------------------------------------------------------------------------//
 export const finishTurnSchema = z.strictObject({
-	phases: phasesSchema
+	characterPhases: z.preprocess(
+		(val) => typeof val === 'string' ? JSON.parse(val) : val,
+		phasesSchema
+	)
 });

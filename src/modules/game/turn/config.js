@@ -1,4 +1,4 @@
-export const PHASE_PAGES = Object.freeze([
+export const PHASES = Object.freeze([
 	{
 		key: 'manageBuildings',
 		url: '/game/turn/manage-buildings'

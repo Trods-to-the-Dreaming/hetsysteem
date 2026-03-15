@@ -2,30 +2,65 @@ import { turn } from '/js/turn.js';
 
 //===============================================================================================//
 
-turn.page = { // turn.page begin
+turn.phase = {
 //-----------------------------------------------------------------------------------------------//
-...turn.page,
+	...turn.phase,
 //-----------------------------------------------------------------------------------------------//
-checkAccess() {
-	turn.started = JSON.parse(localStorage.getItem('turn.started'));
-	
-	// Check if the turn has started
-	if (turn.started === null) {
-		location.replace('/game/turn/start');
-		return;
+	checkAccess(phaseKey) {
+		turn.started = turn.storage.load('started');
+		
+		if (!turn.started) {
+			if (phaseKey === 'start') {
+				// The user wants to start the turn
+				return;
+			}
+
+			// The user tries to play a phase or finish the turn before starting it
+			location.replace('/game/turn/start');
+			return;
+		}
+		
+		turn.phases = turn.storage.load('phases');
+		turn.currentPhaseIndex = turn.storage.load('currentPhaseIndex');
+		
+		if (phaseKey === 'start') {
+			// The user tries to restart the turn without cancelling it
+			location.replace(turn.phases[turn.currentPhaseIndex].url);
+			return;
+		}
+		
+		if (phaseKey === 'finish') {
+			if (turn.currentPhaseIndex === turn.phases.length) {
+				// The user wants to finish the turn
+				return;
+			}
+			
+			// The user tries to finish the turn without playing all the phases
+			location.replace(turn.phases[turn.currentPhaseIndex].url);
+			return;
+		}
+		
+		const phaseIndex = turn.phases.findIndex((p) => p.key === phaseKey);
+
+		if (phaseIndex === -1) {
+			// This should never happen
+			location.replace('/game');
+			return;
+		}
+
+		this.index = phaseIndex;
+		
+		if (phaseIndex <= turn.currentPhaseIndex) {
+			// The user tries to play the current phase or view a previous phase
+			return;
+		}
+		
+		// The user tries to play a phase without playing the previous ones
+		location.replace(turn.phases[turn.currentPhaseIndex].url);
 	}
-	
-	turn.phasePages = JSON.parse(localStorage.getItem('turn.phasePages'));
-	turn.currentPageIndex = JSON.parse(localStorage.getItem('turn.currentPageIndex'));
-	this.index = turn.phasePages.findIndex(p => p.key === this.key)
-	
-	// Check if this page is allowed
-	if (this.index > turn.currentPageIndex) {
-		location.replace(turn.phasePages[turn.currentPageIndex].url);
-		return;
-	}
-}
 //-----------------------------------------------------------------------------------------------//
-} // turn.page end
-//-----------------------------------------------------------------------------------------------//
+} // turn.phase
+
+//===============================================================================================//
+
 export { turn };
