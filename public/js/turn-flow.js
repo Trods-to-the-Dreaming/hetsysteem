@@ -7,6 +7,7 @@ turn.phase = {
 	...turn.phase,
 //-----------------------------------------------------------------------------------------------//
 	disabled: true,
+	cleanupRunning: false,
 //-----------------------------------------------------------------------------------------------//
 	initialize() {
 		this.addTurnFlowControls();
@@ -241,7 +242,11 @@ turn.handleNext = function() {
 	location.assign(turn.phases[turn.phase.index + 1].url);
 }
 //-----------------------------------------------------------------------------------------------//
-turn.handleBack = function() {
+turn.handleBack = async function() {
+	if (turn.phase.cleanup) {
+		await turn.phase.cleanup();
+	}
+	
 	location.assign(turn.phases[turn.phase.index - 1].url);
 }
 //-----------------------------------------------------------------------------------------------//
@@ -252,7 +257,11 @@ turn.handleFinish = function() {
 	location.assign('/game/turn/finish');
 }
 //-----------------------------------------------------------------------------------------------//
-turn.handleCancel = function() {
+turn.handleCancel = async function() {
+	if (turn.phase.cleanup) {
+		await turn.phase.cleanup();
+	}
+	
 	turn.storage.removeAll();
 	
 	location.assign('/game');

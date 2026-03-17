@@ -1,46 +1,48 @@
 @use "../../node_modules/bootstrap/scss/bootstrap" as *;
 
+@mixin default-margins {
+	@extend .mt-0;
+	@extend .mb-3;
+}
+
 body {
 	@extend .m-0;
 	@extend .bg-light;
 }
 
 h1 {
+	@include default-margins;
 	font-size: 1.3rem;
-	margin-top: 0em;
-	margin-bottom: 0.75em;
 	@extend .text-primary;
 }
 
 h2 {
+	@extend .mt-0;
+	@extend .mb-2;
 	font-size: 1.15rem;
-	margin-top: 0.75em;
-	margin-bottom: 0.83em;
 	@extend .text-secondary;
 }
 
 h3 {
+	@extend .mt-0;
+	@extend .mb-2;
 	font-size: 1rem;
-	margin-top: 0.83em;
-	margin-bottom: 1em;
 	@extend .text-body;
 }
 
 p {
+	@include default-margins;
 	font-size: 1rem;
-	margin-top: 1em;
-	margin-bottom: 1.12em;
 }
 
 ul {
+	@include default-margins;
 	font-size: 1rem;
-	margin-top: 1em;
-	margin-bottom: 1.12em;
 }
 
-/*hr {
-	@extend .mt-0;
-}*/
+hr {
+	@include default-margins;
+}
 
 .page-wrapper {
 	@extend .d-flex;
@@ -85,7 +87,10 @@ ul {
 }
 
 .btn[class*="world-"] {
+	@include default-margins;
+	
 	@extend .fw-semibold;
+	@extend .w-100;
 	
 	--bs-btn-border-width: 2px;
 	
@@ -118,15 +123,8 @@ ul {
 	max-width: 400px;
 }
 
-.form-block {
-	@extend .vstack;
-	@extend .gap-4;
-	@extend .mb-3;
-}
-
-.form-fields {
-	@extend .vstack;
-	@extend .gap-3;
+.field {
+	@include default-margins;
 }
 
 .list-compact {
@@ -134,8 +132,8 @@ ul {
 	@extend .border;
 	@extend .border-2;
 	max-width: 400px;
-	margin-top: 1em;
-	margin-bottom: 1.12em;
+	@extend .mt-0;
+	@extend .mb-3;
 }
 
 .list-item-justify {
@@ -243,24 +241,28 @@ ul {
 }*/
 
 .button-1 {
+	@include default-margins;
 	@extend .btn;
 	@extend .btn-primary;
 	@extend .w-100;
 }
 
 .button-2 {
+	@include default-margins;
 	@extend .btn;
 	@extend .btn-secondary;
 	@extend .w-100;
 }
 
 .button-danger {
+	@include default-margins;
 	@extend .btn;
 	@extend .btn-danger;
 	@extend .w-100;
 }
 
 .button-up {
+	@include default-margins;
 	@extend .btn;
 	@extend .btn-outline-primary;
 	@extend .w-100;

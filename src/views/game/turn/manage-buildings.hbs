@@ -14,30 +14,26 @@ turn.phase.checkAccess('manageBuildings');
 <div id="container-div" class="container-compact d-none">
 	<h1>Gebouwen beheren</h1>
 	
-	<div id="form-div" class="form-block">
-		<div id="demolish-div">
-			<h2 class="mt-0">💥 Slopen</h2>
-			
-			<ul id="demolished-buildings-ul" class="list-compact d-none"></ul>
-			
-			<button id="open-demolish-window-button" class="button-2" type="button" 
-					data-bs-toggle="offcanvas" data-bs-target="#demolish-window">
-				Bestaande gebouwen slopen...
-			</button>
-		</div>
+	<div id="form-div">
+		<h2>💥 Slopen</h2>
 		
-		<div id="build-div">
-			<h2 class="mt-0">🏗️ Bouwen</h2>
-			
-			<p>Vrije landtegels: <span id="free-tiles-span"></span></p>
+		<ul id="demolished-buildings-ul" class="list-compact d-none"></ul>
+		
+		<button id="open-demolish-window-button" class="button-2" type="button" 
+				data-bs-toggle="offcanvas" data-bs-target="#demolish-window">
+			Bestaande gebouwen slopen...
+		</button>
 
-			<ul id="new-construction-sites-ul" class="list-compact d-none"></ul>
-			
-			<button id="open-construct-window-button" class="button-2" type="button" 
-					data-bs-toggle="offcanvas" data-bs-target="#construct-window">
-				Nieuw gebouw plaatsen...
-			</button>
-		</div>
+		<h2>🏗️ Bouwen</h2>
+		
+		<p>Vrije landtegels: <span id="free-tiles-span"></span></p>
+
+		<ul id="new-construction-sites-ul" class="list-compact d-none"></ul>
+		
+		<button id="open-construct-window-button" class="button-2" type="button" 
+				data-bs-toggle="offcanvas" data-bs-target="#construct-window">
+			Nieuw gebouw plaatsen...
+		</button>
 	</div>
 </div>
 
@@ -49,11 +45,12 @@ turn.phase.checkAccess('manageBuildings');
 		<button class="btn-close" type="button" data-bs-dismiss="offcanvas"></button>
 	</div>
 	
-	<div class="offcanvas-body form-block">
-		<div>
-			<p>Vink de gebouwen aan:</p>
-			
-			<div id="preserved-buildings-div" class="field"></div>
+	<div class="offcanvas-body">
+		<div class="field">
+			<label class="form-label">
+				Vink de gebouwen aan:
+			</label>
+			<div id="preserved-buildings-div"></div>
 		</div>
 		
 		<button id="confirm-demolish-button" class="button-2" type="button">
@@ -71,28 +68,26 @@ turn.phase.checkAccess('manageBuildings');
 	</div>
 	
 	<div class="offcanvas-body">
-		<form id="construct-form" class="form-block">
-			<div class="form-fields">
-				<div>
-					<label for="building-type-select" class="form-label">
-						Gebouw:
-					</label>
-					<select id="building-type-select" class="form-select" required></select>
-				</div>
-				
-				<div>
-					<label for="building-size-select" class="form-label">
-						Grootte:
-					</label>
-					<select id="building-size-select" class="form-select" required></select>
-				</div>
-				
-				<div>
-					<label for="building-name-input" class="form-label">
-						Naam:
-					</label>
-					<input id="building-name-input" class="form-control" type="text" required>
-				</div>
+		<form id="construct-form">
+			<div class="field">
+				<label for="building-type-select" class="form-label">
+					Gebouw:
+				</label>
+				<select id="building-type-select" class="form-select" required></select>
+			</div>
+			
+			<div class="field">
+				<label for="building-size-select" class="form-label">
+					Grootte:
+				</label>
+				<select id="building-size-select" class="form-select" required></select>
+			</div>
+			
+			<div class="field">
+				<label for="building-name-input" class="form-label">
+					Naam:
+				</label>
+				<input id="building-name-input" class="form-control" type="text" required>
 			</div>
 			
 			<p id="building-name-error" class="error"></p>
@@ -170,6 +165,19 @@ turn.phase.updateUI = function() {
 	renderConstructList();
 	renderFreeTiles();
 }
+//-----------------------------------------------------------------------------------------------//
+turn.phase.cleanup = async function() {
+	if (turn.phase.cleanupRunning) return;
+	turn.phase.cleanupRunning = true;
+	
+	const { data } = turn.phase;
+
+	await Promise.all(
+		data.newConstructionSites.map((ncs) =>
+			cancelBuildingName(ncs.characterBuildingId)
+		)
+	);
+};
 //===============================================================================================//
 function loadPhaseData() {
 	const manageBuildings = turn.storage.load('characterPhases.manageBuildings');
@@ -316,7 +324,7 @@ async function handleConfirmConstruct(event) {
 	
 	if (!elements.constructForm.reportValidity()) return;
 	
-	const reserved  = await reserveBuildingName();
+	const reserved  = await reserveBuildingName(elements.buildingName.value);
 	if (!reserved) return;
 	
 	const buildingId = Number(elements.buildingType.value);
@@ -356,9 +364,6 @@ function handleBuildingNameInput() {
 	};
 	
 	validateName(args);
-	//nameInput.reportValidity();
-	
-	//updateConstructUI();
 }
 //===============================================================================================//
 function renderDemolishList() {
@@ -451,10 +456,16 @@ function renderConstructList() {
 		button.type = 'button';
 		button.classList.add('btn-close');
 		button.disabled = turn.phase.disabled;
-		button.addEventListener('click', () => {
+		button.addEventListener('click', async () => {
+			if (button.disabled) return;
+			button.disabled = true;
+			
 			data.newConstructionSites.splice(index, 1);
 			data.freeTiles += ncs.size;
+			
 			turn.phase.updateUI();
+			
+			await cancelBuildingName(ncs.characterBuildingId);
 		});
 		li.appendChild(button);
 		
@@ -468,8 +479,6 @@ function renderConstructList() {
 		const tiles = Number(option.value);
 		option.disabled = tiles > data.freeTiles;
 	}
-	
-	//updateConstructUI();
 	
 	// Show/hide new construction sites list
 	if (elements.newConstructionSites.children.length === 0) {
@@ -489,15 +498,14 @@ function renderFreeTiles() {
 	elements.freeTiles.textContent = data.freeTiles;
 }
 //===============================================================================================//
-async function reserveBuildingName() {
+async function reserveBuildingName(characterBuildingName) {
 	const { elements } = turn.phase;
-	const requestedName = elements.buildingName.value;
 	
 	try {
 		const res = await fetch('/game/turn/reserve-building-name', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ characterBuildingName: requestedName })
+			body: JSON.stringify({ characterBuildingName })
 		});
 
 		const json = await res.json();
@@ -517,17 +525,18 @@ async function reserveBuildingName() {
 	}
 }
 //-----------------------------------------------------------------------------------------------//
-/*function updateConstructUI() {
-	const { elements } = turn.phase;
-	
-	if (elements.buildingType.value === '' ||
-		elements.buildingName.value === '' ||
-		!elements.buildingName.checkValidity()) {
-		elements.confirmConstruct.disabled = true;
-	} else {
-		elements.confirmConstruct.disabled = false;
+async function cancelBuildingName(characterBuildingId) {
+	try {
+		const res = await fetch('/game/turn/cancel-building-name', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ characterBuildingId })
+		});
+	} catch (err) {
+		console.error(err);
+		return null;
 	}
-}*/
+}
 //-----------------------------------------------------------------------------------------------//
 function createBuildingLabel({ name, 
 							   type, 

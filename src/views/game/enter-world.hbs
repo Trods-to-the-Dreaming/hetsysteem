@@ -5,16 +5,14 @@
 <div class="container-compact">
 	<h1>Wereld betreden</h1>
 	
-	<form id="enter-world-form" class="form-block" 
+	<form id="enter-world-form"
 		  method="POST" action="/game/enter-world">			
-		<div class="form-fields">
-			{{#each options}}
-				<button class="btn {{this.class}}" 
-						name="worldId" value="{{this.id}}" type="submit">
-					{{this.name}}
-				</button>
-			{{/each}}
-		</div>
+		{{#each options}}
+			<button class="btn {{this.class}}" 
+					name="worldId" value="{{this.id}}" type="submit">
+				{{this.name}}
+			</button>
+		{{/each}}
 	</form>
 </div>
 

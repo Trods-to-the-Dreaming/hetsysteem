@@ -5,36 +5,31 @@
 <div class="container-compact">
 	<h1>Mijn account</h1>
 	
-	<div class="form-block">
-		<p id="change-account-success" class="success">{{changeAccountSuccess}}</p>
-		
-		<div class="form-fields">
-			<div>
-				<label for="username" class="form-label">
-					Gebruikersnaam:
-				</label>
-				<input id="username" class="form-control" type="text"
-					   value="{{username}}" readonly>
-				<a class="change" href="/account/change-username">Wijzigen</a>
-			</div>
-			
-			<div>
-				<label for="password" class="form-label">
-					Wachtwoord:
-				</label>
-				<input id="password" class="form-control" type="password"
-					   value="********" readonly>
-				<a class="change" href="/account/change-password">Wijzigen</a>
-			</div>
-		</div>
-			
-		<form id="deregister-form"
-			  method="POST" action="/account/deregister">
-			<button class="button-danger" type="submit">
-				Uitschrijven
-			</button>
-		</form>
+	<p id="change-account-success" class="success">{{changeAccountSuccess}}</p>
+	
+	<div class="field">
+		<label for="username" class="form-label">
+			Gebruikersnaam:
+		</label>
+		<input id="username" class="form-control" type="text"
+			   value="{{username}}" readonly>
+		<a class="change" href="/account/change-username">Wijzigen</a>
 	</div>
+	
+	<div class="field">
+		<label for="password" class="form-label">
+			Wachtwoord:
+		</label>
+		<input id="password" class="form-control" type="password"
+			   value="********" readonly>
+		<a class="change" href="/account/change-password">Wijzigen</a>
+	</div>
+		
+	<form id="deregister-form" method="POST" action="/account/deregister">
+		<button class="button-danger" type="submit">
+			Uitschrijven
+		</button>
+	</form>
 	
 	<hr>
 	

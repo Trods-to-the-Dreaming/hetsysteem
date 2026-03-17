@@ -7171,7 +7171,7 @@ textarea.form-control-lg {
   align-self: stretch;
 }
 
-.vstack, .form-block, .form-fields {
+.vstack {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
@@ -7689,7 +7689,7 @@ textarea.form-control-lg {
   width: 75% !important;
 }
 
-.w-100, .page-wrapper, .container-compact, .button-1, .button-2, .button-danger, .button-up {
+.w-100, .page-wrapper, .btn[class*=world-], .container-compact, [class*=world-].card-button, [class*=world-].button-1, .button-1, [class*=world-].button-2, .button-2, [class*=world-].button-danger, .button-danger, [class*=world-].button-up, .button-up {
   width: 100% !important;
 }
 
@@ -8011,7 +8011,7 @@ textarea.form-control-lg {
   margin-bottom: auto !important;
 }
 
-.mt-0, .warning, .error, .success {
+.mt-0, h1, h2, h3, p, ul, hr, .btn[class*=world-], .field, .list-compact, [class*=world-].card-button, .warning, .error, .success, .button-1, [class*=world-].button-1, .button-2, [class*=world-].button-2, .button-danger, [class*=world-].button-danger, .button-up, [class*=world-].button-up {
   margin-top: 0 !important;
 }
 
@@ -8075,11 +8075,11 @@ textarea.form-control-lg {
   margin-bottom: 0.25rem !important;
 }
 
-.mb-2 {
+.mb-2, h2, h3 {
   margin-bottom: 0.5rem !important;
 }
 
-.mb-3, .form-block, .card-border {
+.mb-3, h1, p, ul, hr, .btn[class*=world-], .field, .list-compact, .card-border, [class*=world-].card-button, .button-1, [class*=world-].button-1, .button-2, [class*=world-].button-2, .button-danger, [class*=world-].button-danger, .button-up, [class*=world-].button-up {
   margin-bottom: 1rem !important;
 }
 
@@ -8315,11 +8315,11 @@ textarea.form-control-lg {
   gap: 0.5rem !important;
 }
 
-.gap-3, .form-fields {
+.gap-3 {
   gap: 1rem !important;
 }
 
-.gap-4, .form-block {
+.gap-4 {
   gap: 1.5rem !important;
 }
 
@@ -11992,37 +11992,24 @@ textarea.form-control-lg {
 }
 h1 {
   font-size: 1.3rem;
-  margin-top: 0em;
-  margin-bottom: 0.75em;
 }
 
 h2 {
   font-size: 1.15rem;
-  margin-top: 0.75em;
-  margin-bottom: 0.83em;
 }
 
 h3 {
   font-size: 1rem;
-  margin-top: 0.83em;
-  margin-bottom: 1em;
 }
 
 p {
   font-size: 1rem;
-  margin-top: 1em;
-  margin-bottom: 1.12em;
 }
 
 ul {
   font-size: 1rem;
-  margin-top: 1em;
-  margin-bottom: 1.12em;
 }
 
-/*hr {
-	@extend .mt-0;
-}*/
 .page-wrapper {
   max-width: 960px;
   min-height: 100vh;
@@ -12080,8 +12067,6 @@ ul {
 
 .list-compact {
   max-width: 400px;
-  margin-top: 1em;
-  margin-bottom: 1.12em;
 }
 
 .list-input-quantity {

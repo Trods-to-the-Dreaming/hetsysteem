@@ -5,40 +5,37 @@
 <div class="container-compact">
 	<h1>Inschrijven</h1>
 	
-	<form id="register-form" class="form-block" 
-		  method="POST" action="/account/register">
-		<div class="form-fields">
-			<div>
-				<label for="username-input" class="form-label">
-					Gebruikersnaam:
-				</label>
-				<input id="username-input" class="form-control" type="text" 
-					   name="username" value="{{username}}" required>
-			</div>
-			
-			<div>
-				<label for="password-input" class="form-label">
-					Wachtwoord:
-				</label>
-				<input id="password-input" class="form-control" type="password" 
-					   name="password" required>
-			</div>
-			
-			<div>
-				<label for="confirmed-password-input" class="form-label">
-					Bevestig wachtwoord:
-				</label>
-				<input id="confirmed-password-input" class="form-control" type="password" 
-					   name="confirmedPassword" required>
-			</div>
-			
-			<div>
-				<label for="invitation-token-input" class="form-label">
-					Uitnodigingscode:
-				</label>
-				<input id="invitation-token-input" class="form-control" type="text" 
-					   name="invitationToken" required>
-			</div>
+	<form id="register-form" method="POST" action="/account/register">
+		<div class="field">
+			<label for="username-input" class="form-label">
+				Gebruikersnaam:
+			</label>
+			<input id="username-input" class="form-control" type="text" 
+				   name="username" value="{{username}}" required>
+		</div>
+		
+		<div class="field">
+			<label for="password-input" class="form-label">
+				Wachtwoord:
+			</label>
+			<input id="password-input" class="form-control" type="password" 
+				   name="password" required>
+		</div>
+		
+		<div class="field">
+			<label for="confirmed-password-input" class="form-label">
+				Bevestig wachtwoord:
+			</label>
+			<input id="confirmed-password-input" class="form-control" type="password" 
+				   name="confirmedPassword" required>
+		</div>
+		
+		<div class="field">
+			<label for="invitation-token-input" class="form-label">
+				Uitnodigingscode:
+			</label>
+			<input id="invitation-token-input" class="form-control" type="text" 
+				   name="invitationToken" required>
 		</div>
 		
 		<p id="register-error" class="error">{{registerError}}</p>
