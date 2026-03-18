@@ -174,14 +174,12 @@ export function insertCharacterBuilding({ characterId,
 		});
 }
 //-----------------------------------------------------------------------------------------------//
-export function deleteCharacterBuilding({ characterBuildingId,
-										  characterId,
-										  trx = knex }) {
+export function deleteCharacterBuildings({ characterBuildingIds,
+										   characterId,
+										   trx = knex }) {
 	return trx('character_buildings')
-		.where({ 
-			id: characterBuildingId, 
-			character_id: characterId
-		})
+		.where({ character_id: characterId })
+		.whereIn('id', characterBuildingIds)
 		.del();
 }
 //-----------------------------------------------------------------------------------------------//

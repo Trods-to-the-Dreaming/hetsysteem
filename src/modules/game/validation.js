@@ -166,8 +166,11 @@ export const reserveBuildingNameSchema = z.strictObject({
 	characterBuildingName: buildingNameSchema
 });
 //-----------------------------------------------------------------------------------------------//
-export const cancelBuildingNameSchema = z.strictObject({
-	characterBuildingId: z.coerce.number().int().positive()
+export const cancelBuildingNamesSchema = z.strictObject({
+	characterBuildingIds: uniqueArray({ 
+			schema: z.coerce.number().int().positive(), 
+			key: 'characterBuildingId'
+		})
 });
 //-----------------------------------------------------------------------------------------------//
 export const finishTurnSchema = z.strictObject({

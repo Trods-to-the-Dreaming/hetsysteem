@@ -23,7 +23,7 @@ import {
 import { 
 	buildTurnView,
 	reserveBuildingName,
-	cancelBuildingName,
+	cancelBuildingNames,
 	finishTurn,
 	processActions 
 } from './turn/service.js';
@@ -201,14 +201,16 @@ export async function handleReserveBuildingName(req, res) {
 	});
 }
 //-----------------------------------------------------------------------------------------------//
-export async function handleCancelBuildingName(req, res) {
+export async function handleCancelBuildingNames(req, res) {
 	const { user, world } = req.session;
-	const { characterBuildingId } = req.validatedData;
+	const { characterBuildingIds } = req.validatedData;
 	
-	const result = await cancelBuildingName({ 
+	console.log('namen annuleren...'); 
+	
+	const result = await cancelBuildingNames({ 
 		userId: user.id, 
 		worldId: world.id, 
-		characterBuildingId 
+		characterBuildingIds
 	});
 	if (!result.ok) {
 		return res.status(result.status).json({

@@ -17,7 +17,7 @@ import {
 	createCharacterSchema,
 	finishTurnSchema,
 	reserveBuildingNameSchema,
-	cancelBuildingNameSchema
+	cancelBuildingNamesSchema
 } from './validation.js';
 import {
 	showEnterWorld,
@@ -38,7 +38,7 @@ import {
 	showFinishTurn,
 	handleFinishTurn,
 	handleReserveBuildingName,
-	handleCancelBuildingName,
+	handleCancelBuildingNames,
 	triggerProcessActions,
 	showStatistics
 } from './controller.js';
@@ -171,12 +171,12 @@ router.post('/turn/reserve-building-name',
 	handleReserveBuildingName
 );
 //-----------------------------------------------------------------------------------------------//
-router.post('/turn/cancel-building-name',
+router.post('/turn/cancel-building-names',
 	requireLogin,
 	requireWorldEntered,
 	requireCharacterCreated(),
-	requireValidation(cancelBuildingNameSchema),
-	handleCancelBuildingName
+	requireValidation(cancelBuildingNamesSchema),
+	handleCancelBuildingNames
 );
 //-----------------------------------------------------------------------------------------------//
 router.get('/turn/process-actions',

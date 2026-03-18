@@ -109,25 +109,29 @@ import { validateName } from '/js/name.validation.js';
 document.addEventListener('DOMContentLoaded', () => {
 	turn.phase.initialize();
 });
+//-----------------------------------------------------------------------------------------------//
+window.addEventListener('pagehide', () => {
+	cancelBuildingNamesBeacon(getReservedBuildingIds());
+});
 //===============================================================================================//
 turn.phase.load = function() {
 	loadPhaseData();
 	cachePhaseElements();
 	createOffcanvasObjects();
 	
-	const { data, elements } = turn.phase;
+	const { data, elements } = this;
 	
 	elements.confirmDemolish.addEventListener('click', handleConfirmDemolish);
 	elements.confirmConstruct.addEventListener('click', handleConfirmConstruct);
 	elements.buildingName.addEventListener('input', handleBuildingNameInput);
 	
-	turn.phase.populateSelect({
+	this.populateSelect({
 		select: elements.buildingType, 
 		optionName: 'gebouw', 
 		items: data.constructibleBuildings, 
 		textField: 'type'
 	});
-	turn.phase.populateSelect({
+	this.populateSelect({
 		select: elements.buildingSize, 
 		optionName: 'grootte', 
 		items: data.buildingSizes
@@ -135,10 +139,10 @@ turn.phase.load = function() {
 }
 //-----------------------------------------------------------------------------------------------//
 turn.phase.save = function() {
-	const { data } = turn.phase;
+	const { data } = this;
 	const manageBuildings = {
-		demolish: [],
-		construct: []
+		demolishActions: [],
+		constructActions: []
 	};
 	
 	data.demolishableBuildings.forEach((db) => {
@@ -167,16 +171,10 @@ turn.phase.updateUI = function() {
 }
 //-----------------------------------------------------------------------------------------------//
 turn.phase.cleanup = async function() {
-	if (turn.phase.cleanupRunning) return;
-	turn.phase.cleanupRunning = true;
-	
-	const { data } = turn.phase;
+	if (this.cleanupRunning) return;
+	this.cleanupRunning = true;
 
-	await Promise.all(
-		data.newConstructionSites.map((ncs) =>
-			cancelBuildingName(ncs.characterBuildingId)
-		)
-	);
+	await cancelBuildingNames(getReservedBuildingIds());
 };
 //===============================================================================================//
 function loadPhaseData() {
@@ -465,7 +463,7 @@ function renderConstructList() {
 			
 			turn.phase.updateUI();
 			
-			await cancelBuildingName(ncs.characterBuildingId);
+			await cancelBuildingNames([ncs.characterBuildingId]);
 		});
 		li.appendChild(button);
 		
@@ -525,17 +523,37 @@ async function reserveBuildingName(characterBuildingName) {
 	}
 }
 //-----------------------------------------------------------------------------------------------//
-async function cancelBuildingName(characterBuildingId) {
+function getReservedBuildingIds() {
+	const { data } = turn.phase;
+
+	return data.newConstructionSites.map(
+		(ncs) => ncs.characterBuildingId
+	) ?? [];
+}
+//-----------------------------------------------------------------------------------------------//
+async function cancelBuildingNames(characterBuildingIds) {
+	if (!characterBuildingIds.length) return;
+
 	try {
-		const res = await fetch('/game/turn/cancel-building-name', {
+		await fetch('/game/turn/cancel-building-names', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ characterBuildingId })
+			body: JSON.stringify({ characterBuildingIds })
 		});
 	} catch (err) {
 		console.error(err);
-		return null;
 	}
+}
+//-----------------------------------------------------------------------------------------------//
+function cancelBuildingNamesBeacon(characterBuildingIds) {
+	if (!characterBuildingIds.length) return;
+
+	const blob = new Blob(
+		[JSON.stringify({ characterBuildingIds })],
+		{ type: 'application/json' }
+	);
+
+	navigator.sendBeacon('/game/turn/cancel-building-names', blob);
 }
 //-----------------------------------------------------------------------------------------------//
 function createBuildingLabel({ name, 

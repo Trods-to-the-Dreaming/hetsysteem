@@ -88,7 +88,7 @@ import {
 	findTenantAgreements,
 	findLandlordAgreements,*/
 	insertCharacterBuilding,
-	deleteCharacterBuilding,
+	deleteCharacterBuildings,
 	startProcessActions,
 	finishProcessActions
 } from './repository.js';
@@ -277,9 +277,9 @@ export async function reserveBuildingName({ userId,
 	}
 }
 //-----------------------------------------------------------------------------------------------//
-export async function cancelBuildingName({ userId, 
-										   worldId, 
-										   characterBuildingId }) {
+export async function cancelBuildingNames({ userId, 
+											worldId, 
+											characterBuildingIds }) {
 	return await knex.transaction(async (trx) => {
 		const { id: characterId } = await findCharacter({
 			userId,
@@ -287,11 +287,13 @@ export async function cancelBuildingName({ userId,
 			trx
 		});
 		
-		await deleteCharacterBuilding({
-			characterBuildingId,
+		await deleteCharacterBuildings({
+			characterBuildingIds,
 			characterId,
 			trx
 		});
+		
+		return ok();
 	});
 }
 //-----------------------------------------------------------------------------------------------//
