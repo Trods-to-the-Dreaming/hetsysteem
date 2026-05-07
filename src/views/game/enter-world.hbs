@@ -2,13 +2,13 @@
 
 <!------------------------------------------------------------------------------------------------>
 
-<div class="container-compact">
+<div class="layout-narrow">
 	<h1>Wereld betreden</h1>
 	
-	<form id="enter-world-form"
+	<form id="enter-world-form" class="mt-md stack" 
 		  method="POST" action="/game/enter-world">			
 		{{#each options}}
-			<button class="btn {{this.class}}" 
+			<button class="world-btn world--{{this.slug}}" 
 					name="worldId" value="{{this.id}}" type="submit">
 				{{this.name}}
 			</button>

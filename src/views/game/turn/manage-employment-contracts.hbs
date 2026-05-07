@@ -5,9 +5,7 @@
 {{#block "headScripts"}}
 <script type="module">
 import { turn } from '/js/turn-check-access.js';
-
-turn.page.key = 'manageEmploymentContracts';
-turn.page.checkAccess();
+turn.phase.checkAccess('manageEmploymentContracts');
 </script>
 {{/block}}
 
@@ -16,42 +14,233 @@ turn.page.checkAccess();
 <div id="container-div" class="container-compact d-none">
 	<h1>Arbeidsovereenkomsten beheren</h1>
 	
-	<h2>👷 Werknemer</h2>
-	
-	<h3>Ontslag nemen</h3>
-	
-	<p>(Een lijst met de arbeidsovereenkomsten die het personage heeft als werknemer. Naast elke overeenkomst een toggle knop "opzeggen/voortzetten".)</p>
-	
-	<h3>Solliciteren</h3>
-	
-	<p>(Een knop die een offcanvas venster opent. In het venster een dropdownlijst van alle mogelijke beroepen. Een tekstvak voor het aantal uren en voor het minimaal gewenste uurloon.)</p>
-	
-	<p>(Een lijst met de geplande sollicitaties. Naast elke sollicitatie een knop "×".)</p>
-	
-	<h2>💼 Werkgever</h2>
-	
-	<h3>Ontslaan</h3>
-	
-	<p>(Een lijst met de arbeidsovereenkomsten die het personage heeft als werkgever. Naast elke overeenkomst een toggle knop "opzeggen/voortzetten".)</p>
-	
-	<h3>Rekruteren</h3>
-	
-	<p>(Een knop die een offcanvas venster opent. In het venster een dropdownlijst van de (geplande) gebouwen van het personage. Een tekstvak voor het aantal uren en voor het maximaal geboden uurloon.)</p>
-	
-	<p>(Een lijst met de geplande rekruteringen. Naast elke rekrutering een knop "×".)</p>
-	
-	<p>(Wat met schoonmaken??? Huurder als werkgever beschouwen???)</p>
-	
-	<!--bij de contracten de vraag en de aanbodprijs bewaren, zodat die bij het verbreken door een van de partijen opnieuw kan worden gebruikt-->
-	
-	<h2>🧭️ Zelfstandige</h2>
-	
-	<h3>Ondernemen</h3>
-	
-	<p>(Een knop die een offcanvas venster opent. In het venster een dropdownlijst van de (geplande) gebouwen van het personage. Een tekstvak voor het aantal uren.)</p>
-	
-	<p>(Een lijst met de geplande ondernemingen. Naast elke onderneming een knop "×".)</p>
+	<div id="form-div">
+		<h2>💼 Werkgever</h2>
+		
+		<h3>Ontslaan</h3>
+		
+		<ul id="dismiss-actions-ul" class="list-compact d-none"></ul>
+		
+		<button id="open-dismiss-window-button" class="button-2" type="button" 
+				data-bs-toggle="offcanvas" data-bs-target="#dismiss-window">
+			Werknemers ontslaan...
+		</button>
+				
+		<h3>Rekruteren</h3>
+		
+		<ul id="recruit-actions-ul" class="list-compact d-none"></ul>
+		
+		<button id="open-recruit-window-button" class="button-2" type="button" 
+				data-bs-toggle="offcanvas" data-bs-target="#recruit-window">
+			Werknemers zoeken...
+		</button>
+		
+		<!--bij de contracten de vraag en de aanbodprijs bewaren, zodat die bij het verbreken door een van de partijen opnieuw kan worden gebruikt-->
+		
+		<h2>👷 Werknemer</h2>
+		
+		<div class="field">
+			<label for="max-employee-hours-input" class="form-label">
+				Maximum aantal werkuren:
+			</label>
+			<input id="max-employee-hours-input" class="form-control" type="number" 
+				   min="0" max="{{maxHours}}" step="1"
+				   name="maxEmployeeHours" value="0" required>
+		</div>
+		
+		<h3>Ontslag nemen</h3>
+		
+		<ul id="resign-actions-ul" class="list-compact d-none"></ul>
+		
+		<button id="open-resign-window-button" class="button-2" type="button" 
+				data-bs-toggle="offcanvas" data-bs-target="#resign-window">
+			Jobs opzeggen...
+		</button>
+				
+		<h3>Solliciteren</h3>
+		
+		<ul id="apply-actions-ul" class="list-compact d-none"></ul>
+		
+		<button id="open-apply-window-button" class="button-2" type="button" 
+				data-bs-toggle="offcanvas" data-bs-target="#apply-window">
+			Job zoeken...
+		</button>
+		
+		<h2>🧭️ Zelfstandige</h2>
+		
+		<div class="field">
+			<label for="max-self-employed-hours-input" class="form-label">
+				Maximum aantal werkuren:
+			</label>
+			<input id="max-self-employed-hours-input" class="form-control" type="number" 
+				   min="0" max="{{maxHours}}" step="1"
+				   name="maxSelfEmployedHours" value="0" required>
+		</div>
+		
+		<h3>Stopzetten</h3>
+		
+		<ul id="stop-actions-ul" class="list-compact d-none"></ul>
+		
+		<button id="open-stop-window-button" class="button-2" type="button" 
+				data-bs-toggle="offcanvas" data-bs-target="#stop-window">
+			Ondernemingen stopzetten...
+		</button>
+		
+		<h3>Opstarten</h3>
+		
+		<ul id="start-actions-ul" class="list-compact d-none"></ul>
+		
+		<button id="open-start-window-button" class="button-2" type="button" 
+				data-bs-toggle="offcanvas" data-bs-target="#start-window">
+			Onderneming opstarten...
+		</button>
+	</div>
+</div>
 
+<div id="dismiss-window" class="offcanvas offcanvas-start" 
+	 data-bs-backdrop="true" data-bs-scroll="false" tabindex="-1">
+	<div class="offcanvas-header">
+		<h5 class="offcanvas-title">Ontslaan</h5>
+		
+		<button class="btn-close" type="button" data-bs-dismiss="offcanvas"></button>
+	</div>
+	
+	<div class="offcanvas-body">
+		<div class="field">
+			<label class="form-label">
+				Vink de werknemers aan:
+			</label>
+			<div id="dismissible-employees-div"></div>
+		</div>
+		
+		<button id="confirm-dismiss-button" class="button-2" type="button">
+			Werknemers ontslaan
+		</button>
+	</div>
+</div>
+
+<div id="recruit-window" class="offcanvas offcanvas-start" 
+	 data-bs-backdrop="true" data-bs-scroll="false" tabindex="-1">
+	<div class="offcanvas-header">
+		<h5 class="offcanvas-title">Rekruteren</h5>
+		
+		<button class="btn-close" type="button" data-bs-dismiss="offcanvas"></button>
+	</div>
+	
+	<div class="offcanvas-body">
+		<form id="recruit-form">
+			<div class="field">
+				<label for="recruit-building-select" class="form-label">
+					Gebouw:
+				</label>
+				<select id="recruit-building-select" class="form-select" required></select>
+			</div>
+			
+			<div class="field">
+				<label for="recruit-hours-input" class="form-label">
+					In te vullen uren:
+				</label>
+				<input id="recruit-hours-input" class="form-control" type="number" 
+					   min="0" max="0" step="1" value="0" required>
+			</div>
+			
+			<div class="field">
+				<label for="recruit-hourly-wage-input" class="form-label">
+					Maximum uurloon:
+				</label>
+				<input id="recruit-hourly-wage-input" class="form-control" type="number" 
+					   min="1" max="1" step="1" value="1" required>
+			</div>
+			
+			<button id="confirm-recruit-button" class="button-2" type="submit">
+				Werknemers zoeken
+			</button>
+		</form>
+	</div>
+</div>
+
+<div id="resign-window" class="offcanvas offcanvas-start" 
+	 data-bs-backdrop="true" data-bs-scroll="false" tabindex="-1">
+	<div class="offcanvas-header">
+		<h5 class="offcanvas-title">Ontslag nemen</h5>
+		
+		<button class="btn-close" type="button" data-bs-dismiss="offcanvas"></button>
+	</div>
+	
+	<div class="offcanvas-body">
+		<div class="field">
+			<label class="form-label">
+				Vink de jobs aan:
+			</label>
+			<div id="resignable-jobs-div"></div>
+		</div>
+		
+		<button id="confirm-resign-button" class="button-2" type="button">
+			Jobs opzeggen
+		</button>
+	</div>
+</div>
+
+<div id="apply-window" class="offcanvas offcanvas-start" 
+	 data-bs-backdrop="true" data-bs-scroll="false" tabindex="-1">
+	<div class="offcanvas-header">
+		<h5 class="offcanvas-title">Job zoeken</h5>
+		
+		<button class="btn-close" type="button" data-bs-dismiss="offcanvas"></button>
+	</div>
+	
+	<div class="offcanvas-body">
+		<form id="apply-form">
+			<div class="field">
+				<label for="apply-building-select" class="form-label">
+					Gebouw:
+				</label>
+				<select id="apply-building-select" class="form-select" required></select>
+			</div>
+			
+			<div class="field">
+				<label for="apply-hours-input" class="form-label">
+					In te vullen uren:
+				</label>
+				<input id="apply-hours-input" class="form-control" type="number" 
+					   min="0" max="0" step="1" value="0" required>
+			</div>
+			
+			<div class="field">
+				<label for="apply-hourly-wage-input" class="form-label">
+					Minimum uurloon:
+				</label>
+				<input id="apply-hourly-wage-input" class="form-control" type="number" 
+					   min="1" max="1" step="1" value="1" required>
+			</div>
+			
+			<button id="confirm-apply-button" class="button-2" type="submit">
+				Job zoeken
+			</button>
+		</form>
+	</div>
+</div>
+
+<div id="stop-window" class="offcanvas offcanvas-start" 
+	 data-bs-backdrop="true" data-bs-scroll="false" tabindex="-1">
+	<div class="offcanvas-header">
+		<h5 class="offcanvas-title">Stopzetten</h5>
+		
+		<button class="btn-close" type="button" data-bs-dismiss="offcanvas"></button>
+	</div>
+	
+	<div class="offcanvas-body">
+		<div class="field">
+			<label class="form-label">
+				Vink de ondernemingen aan:
+			</label>
+			<div id="stoppable-companies-div"></div>
+		</div>
+		
+		<button id="confirm-stop-button" class="button-2" type="button">
+			Ondernemingen stopzetten
+		</button>
+	</div>
 </div>
 
 <!------------------------------------------------------------------------------------------------>
@@ -60,17 +249,17 @@ turn.page.checkAccess();
 //-----------------------------------------------------------------------------------------------//
 import { turn } from '/js/turn-flow.js';
 //-----------------------------------------------------------------------------------------------//
-turn.page.loadActions = function() {	
-}
-//-----------------------------------------------------------------------------------------------//
-turn.page.saveActions = function() {
-}
-//-----------------------------------------------------------------------------------------------//
-turn.page.updateUI = function() {
-}
-//-----------------------------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
-	turn.page.initialize();
+	turn.phase.initialize();
 });
+//-----------------------------------------------------------------------------------------------//
+turn.phase.load = function() {	
+}
+//-----------------------------------------------------------------------------------------------//
+turn.phase.save = function() {
+}
+//-----------------------------------------------------------------------------------------------//
+turn.phase.updateUI = function() {
+}
 //-----------------------------------------------------------------------------------------------//
 </script>

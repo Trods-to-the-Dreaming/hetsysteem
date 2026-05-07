@@ -32,57 +32,67 @@ turn.phase = {
 		// Game buttons
 		const confirmButton = createButton({ 
 			btnId: 'confirm-button', 
-			btnClass: 'button-1', 
+			btnClass: 'btn-primary', 
 			btnText: 'Bevestigen', 
 			onClick: turn.handleConfirm
 		});
 		
 		const finishButton = createButton({ 
 			btnId: 'finish-button', 
-			btnClass: 'button-1', 
+			btnClass: 'btn-primary', 
 			btnText: 'Opslaan', 
 			onClick: turn.handleFinish
 		});
 		
 		const editButton = createButton({ 
 			btnId: 'edit-button', 
-			btnClass: 'button-1', 
+			btnClass: 'btn-primary', 
 			btnText: 'Bewerken', 
 			onClick: this.handleEdit.bind(this)
 		});
 		
 		const nextButton = createButton({ 
 			btnId: 'next-button', 
-			btnClass: 'button-up', 
+			btnClass: 'btn-up', 
 			btnText: 'Volgende →', 
 			onClick: turn.handleNext
 		});
 		
 		const backButton = createButton({ 
 			btnId: 'back-button', 
-			btnClass: 'button-up', 
+			btnClass: 'btn-up', 
 			btnText: '← Vorige', 
 			onClick: turn.handleBack
 		});
 		
 		const cancelButton = createButton({ 
 			btnId: 'cancel-button', 
-			btnClass: 'button-up', 
+			btnClass: 'btn-up', 
 			btnText: '↑ Annuleren', 
 			onClick: turn.handleCancel
 		});
 		
-		const formDiv = document.getElementById('form-div');
-		formDiv.append(
+		const actionDiv = document.createElement('div');
+		actionDiv.classList.add('mt-lg', 'stack');
+		actionDiv.append(
 			confirmButton, 
 			finishButton, 
 			editButton
 		);
-		formDiv.after(
-			document.createElement('hr'),
+		
+		const navigationDiv = document.createElement('div');
+		navigationDiv.classList.add('stack');
+		navigationDiv.append(
 			nextButton,
 			backButton,
 			cancelButton
+		);
+		
+		const containerDiv = document.getElementById('container-div');
+		containerDiv.append(
+			actionDiv,
+			document.createElement('hr'),
+			navigationDiv
 		);
 		
 		// Edit warning modal
@@ -138,7 +148,6 @@ turn.phase = {
 		dialogDiv.appendChild(contentDiv);
 		editWarningDiv.appendChild(dialogDiv);
 		
-		const containerDiv = document.getElementById('container-div');
 		containerDiv.after(editWarningDiv);
 		
 		this.controls = {

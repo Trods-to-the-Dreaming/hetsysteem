@@ -2,34 +2,41 @@
 
 <!------------------------------------------------------------------------------------------------>
 
-<div class="container-compact">
+<div class="layout-narrow">
 	<h1>Aanmelden</h1>
 	
-	<form id="login-form" method="POST" action="/account/login">
-		<div class="field">
-			<label for="username-input" class="form-label">
-				Gebruikersnaam:
-			</label>
-			<input id="username-input" class="form-control" type="text" 
-				   name="username" value="{{username}}" required>
+	<form id="login-form"
+		  method="POST" action="/account/login">
+		<div class="mt-md stack">
+			<div>
+				<label for="username-input" class="form-label">
+					Gebruikersnaam:
+				</label>
+				<input id="username-input" class="form-control" type="text" 
+					   name="username" value="{{username}}" required>
+			</div>
+			
+			<div>
+				<label for="password-input" class="form-label">
+					Wachtwoord:
+				</label>
+				<input id="password-input" class="form-control" type="password" 
+					   name="password" required>
+			</div>
+			
+			<div id="login-error" class="error">{{loginError}}</div>
 		</div>
 		
-		<div class="field">
-			<label for="password-input" class="form-label">
-				Wachtwoord:
-			</label>
-			<input id="password-input" class="form-control" type="password" 
-				   name="password" required>
+		<div class="mt-lg">
+			<button class="btn-primary" type="submit">
+				Aanmelden
+			</button>
 		</div>
-		
-		<p id="login-error" class="error">{{loginError}}</p>
-		
-		<button class="button-1" type="submit">
-			Aanmelden
-		</button>
 	</form>
 	
-	<p>Nog geen lid? <a href="/account/register">Inschrijven</a>.</p>
+	<hr>
+	
+	<div>Nog geen lid? <a href="/account/register">Inschrijven</a>.</div>
 </div>
 
 <!------------------------------------------------------------------------------------------------>

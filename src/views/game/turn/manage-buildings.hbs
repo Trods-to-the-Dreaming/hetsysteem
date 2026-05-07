@@ -11,90 +11,100 @@ turn.phase.checkAccess('manageBuildings');
 
 <!------------------------------------------------------------------------------------------------>
 
-<div id="container-div" class="container-compact d-none">
+<div id="container-div" class="layout-narrow d-none">
 	<h1>Gebouwen beheren</h1>
 	
-	<div id="form-div">
-		<h2>💥 Slopen</h2>
-		
-		<ul id="demolished-buildings-ul" class="list-compact d-none"></ul>
-		
-		<button id="open-demolish-window-button" class="button-2" type="button" 
+	<h2>💥 Slopen</h2>
+	
+	<ul id="demolish-actions-ul" class="list-compact d-none"></ul>
+	
+	<div class="mt-md">
+		<button id="open-demolish-window-button" class="btn-secondary" type="button" 
 				data-bs-toggle="offcanvas" data-bs-target="#demolish-window">
-			Bestaande gebouwen slopen...
+			Gebouwen slopen...
 		</button>
+	<div>
 
-		<h2>🏗️ Bouwen</h2>
-		
-		<p>Vrije landtegels: <span id="free-tiles-span"></span></p>
+	<h2>🏗️ Bouwen</h2>
 
-		<ul id="new-construction-sites-ul" class="list-compact d-none"></ul>
+	<p>Vrije landtegels: <span id="free-tiles-span"></span></p>
+
+	<ul id="construct-actions-ul" class="list-compact d-none"></ul>
 		
-		<button id="open-construct-window-button" class="button-2" type="button" 
+	<div class="mt-md">
+		<button id="open-construct-window-button" class="btn-secondary" type="button" 
 				data-bs-toggle="offcanvas" data-bs-target="#construct-window">
-			Nieuw gebouw plaatsen...
+			Gebouw plaatsen...
 		</button>
 	</div>
 </div>
 
-<div id="demolish-window" class="offcanvas offcanvas-start" 
+<!--div id="form-div"></div-->
+
+<div id="demolish-window" class="offcanvas" 
 	 data-bs-backdrop="true" data-bs-scroll="false" tabindex="-1">
 	<div class="offcanvas-header">
-		<h2>💥 Slopen</h2>
+		<h2 class="offcanvas-title">💥 Slopen</h2>
 		
 		<button class="btn-close" type="button" data-bs-dismiss="offcanvas"></button>
 	</div>
 	
 	<div class="offcanvas-body">
-		<div class="field">
+		<div class="mt-md stack">
 			<label class="form-label">
 				Vink de gebouwen aan:
 			</label>
-			<div id="preserved-buildings-div"></div>
+			<div id="demolishable-buildings-div"></div>
 		</div>
 		
-		<button id="confirm-demolish-button" class="button-2" type="button">
-			Gebouwen slopen
-		</button>
+		<div class="mt-lg">
+			<button id="confirm-demolish-button" class="btn-primary" type="button">
+				Gebouwen slopen
+			</button>
+		</div>
 	</div>
 </div>
 
-<div id="construct-window" class="offcanvas offcanvas-start" 
+<div id="construct-window" class="offcanvas" 
 	 data-bs-backdrop="true" data-bs-scroll="false" tabindex="-1">
 	<div class="offcanvas-header">
-		<h2>🏗️ Bouwen</h2>
+		<h2 class="offcanvas-title">🏗️ Bouwen</h2>
 		
 		<button class="btn-close" type="button" data-bs-dismiss="offcanvas"></button>
 	</div>
 	
 	<div class="offcanvas-body">
 		<form id="construct-form">
-			<div class="field">
-				<label for="building-type-select" class="form-label">
-					Gebouw:
-				</label>
-				<select id="building-type-select" class="form-select" required></select>
+			<div class="mt-md stack">
+				<div>
+					<label for="building-type-select" class="form-label">
+						Gebouw:
+					</label>
+					<select id="building-type-select" class="form-select" required></select>
+				</div>
+				
+				<div>
+					<label for="building-size-select" class="form-label">
+						Grootte:
+					</label>
+					<select id="building-size-select" class="form-select" required></select>
+				</div>
+				
+				<div>
+					<label for="building-name-input" class="form-label">
+						Naam:
+					</label>
+					<input id="building-name-input" class="form-control" type="text" required>
+				</div>
+				
+				<div id="building-name-error" class="error"></div>
 			</div>
 			
-			<div class="field">
-				<label for="building-size-select" class="form-label">
-					Grootte:
-				</label>
-				<select id="building-size-select" class="form-select" required></select>
+			<div class="mt-lg">
+				<button id="confirm-construct-button" class="btn-primary" type="submit">
+					Gebouw plaatsen
+				</button>
 			</div>
-			
-			<div class="field">
-				<label for="building-name-input" class="form-label">
-					Naam:
-				</label>
-				<input id="building-name-input" class="form-control" type="text" required>
-			</div>
-			
-			<p id="building-name-error" class="error"></p>
-			
-			<button id="confirm-construct-button" class="button-2" type="submit">
-				Gebouw plaatsen
-			</button>
 		</form>
 	</div>
 </div>
@@ -145,19 +155,19 @@ turn.phase.save = function() {
 		constructActions: []
 	};
 	
-	data.demolishableBuildings.forEach((db) => {
-		if (db.isDemolished) {
+	data.existingBuildings.forEach((eb) => {
+		if (eb.isDemolished) {
 			manageBuildings.demolishActions.push({
-				characterBuildingId: db.characterBuildingId
+				characterBuildingId: eb.characterBuildingId
 			});
 		}
 	});
 	
-	data.newConstructionSites.forEach((ncs) => {
+	data.newBuildings.forEach((nb) => {
 		manageBuildings.constructActions.push({
-			characterBuildingId: ncs.characterBuildingId,
-			buildingId: ncs.buildingId,
-			size: ncs.size
+			characterBuildingId: nb.characterBuildingId,
+			buildingId: nb.buildingId,
+			size: nb.size
 		});
 	});
 	
@@ -201,7 +211,7 @@ function loadPhaseData() {
 		manageBuildings.demolishActions.map((a) => a.id)
 	);
 	
-	const demolishableBuildings = ownedBuildings.map(
+	const existingBuildings = ownedBuildings.map(
 		({ id, name, buildingId, size }) => {
 			const base = buildingsById[buildingId];
 
@@ -233,7 +243,7 @@ function loadPhaseData() {
 			};
 		});
 	
-	const newConstructionSites = manageBuildings.constructActions.map(
+	const newBuildings = manageBuildings.constructActions.map(
 		({ characterBuildingId, buildingId, size }) => {
 			const reservedBuilding = ownedReservedBuildingsById[characterBuildingId];
 			const building = buildingsById[buildingId];
@@ -248,12 +258,12 @@ function loadPhaseData() {
 		});
 	
 	const usedTiles = 
-		demolishableBuildings
-			.filter((b) => !b.isDemolished)
-			.reduce((sum, b) => sum + b.size, 0)
+		existingBuildings
+			.filter((db) => !db.isDemolished)
+			.reduce((sum, db) => sum + db.size, 0)
 		+
-		newConstructionSites
-			.reduce((sum, b) => sum + b.size, 0);
+		newBuildings
+			.reduce((sum, nb) => sum + nb.size, 0);
 	const freeTiles = ownedTiles - usedTiles;
 	
 	turn.phase.data = {
@@ -261,8 +271,8 @@ function loadPhaseData() {
 		constructibleBuildings,
 		buildingSizes,
 		ownedReservedBuildings,
-		demolishableBuildings,
-		newConstructionSites,
+		existingBuildings,
+		newBuildings,
 		freeTiles
 	};
 }
@@ -276,9 +286,9 @@ function cachePhaseElements() {
 		confirmDemolish: document.getElementById('confirm-demolish-button'),
 		confirmConstruct: document.getElementById('confirm-construct-button'),
 		constructForm: document.getElementById('construct-form'),
-		demolishedBuildings: document.getElementById('demolished-buildings-ul'),
-		newConstructionSites: document.getElementById('new-construction-sites-ul'),
-		preservedBuildings: document.getElementById('preserved-buildings-div'),
+		demolishActions: document.getElementById('demolish-actions-ul'),
+		demolishableBuildings: document.getElementById('demolishable-buildings-div'),
+		constructActions: document.getElementById('construct-actions-ul'),
 		freeTiles: document.getElementById('free-tiles-span'),
 		buildingType: document.getElementById('building-type-select'),
 		buildingSize: document.getElementById('building-size-select'),
@@ -297,13 +307,13 @@ function createOffcanvasObjects() {
 function handleConfirmDemolish() {
 	const { data, elements } = turn.phase;
 
-	const checkboxes = elements.preservedBuildings
+	const checkboxes = elements.demolishableBuildings
 		.querySelectorAll('input[type="checkbox"]:checked');
 
 	checkboxes.forEach((checkbox) => {
 		const characterBuildingId = Number(checkbox.dataset.characterBuildingId);
-		const building = data.demolishableBuildings.find(
-			(db) => db.characterBuildingId === characterBuildingId
+		const building = data.existingBuildings.find(
+			(eb) => eb.characterBuildingId === characterBuildingId
 		);
 		
 		building.isDemolished = true;
@@ -330,7 +340,7 @@ async function handleConfirmConstruct(event) {
 	
 	const building = data.buildings.find((b) => b.id === buildingId);
 	
-	data.newConstructionSites.push({
+	data.newBuildings.push({
 		characterBuildingId: reserved.id,
 		name: reserved.name,
 		buildingId,
@@ -367,67 +377,67 @@ function handleBuildingNameInput() {
 function renderDemolishList() {
 	const { data, elements } = turn.phase;
 	
-	elements.demolishedBuildings.innerHTML = '';
-	elements.preservedBuildings.innerHTML = '';
+	elements.demolishActions.innerHTML = '';
+	elements.demolishableBuildings.innerHTML = '';
 	
-	data.demolishableBuildings.forEach((db) => {
-		if (db.isDemolished) {
-			// Add to demolished buildings list
+	data.existingBuildings.forEach((eb) => {
+		if (eb.isDemolished) {
+			// Add to demolish actions list
 			const li = document.createElement('li');
 			li.className = 'list-item-justify';
-			li.dataset.characterBuildingId = db.characterBuildingId;
+			li.dataset.characterBuildingId = eb.characterBuildingId;
 			
 			const span = document.createElement('span');
-			span.innerHTML = createBuildingLabel(db);
+			span.innerHTML = createBuildingLabel(eb);
 			li.appendChild(span);
 			
-			if (db.size <= data.freeTiles) {
+			if (eb.size <= data.freeTiles) {
 				const button = document.createElement('button');
 				button.type = 'button';
 				button.classList.add('btn-close');
 				button.disabled = turn.phase.disabled;
 				button.addEventListener('click', () => {
-					db.isDemolished = false;
-					data.freeTiles -= db.size;
+					eb.isDemolished = false;
+					data.freeTiles -= eb.size;
 					turn.phase.updateUI();
 				});
 				li.appendChild(button);
 			}
 
-			elements.demolishedBuildings.appendChild(li);
+			elements.demolishActions.appendChild(li);
 		} else {
-			// Add to preserved buildings list
+			// Add to demolishable buildings list
 			const div = document.createElement('div');
 			div.className = 'form-check';
 			
 			const input = document.createElement('input');
-			input.id = 'demolish_' + db.characterBuildingId;
+			input.id = 'demolish_' + eb.characterBuildingId;
 			input.className = 'form-check-input';
 			input.type = 'checkbox';
-			input.dataset.characterBuildingId = db.characterBuildingId;
+			input.dataset.characterBuildingId = eb.characterBuildingId;
 			div.appendChild(input);
 			
 			const label = document.createElement('label');
 			label.htmlFor = input.id;
 			label.className = 'form-check-label';
-			label.innerHTML = createBuildingLabel(db);
+			label.innerHTML = createBuildingLabel(eb);
 			div.appendChild(label);
 			
-			elements.preservedBuildings.appendChild(div);
+			elements.demolishableBuildings.appendChild(div);
 		}
 	});
 	
-	// Show/hide demolished buildings list
-	if (elements.demolishedBuildings.children.length === 0) {
-		elements.demolishedBuildings.classList.add('d-none');
+	// Show/hide demolish actions list
+	if (elements.demolishActions.children.length === 0) {
+		elements.demolishActions.classList.add('d-none');
 	} else {
-		elements.demolishedBuildings.classList.remove('d-none');
+		elements.demolishActions.classList.remove('d-none');
 	}
 	
 	// Enable/disable demolish window
 	let areAllBuildingsDemolished = true;
-	for (const ob of data.demolishableBuildings) {
-		if (!ob.isDemolished) {
+	for (const eb of data.existingBuildings) {
+		if (!eb.isDemolished) {
 			areAllBuildingsDemolished = false;
 			break;
 		}
@@ -438,16 +448,16 @@ function renderDemolishList() {
 function renderConstructList() {
 	const { data, elements } = turn.phase;
 	
-	elements.newConstructionSites.innerHTML = '';
+	elements.constructActions.innerHTML = '';
 	
-	data.newConstructionSites.forEach((ncs, index) => {
-		// Add to new construction sites list
+	data.newBuildings.forEach((nb, index) => {
+		// Add to construct actions list
 		const li = document.createElement('li');
 		li.className = 'list-item-justify';
-		li.dataset.characterBuildingId = ncs.characterBuildingId;
+		li.dataset.characterBuildingId = nb.characterBuildingId;
 		
 		const span = document.createElement('span');
-		span.innerHTML = createBuildingLabel(ncs);
+		span.innerHTML = createBuildingLabel(nb);
 		li.appendChild(span);
 		
 		const button = document.createElement('button');
@@ -458,16 +468,16 @@ function renderConstructList() {
 			if (button.disabled) return;
 			button.disabled = true;
 			
-			data.newConstructionSites.splice(index, 1);
-			data.freeTiles += ncs.size;
+			data.newBuildings.splice(index, 1);
+			data.freeTiles += nb.size;
 			
 			turn.phase.updateUI();
 			
-			await cancelBuildingNames([ncs.characterBuildingId]);
+			await cancelBuildingNames([nb.characterBuildingId]);
 		});
 		li.appendChild(button);
 		
-		elements.newConstructionSites.appendChild(li);
+		elements.constructActions.appendChild(li);
 	});
 	
 	elements.buildingType.value = '';
@@ -478,11 +488,11 @@ function renderConstructList() {
 		option.disabled = tiles > data.freeTiles;
 	}
 	
-	// Show/hide new construction sites list
-	if (elements.newConstructionSites.children.length === 0) {
-		elements.newConstructionSites.classList.add('d-none');
+	// Show/hide construct actions list
+	if (elements.constructActions.children.length === 0) {
+		elements.constructActions.classList.add('d-none');
 	} else {
-		elements.newConstructionSites.classList.remove('d-none');
+		elements.constructActions.classList.remove('d-none');
 	}
 	
 	// Enable/disable construct window
@@ -526,8 +536,8 @@ async function reserveBuildingName(characterBuildingName) {
 function getReservedBuildingIds() {
 	const { data } = turn.phase;
 
-	return data.newConstructionSites.map(
-		(ncs) => ncs.characterBuildingId
+	return data.newBuildings.map(
+		(nb) => nb.characterBuildingId
 	) ?? [];
 }
 //-----------------------------------------------------------------------------------------------//

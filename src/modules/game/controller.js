@@ -42,15 +42,15 @@ export async function handleEnterWorld(req, res) {
 	const { user } = req.session;
 	const formState = req.validatedData;
 	
-	const { world } = await enterWorld({ 
+	const world = await enterWorld({ 
 		userId: user.id,
 		formState
 	});
 	
 	req.session.world = { 
 		id: world.id,
-		name: world.name,
-		class: world.class
+		slug: world.slug,
+		name: world.name
 	};
 	await saveSession(req);
 	

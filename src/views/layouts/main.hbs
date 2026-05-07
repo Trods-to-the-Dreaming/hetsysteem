@@ -16,14 +16,14 @@
 <!------------------------------------------------------------------------------------------------>
 
 <body>
-	<div class="page-wrapper"-->
+	<div class="layout">
 		{{> navbar }}
 		{{#if world}}
-			<div class="active-world-banner {{world.class}}">
+			<div class="world-banner world--{{world.slug}}">
 				🌍 {{world.name}}
 			</div>
 		{{/if}}
-		<div class="content-wrapper">
+		<div class="layout-content">
 			{{{ body }}}
 		</div>
 	</div>

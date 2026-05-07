@@ -13,13 +13,7 @@ import {
 //===============================================================================================//
 
 export async function getEnterWorldOptions() {
-	const worlds = await listWorlds();
-	
-	return worlds.map(world => ({
-		id: world.id,
-		name: world.name,
-		class: `world-${world.slug}`
-	}));
+	return await listWorlds();
 }
 //-----------------------------------------------------------------------------------------------//
 export async function enterWorld({ userId,
@@ -34,11 +28,5 @@ export async function enterWorld({ userId,
 		});
 	}
 
-	return {
-		world: {
-			id: world.id,
-			name: world.name,
-			class: `world-${world.slug}`
-		}
-	};
+	return world;
 }

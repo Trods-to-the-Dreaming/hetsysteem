@@ -1,36 +1,26 @@
-<nav class="navbar navbar-dark bg-dark">
-	<div class="container-fluid">
+<nav class="navbar">
+	<a class="navbar-btn-circ" href="/">
+		<img src="/img/logo.png">
+	</a>
 
-		<a class="navbar-brand p-0" href="/">
-			<img src="/img/favicon.png" width="36" height="36">
-		</a>
+	{{#if authenticated}}
+		<div class="dropdown">
+			<button class="navbar-btn-circ" type="button" data-bs-toggle="dropdown">
+				<i class="bi bi-person-circle"></i>
+			</button>
 
-		<div class="ms-auto">
-			{{#if authenticated}}
-				<div class="dropdown">
-					<a id="accountDropdown"	class="nav-link" href="#" role="button" data-bs-toggle="dropdown">
-						<i class="bi bi-person-circle navbar-account-icon"></i>
-					</a>
-
-					<ul class="dropdown-menu dropdown-menu-end">
-						<li><a class="dropdown-item" href="/game/enter-world">Spelen</a></li>
-						<li><a class="dropdown-item" href="/account">Mijn account</a></li>
-						<li><hr class="dropdown-divider"></li>
-						<li>
-							<form method="POST" action="/account/logout">
-								<button class="dropdown-item" type="submit">
-									Afmelden
-								</button>
-							</form>
-						</li>
-					</ul>
-				</div>
-			{{else}}
-				<a class="btn btn-outline-light" href="/account/login">
-					Aanmelden
-				</a>
-			{{/if}}
+			<ul class="dropdown-menu">
+				<li><a href="/game/enter-world">Spelen</a></li>
+				<li><a href="/account">Mijn account</a></li>
+				<hr>
+				<li>
+					<form method="POST" action="/account/logout">
+						<button type="submit">Afmelden</button>
+					</form>
+				</li>
+			</ul>
 		</div>
-
-	</div>
+	{{else}}
+		<a class="navbar-btn-rect" href="/account/login">Aanmelden</a>
+	{{/if}}
 </nav>
