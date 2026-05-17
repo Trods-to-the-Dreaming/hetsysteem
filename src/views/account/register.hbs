@@ -2,58 +2,56 @@
 
 <!------------------------------------------------------------------------------------------------>
 
-<div class="layout-narrow">
-	<h1>Inschrijven</h1>
-	
-	<form id="register-form" class="flow" 
-		  method="POST" action="/account/register">
-		<div class="mt-md stack">
-			<div>
-				<label for="username-input" class="form-label">
-					Gebruikersnaam:
-				</label>
-				<input id="username-input" class="form-control" type="text" 
-					   name="username" value="{{username}}" required>
-			</div>
-			
-			<div>
-				<label for="password-input" class="form-label">
-					Wachtwoord:
-				</label>
-				<input id="password-input" class="form-control" type="password" 
-					   name="password" required>
-			</div>
-			
-			<div>
-				<label for="confirmed-password-input" class="form-label">
-					Bevestig wachtwoord:
-				</label>
-				<input id="confirmed-password-input" class="form-control" type="password" 
-					   name="confirmedPassword" required>
-			</div>
-			
-			<div>
-				<label for="invitation-token-input" class="form-label">
-					Uitnodigingscode:
-				</label>
-				<input id="invitation-token-input" class="form-control" type="text" 
-					   name="invitationToken" required>
-			</div>
-			
-			<div id="register-error" class="error">{{registerError}}</div>
+<h1>Inschrijven</h1>
+
+<form id="register-form" class="flow" 
+	  method="POST" action="/account/register">
+	<div class="mt-md stack">
+		<div>
+			<label for="username-input" class="form-label">
+				Gebruikersnaam:
+			</label>
+			<input id="username-input" class="form-control" type="text" 
+				   name="username" value="{{username}}" required>
 		</div>
 		
-		<div class="mt-lg">
-			<button class="btn-primary" type="submit">
-				Inschrijven
-			</button>
+		<div>
+			<label for="password-input" class="form-label">
+				Wachtwoord:
+			</label>
+			<input id="password-input" class="form-control" type="password" 
+				   name="password" required>
 		</div>
-	</form>
+		
+		<div>
+			<label for="confirmed-password-input" class="form-label">
+				Bevestig wachtwoord:
+			</label>
+			<input id="confirmed-password-input" class="form-control" type="password" 
+				   name="confirmedPassword" required>
+		</div>
+		
+		<div>
+			<label for="invitation-token-input" class="form-label">
+				Uitnodigingscode:
+			</label>
+			<input id="invitation-token-input" class="form-control" type="text" 
+				   name="invitationToken" required>
+		</div>
+		
+		<div id="register-error" class="error">{{registerError}}</div>
+	</div>
 	
-	<hr>
-	
-	<div>Reeds lid? <a href="/account/login">Aanmelden</a>.</div>
-</div>
+	<div class="mt-lg">
+		<button class="btn btn--primary" type="submit">
+			<span class="btn-front">Inschrijven</span>
+		</button>
+	</div>
+</form>
+
+<hr>
+
+<div>Reeds lid? <a href="/account/login">Aanmelden</a>.</div>
 
 <!------------------------------------------------------------------------------------------------>
 

@@ -1,26 +1,26 @@
-<nav class="navbar">
-	<a class="navbar-btn-circ" href="/">
+<nav>
+	<a class="nav-btn" href="/">
 		<img src="/img/logo.png">
 	</a>
 
 	{{#if authenticated}}
 		<div class="dropdown">
-			<button class="navbar-btn-circ" type="button" data-bs-toggle="dropdown">
-				<i class="bi bi-person-circle"></i>
+			<button class="nav-btn" type="button" data-bs-toggle="dropdown">
+				<img src="/img/menu.png">
 			</button>
 
 			<ul class="dropdown-menu">
-				<li><a href="/game/enter-world">Spelen</a></li>
-				<li><a href="/account">Mijn account</a></li>
-				<hr>
+				<li><a class="dropdown-item" href="/game/enter-world">Spelen</a></li>
+				<li><a class="dropdown-item" href="/account">Mijn account</a></li>
+				<li><hr class="dropdown-divider"></li>
 				<li>
 					<form method="POST" action="/account/logout">
-						<button type="submit">Afmelden</button>
+						<button class="dropdown-item" type="submit">Afmelden</button>
 					</form>
 				</li>
 			</ul>
 		</div>
 	{{else}}
-		<a class="navbar-btn-rect" href="/account/login">Aanmelden</a>
+		<a class="nav-link" href="/account/login">Aanmelden</a>
 	{{/if}}
 </nav>

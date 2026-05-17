@@ -22,52 +22,55 @@ turn.phase = {
 								onClick }) {
 			const btn = document.createElement('button');
 			btn.id = btnId;
-			btn.classList.add(btnClass);
+			btn.classList.add('btn', btnClass);
 			btn.type = 'button';
-			btn.textContent = btnText;
 			if (onClick) btn.addEventListener('click', onClick);
+			const span = document.createElement('span');
+			span.classList.add('btn-front');
+			span.textContent = btnText;
+			btn.append(span);
 			return btn;
 		}
 		
 		// Game buttons
 		const confirmButton = createButton({ 
 			btnId: 'confirm-button', 
-			btnClass: 'btn-primary', 
+			btnClass: 'btn--primary', 
 			btnText: 'Bevestigen', 
 			onClick: turn.handleConfirm
 		});
 		
 		const finishButton = createButton({ 
 			btnId: 'finish-button', 
-			btnClass: 'btn-primary', 
+			btnClass: 'btn--primary', 
 			btnText: 'Opslaan', 
 			onClick: turn.handleFinish
 		});
 		
 		const editButton = createButton({ 
 			btnId: 'edit-button', 
-			btnClass: 'btn-primary', 
+			btnClass: 'btn--primary', 
 			btnText: 'Bewerken', 
 			onClick: this.handleEdit.bind(this)
 		});
 		
 		const nextButton = createButton({ 
 			btnId: 'next-button', 
-			btnClass: 'btn-up', 
+			btnClass: 'btn--navigation', 
 			btnText: 'Volgende →', 
 			onClick: turn.handleNext
 		});
 		
 		const backButton = createButton({ 
 			btnId: 'back-button', 
-			btnClass: 'btn-up', 
+			btnClass: 'btn--navigation', 
 			btnText: '← Vorige', 
 			onClick: turn.handleBack
 		});
 		
 		const cancelButton = createButton({ 
 			btnId: 'cancel-button', 
-			btnClass: 'btn-up', 
+			btnClass: 'btn--navigation', 
 			btnText: '↑ Annuleren', 
 			onClick: turn.handleCancel
 		});
@@ -104,7 +107,7 @@ turn.phase = {
 		editWarningDiv.setAttribute('aria-hidden', 'true');
 
 		const dialogDiv = document.createElement('div');
-		dialogDiv.classList.add('modal-dialog', 'modal-dialog-centered');
+		dialogDiv.classList.add('modal-dialog');
 		dialogDiv.setAttribute('role', 'document');
 
 		const contentDiv = document.createElement('div');
@@ -123,20 +126,20 @@ turn.phase = {
 
 		const bodyDiv = document.createElement('div');
 		bodyDiv.classList.add('modal-body');
-		bodyDiv.textContent = 'Alle volgende acties worden gewist, wanneer u deze actie bewerkt.';
+		bodyDiv.textContent = 'Alle volgende acties worden gewist, als u deze actie bewerkt.';
 
 		const footerDiv = document.createElement('div');
 		footerDiv.classList.add('modal-footer');
 		
 		const cancelEditButton = createButton({ 
-			btnClass: 'button-cancel', 
+			btnClass: 'btn--modal', 
 			btnText: 'Annuleren'
 		});
 		cancelEditButton.setAttribute('data-bs-dismiss', 'modal');
 
 		const confirmEditButton = createButton({
 			btnId: 'confirm-edit-button',
-			btnClass: 'button-ok',
+			btnClass: 'btn--modal',
 			btnText: 'Bewerken',
 			type: 'button',
 			onClick: this.handleConfirmEdit.bind(this)

@@ -2,126 +2,126 @@
 
 <!------------------------------------------------------------------------------------------------>
 
-<div class="layout-narrow">
-	<h1>Personage aanmaken</h1>
-	
-	<form id="create-character-form"
-		  method="POST" action="/game/turn/create-character">
-		<div class="mt-md stack">
-			<div>
-				<label for="first-name-input" class="form-label">
-					Voornaam:
-				</label>
-				<input id="first-name-input" class="form-control" type="text"
-					   name="firstName" value="{{firstName}}" required>
-			</div>
-			
-			<div>
-				<label for="last-name-input" class="form-label">
-					Achternaam:
-				</label>
-				<input id="last-name-input" class="form-control" type="text" 
-					   name="lastName" value="{{lastName}}" required>
-			</div>
-			
-			<div>
-				<label for="job-preference-1-select" class="form-label">
-					Jobvoorkeur (★★★):
-				</label>
-				<select id="job-preference-1-select" class="form-select" 
-						name="jobPreferenceIds[0]" required>
-					<option value="" 
-							{{#unless jobPreferenceIds.[0]}}selected{{/unless}}
-							hidden disabled>
-						— kies een job —
-					</option>
-					{{#each jobs}}
-						<option value="{{id}}" 
-								{{#if (eq id ../jobPreferenceIds.[0])}}selected{{/if}}>
-							{{type}}
-						</option>
-					{{/each}}
-				</select>
-			</div>
-			
-			<div>
-				<label for="job-preference-2-select" class="form-label">
-					Jobvoorkeur (★★):
-				</label>
-				<select id="job-preference-2-select" class="form-select" 
-						name="jobPreferenceIds[1]" required>
-					<option value="" 
-							{{#unless jobPreferenceIds.[1]}}selected{{/unless}} 
-							hidden disabled>
-						— kies een job —
-					</option>
-					{{#each jobs}}
-						<option value="{{id}}" 
-								{{#if (eq id ../jobPreferenceIds.[1])}}selected{{/if}}>
-							{{type}}
-						</option>
-					{{/each}}
-				</select>
-			</div>
-			
-			<div>
-				<label for="job-preference-3-select" class="form-label">
-					Jobvoorkeur (★):
-				</label>
-				<select id="job-preference-3-select" class="form-select" 
-						name="jobPreferenceIds[2]" required>
-					<option value="" 
-							{{#unless jobPreferenceIds.[2]}}selected{{/unless}} 
-							hidden disabled>
-						— kies een job —
-					</option>
-					{{#each jobs}}
-						<option value="{{id}}" 
-								{{#if (eq id ../jobPreferenceIds.[2])}}selected{{/if}}>
-							{{type}}
-						</option>
-					{{/each}}
-				</select>
-			</div>
-			
-			<div>
-				<label for="recreation-preference-select" class="form-label">
-					Ontspanningsvoorkeur (★★★):
-				</label>
-				<select id="recreation-preference-select" class="form-select" 
-						name="recreationPreferenceId" required>
-					<option value="" 
-							{{#unless recreationPreferenceId}}selected{{/unless}} 
-							hidden disabled>
-						— kies een activiteit —
-					</option>
-					{{#each recreations}}
-						<option value="{{id}}" 
-								{{#if (eq id ../recreationPreferenceId)}}selected{{/if}}>
-							{{type}}
-						</option>
-					{{/each}}
-				</select>
-			</div>
-			
-			<!-- Groepskeuze? -->
-			
-			<div id="create-character-error" class="error">{{createCharacterError}}</div>
-			
-			<!--hr-->
+<h1>Personage aanmaken</h1>
+
+<form id="create-character-form"
+	  method="POST" action="/game/turn/create-character">
+	<div class="mt-md stack">
+		<div>
+			<label for="first-name-input" class="form-label">
+				Voornaam:
+			</label>
+			<input id="first-name-input" class="form-control" type="text"
+				   name="firstName" value="{{firstName}}" required>
 		</div>
 		
-		<div class="mt-lg">
-			<button class="btn-primary" type="submit">
-				Opslaan
-			</button>
+		<div>
+			<label for="last-name-input" class="form-label">
+				Achternaam:
+			</label>
+			<input id="last-name-input" class="form-control" type="text" 
+				   name="lastName" value="{{lastName}}" required>
 		</div>
-	</form>
+		
+		<div>
+			<label for="job-preference-1-select" class="form-label">
+				Jobvoorkeur (★★★):
+			</label>
+			<select id="job-preference-1-select" class="form-select" 
+					name="jobPreferenceIds[0]" required>
+				<option value="" 
+						{{#unless jobPreferenceIds.[0]}}selected{{/unless}}
+						hidden disabled>
+					— kies een job —
+				</option>
+				{{#each jobs}}
+					<option value="{{id}}" 
+							{{#if (eq id ../jobPreferenceIds.[0])}}selected{{/if}}>
+						{{type}}
+					</option>
+				{{/each}}
+			</select>
+		</div>
+		
+		<div>
+			<label for="job-preference-2-select" class="form-label">
+				Jobvoorkeur (★★):
+			</label>
+			<select id="job-preference-2-select" class="form-select" 
+					name="jobPreferenceIds[1]" required>
+				<option value="" 
+						{{#unless jobPreferenceIds.[1]}}selected{{/unless}} 
+						hidden disabled>
+					— kies een job —
+				</option>
+				{{#each jobs}}
+					<option value="{{id}}" 
+							{{#if (eq id ../jobPreferenceIds.[1])}}selected{{/if}}>
+						{{type}}
+					</option>
+				{{/each}}
+			</select>
+		</div>
+		
+		<div>
+			<label for="job-preference-3-select" class="form-label">
+				Jobvoorkeur (★):
+			</label>
+			<select id="job-preference-3-select" class="form-select" 
+					name="jobPreferenceIds[2]" required>
+				<option value="" 
+						{{#unless jobPreferenceIds.[2]}}selected{{/unless}} 
+						hidden disabled>
+					— kies een job —
+				</option>
+				{{#each jobs}}
+					<option value="{{id}}" 
+							{{#if (eq id ../jobPreferenceIds.[2])}}selected{{/if}}>
+						{{type}}
+					</option>
+				{{/each}}
+			</select>
+		</div>
+		
+		<div>
+			<label for="recreation-preference-select" class="form-label">
+				Ontspanningsvoorkeur (★★★):
+			</label>
+			<select id="recreation-preference-select" class="form-select" 
+					name="recreationPreferenceId" required>
+				<option value="" 
+						{{#unless recreationPreferenceId}}selected{{/unless}} 
+						hidden disabled>
+					— kies een activiteit —
+				</option>
+				{{#each recreations}}
+					<option value="{{id}}" 
+							{{#if (eq id ../recreationPreferenceId)}}selected{{/if}}>
+						{{type}}
+					</option>
+				{{/each}}
+			</select>
+		</div>
+		
+		<!-- Groepskeuze? -->
+		
+		<div id="create-character-error" class="error">{{createCharacterError}}</div>
+		
+		<!--hr-->
+	</div>
 	
-	<hr>
-	
-	<a class="btn-up" href="/game">↑ Annuleren</a>
-</div>
+	<div class="mt-lg">
+		<button class="btn btn--primary" type="submit">
+			<span class="btn-front">Opslaan</span>
+		</button>
+	</div>
+</form>
+
+<hr>
+
+<a class="btn btn--navigation" href="/game">
+	<span class="btn-front">↑ Annuleren</span>
+</a>
 
 <!------------------------------------------------------------------------------------------------>
 

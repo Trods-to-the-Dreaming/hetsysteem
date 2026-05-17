@@ -11,7 +11,7 @@ turn.phase.checkAccess('manageBuildings');
 
 <!------------------------------------------------------------------------------------------------>
 
-<div id="container-div" class="layout-narrow d-none">
+<div id="container-div" class="d-none">
 	<h1>Gebouwen beheren</h1>
 	
 	<h2>💥 Slopen</h2>
@@ -19,9 +19,9 @@ turn.phase.checkAccess('manageBuildings');
 	<ul id="demolish-actions-ul" class="list-compact d-none"></ul>
 	
 	<div class="mt-md">
-		<button id="open-demolish-window-button" class="btn-secondary" type="button" 
+		<button id="open-demolish-window-button" class="btn btn--secondary" type="button" 
 				data-bs-toggle="offcanvas" data-bs-target="#demolish-window">
-			Gebouwen slopen...
+			<span class="btn-front">Gebouwen slopen...</span>
 		</button>
 	<div>
 
@@ -32,14 +32,12 @@ turn.phase.checkAccess('manageBuildings');
 	<ul id="construct-actions-ul" class="list-compact d-none"></ul>
 		
 	<div class="mt-md">
-		<button id="open-construct-window-button" class="btn-secondary" type="button" 
+		<button id="open-construct-window-button" class="btn btn--secondary" type="button" 
 				data-bs-toggle="offcanvas" data-bs-target="#construct-window">
-			Gebouw plaatsen...
+			<span class="btn-front">Gebouw plaatsen...</span>
 		</button>
 	</div>
 </div>
-
-<!--div id="form-div"></div-->
 
 <div id="demolish-window" class="offcanvas" 
 	 data-bs-backdrop="true" data-bs-scroll="false" tabindex="-1">
@@ -58,8 +56,8 @@ turn.phase.checkAccess('manageBuildings');
 		</div>
 		
 		<div class="mt-lg">
-			<button id="confirm-demolish-button" class="btn-primary" type="button">
-				Gebouwen slopen
+			<button id="confirm-demolish-button" class="btn btn--primary" type="button">
+				<span class="btn-front">Gebouwen slopen</span>
 			</button>
 		</div>
 	</div>
@@ -101,8 +99,8 @@ turn.phase.checkAccess('manageBuildings');
 			</div>
 			
 			<div class="mt-lg">
-				<button id="confirm-construct-button" class="btn-primary" type="submit">
-					Gebouw plaatsen
+				<button id="confirm-construct-button" class="btn btn--primary" type="submit">
+					<span class="btn-front">Gebouw plaatsen</span>
 				</button>
 			</div>
 		</form>

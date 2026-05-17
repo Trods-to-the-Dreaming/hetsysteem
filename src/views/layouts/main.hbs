@@ -16,16 +16,18 @@
 <!------------------------------------------------------------------------------------------------>
 
 <body>
-	<div class="layout">
+	<div class="app {{{_blocks.app-width}}} {{#if world}}app--world-{{world.slug}}{{/if}}">
 		{{> navbar }}
+		
 		{{#if world}}
-			<div class="world-banner world--{{world.slug}}">
+			<div class="banner">
 				🌍 {{world.name}}
 			</div>
 		{{/if}}
-		<div class="layout-content">
+		
+		<main>
 			{{{ body }}}
-		</div>
+		</main>
 	</div>
 	
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>

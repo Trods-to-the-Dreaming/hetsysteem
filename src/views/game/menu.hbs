@@ -2,20 +2,28 @@
 
 <!------------------------------------------------------------------------------------------------>
 
-<div class="layout-narrow">
-	<h1>Spelmenu</h1>
-	
-	<div class="mt-md stack">
-		{{#if isCharacterCreated}}
-			<a class="btn-primary" href="/game/character">Personage</a>
-			<a class="btn-primary" href="/game/turn/start">Beurt starten</a>
-		{{else}}
-			<a class="btn-primary" href="/game/turn/create-character">Personage aanmaken</a>
-		{{/if}}
-		<a class="btn-primary" href="/game/statistics">Statistieken</a>
-	</div>
-	
-	<hr>
-	
-	<a class="btn-up" href="/game/enter-world">↑ Andere wereld</a>
+<h1>Spelmenu</h1>
+
+<div class="mt-md stack">
+	{{#if isCharacterCreated}}
+		<a class="btn btn--primary" href="/game/character">
+			<span class="btn-front">Personage</span>
+		</a>
+		<a class="btn btn--primary" href="/game/turn/start">
+			<span class="btn-front">Beurt starten</span>
+		</a>
+	{{else}}
+		<a class="btn btn--primary" href="/game/turn/create-character">
+			<span class="btn-front">Personage aanmaken</span>
+		</a>
+	{{/if}}
+	<a class="btn btn--primary" href="/game/statistics">
+		<span class="btn-front">Statistieken</span>
+	</a>
 </div>
+
+<hr>
+
+<a class="btn btn--navigation" href="/game/enter-world">
+	<span class="btn-front">↑ Andere wereld</span>
+</a>

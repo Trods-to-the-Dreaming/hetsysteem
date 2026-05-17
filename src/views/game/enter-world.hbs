@@ -2,19 +2,17 @@
 
 <!------------------------------------------------------------------------------------------------>
 
-<div class="layout-narrow">
-	<h1>Wereld betreden</h1>
-	
-	<form id="enter-world-form" class="mt-md stack" 
-		  method="POST" action="/game/enter-world">			
-		{{#each options}}
-			<button class="world-btn world--{{this.slug}}" 
-					name="worldId" value="{{this.id}}" type="submit">
-				{{this.name}}
-			</button>
-		{{/each}}
-	</form>
-</div>
+<h1>Wereld betreden</h1>
+
+<form id="enter-world-form" class="mt-md stack" 
+	  method="POST" action="/game/enter-world">			
+	{{#each options}}
+		<button class="btn btn--primary btn--world-{{this.slug}}" 
+				name="worldId" value="{{this.id}}" type="submit">
+			<span class="btn-front">{{this.name}}</span>
+		</button>
+	{{/each}}
+</form>
 
 <!------------------------------------------------------------------------------------------------>
 

@@ -2,96 +2,96 @@
 
 <!------------------------------------------------------------------------------------------------>
 
-<div class="layout-narrow">	
-	<h1>{{firstName}} {{lastName}}</h1>
-	
-	<h2>💖 Welzijn</h2>
-	
-	<ul class="list-compact">
-		<li class="list-item-justify">
-			<span>Leeftijd</span>
-			<span>{{age}} jaar</span>
-		</li>
-		<li class="list-item-justify">
-			<span>Levensverwachting</span>
-			<span>{{lifeExpectancy}} jaar</span>
-		</li>
-		<li class="list-item-justify">
-			<span>Gezondheid</span>
-			<span>{{health}} %</span>
-		</li>
-		<li class="list-item-justify">
-			<span>Geluk</span>
-			<span>{{happiness}} punten</span>
-		</li>
-		<li class="list-item-justify">
-			<span>Woonstatus</span>
-			<span>{{housingStatus}}</span>
-		</li>
-	</ul>
+<h1>{{firstName}} {{lastName}}</h1>
 
-	<h2>⭐ Voorkeuren</h2>
-	
-	<ul class="list-compact">
-		<li class="list-item-justify">
-			<span>{{jobPreference1}}</span>
-			<span>★★★</span>
-		</li>
-		<li class="list-item-justify">
-			<span>{{jobPreference2}}</span>
-			<span>★★</span>
-		</li>
-		<li class="list-item-justify">
-			<span>{{jobPreference3}}</span>
-			<span>★</span>
-		</li>
-		<li class="list-item-justify">
-			<span>{{recreationPreference}}</span>
-			<span>★★★</span>
-		</li>
-	</ul>
+<h2>💖 Welzijn</h2>
 
-	<h2>🎓 Opleiding</h2>
-	
-	<ul class="list-compact">
-		<li class="list-item-justify">
-			<span>Niveau</span>
-			<span>{{educationLevel}}</span>
-		</li>
-	</ul>
+<ul class="list-compact">
+	<li class="list-item-justify">
+		<span>Leeftijd</span>
+		<span>{{age}} jaar</span>
+	</li>
+	<li class="list-item-justify">
+		<span>Levensverwachting</span>
+		<span>{{lifeExpectancy}} jaar</span>
+	</li>
+	<li class="list-item-justify">
+		<span>Gezondheid</span>
+		<span>{{health}} %</span>
+	</li>
+	<li class="list-item-justify">
+		<span>Geluk</span>
+		<span>{{happiness}} punten</span>
+	</li>
+	<li class="list-item-justify">
+		<span>Woonstatus</span>
+		<span>{{housingStatus}}</span>
+	</li>
+</ul>
 
-	<h2>🛠️ Werkervaring</h2>
-	
-	{{#if experience.length}}
-		<ul class="list-compact">
-			{{#each experience}}
-				<li class="list-item-justify">
-					<span>{{this.job}}</span>
-					<span>{{this.experienceYears}} jaar</span>
-				</li>
-			{{/each}}
-		</ul>
-	{{else}}
-		<p>Je hebt nog geen werkervaring.</p>
-	{{/if}}
-	
-	<h2>📜 Bezittingen</h2>
-	
+<h2>⭐ Voorkeuren</h2>
+
+<ul class="list-compact">
+	<li class="list-item-justify">
+		<span>{{jobPreference1}}</span>
+		<span>★★★</span>
+	</li>
+	<li class="list-item-justify">
+		<span>{{jobPreference2}}</span>
+		<span>★★</span>
+	</li>
+	<li class="list-item-justify">
+		<span>{{jobPreference3}}</span>
+		<span>★</span>
+	</li>
+	<li class="list-item-justify">
+		<span>{{recreationPreference}}</span>
+		<span>★★★</span>
+	</li>
+</ul>
+
+<h2>🎓 Opleiding</h2>
+
+<ul class="list-compact">
+	<li class="list-item-justify">
+		<span>Niveau</span>
+		<span>{{educationLevel}}</span>
+	</li>
+</ul>
+
+<h2>🛠️ Werkervaring</h2>
+
+{{#if experience.length}}
 	<ul class="list-compact">
-		<li class="list-item-justify">
-			<span>Bankrekening</span>
-			<span id="balance">{{balance}}<!-- {{currencySymbol}}--></span>
-		</li>
-		<li class="list-item-justify">
-			<span>Land</span>
-			<span>{{ownedTiles}} tegels</span>
-		</li>
+		{{#each experience}}
+			<li class="list-item-justify">
+				<span>{{this.job}}</span>
+				<span>{{this.experienceYears}} jaar</span>
+			</li>
+		{{/each}}
 	</ul>
-	
-	<hr>
-	
-	<a class="btn-up" href="/game">↑ Spelmenu</a>
-</div>
+{{else}}
+	<p>Je hebt nog geen werkervaring.</p>
+{{/if}}
+
+<h2>📜 Bezittingen</h2>
+
+<ul class="list-compact">
+	<li class="list-item-justify">
+		<span>Bankrekening</span>
+		<span id="balance">{{balance}}<!-- {{currencySymbol}}--></span>
+	</li>
+	<li class="list-item-justify">
+		<span>Land</span>
+		<span>{{ownedTiles}} tegels</span>
+	</li>
+</ul>
+
+<hr>
+
+<a class="btn btn--navigation" href="/game">
+	<span class="btn-front">↑ Spelmenu</span>
+</a>
 
 <!------------------------------------------------------------------------------------------------>
 

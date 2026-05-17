@@ -2,50 +2,50 @@
 
 <!------------------------------------------------------------------------------------------------>
 
-<div class="layout-narrow">
-	<h1>Gebruikersnaam wijzigen</h1>
+<h1>Gebruikersnaam wijzigen</h1>
 
-	<form id="change-username-form" 
-		  method="POST" action="/account/change-username">
-		<div class="mt-md stack">
-			<div>
-				<label for="username-input" class="form-label">
-					Huidige gebruikersnaam:
-				</label>
-				<input id="username-input" class="form-control" type="text"
-					   value="{{username}}" readonly>
-			</div>
-			
-			<div>
-				<label for="new-username-input" class="form-label">
-					Nieuwe gebruikersnaam:
-				</label>
-				<input id="new-username-input" class="form-control" type="text"
-					   name="newUsername" value="{{newUsername}}" required>
-			</div>
-			
-			<div>
-				<label for="password-input" class="form-label">
-					Wachtwoord:
-				</label>
-				<input id="password-input" class="form-control" type="password"
-					   name="password" required>
-			</div>
-			
-			<div id="change-username-error" class="error">{{changeUsernameError}}</div>
+<form id="change-username-form" 
+	  method="POST" action="/account/change-username">
+	<div class="mt-md stack">
+		<div>
+			<label for="username-input" class="form-label">
+				Huidige gebruikersnaam:
+			</label>
+			<input id="username-input" class="form-control" type="text"
+				   value="{{username}}" readonly>
 		</div>
 		
-		<div class="mt-lg">
-			<button class="btn-primary" type="submit">
-				Bewaren
-			</button>
+		<div>
+			<label for="new-username-input" class="form-label">
+				Nieuwe gebruikersnaam:
+			</label>
+			<input id="new-username-input" class="form-control" type="text"
+				   name="newUsername" value="{{newUsername}}" required>
 		</div>
-	</form>
+		
+		<div>
+			<label for="password-input" class="form-label">
+				Wachtwoord:
+			</label>
+			<input id="password-input" class="form-control" type="password"
+				   name="password" required>
+		</div>
+		
+		<div id="change-username-error" class="error">{{changeUsernameError}}</div>
+	</div>
 	
-	<hr>
-	
-	<a class="btn-up" href="/account">↑ Annuleren</a>
-</div>
+	<div class="mt-lg">
+		<button class="btn btn--primary" type="submit">
+			<span class="btn-front">Bewaren</span>
+		</button>
+	</div>
+</form>
+
+<hr>
+
+<a class="btn btn--navigation" href="/account">
+	<span class="btn-front">↑ Annuleren</span>
+</a>
 
 <!------------------------------------------------------------------------------------------------>
 
