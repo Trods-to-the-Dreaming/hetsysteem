@@ -217,6 +217,8 @@ main {
   margin: 2px 0 0 0;
   background-image: linear-gradient(to left, var(--btn-edge-dark-color) 0%, var(--btn-edge-color) var(--btn-border-radius), var(--btn-edge-color) calc(100% - var(--btn-border-radius)), var(--btn-edge-dark-color) 100%);
   text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
   cursor: pointer;
   transition: background-image 0.08s ease;
 }
@@ -253,7 +255,6 @@ main {
   text-align: center;
   text-decoration: none;
   user-select: none;
-  -webkit-tap-highlight-color: transparent;
   transform: translateY(-2px);
   transition: transform 80ms ease, border-color 80ms ease, background-color 80ms ease, color 80ms ease;
 }
