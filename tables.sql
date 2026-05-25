@@ -285,24 +285,6 @@ CREATE TABLE actions_construct (
 );
 
 
-
-INSERT INTO character_buildings
-(character_id, world_id, name                ) VALUES
-(1,            1,        'De Appelgaard'     ),
-(1,            1,        'Kwaliteitskompas'  ),
-(1,            1,        'Innovatiehub'      ),
-(2,            1,        'Mobipark'          ),
-(2,            1,        'De Stemmige Snaren');
-
-INSERT INTO character_building_states
-(character_building_id,  building_id, size, boosted_working_hours) VALUES
-(1,                       1,          1,    0),
-(2,                       6,          1,    0),
-(3,                       8,          2,    0),
-(4,                      12,          1,    0),
-(5,                      18,          1,    0);
-
-
 /*CREATE TABLE character_buildings (
 	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	world_id TINYINT UNSIGNED NOT NULL, -- for name uniqueness
@@ -457,10 +439,43 @@ CREATE TABLE cron_process_actions (
 
 
 
+INSERT INTO invitations
+(token			   ) VALUES
+('ABCD1234EFGH5678');
+
+INSERT INTO character_buildings
+(character_id, world_id, name                ) VALUES
+(1,            1,        'De Appelgaard'     ),
+(1,            1,        'Kwaliteitskompas'  ),
+(1,            1,        'Innovatiehub'      ),
+(2,            1,        'Mobipark'          ),
+(2,            1,        'De Stemmige Snaren');
+
+INSERT INTO character_building_states
+(character_building_id,  building_id, size, boosted_working_hours) VALUES
+(1,                       1,          1,    0),
+(2,                       6,          1,    0),
+(3,                       8,          2,    0),
+(4,                      12,          1,    0),
+(5,                      18,          1,    0);
+
+INSERT INTO character_buildings
+(character_id, world_id, name                ) VALUES
+(1,            1,        'De Appelgaard'     ),
+(1,            1,        'Kwaliteitskompas'  ),
+(1,            1,        'Innovatiehub'      ),
+(2,            1,        'Mobipark'          ),
+(2,            1,        'De Stemmige Snaren');
+
+
+
+
+
+
 INSERT INTO worlds
 (name,                   slug,   n_characters, n_tiles) VALUES
-('Zo zuiver als goud',   'gold', 3,            10),
 ('Belofte maakt schuld', 'debt', 3,            10),
+('Zo zuiver als goud',   'gold', 3,            10),
 ('De tijd brengt raad',  'time', 3,            10);
 
 INSERT INTO products 
