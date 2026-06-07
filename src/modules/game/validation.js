@@ -4,14 +4,15 @@ import { z } from 'zod';
 
 const MIN_FIRST_NAME_LENGTH = 3;
 const MAX_FIRST_NAME_LENGTH = 20;
+const FIRST_NAME_REGEX = /^\p{L}+(?:[ '-]\p{L}+)*$/u;
 
 const MIN_LAST_NAME_LENGTH = 3;
 const MAX_LAST_NAME_LENGTH = 20;
+const LAST_NAME_REGEX = /^\p{L}+(?:[ '-]\p{L}+)*$/u;
 
-const MIN_BUILDING_NAME_LENGTH = 3;
-const MAX_BUILDING_NAME_LENGTH = 20;
-
-const NAME_REGEX = /^\p{L}+(?:[ '-]\p{L}+)*$/u;
+const MIN_BUILDING_NAME_LENGTH = 2;
+const MAX_BUILDING_NAME_LENGTH = 32;
+const BUILDING_NAME_REGEX = /^[\p{L}\p{N}]+(?:[ '\-.:?!&][\p{L}\p{N}]+)*$/u
 
 //===============================================================================================//
 
@@ -118,21 +119,21 @@ const firstNameSchema = z
 	.string()
 	.min(MIN_FIRST_NAME_LENGTH)
 	.max(MAX_FIRST_NAME_LENGTH)
-	.regex(NAME_REGEX)
+	.regex(FIRST_NAME_REGEX)
 	.refine((fn) => fn === fn.trim());
 //-----------------------------------------------------------------------------------------------//
 const lastNameSchema = z
 	.string()
 	.min(MIN_LAST_NAME_LENGTH)
 	.max(MAX_LAST_NAME_LENGTH)
-	.regex(NAME_REGEX)
+	.regex(LAST_NAME_REGEX)
 	.refine((ln) => ln === ln.trim());
 //-----------------------------------------------------------------------------------------------//
 const buildingNameSchema = z
 	.string()
 	.min(MIN_BUILDING_NAME_LENGTH)
 	.max(MAX_BUILDING_NAME_LENGTH)
-	.regex(NAME_REGEX)
+	.regex(BUILDING_NAME_REGEX)
 	.refine((bn) => bn === bn.trim());
 //-----------------------------------------------------------------------------------------------//
 const phasesSchema = z.strictObject({

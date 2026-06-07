@@ -20,10 +20,10 @@ turn.phase.checkAccess('manageBuildings');
 	
 	<div class="mt-md">
 		<button id="open-demolish-window-button" class="btn btn--secondary" type="button" 
-				data-bs-toggle="offcanvas" data-bs-target="#demolish-window">
+				data-bs-toggle="modal" data-bs-target="#demolish-window">
 			<span class="btn-front">Gebouwen slopen...</span>
 		</button>
-	<div>
+	</div>
 
 	<h2>🏗️ Bouwen</h2>
 
@@ -33,77 +33,87 @@ turn.phase.checkAccess('manageBuildings');
 		
 	<div class="mt-md">
 		<button id="open-construct-window-button" class="btn btn--secondary" type="button" 
-				data-bs-toggle="offcanvas" data-bs-target="#construct-window">
+				data-bs-toggle="modal" data-bs-target="#construct-window">
 			<span class="btn-front">Gebouw plaatsen...</span>
 		</button>
 	</div>
 </div>
 
-<div id="demolish-window" class="offcanvas" 
-	 data-bs-backdrop="true" data-bs-scroll="false" tabindex="-1">
-	<div class="offcanvas-header">
-		<h2 class="offcanvas-title">💥 Slopen</h2>
-		
-		<button class="btn-close" type="button" data-bs-dismiss="offcanvas"></button>
-	</div>
-	
-	<div class="offcanvas-body">
-		<div class="mt-md stack">
-			<label class="form-label">
-				Vink de gebouwen aan:
-			</label>
-			<div id="demolishable-buildings-div"></div>
-		</div>
-		
-		<div class="mt-lg">
-			<button id="confirm-demolish-button" class="btn btn--primary" type="button">
-				<span class="btn-front">Gebouwen slopen</span>
-			</button>
+<!------------------------------------------------------------------------------------------------>
+
+<div id="demolish-window" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h2 class="modal-title">Gebouwen slopen</h2>
+				
+				<button class="btn-close" type="button" data-bs-dismiss="modal"></button>
+			</div>
+			
+			<div class="modal-body">
+				<div class="stack">
+					<label class="form-label">
+						Vink de gebouwen aan:
+					</label>
+					<div id="demolishable-buildings-div"></div>
+				</div>
+				
+				<div class="mt-lg">
+					<button id="confirm-demolish-button" class="btn btn--primary" type="button">
+						<span class="btn-front">Gebouwen slopen</span>
+					</button>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
 
-<div id="construct-window" class="offcanvas" 
-	 data-bs-backdrop="true" data-bs-scroll="false" tabindex="-1">
-	<div class="offcanvas-header">
-		<h2 class="offcanvas-title">🏗️ Bouwen</h2>
-		
-		<button class="btn-close" type="button" data-bs-dismiss="offcanvas"></button>
-	</div>
-	
-	<div class="offcanvas-body">
-		<form id="construct-form">
-			<div class="mt-md stack">
-				<div>
-					<label for="building-type-select" class="form-label">
-						Gebouw:
-					</label>
-					<select id="building-type-select" class="form-select" required></select>
-				</div>
+<!------------------------------------------------------------------------------------------------>
+
+<div id="construct-window" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h2 class="modal-title">Gebouw plaatsen</h2>
 				
-				<div>
-					<label for="building-size-select" class="form-label">
-						Grootte:
-					</label>
-					<select id="building-size-select" class="form-select" required></select>
-				</div>
-				
-				<div>
-					<label for="building-name-input" class="form-label">
-						Naam:
-					</label>
-					<input id="building-name-input" class="form-control" type="text" required>
-				</div>
-				
-				<div id="building-name-error" class="error"></div>
+				<button class="btn-close" type="button" data-bs-dismiss="modal"></button>
 			</div>
 			
-			<div class="mt-lg">
-				<button id="confirm-construct-button" class="btn btn--primary" type="submit">
-					<span class="btn-front">Gebouw plaatsen</span>
-				</button>
+			<div class="modal-body">
+				<form id="construct-form">
+					<div class="stack">
+						<div>
+							<label for="building-type-select" class="form-label">
+								Gebouw:
+							</label>
+							<select id="building-type-select" class="form-select" required></select>
+						</div>
+						
+						<div>
+							<label for="building-size-select" class="form-label">
+								Grootte:
+							</label>
+							<select id="building-size-select" class="form-select" required></select>
+						</div>
+						
+						<div>
+							<label for="building-name-input" class="form-label">
+								Naam:
+							</label>
+							<input id="building-name-input" class="form-control" type="text" required>
+						</div>
+						
+						<div id="building-name-error" class="error"></div>
+					</div>
+					
+					<div class="mt-lg">
+						<button id="confirm-construct-button" class="btn btn--primary" type="submit">
+							<span class="btn-front">Gebouw plaatsen</span>
+						</button>
+					</div>
+				</form>
 			</div>
-		</form>
+		</div>
 	</div>
 </div>
 
@@ -130,7 +140,7 @@ turn.phase.load = function() {
 	const { data, elements } = this;
 	
 	elements.confirmDemolish.addEventListener('click', handleConfirmDemolish);
-	elements.confirmConstruct.addEventListener('click', handleConfirmConstruct);
+	elements.constructForm.addEventListener('submit', handleConfirmConstruct);
 	elements.buildingName.addEventListener('input', handleBuildingNameInput);
 	
 	this.populateSelect({
@@ -298,8 +308,8 @@ function cachePhaseElements() {
 function createOffcanvasObjects() {
 	const { elements } = turn.phase;
 	
-	turn.phase.demolishOffcanvas = new bootstrap.Offcanvas(elements.demolishWindow);
-	turn.phase.constructOffcanvas = new bootstrap.Offcanvas(elements.constructWindow);
+	turn.phase.demolishOffcanvas = bootstrap.Modal.getOrCreateInstance(elements.demolishWindow);
+	turn.phase.constructOffcanvas = bootstrap.Modal.getOrCreateInstance(elements.constructWindow);
 }
 //===============================================================================================//
 function handleConfirmDemolish() {
@@ -389,19 +399,21 @@ function renderDemolishList() {
 			span.innerHTML = createBuildingLabel(eb);
 			li.appendChild(span);
 			
-			if (eb.size <= data.freeTiles) {
-				const button = document.createElement('button');
-				button.type = 'button';
-				button.classList.add('btn-close');
-				button.disabled = turn.phase.disabled;
-				button.addEventListener('click', () => {
-					eb.isDemolished = false;
-					data.freeTiles -= eb.size;
-					turn.phase.updateUI();
-				});
-				li.appendChild(button);
-			}
-
+			const button = document.createElement('button');
+			button.type = 'button';
+			button.classList.add('btn-close');
+			button.disabled = turn.phase.disabled || (eb.size > data.freeTiles);
+			button.addEventListener('click', () => {
+				if (button.disabled) return;
+				button.disabled = true;
+				
+				eb.isDemolished = false;
+				data.freeTiles -= eb.size;
+				
+				turn.phase.updateUI();
+			});
+			
+			li.appendChild(button);
 			elements.demolishActions.appendChild(li);
 		} else {
 			// Add to demolishable buildings list
@@ -473,8 +485,8 @@ function renderConstructList() {
 			
 			await cancelBuildingNames([nb.characterBuildingId]);
 		});
-		li.appendChild(button);
 		
+		li.appendChild(button);
 		elements.constructActions.appendChild(li);
 	});
 	

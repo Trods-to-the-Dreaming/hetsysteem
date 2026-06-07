@@ -16,31 +16,45 @@ turn.phase.checkAccess('manageEmploymentContracts');
 	
 	<h2>💼 Werkgever</h2>
 	
-	<!--h3>Ontslaan</h3-->
-	
 	<ul id="dismiss-actions-ul" class="list-compact d-none"></ul>
 	
 	<div class="mt-md">
 		<button id="open-dismiss-window-button" class="btn btn--secondary" type="button" 
-				data-bs-toggle="offcanvas" data-bs-target="#dismiss-window">
-			<span class="btn-front">Werknemers ontslaan...</span>
+				data-bs-toggle="modal" data-bs-target="#dismiss-window">
+			<span class="btn-front">Ontslaan...</span>
 		</button>
 	</div>
-			
-	<!--h3>Rekruteren</h3-->
 	
 	<ul id="recruit-actions-ul" class="list-compact d-none"></ul>
 	
 	<div class="mt-md">
 		<button id="open-recruit-window-button" class="btn btn--secondary" type="button" 
-				data-bs-toggle="offcanvas" data-bs-target="#recruit-window">
-			<span class="btn-front">Werknemers zoeken...</span>
+				data-bs-toggle="modal" data-bs-target="#recruit-window">
+			<span class="btn-front">Aanwerven...</span>
 		</button>
 	</div>
 	
 	<!--bij de contracten de vraag en de aanbodprijs bewaren, zodat die bij het verbreken door een van de partijen opnieuw kan worden gebruikt-->
 	
 	<h2>👷 Werknemer</h2>
+	
+	<ul id="resign-actions-ul" class="list-compact d-none"></ul>
+	
+	<div class="mt-md">
+		<button id="open-resign-window-button" class="btn btn--secondary" type="button" 
+				data-bs-toggle="modal" data-bs-target="#resign-window">
+			<span class="btn-front">Ontslag nemen...</span>
+		</button>
+	</div>
+	
+	<ul id="apply-actions-ul" class="list-compact d-none"></ul>
+	
+	<div class="mt-md">
+		<button id="open-apply-window-button" class="btn btn--secondary" type="button" 
+				data-bs-toggle="modal" data-bs-target="#apply-window">
+			<span class="btn-front">Solliciteren...</span>
+		</button>
+	</div>
 	
 	<div class="mt-md">
 		<label for="max-employee-hours-input" class="form-label">
@@ -51,30 +65,26 @@ turn.phase.checkAccess('manageEmploymentContracts');
 			   name="maxEmployeeHours" value="0" required>
 	</div>
 	
-	<!--h3>Ontslag nemen</h3-->
-	
-	<ul id="resign-actions-ul" class="list-compact d-none"></ul>
-	
-	<div class="mt-md">
-		<button id="open-resign-window-button" class="btn btn--secondary" type="button" 
-				data-bs-toggle="offcanvas" data-bs-target="#resign-window">
-			<span class="btn-front">Jobs opzeggen...</span>
-		</button>
-	</div>
-	
-	<!--h3>Solliciteren</h3-->
-	
-	<ul id="apply-actions-ul" class="list-compact d-none"></ul>
-	
-	<div class="mt-md">
-		<button id="open-apply-window-button" class="btn btn--secondary" type="button" 
-				data-bs-toggle="offcanvas" data-bs-target="#apply-window">
-			<span class="btn-front">Job zoeken...</span>
-		</button>
-	</div>
-	
 	<h2>🧭️ Zelfstandige</h2>
 	
+	<ul id="close-actions-ul" class="list-compact d-none"></ul>
+	
+	<div class="mt-md">
+		<button id="open-close-window-button" class="btn btn--secondary" type="button" 
+				data-bs-toggle="modal" data-bs-target="#close-window">
+			<span class="btn-front">Zaken sluiten...</span>
+		</button>
+	</div>
+	
+	<ul id="start-actions-ul" class="list-compact d-none"></ul>
+	
+	<div class="mt-md">
+		<button id="open-start-window-button" class="btn btn--secondary" type="button" 
+				data-bs-toggle="modal" data-bs-target="#start-window">
+			<span class="btn-front">Zaak openen...</span>
+		</button>
+	</div>
+		
 	<div class="mt-md">
 		<label for="max-self-employed-hours-input" class="form-label">
 			Maximum aantal werkuren:
@@ -83,173 +93,231 @@ turn.phase.checkAccess('manageEmploymentContracts');
 			   min="0" max="{{maxHours}}" step="1"
 			   name="maxSelfEmployedHours" value="0" required>
 	</div>
-	
-	<!--h3>Stopzetten</h3-->
-	
-	<ul id="stop-actions-ul" class="list-compact d-none"></ul>
-	
-	<div class="mt-md">
-		<button id="open-stop-window-button" class="btn btn--secondary" type="button" 
-				data-bs-toggle="offcanvas" data-bs-target="#stop-window">
-			<span class="btn-front">Ondernemingen stopzetten...</span>
-		</button>
-	</div>
-	
-	<!--h3>Opstarten</h3-->
-	
-	<ul id="start-actions-ul" class="list-compact d-none"></ul>
-	
-	<div class="mt-md">
-		<button id="open-start-window-button" class="btn btn--secondary" type="button" 
-				data-bs-toggle="offcanvas" data-bs-target="#start-window">
-			<span class="btn-front">Onderneming opstarten...</span>
-		</button>
-	</div>
 </div>
 
-<div id="dismiss-window" class="offcanvas offcanvas-start" 
-	 data-bs-backdrop="true" data-bs-scroll="false" tabindex="-1">
-	<div class="offcanvas-header">
-		<h5 class="offcanvas-title">Ontslaan</h5>
-		
-		<button class="btn-close" type="button" data-bs-dismiss="offcanvas"></button>
-	</div>
+<!------------------------------------------------------------------------------------------------>
+
+<div id="dismiss-window" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3 class="modal-title">Ontslaan</h3>
+				
+				<button class="btn-close" type="button" data-bs-dismiss="modal"></button>
+			</div>
 	
-	<div class="offcanvas-body">
-		<div class="field">
-			<label class="form-label">
-				Vink de werknemers aan:
-			</label>
-			<div id="dismissible-employees-div"></div>
+			<div class="modal-body">
+				<div class="stack">
+					<label class="form-label">
+						Vink de werknemers aan:
+					</label>
+					<div id="dismissible-employees-div"></div>
+				</div>
+				
+				<div class="mt-lg">
+					<button id="confirm-dismiss-button" class="btn btn--primary" type="button">
+						<span class="btn-front">Ontslaan</span>
+					</button>
+				</div>
+			</div>
 		</div>
-		
-		<button id="confirm-dismiss-button" class="btn btn--primary" type="button">
-			<span class="btn-front">Werknemers ontslaan</span>
-		</button>
 	</div>
 </div>
 
-<div id="recruit-window" class="offcanvas offcanvas-start" 
-	 data-bs-backdrop="true" data-bs-scroll="false" tabindex="-1">
-	<div class="offcanvas-header">
-		<h5 class="offcanvas-title">Rekruteren</h5>
-		
-		<button class="btn-close" type="button" data-bs-dismiss="offcanvas"></button>
-	</div>
-	
-	<div class="offcanvas-body">
-		<form id="recruit-form">
-			<div class="field">
-				<label for="recruit-building-select" class="form-label">
-					Gebouw:
-				</label>
-				<select id="recruit-building-select" class="form-select" required></select>
-			</div>
-			
-			<div class="field">
-				<label for="recruit-hours-input" class="form-label">
-					In te vullen uren:
-				</label>
-				<input id="recruit-hours-input" class="form-control" type="number" 
-					   min="0" max="0" step="1" value="0" required>
-			</div>
-			
-			<div class="field">
-				<label for="recruit-hourly-wage-input" class="form-label">
-					Maximum uurloon:
-				</label>
-				<input id="recruit-hourly-wage-input" class="form-control" type="number" 
-					   min="1" max="1" step="1" value="1" required>
-			</div>
-			
-			<button id="confirm-recruit-button" class="btn btn--primary" type="submit">
-				<span class="btn-front">Werknemers zoeken</span>
-			</button>
-		</form>
-	</div>
-</div>
+<!------------------------------------------------------------------------------------------------>
 
-<div id="resign-window" class="offcanvas offcanvas-start" 
-	 data-bs-backdrop="true" data-bs-scroll="false" tabindex="-1">
-	<div class="offcanvas-header">
-		<h5 class="offcanvas-title">Ontslag nemen</h5>
-		
-		<button class="btn-close" type="button" data-bs-dismiss="offcanvas"></button>
-	</div>
-	
-	<div class="offcanvas-body">
-		<div class="field">
-			<label class="form-label">
-				Vink de jobs aan:
-			</label>
-			<div id="resignable-jobs-div"></div>
+<div id="recruit-window" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3 class="modal-title">Aanwerven</h3>
+				
+				<button class="btn-close" type="button" data-bs-dismiss="modal"></button>
+			</div>
+			
+			<div class="modal-body">
+				<form id="recruit-form">
+					<div class="stack">
+						<div>
+							<label for="recruit-building-select" class="form-label">
+								Gebouw:
+							</label>
+							<select id="recruit-building-select" class="form-select" required></select>
+						</div>
+						
+						<div>
+							<label for="recruit-hours-input" class="form-label">
+								Aantal werkuren:
+							</label>
+							<input id="recruit-hours-input" class="form-control" type="number" 
+								   min="0" max="0" step="1" value="0" required>
+						</div>
+						
+						<div>
+							<label for="recruit-hourly-wage-input" class="form-label">
+								Maximum uurloon:
+							</label>
+							<input id="recruit-hourly-wage-input" class="form-control" type="number" 
+								   min="1" max="1" step="1" value="1" required>
+						</div>
+					</div>
+					
+					<div class="mt-lg">
+						<button id="confirm-recruit-button" class="btn btn--primary" type="submit">
+							<span class="btn-front">Aanwerven</span>
+						</button>
+					</div>
+				</form>
+			</div>
 		</div>
-		
-		<button id="confirm-resign-button" class="button-2" type="button">
-			Jobs opzeggen
-		</button>
 	</div>
 </div>
 
-<div id="apply-window" class="offcanvas offcanvas-start" 
-	 data-bs-backdrop="true" data-bs-scroll="false" tabindex="-1">
-	<div class="offcanvas-header">
-		<h5 class="offcanvas-title">Job zoeken</h5>
-		
-		<button class="btn-close" type="button" data-bs-dismiss="offcanvas"></button>
-	</div>
-	
-	<div class="offcanvas-body">
-		<form id="apply-form">
-			<div class="field">
-				<label for="apply-building-select" class="form-label">
-					Gebouw:
-				</label>
-				<select id="apply-building-select" class="form-select" required></select>
-			</div>
-			
-			<div class="field">
-				<label for="apply-hours-input" class="form-label">
-					In te vullen uren:
-				</label>
-				<input id="apply-hours-input" class="form-control" type="number" 
-					   min="0" max="0" step="1" value="0" required>
-			</div>
-			
-			<div class="field">
-				<label for="apply-hourly-wage-input" class="form-label">
-					Minimum uurloon:
-				</label>
-				<input id="apply-hourly-wage-input" class="form-control" type="number" 
-					   min="1" max="1" step="1" value="1" required>
-			</div>
-			
-			<button id="confirm-apply-button" class="button-2" type="submit">
-				Job zoeken
-			</button>
-		</form>
-	</div>
-</div>
+<!------------------------------------------------------------------------------------------------>
 
-<div id="stop-window" class="offcanvas offcanvas-start" 
-	 data-bs-backdrop="true" data-bs-scroll="false" tabindex="-1">
-	<div class="offcanvas-header">
-		<h5 class="offcanvas-title">Stopzetten</h5>
-		
-		<button class="btn-close" type="button" data-bs-dismiss="offcanvas"></button>
-	</div>
+<div id="resign-window" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3 class="modal-title">Ontslag nemen</h3>
+				
+				<button class="btn-close" type="button" data-bs-dismiss="modal"></button>
+			</div>
 	
-	<div class="offcanvas-body">
-		<div class="field">
-			<label class="form-label">
-				Vink de ondernemingen aan:
-			</label>
-			<div id="stoppable-companies-div"></div>
+			<div class="modal-body">
+				<div class="stack">
+					<label class="form-label">
+						Vink de jobs aan:
+					</label>
+					<div id="resignable-jobs-div"></div>
+				</div>
+				
+				<div class="mt-lg">
+					<button id="confirm-resign-button" class="btn btn--primary" type="button">
+						<span class="btn-front">Ontslag nemen</span>
+					</button>
+				</div>
+			</div>
 		</div>
-		
-		<button id="confirm-stop-button" class="button-2" type="button">
-			Ondernemingen stopzetten
-		</button>
+	</div>
+</div>
+
+<!------------------------------------------------------------------------------------------------>
+
+<div id="apply-window" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3 class="modal-title">Solliciteren</h3>
+				
+				<button class="btn-close" type="button" data-bs-dismiss="modal"></button>
+			</div>
+			
+			<div class="modal-body">
+				<form id="apply-form">
+					<div class="stack">
+						<div>
+							<label for="apply-building-select" class="form-label">
+								Gebouw:
+							</label>
+							<select id="apply-building-select" class="form-select" required></select>
+						</div>
+						
+						<div>
+							<label for="apply-hours-input" class="form-label">
+								Aantal werkuren:
+							</label>
+							<input id="apply-hours-input" class="form-control" type="number" 
+								   min="0" max="0" step="1" value="0" required>
+						</div>
+						
+						<div>
+							<label for="apply-hourly-wage-input" class="form-label">
+								Minimum uurloon:
+							</label>
+							<input id="apply-hourly-wage-input" class="form-control" type="number" 
+								   min="1" max="1" step="1" value="1" required>
+						</div>
+					</div>
+					
+					<div class="mt-lg">
+						<button id="confirm-apply-button" class="btn btn--primary" type="submit">
+							<span class="btn-front">Solliciteren</span>
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!------------------------------------------------------------------------------------------------>
+
+<div id="close-window" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3 class="modal-title">Zaken sluiten</h3>
+				
+				<button class="btn-close" type="button" data-bs-dismiss="modal"></button>
+			</div>
+	
+			<div class="modal-body">
+				<div class="stack">
+					<label class="form-label">
+						Vink de zaken aan:
+					</label>
+					<div id="closeable-businesses-div"></div>
+				</div>
+				
+				<div class="mt-lg">
+					<button id="confirm-close-button" class="btn btn--primary" type="button">
+						<span class="btn-front">Zaken sluiten</span>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!------------------------------------------------------------------------------------------------>
+
+<div id="start-window" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3 class="modal-title">Zaak starten</h3>
+				
+				<button class="btn-close" type="button" data-bs-dismiss="modal"></button>
+			</div>
+			
+			<div class="modal-body">
+				<form id="start-form">
+					<div class="stack">
+						<div>
+							<label for="start-building-select" class="form-label">
+								Gebouw:
+							</label>
+							<select id="start-building-select" class="form-select" required></select>
+						</div>
+						
+						<div>
+							<label for="start-hours-input" class="form-label">
+								Aantal werkuren:
+							</label>
+							<input id="start-hours-input" class="form-control" type="number" 
+								   min="0" max="0" step="1" value="0" required>
+						</div>
+					</div>
+					
+					<div class="mt-lg">
+						<button id="confirm-start-button" class="btn btn--primary" type="submit">
+							<span class="btn-front">Zaak starten</span>
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
 	</div>
 </div>
 

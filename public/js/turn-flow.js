@@ -76,7 +76,7 @@ turn.phase = {
 		});
 		
 		const actionDiv = document.createElement('div');
-		actionDiv.classList.add('mt-lg', 'stack');
+		actionDiv.classList.add('mt-lg');
 		actionDiv.append(
 			confirmButton, 
 			finishButton, 
@@ -116,36 +116,44 @@ turn.phase = {
 		const headerDiv = document.createElement('div');
 		headerDiv.classList.add('modal-header');
 		
-		const title = document.createElement('h5');
+		const title = document.createElement('h2');
 		title.classList.add('modal-title');
-		title.textContent = 'Waarschuwing';
+		title.textContent = 'Werknemers ontslaan';
 		
 		const closeButton = createButton({ btnClass: 'btn-close' });
 		closeButton.setAttribute('data-bs-dismiss', 'modal');
 		closeButton.setAttribute('aria-label', 'Sluiten');
 
 		const bodyDiv = document.createElement('div');
-		bodyDiv.classList.add('modal-body');
-		bodyDiv.textContent = 'Alle volgende acties worden gewist, als u deze actie bewerkt.';
+		bodyDiv.classList.add('modal-body', 'modal-body--warning');
+		
+		const iconDiv = document.createElement('div');
+		iconDiv.classList.add('modal-icon');
+		iconDiv.textContent = '⚠️';
+		
+		const message = document.createElement('p');
+		message.classList.add('modal-message');
+		message.textContent = 'Alle volgende acties worden gewist, als u deze actie bewerkt.';
 
 		const footerDiv = document.createElement('div');
 		footerDiv.classList.add('modal-footer');
 		
 		const cancelEditButton = createButton({ 
-			btnClass: 'btn--modal', 
+			btnClass: 'btn--modal-cancel', 
 			btnText: 'Annuleren'
 		});
 		cancelEditButton.setAttribute('data-bs-dismiss', 'modal');
 
 		const confirmEditButton = createButton({
 			btnId: 'confirm-edit-button',
-			btnClass: 'btn--modal',
+			btnClass: 'btn--modal-ok',
 			btnText: 'Bewerken',
 			type: 'button',
 			onClick: this.handleConfirmEdit.bind(this)
 		});
 
 		headerDiv.append(title, closeButton);
+		bodyDiv.append(iconDiv, message);
 		footerDiv.append(cancelEditButton, confirmEditButton);
 		contentDiv.append(headerDiv, bodyDiv, footerDiv);
 		dialogDiv.appendChild(contentDiv);

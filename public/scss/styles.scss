@@ -122,14 +122,16 @@ body {
 
 hr {
 	margin: 1rem 0;
+	border: 0;
+    border-top: 1px solid $taupe;
 }
 
 h1 {
 	margin: 0;
 	
-	color: var(--h1-color);
+	color: $taupe;
 	font-family: "Trebuchet MS", system-ui, sans-serif;
-	font-size: 1.3rem;
+	font-size: 1.4rem;
 	font-weight: bold;
 }
 
@@ -137,19 +139,9 @@ h2 {
 	margin-top: $space-xl;
 	margin-bottom: 0;
 	
-	color: var(--h2-color);
+	color: $slate;
 	font-family: "Trebuchet MS", system-ui, sans-serif;
-	font-size: 1.15rem;
-	font-weight: bold;
-}
-
-h3 {
-	margin-top: $space-xl;
-	margin-bottom: 0;
-	
-	color: var(--h3-color);
-	font-family: "Trebuchet MS", system-ui, sans-serif;
-	font-size: 1rem;
+	font-size: 1.2rem;
 	font-weight: bold;
 }
 
@@ -188,7 +180,7 @@ table {
 	width: 100%;
 	
 	border-collapse: collapse;
-	border-bottom: 2px solid $charcoal;
+	border-bottom: 2px solid $slate;
 }
 
 thead {
@@ -204,37 +196,33 @@ tbody > tr:nth-of-type(odd) > * {
 }
 
 th, td {
+	border-bottom: 1px solid $slate;
 	padding: $space-sm;
-	border-bottom: 1px solid $gray-cloud;
 	
 	text-align: left;
 	white-space: nowrap;
 }
 
 thead th {
+	border-bottom: 2px solid $slate;
 	padding-top: 0;
-	border-bottom: 2px solid $charcoal;
 	
+	color: $slate;
 	font-weight: bold;
 }
 
 /*************************************************************************************************/
 
 .app {
-	--h1-color: #{$taupe};
-	--h2-color: #{$slate};
-	--h3-color: #{$charcoal};
 	--link-color: #{$royal-blue};
 	--btn-color: #{$taupe};
 	
 	display: block flex;
 	flex-direction: column;
-	max-width: 480px;
-	height: 100vh;
-	margin-inline: auto;
-	border-radius: 12px;
+	width: 100%;
+	min-height: 100dvh;
+	
 	background-color: $gray-mist;
-	box-shadow: 0 5px 20px 5px $evenblacker;
 }
 .app--wide {
 	max-width: 960px;
@@ -255,8 +243,8 @@ nav {
 	display: block flex;
 	align-items: center;
 	justify-content: space-between;
+	
 	padding: 0;
-	border-radius: 12px 12px 0 0;
 	background-color: $charcoal;
 }
 
@@ -264,14 +252,42 @@ main {
 	flex: 1;
 	overflow-y: auto;
 	-webkit-overflow-scrolling: touch;
+	
 	padding: $space-xl;
+}
+
+@media (min-width: calc(480px + 2rem)) {
+	body {
+		padding: 1rem;
+	}
+	
+	.app {		
+		width: 480px;
+		min-height: calc(100dvh - 2rem);
+		
+		margin-inline: auto;
+		border-radius: 12px;
+		box-shadow: 0 5px 20px 5px $evenblacker;
+	}
+	
+	nav {
+		--link-color: #{$sand-gold};
+		
+		display: block flex;
+		align-items: center;
+		justify-content: space-between;
+		
+		border-radius: 12px 12px 0 0;
+		padding: 0;
+		background-color: $charcoal;
+	}
 }
 
 /*************************************************************************************************/
 
 .banner {
-	padding: $space-sm 0;
 	border-bottom: 2px solid color-mix(in oklch, var(--banner-color) 65%, black);
+	padding: $space-sm 0;
 	background-color: color-mix(in oklch, var(--banner-color) 22%, white);
 	
 	color: color-mix(in oklch, var(--banner-color) 65%, black);
@@ -294,7 +310,8 @@ main {
 	
 	text-decoration: none;
 	
-	cursor: pointer; 
+	cursor: pointer;
+	user-select: none;
 }
 .nav-btn:hover {
 	text-decoration: none;
@@ -312,7 +329,9 @@ main {
 }
 
 .nav-link {
-	margin: 0 $space-xl;
+	margin: $space-sm $space-xl;
+	
+	line-height: 2.25rem;
 }
 
 /*************************************************************************************************/
@@ -322,10 +341,10 @@ main {
 	height: var(--btn-height);
 	width: var(--btn-width);
 	
+	margin: 2px 0 0 0;
 	border: none;
 	border-radius: var(--btn-border-radius);
 	padding: 0;
-	margin: 2px 0 0 0;
 	background-image: linear-gradient(
 		to left,
 		var(--btn-edge-dark-color) 0%,
@@ -409,6 +428,7 @@ main {
 	
 	color: var(--btn-text-color-active);
 	text-decoration: none;
+	
 	transform: translateY(0px);
 }
 .btn:disabled .btn-front {
@@ -433,9 +453,13 @@ main {
 	@include btn-base;
 	@include btn-dark($crimson);
 }
-.btn--modal {
+.btn--modal-ok {
 	@include btn-base($width: 7rem);
 	@include btn-dark(var(--btn-color));
+}
+.btn--modal-cancel {
+	@include btn-base($width: 7rem);
+	@include btn-light($slate);
 }
 .btn--gold {
 	@include btn-base;
@@ -463,7 +487,7 @@ main {
 
 /*************************************************************************************************/
 
-.btn-edit {
+/*.btn-edit {
 	--btn-background-color: color-mix(in oklch, #{$slate} 22%, white);
 	--btn-background-color-hover: color-mix(in oklch, var(--btn-background-color) 85%, white);
 	--btn-background-color-active: color-mix(in oklch, var(--btn-background-color) 90%, black);
@@ -479,6 +503,7 @@ main {
 	background-color: var(--btn-background-color);
 	
 	text-decoration: none;
+	
 	cursor: pointer;
 	transition: background-color 80ms ease;
 }
@@ -490,28 +515,30 @@ main {
 .btn-edit:active {
 	background-color: var(--btn-background-color-active);
 	text-decoration: none;
-}
+}*/
 
 /*************************************************************************************************/
 
 .btn-close {
-	--btn-close-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414'/%3e%3c/svg%3e");
-	box-sizing: content-box;
-	width: 1em;
-	height: 1em;
-	padding: 0.25em;
-	color: $charcoal;
-	background-color: transparent;
-	background-image: var(--btn-close-bg);
-	background-repeat: no-repeat;
-	background-position: center;
-	background-size: 1em auto;
 	border: 0;
-	border-radius: 0.375rem;
+	padding: 0;
+	background: none;
+	
+	color: $charcoal;
+	font-size: 1.6rem;
+	line-height: 50%;
+	
 	cursor: pointer;
+	
+}
+.btn-close::before {
+	content: "\00d7";
 }
 .btn-close:hover {
-	color: black;
+	color: color-mix(in oklch, $charcoal 80%, white);
+}
+.btn-close:active {
+	color: color-mix(in oklch, $charcoal 70%, black);
 }
 .btn-close:disabled {
 	color: $gray-cloud;
@@ -562,82 +589,17 @@ main {
 
 /*************************************************************************************************/
 
-.offcanvas {
-	position: fixed;
-	top: 0;
-	left: 0;
-	z-index: 1045;
-	display: block flex;
-	flex-direction: column;
-	width: 400px;
-	height: 100vh;
-	max-width: 100%;
-	visibility: hidden;
-	padding: 0;
-	border-right: 1px solid $charcoal;
-	margin: 0;
-	background-color: $gray-mist;
-	background-clip: padding-box;
-	outline: 0;
-	color: $charcoal;
-	transform: translateX(-100%);
-	transition: transform $time ease-in-out;
-}
-.offcanvas.showing, .offcanvas.show:not(.hiding) {
-	transform: none;
-}
-.offcanvas.showing, .offcanvas.hiding, .offcanvas.show {
-	visibility: visible;
-}
-
-.offcanvas-backdrop {
-	position: fixed;
-	top: 0;
-	left: 0;
-	z-index: 1040;
-	width: 100vw;
-	height: 100vh;
-	margin: 0;
-	background-color: black;
-}
-.offcanvas-backdrop.fade {
-	opacity: 0;
-}
-.offcanvas-backdrop.show {
-	opacity: 0.5;
-}
-
-.offcanvas-header {
-	display: block flex;
-	align-items: center;
-	padding: 1rem 1rem 0 1rem;
-}
-.offcanvas-header .btn-close {
-	margin-left: auto;
-}
-
-.offcanvas-title {
-	margin-top: 0;
-}
-
-.offcanvas-body {
-	flex-grow: 1;
-	overflow-y: auto;
-	padding: 0 1rem;
-}
-
-/*************************************************************************************************/
-
 .modal {
 	position: fixed;
 	inset: 0;
 	z-index: 1055;
 	display: none;
-	padding: 0.5rem;
 	width: 100%;
 	min-height: 100dvh;
 	overflow-x: hidden;
 	overflow-y: auto;
+	
+	padding: 0.5rem;
 	outline: 0;
 }
 
@@ -646,8 +608,10 @@ main {
 	display: block flex;
 	align-items: center;
 	min-height: calc(100dvh - 1rem);
-	width: min(500px, calc(100vw - 1rem));
+	width: min(400px, calc(100dvw - 1rem));
+	
 	margin: auto;
+	
 	pointer-events: none;
 }
 
@@ -665,20 +629,22 @@ main {
 	display: block flex;
 	flex-direction: column;
 	width: 100%;
-	pointer-events: auto;
-	color: $charcoal;
-	background-color: white;
-	background-clip: padding-box;
+	overflow: hidden;
+	
 	border: 1px solid $gray-cloud;
 	border-radius: 0.375rem;
 	outline: 0;
-	overflow: hidden;
+	background-color: $gray-mist;
+	background-clip: padding-box;
+	
+	pointer-events: auto;
 }
 
 .modal-backdrop {
 	position: fixed;
 	inset: 0;
 	z-index: 1050;
+	
 	background-color: black;
 }
 
@@ -692,10 +658,11 @@ main {
 
 .modal-header {
 	display: block flex;
-	align-items: center;
 	flex-shrink: 0;
-	padding: 1rem;
+	align-items: center;
+	
 	border-bottom: 1px solid $gray-cloud;
+	padding: $space-md;
 }
 
 .modal-header .btn-close {
@@ -704,38 +671,49 @@ main {
 
 .modal-title {
 	margin: 0;
-	line-height: 1.5;
+	
+	color: $charcoal;
+	font-size: 1rem;
+	font-weight: bold;
+	line-height: 1.2;
 }
 
 .modal-body {
-	position: relative;
-	flex: 1 1 auto;
-	padding: 1rem;
+	padding: $space-md;
+}
+.modal-body--warning {
+	display: block flex;
+	align-items: flex-start;
+	gap: $space-md;
+}
+
+.modal-icon {
+	flex-shrink: 0;
+
+	font-size: 2rem;
+	line-height: 1;
+	
+	user-select: none;
+}
+
+.modal-message {
+	margin: 0;
 }
 
 .modal-footer {
 	display: block flex;
 	flex-wrap: wrap;
+	flex-shrink: 0;
 	align-items: center;
 	justify-content: flex-end;
-	flex-shrink: 0;
 	gap: 0.5rem;
-	padding: 0.75rem;
-	border-top: 1px solid $gray-cloud;
+	
+	/*border-top: 1px solid $gray-cloud;*/
+	padding: $space-md;
 }
 
 body.modal-open {
 	overflow: hidden;
-}
-
-@media (max-width: 576px) {
-	.modal-footer {
-		flex-direction: column;
-	}
-
-	.modal-footer > * {
-		width: 100%;
-	}
 }
 
 /*************************************************************************************************/
@@ -803,8 +781,6 @@ body.modal-open {
 }
 
 /*************************************************************************************************/
-
-
 
 .form-label {
 	display: block flow;
@@ -999,7 +975,7 @@ body.modal-open {
 	flex-direction: column;
 	padding-left: 0;
 	margin-bottom: 0;
-	border: 2px solid $gray-cloud;
+	border: 1px solid $slate;
 	border-radius: 0.375rem;
 }
 
@@ -1008,6 +984,7 @@ body.modal-open {
 	justify-content: space-between;
 	align-items: center;
 	padding: 0.5rem 1rem;
-	border: 1px solid $gray-cloud;
-	justify-content: space-between;
+}
+.list-item-justify + .list-item-justify {
+    border-top: 1px solid $gray-cloud;
 }
