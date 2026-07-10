@@ -163,15 +163,16 @@ export const createCharacterSchema = z.strictObject({
 	recreationPreferenceId: z.coerce.number().int().positive()
 });
 //-----------------------------------------------------------------------------------------------//
+export const checkTurnEditVersionSchema = z.strictObject({
+	turnEditVersion: z.coerce.number().int().positive()
+});
+//-----------------------------------------------------------------------------------------------//
 export const reserveBuildingNameSchema = z.strictObject({
 	characterBuildingName: buildingNameSchema
 });
 //-----------------------------------------------------------------------------------------------//
-export const cancelBuildingNamesSchema = z.strictObject({
-	characterBuildingIds: uniqueArray({ 
-			schema: z.coerce.number().int().positive(), 
-			key: 'characterBuildingId'
-		})
+export const cancelBuildingNameSchema = z.strictObject({
+	characterBuildingId: z.coerce.number().int().positive()
 });
 //-----------------------------------------------------------------------------------------------//
 export const finishTurnSchema = z.strictObject({

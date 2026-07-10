@@ -15,6 +15,7 @@ import systemRoutes from '#modules/system/routes.js';
 import accountRoutes from '#modules/account/routes.js';
 import gameRoutes from '#modules/game/routes.js';
 //import cronRoutes from '#modules/cron/routes.js';
+import errorsRoutes from '#modules/errors/routes.js';
 
 //===============================================================================================//
 
@@ -102,10 +103,7 @@ app.use(systemRoutes.path, systemRoutes.router);
 app.use(accountRoutes.path, accountRoutes.router);
 app.use(gameRoutes.path, gameRoutes.router);
 //app.use(cronRoutes.path, cronRoutes.router);
-
-app.use((req, res) => {
-	res.status(404).render('errors/404');
-});
+app.use(errorsRoutes.path, errorsRoutes.router);
 
 //===============================================================================================//
 
@@ -113,11 +111,12 @@ app.use((err, req, res, next) => {
 	console.error(err);
 	
 	const status = err.status || 500;
-	const message = err.message;
 	
-	res.status(status).render(`errors/${status}`, {
-		message
-	});
+	if (req.headers.accept?.includes('application/json')) {
+		return res.status(status).json({ redirect: `/errors/${status}` });
+	}
+	
+	res.status(status).render(`errors/${status}`);
 });
 
 //===============================================================================================//

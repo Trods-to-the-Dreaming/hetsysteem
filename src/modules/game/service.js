@@ -13,3 +13,12 @@ export async function isCharacterCreated({ userId,
 	
 	return Boolean(character);
 }
+//-----------------------------------------------------------------------------------------------//
+export async function prepareMenu({ userId, worldId }) {
+	return {
+		isCharacterCreated: await isCharacterCreated({
+			userId,
+			worldId
+		})
+	};
+}

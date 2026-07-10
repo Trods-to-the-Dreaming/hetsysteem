@@ -77,31 +77,46 @@ import {
 	findOtherConstructAction,*/
 	listProducts,
 	listBuildings,
+	findEditableCharacter,
 	findCharacter,
 	findCharacterState,
+	incrementTurnEditVersion,
+	findTurnEditVersion,
 	findOwnedProducts,
 	findOwnedBuildings,
 	findOwnedReservedBuildings,
 	findOwnedConstructionSites,
-	/*findEmployerContracts,
 	findEmployeeContracts,
+	findEmployerContracts,
+	findSelfEmploymentContracts,/*
 	findTenantAgreements,
 	findLandlordAgreements,*/
 	insertCharacterBuilding,
-	deleteCharacterBuildings,
+	deleteUnusedCharacterBuilding,
+	deleteAllUnusedCharacterBuildings,
 	startProcessActions,
 	finishProcessActions
 } from './repository.js';
 
 //===============================================================================================//
 
-export async function buildTurnView({ userId,
-									  worldId }) {
+async function cleanUp({ characterId,
+						 trx = knex }) {
+	await deleteAllUnusedCharacterBuildings({
+		characterId,
+		trx
+	});
+}
+
+//===============================================================================================//
+
+export async function loadTurn({ userId,
+								 worldId }) {
 	const { id: characterId } = await findCharacter({
 		userId,
 		worldId
 	});
-	
+
 	const [
 		products,
 		buildings,
@@ -110,8 +125,9 @@ export async function buildTurnView({ userId,
 		ownedBuildings,
 		ownedReservedBuildings,
 		ownedConstructionSites,
-		/*employeeContracts,
+		employeeContracts,
 		employerContracts,
+		selfEmploymentContracts,/*
 		tenantAgreements,
 		landlordAgreements,*/
 		manageBuildings,
@@ -130,8 +146,9 @@ export async function buildTurnView({ userId,
 		findOwnedBuildings({ characterId }),
 		findOwnedReservedBuildings({ characterId }),
 		findOwnedConstructionSites({ characterId }),
-		/*findEmployeeContracts({ characterId }),
+		findEmployeeContracts({ characterId }),
 		findEmployerContracts({ characterId }),
+		findSelfEmploymentContracts({ characterId }),/*
 		findTenantAgreements({ characterId }),
 		findLandlordAgreements({ characterId }),*/
 		loadManageBuildings({ characterId }),
@@ -156,9 +173,10 @@ export async function buildTurnView({ userId,
 			ownedProducts,
 			ownedBuildings,
 			ownedReservedBuildings,
-			ownedConstructionSites/*,
+			ownedConstructionSites,
 			employeeContracts,
 			employerContracts,
+			selfEmploymentContracts/*,
 			tenantAgreements,
 			landlordAgreements*/
 		},
@@ -173,13 +191,48 @@ export async function buildTurnView({ userId,
 			manageGroup
 		},
 		phases: PHASES,
-		finished: characterState.hasFinishedTurn
+		saved: characterState.turnSaved
 	};
 }
 //-----------------------------------------------------------------------------------------------//
-export async function finishTurn({ userId, 
-								   worldId, 
-								   phases }) {
+export async function startTurn({ userId, 
+								  worldId }) {
+	
+	return await knex.transaction(async (trx) => {
+		const { id: characterId } = await findCharacter({
+			userId,
+			worldId,
+			trx
+		});
+		
+		await incrementTurnEditVersion({ 
+			characterId, 
+			trx 
+		});
+
+		const { turnEditVersion } = await findTurnEditVersion({
+			characterId,
+			trx
+		});
+		
+		return { turnEditVersion };
+	});
+}
+//-----------------------------------------------------------------------------------------------//
+export async function saveTurn({ userId, 
+								 worldId, 
+								 characterPhases }) {
+	const {
+		manageBuildings,
+		manageEmploymentContracts,
+		manageRentalAgreements,
+		produce,
+		trade,
+		share,
+		consume,
+		manageGroup
+	} = characterPhases;
+	
 	await knex.transaction(async (trx) => {
 		const { id: characterId } = await findCharacter({
 			userId,
@@ -189,45 +242,65 @@ export async function finishTurn({ userId,
 		
 		await saveManageBuildings({ 
 			characterId,
-			phase: phases.manageBuildings,
+			manageBuildings,
 			trx
 		});
 		await saveManageEmploymentContracts({ 
 			characterId,
-			phase: phases.manageEmploymentContracts,
+			manageEmploymentContracts,
 			trx
 		});
 		await saveManageRentalAgreements({ 
 			characterId,
-			phase: phases.manageRentalAgreements,
+			manageRentalAgreements,
 			trx
 		});
 		await saveProduce({ 
 			characterId,
-			phase: phases.produce,
+			produce,
 			trx
 		});
 		await saveTrade({ 
 			characterId,
-			phase: phases.trade,
+			trade,
 			trx
 		});
 		await saveShare({ 
 			characterId,
-			phase: phases.share,
+			share,
 			trx
 		});
 		await saveConsume({ 
 			characterId,
-			phase: phases.consume,
+			consume,
 			trx
 		});
 		await saveManageGroup({ 
 			characterId,
-			phase: phases.manageGroup,
+			manageGroup,
+			trx
+		});
+		await cleanUp({
+			characterId,
+			trx
+		});
+		await updateCharacterState({
+			characterId,
 			trx
 		});
 	});
+}
+//-----------------------------------------------------------------------------------------------//
+export async function checkTurnEditVersion({ userId,
+											 worldId,
+											 turnEditVersion }) {
+	const character = await findEditableCharacter({
+		userId,
+		worldId,
+		turnEditVersion
+	});
+	
+	return Boolean(character);
 }
 //-----------------------------------------------------------------------------------------------//
 export async function reserveBuildingName({ userId, 
@@ -277,9 +350,9 @@ export async function reserveBuildingName({ userId,
 	}
 }
 //-----------------------------------------------------------------------------------------------//
-export async function cancelBuildingNames({ userId, 
-											worldId, 
-											characterBuildingIds }) {
+export async function cancelBuildingName({ userId, 
+										   worldId, 
+										   characterBuildingId }) {
 	return await knex.transaction(async (trx) => {
 		const { id: characterId } = await findCharacter({
 			userId,
@@ -287,13 +360,11 @@ export async function cancelBuildingNames({ userId,
 			trx
 		});
 		
-		await deleteCharacterBuildings({
-			characterBuildingIds,
+		await deleteUnusedCharacterBuilding({
+			characterBuildingId,
 			characterId,
 			trx
 		});
-		
-		return ok();
 	});
 }
 //-----------------------------------------------------------------------------------------------//

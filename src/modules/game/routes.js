@@ -8,6 +8,7 @@ import {
 } from '#middleware/validate.js';
 //-----------------------------------------------------------------------------------------------//
 import { 
+	limitReserveBuildingNameRate,
 	requireWorldEntered,
 	requireCharacterCreated,
 	requireToken
@@ -16,8 +17,9 @@ import {
 	enterWorldSchema,
 	createCharacterSchema,
 	finishTurnSchema,
+	checkTurnEditVersionSchema,
 	reserveBuildingNameSchema,
-	cancelBuildingNamesSchema
+	cancelBuildingNameSchema
 } from './validation.js';
 import {
 	showEnterWorld,
@@ -27,6 +29,7 @@ import {
 	showCreateCharacter,
 	handleCreateCharacter,
 	showStartTurn,
+	handleStartTurn,
 	showManageBuildings,
 	showManageEmploymentContracts,
 	showManageRentalAgreements,
@@ -37,8 +40,9 @@ import {
 	showManageGroup,
 	showFinishTurn,
 	handleFinishTurn,
+	handleCheckTurnEditVersion,
 	handleReserveBuildingName,
-	handleCancelBuildingNames,
+	handleCancelBuildingName,
 	triggerProcessActions,
 	showStatistics
 } from './controller.js';
@@ -91,6 +95,13 @@ router.get('/turn/start',
 	requireWorldEntered,
 	requireCharacterCreated(),
 	showStartTurn
+);
+//-----------------------------------------------------------------------------------------------//
+router.post('/turn/start',
+	requireLogin,
+	requireWorldEntered,
+	requireCharacterCreated(),
+	handleStartTurn
 );
 //-----------------------------------------------------------------------------------------------//
 router.get('/turn/manage-buildings',
@@ -163,7 +174,17 @@ router.post('/turn/finish',
 	handleFinishTurn
 );
 //-----------------------------------------------------------------------------------------------//
+router.post(
+    '/turn/check-edit-version',
+    requireLogin,
+    requireWorldEntered,
+    requireCharacterCreated(),
+    requireValidation(checkTurnEditVersionSchema),
+    handleCheckTurnEditVersion
+);
+//-----------------------------------------------------------------------------------------------//
 router.post('/turn/reserve-building-name',
+	limitReserveBuildingNameRate,
 	requireLogin,
 	requireWorldEntered,
 	requireCharacterCreated(),
@@ -171,12 +192,12 @@ router.post('/turn/reserve-building-name',
 	handleReserveBuildingName
 );
 //-----------------------------------------------------------------------------------------------//
-router.post('/turn/cancel-building-names',
+router.post('/turn/cancel-building-name',
 	requireLogin,
 	requireWorldEntered,
 	requireCharacterCreated(),
-	requireValidation(cancelBuildingNamesSchema),
-	handleCancelBuildingNames
+	requireValidation(cancelBuildingNameSchema),
+	handleCancelBuildingName
 );
 //-----------------------------------------------------------------------------------------------//
 router.get('/turn/process-actions',

@@ -19,9 +19,9 @@ const characterState = {{{json characterState}}};
 const characterPhases = {{{json characterPhases}}};
 
 const phases = {{{json phases}}};
-const finished = {{{json finished}}};
+const saved = {{{json saved}}};
 
-const currentPhaseIndex = finished ? 0 : phases.length;
+const currentPhaseIndex = saved ? 0 : phases.length; // KLOPT DIT?
 
 turn.storage.saveNamespace('constants', constants);
 turn.storage.saveNamespace('characterState', characterState);
@@ -29,8 +29,7 @@ turn.storage.saveNamespace('characterPhases', characterPhases);
 
 turn.storage.save('phases', phases);
 turn.storage.save('currentPhaseIndex', currentPhaseIndex);
-turn.storage.save('started', true);
-turn.storage.save('finished', finished);
+turn.storage.save('saved', saved);
 
 location.replace(phases[0].url);
 //-----------------------------------------------------------------------------------------------//

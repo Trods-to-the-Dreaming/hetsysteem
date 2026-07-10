@@ -34,7 +34,7 @@ const MSG_INVALID_PREFERENCE = 'Ongeldige job- of recreatievoorkeur.'
 
 //===============================================================================================//
 
-export async function getCreateCharacterOptions() {
+export async function prepareCreateCharacterOptions() {
 	const jobs = await listJobs();
 	const recreations = await listRecreations();
 	

@@ -194,7 +194,8 @@ ON characters (
 
 CREATE TABLE character_states (
 	character_id INT UNSIGNED PRIMARY KEY,
-	has_finished_turn BOOLEAN NOT NULL DEFAULT TRUE,
+	turn_edit_version SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+	turn_saved BOOLEAN NOT NULL DEFAULT FALSE,
 	job_preference_1_id TINYINT UNSIGNED NOT NULL,
 	job_preference_2_id TINYINT UNSIGNED NOT NULL,
 	job_preference_3_id TINYINT UNSIGNED NOT NULL,
@@ -285,22 +286,64 @@ CREATE TABLE actions_construct (
 );
 
 
-/*CREATE TABLE character_buildings (
+
+
+CREATE TABLE employment_contracts (
 	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	world_id TINYINT UNSIGNED NOT NULL, -- for name uniqueness
-	character_id INT UNSIGNED NOT NULL,
-	building_id TINYINT UNSIGNED NOT NULL,
-	name VARCHAR(32) NOT NULL,
-	size TINYINT UNSIGNED NOT NULL DEFAULT 1,
-	boosted_working_hours SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-	FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE,
-	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
-	FOREIGN KEY (building_id) REFERENCES buildings(id)
-);*/
+	employee_id INT UNSIGNED NOT NULL,
+	workplace_id INT UNSIGNED NOT NULL,
+	working_hours TINYINT UNSIGNED NOT NULL,
+	hourly_wage INT UNSIGNED NOT NULL,
+	FOREIGN KEY (employee_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (workplace_id) REFERENCES character_buildings(id) ON DELETE CASCADE
+);
 
+CREATE TABLE self_employment_contracts (
+	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	workplace_id INT UNSIGNED NOT NULL,
+	working_hours TINYINT UNSIGNED NOT NULL,
+	FOREIGN KEY (workplace_id) REFERENCES character_buildings(id) ON DELETE CASCADE
+);
 
+CREATE TABLE action_dismiss (
+	employment_contract_id INT UNSIGNED NOT NULL,
+	FOREIGN KEY (employment_contract_id) REFERENCES employment_contracts(id)
+);
 
+CREATE TABLE action_recruit (
+    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	company_id INT UNSIGNED NOT NULL,
+	working_hours TINYINT UNSIGNED NOT NULL,
+	max_hourly_wage INT UNSIGNED NOT NULL,
+	FOREIGN KEY (company_id) REFERENCES character_buildings(id) ON DELETE CASCADE
+);
 
+CREATE TABLE action_resign (
+	employment_contract_id INT UNSIGNED NOT NULL,
+	FOREIGN KEY (employment_contract_id) REFERENCES employment_contracts(id)
+);
+
+CREATE TABLE action_apply (
+    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	applicant_id INT UNSIGNED NOT NULL,
+	job_id TINYINT UNSIGNED NOT NULL,
+	working_hours TINYINT UNSIGNED NOT NULL,
+	min_hourly_wage INT UNSIGNED NOT NULL,
+	FOREIGN KEY (applicant_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (job_id) REFERENCES buildings(id)
+);
+
+CREATE TABLE action_close (
+	self_employment_contract_id INT UNSIGNED NOT NULL,
+	FOREIGN KEY (self_employment_contract_id) REFERENCES self_employment_contracts(id)
+);
+
+CREATE TABLE action_start (
+    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	company_id INT UNSIGNED NOT NULL,
+	working_hours TINYINT UNSIGNED NOT NULL,
+	FOREIGN KEY (company_id) REFERENCES character_buildings(id) ON DELETE CASCADE
+);
 
 
 
@@ -323,15 +366,7 @@ CREATE TABLE character_experience (
 	FOREIGN KEY (job_id) REFERENCES buildings(id)
 );
 
-CREATE TABLE employment_contracts (
-	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	employee_id INT UNSIGNED NOT NULL,
-	workplace_id INT UNSIGNED NOT NULL,
-	working_hours TINYINT UNSIGNED NOT NULL,
-	hourly_wage INT UNSIGNED NOT NULL,
-	FOREIGN KEY (employee_id) REFERENCES characters(id) ON DELETE CASCADE,
-	FOREIGN KEY (workplace_id) REFERENCES character_buildings(id) ON DELETE CASCADE
-);
+
 
 CREATE TABLE rental_agreements (
 	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
@@ -375,33 +410,11 @@ CREATE TABLE action_construct (
 	FOREIGN KEY (building_id) REFERENCES buildings(id)
 );*/
 
-CREATE TABLE action_resign (
-	employment_contract_id INT UNSIGNED NOT NULL,
-	FOREIGN KEY (employment_contract_id) REFERENCES employment_contracts(id)
-);
 
-CREATE TABLE action_dismiss (
-	employment_contract_id INT UNSIGNED NOT NULL,
-	FOREIGN KEY (employment_contract_id) REFERENCES employment_contracts(id)
-);
 
-CREATE TABLE action_apply (
-    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	applicant_id INT UNSIGNED NOT NULL,
-	job_id TINYINT UNSIGNED NOT NULL,
-	working_hours TINYINT UNSIGNED NOT NULL,
-	min_hourly_wage INT UNSIGNED NOT NULL,
-	FOREIGN KEY (applicant_id) REFERENCES characters(id) ON DELETE CASCADE,
-	FOREIGN KEY (job_id) REFERENCES buildings(id)
-);
 
-CREATE TABLE action_recruit (
-    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	company_id INT UNSIGNED NOT NULL,
-	working_hours TINYINT UNSIGNED NOT NULL,
-	max_hourly_wage INT UNSIGNED NOT NULL,
-	FOREIGN KEY (company_id) REFERENCES character_buildings(id) ON DELETE CASCADE
-);
+
+
 
 CREATE TABLE action_acquire_projects (
     id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,

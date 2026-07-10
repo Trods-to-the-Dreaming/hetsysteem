@@ -4,9 +4,6 @@ import {
 } from '#utils/errors.js';
 //-----------------------------------------------------------------------------------------------//
 import { 
-	GameError 
-} from '#modules/game/errors.js';
-import { 
 	GAME 
 } from '#modules/game/reasons.js';
 //-----------------------------------------------------------------------------------------------//
@@ -31,9 +28,10 @@ import {
 
 //===============================================================================================//
 
-const MSG_INVALID_CHARACTER_BUILDING = 'Het personage bezit dit gebouw niet.';
-const MSG_INVALID_BUILDING			 = 'Dit type gebouw bestaat niet.';
-const MSG_NOT_ENOUGH_TILES			 = 'Er zijn onvoldoende vrije landtegels.';
+const MSG_INVALID_DEMOLITION   = 'Dit gebouw kan niet worden gesloopt.';
+const MSG_INVALID_CONSTRUCTION = 'Dit gebouw kan niet worden geplaatst.';
+const MSG_INVALID_BUILDING	   = 'Dit type gebouw bestaat niet.';
+const MSG_NOT_ENOUGH_TILES	   = 'Er zijn onvoldoende vrije landtegels.';
 
 //===============================================================================================//
 
@@ -105,15 +103,15 @@ export async function loadManageBuildings({ characterId,
 }
 //-----------------------------------------------------------------------------------------------//
 export async function saveManageBuildings({ characterId,
-											phase,
+											manageBuildings,
 											trx = knex }) {
-	if (!phase)
+	if (!manageBuildings)
 		return;
 	
 	const { 
 		demolishActions,
 		constructActions 
-	} = phase;
+	} = manageBuildings;
 	
 	// Validate
 	if (demolishActions.length > 0) {
@@ -123,7 +121,7 @@ export async function saveManageBuildings({ characterId,
 			trx
 		});
 		if (validDemolishActions.length !== demolishActions.length)
-			throw new BadRequestError(MSG_INVALID_CHARACTER_BUILDING);
+			throw new BadRequestError(MSG_INVALID_DEMOLITION);
 	}
 	
 	if (constructActions.length > 0) {
@@ -138,7 +136,7 @@ export async function saveManageBuildings({ characterId,
 			trx
 		});
 		if (validConstructActions.length !== constructActions.length)
-			throw new BadRequestError(MSG_INVALID_CHARACTER_BUILDING);
+			throw new BadRequestError(MSG_INVALID_CONSTRUCTION);
 		
 		const totalSize = constructActions.reduce(
 			(sum, item) => sum + item.size,

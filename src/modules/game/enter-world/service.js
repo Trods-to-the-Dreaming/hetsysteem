@@ -12,8 +12,10 @@ import {
 
 //===============================================================================================//
 
-export async function getEnterWorldOptions() {
-	return await listWorlds();
+export async function prepareEnterWorldOptions() {
+	const worlds = await listWorlds();
+	
+	return { worlds };
 }
 //-----------------------------------------------------------------------------------------------//
 export async function enterWorld({ userId,

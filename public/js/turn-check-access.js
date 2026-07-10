@@ -6,12 +6,58 @@ turn.phase = {
 //-----------------------------------------------------------------------------------------------//
 	...turn.phase,
 //-----------------------------------------------------------------------------------------------//
-	checkAccess(phaseKey) {
-		turn.started = turn.storage.load('started');
+	async checkTurnEditVersion() {
+		try {
+			const res = await fetch('/game/turn/check-edit-version', {
+				method: 'POST',
+				headers: { 
+					'Content-Type': 'application/json',
+					'Accept': 'application/json' 
+				},
+				body: JSON.stringify({ turnEditVersion: turn.editVersion })
+			});
+
+			const json = await res.json();
+			
+			if (json.redirect) {
+				location.replace(json.redirect);
+				return;
+			}
+		} catch (err) {
+			alert('De server is momenteel niet bereikbaar.');
+		}
+	},	
+//-----------------------------------------------------------------------------------------------//
+	async startTurn() {
+		try {
+			const res = await fetch('/game/turn/start', {
+				method: 'POST',
+				headers: { 
+					'Content-Type': 'application/json',
+					'Accept': 'application/json' 
+				}
+			});
+			
+			const json = await res.json();
+			
+			if (json.redirect) {
+				location.replace(json.redirect);
+				return;
+			}
+
+			turn.storage.save('editVersion', json.data.turnEditVersion);
+		} catch (err) {
+			alert('De server is momenteel niet bereikbaar.');
+		}
+	},	
+//-----------------------------------------------------------------------------------------------//
+	async checkAccess(phaseKey) {	
+		turn.editVersion = turn.storage.load('editVersion');
 		
-		if (!turn.started) {
+		if (turn.editVersion === null) {
 			if (phaseKey === 'start') {
 				// The user wants to start the turn
+				await this.startTurn();
 				return;
 			}
 
@@ -19,7 +65,7 @@ turn.phase = {
 			location.replace('/game/turn/start');
 			return;
 		}
-		
+
 		turn.phases = turn.storage.load('phases');
 		turn.currentPhaseIndex = turn.storage.load('currentPhaseIndex');
 		
@@ -32,6 +78,7 @@ turn.phase = {
 		if (phaseKey === 'finish') {
 			if (turn.currentPhaseIndex === turn.phases.length) {
 				// The user wants to finish the turn
+				await this.checkTurnEditVersion();
 				return;
 			}
 			
@@ -40,18 +87,17 @@ turn.phase = {
 			return;
 		}
 		
-		const phaseIndex = turn.phases.findIndex((p) => p.key === phaseKey);
+		this.index = turn.phases.findIndex((p) => p.key === phaseKey);
 
-		if (phaseIndex === -1) {
+		if (this.index === -1) {
 			// This should never happen
 			location.replace('/game');
 			return;
 		}
 
-		this.index = phaseIndex;
-		
-		if (phaseIndex <= turn.currentPhaseIndex) {
+		if (this.index <= turn.currentPhaseIndex) {
 			// The user tries to play the current phase or view a previous phase
+			await this.checkTurnEditVersion();
 			return;
 		}
 		

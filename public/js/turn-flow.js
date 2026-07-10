@@ -7,7 +7,6 @@ turn.phase = {
 	...turn.phase,
 //-----------------------------------------------------------------------------------------------//
 	disabled: true,
-	cleanupRunning: false,
 //-----------------------------------------------------------------------------------------------//
 	initialize() {
 		this.addTurnFlowControls();
@@ -118,7 +117,7 @@ turn.phase = {
 		
 		const title = document.createElement('h2');
 		title.classList.add('modal-title');
-		title.textContent = 'Werknemers ontslaan';
+		title.textContent = 'Waarschuwing';
 		
 		const closeButton = createButton({ btnClass: 'btn-close' });
 		closeButton.setAttribute('data-bs-dismiss', 'modal');
@@ -263,10 +262,6 @@ turn.handleNext = function() {
 }
 //-----------------------------------------------------------------------------------------------//
 turn.handleBack = async function() {
-	if (turn.phase.cleanup) {
-		await turn.phase.cleanup();
-	}
-	
 	location.assign(turn.phases[turn.phase.index - 1].url);
 }
 //-----------------------------------------------------------------------------------------------//
@@ -277,11 +272,7 @@ turn.handleFinish = function() {
 	location.assign('/game/turn/finish');
 }
 //-----------------------------------------------------------------------------------------------//
-turn.handleCancel = async function() {
-	if (turn.phase.cleanup) {
-		await turn.phase.cleanup();
-	}
-	
+turn.handleCancel = async function() {	
 	turn.storage.removeAll();
 	
 	location.assign('/game');

@@ -1,9 +1,19 @@
+import rateLimit from 'express-rate-limit';
+//-----------------------------------------------------------------------------------------------//
 import { 
 	isCharacterCreated
 } from './service.js';
 
 //===============================================================================================//
 
+export const limitReserveBuildingNameRate = rateLimit({
+	windowMs: 60 * 1000,
+	max: 30,
+	standardHeaders: true,
+	legacyHeaders: false,
+	keyGenerator: (req) => String(req.session.user.id)
+});
+//-----------------------------------------------------------------------------------------------//
 export async function requireWorldEntered(req, res, next) {
 	if (req.session.world) {
 		res.locals.world = req.session.world;
@@ -37,3 +47,4 @@ export function requireToken(req, res, next) {
 
 	return res.sendStatus(401);
 }
+

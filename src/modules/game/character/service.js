@@ -9,8 +9,8 @@ import {
 
 //===============================================================================================//
 
-export async function buildCharacterView({ userId,
-										   worldId }) {
+export async function prepareCharacter({ userId,
+										 worldId }) {
 	const [
 		characterState, 
 		world

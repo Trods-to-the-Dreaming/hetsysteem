@@ -22,6 +22,21 @@ export function listBuildings(trx = knex) {
 		.orderBy('id');
 }
 //-----------------------------------------------------------------------------------------------//
+export function findEditableCharacter({ userId, 
+									    worldId, 
+									    turnEditVersion, 
+									    trx = knex }) {
+	return trx('characters as c')
+		.select(1)
+		.innerJoin('character_states as cs', 'cs.character_id', 'c.id')
+		.where({ 
+			'c.user_id': userId,
+			'c.world_id': worldId,
+			'cs.turn_edit_version': turnEditVersion
+		})
+		.first();
+}
+//-----------------------------------------------------------------------------------------------//
 export function findCharacter({ userId, 
 								worldId, 
 								trx = knex }) {
@@ -38,10 +53,25 @@ export function findCharacterState({ characterId,
 									 trx = knex }) {
 	return trx('character_states')
 		.select({
-			hasFinishedTurn: 'has_finished_turn',
+			turnSaved: 'turn_saved',
 			hoursAvailable: 'hours_available',
 			ownedTiles: 'owned_tiles'
 		})
+		.where({ 'character_id': characterId })
+		.first();
+}
+//-----------------------------------------------------------------------------------------------//
+export function incrementTurnEditVersion({ characterId,
+										   trx = knex }) {
+	return trx('character_states')
+		.where({ 'character_id': characterId })
+		.increment('turn_edit_version', 1);
+}
+//-----------------------------------------------------------------------------------------------//
+export function findTurnEditVersion({ characterId,
+									  trx = knex }) {
+	return trx('character_states')
+		.select({ turnEditVersion: 'turn_edit_version' })
 		.where({ 'character_id': characterId })
 		.first();
 }
@@ -53,7 +83,7 @@ export function findOwnedProducts({ characterId,
 			productId: 'product_id',
 			quantity: 'quantity'
 		})
-		.where('character_id', characterId)
+		.where({ 'character_id': characterId })
 		.orderBy('product_id');
 }
 //-----------------------------------------------------------------------------------------------//
@@ -61,13 +91,13 @@ export function findOwnedBuildings({ characterId,
 									 trx = knex }) {
 	return trx('character_building_states as cbs')
 		.select({
-			id: 'cb.id',
+			characterBuildingId: 'cb.id',
 			name: 'cb.name',
 			buildingId: 'cbs.building_id',
 			size: 'cbs.size'
 		})
 		.innerJoin('character_buildings as cb', 'cbs.character_building_id', 'cb.id')
-		.where('cb.character_id', characterId)
+		.where({ 'cb.character_id': characterId })
 		.orderBy('cbs.building_id');
 }
 //-----------------------------------------------------------------------------------------------//
@@ -75,14 +105,14 @@ export function findOwnedReservedBuildings({ characterId,
 											 trx = knex }) {
 	return trx('character_buildings as cb')
 		.select({
-			id: 'cb.id',
+			characterBuildingId: 'cb.id',
 			name: 'cb.name'
 		})
 		.whereNotIn('cb.id', function() {
 			this.select('character_building_id')
 				.from('character_building_states');
 		})
-		.where('cb.character_id', characterId)
+		.where({ 'cb.character_id': characterId })
 		.orderBy('cb.name');
 }
 //-----------------------------------------------------------------------------------------------//
@@ -90,13 +120,13 @@ export function findOwnedConstructionSites({ characterId,
 											 trx = knex }) {
 	return trx('character_construction_sites as ccs')
 		.select({
-			id: 'ccs.character_building_id',
+			characterBuildingId: 'ccs.character_building_id',
 			buildingId: 'ccs.building_id',
 			bricksUsed: 'ccs.bricks_used',
 			bricksNeeded: 'ccs.bricks_needed'
 		})
 		.innerJoin('character_buildings as cb', 'ccs.character_building_id', 'cb.id')
-		.where('cb.character_id', characterId)
+		.where({ 'cb.character_id': characterId })
 		.orderBy('ccs.building_id');
 }
 //-----------------------------------------------------------------------------------------------//
@@ -113,7 +143,7 @@ export function findEmployeeContracts({ characterId,
 		})
 		.innerJoin('character_buildings as cb', 'ec.workplace_id', 'cb.id')
 		.innerJoin('characters as c', 'cb.character_id', 'c.id')
-		.where('ec.employee_id', characterId);
+		.where({ 'ec.employee_id': characterId });
 }
 //-----------------------------------------------------------------------------------------------//
 export function findEmployerContracts({ characterId, 
@@ -129,7 +159,19 @@ export function findEmployerContracts({ characterId,
 		})
 		.innerJoin('character_buildings as cb', 'ec.workplace_id', 'cb.id')
 		.innerJoin('characters as c', 'ec.employee_id', 'c.id')
-		.where('cb.character_id', characterId);
+		.where({ 'cb.character_id': characterId })
+}
+//-----------------------------------------------------------------------------------------------//
+export function findSelfEmploymentContracts({ characterId, 
+											  trx = knex }) {
+	return trx('self_employment_contracts as sec')
+		.select({
+			id: 'sec.id',
+			buildingName: 'cb.name',
+			workingHours: 'sec.working_hours'
+		})
+		.innerJoin('character_buildings as cb', 'sec.workplace_id', 'cb.id')
+		.where({ 'cb.character_id': characterId })
 }
 //-----------------------------------------------------------------------------------------------//
 export function findTenantAgreements({ characterId, 
@@ -144,7 +186,7 @@ export function findTenantAgreements({ characterId,
 		})
 		.innerJoin('character_buildings as cb', 'ra.residence_id', 'cb.id')
 		.innerJoin('characters as c', 'cb.character_id', 'c.id')
-		.where('ra.tenant_id', characterId);
+		.where({ 'ra.tenant_id': characterId });
 }
 //-----------------------------------------------------------------------------------------------//
 export function findLandlordAgreements({ characterId, 
@@ -159,7 +201,14 @@ export function findLandlordAgreements({ characterId,
 		})
 		.innerJoin('character_buildings as cb', 'ra.residence_id', 'cb.id')
 		.innerJoin('characters as c', 'ra.tenant_id', 'c.id')
-		.where('cb.character_id', characterId);
+		.where({ 'cb.character_id': characterId })
+}
+//-----------------------------------------------------------------------------------------------//
+export function updateCharacterState({ characterId,
+									   trx = knex }) {
+	return trx('character_states')
+		.where({ 'character_id': characterId })
+		.update({ has_finished_turn: true });
 }
 //-----------------------------------------------------------------------------------------------//
 export function insertCharacterBuilding({ characterId, 
@@ -174,12 +223,37 @@ export function insertCharacterBuilding({ characterId,
 		});
 }
 //-----------------------------------------------------------------------------------------------//
-export function deleteCharacterBuildings({ characterBuildingIds,
-										   characterId,
-										   trx = knex }) {
+export function deleteUnusedCharacterBuilding({ characterBuildingId,
+												characterId,
+												trx = knex }) {
 	return trx('character_buildings')
+		.where({ 
+			id: characterBuildingId,
+			character_id: characterId
+		})
+		.whereNotIn('id', function () {
+			this.select('character_building_id')
+				.from('character_building_states');
+		})
+		.whereNotIn('id', function () {
+			this.select('character_building_id')
+				.from('actions_construct');
+		})
+		.del();
+}
+//-----------------------------------------------------------------------------------------------//
+export function deleteAllUnusedCharacterBuildings({ characterId,
+													trx = knex }) {
+    return trx('character_buildings')
 		.where({ character_id: characterId })
-		.whereIn('id', characterBuildingIds)
+		.whereNotIn('id', function () {
+			this.select('character_building_id')
+				.from('character_building_states');
+		})
+		.whereNotIn('id', function () {
+			this.select('character_building_id')
+				.from('actions_construct');
+		})
 		.del();
 }
 //-----------------------------------------------------------------------------------------------//

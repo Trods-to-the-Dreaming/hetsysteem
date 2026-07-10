@@ -5,7 +5,7 @@
 {{#block "headScripts"}}
 <script type="module">
 import { turn } from '/js/turn-check-access.js';
-turn.phase.checkAccess('manageBuildings');
+await turn.phase.checkAccess('manageBuildings');
 </script>
 {{/block}}
 
@@ -127,59 +127,17 @@ import { validateName } from '/js/name.validation.js';
 document.addEventListener('DOMContentLoaded', () => {
 	turn.phase.initialize();
 });
-//-----------------------------------------------------------------------------------------------//
-window.addEventListener('pagehide', () => {
-	cancelBuildingNamesBeacon(getReservedBuildingIds());
-});
 //===============================================================================================//
 turn.phase.load = function() {
 	loadPhaseData();
 	cachePhaseElements();
-	createOffcanvasObjects();
-	
-	const { data, elements } = this;
-	
-	elements.confirmDemolish.addEventListener('click', handleConfirmDemolish);
-	elements.constructForm.addEventListener('submit', handleConfirmConstruct);
-	elements.buildingName.addEventListener('input', handleBuildingNameInput);
-	
-	this.populateSelect({
-		select: elements.buildingType, 
-		optionName: 'gebouw', 
-		items: data.constructibleBuildings, 
-		textField: 'type'
-	});
-	this.populateSelect({
-		select: elements.buildingSize, 
-		optionName: 'grootte', 
-		items: data.buildingSizes
-	});
+	createModalObjects();
+	addEventListeners();
+	initializeControls();
 }
 //-----------------------------------------------------------------------------------------------//
 turn.phase.save = function() {
-	const { data } = this;
-	const manageBuildings = {
-		demolishActions: [],
-		constructActions: []
-	};
-	
-	data.existingBuildings.forEach((eb) => {
-		if (eb.isDemolished) {
-			manageBuildings.demolishActions.push({
-				characterBuildingId: eb.characterBuildingId
-			});
-		}
-	});
-	
-	data.newBuildings.forEach((nb) => {
-		manageBuildings.constructActions.push({
-			characterBuildingId: nb.characterBuildingId,
-			buildingId: nb.buildingId,
-			size: nb.size
-		});
-	});
-	
-	turn.storage.save('characterPhases.manageBuildings', manageBuildings);
+	savePhaseData();
 }
 //-----------------------------------------------------------------------------------------------//
 turn.phase.updateUI = function() {
@@ -187,13 +145,6 @@ turn.phase.updateUI = function() {
 	renderConstructList();
 	renderFreeTiles();
 }
-//-----------------------------------------------------------------------------------------------//
-turn.phase.cleanup = async function() {
-	if (this.cleanupRunning) return;
-	this.cleanupRunning = true;
-
-	await cancelBuildingNames(getReservedBuildingIds());
-};
 //===============================================================================================//
 function loadPhaseData() {
 	const manageBuildings = turn.storage.load('characterPhases.manageBuildings');
@@ -210,44 +161,44 @@ function loadPhaseData() {
 		buildings.map((b) => [b.id, b])
 	);
 	const ownedReservedBuildingsById = Object.fromEntries(
-		ownedReservedBuildings.map((orb) => [orb.id, orb])
+		ownedReservedBuildings.map((orb) => [orb.characterBuildingId, orb])
 	);
 	const ownedConstructionSitesById = Object.fromEntries(
-		ownedConstructionSites.map((ocs) => [ocs.id, ocs])
+		ownedConstructionSites.map((ocs) => [ocs.characterBuildingId, ocs])
 	);
 	const demolishedIds = new Set(
-		manageBuildings.demolishActions.map((a) => a.id)
+		manageBuildings.demolishActions.map((a) => a.characterBuildingId)
 	);
 	
 	const existingBuildings = ownedBuildings.map(
-		({ id, name, buildingId, size }) => {
+		({ characterBuildingId, name, buildingId, size }) => {
 			const base = buildingsById[buildingId];
 
 			if (base.slug === 'construction-site') {
-				const site = ownedConstructionSitesById[id];
+				const site = ownedConstructionSitesById[characterBuildingId];
 				const building = buildingsById[site.buildingId];
 
 				return {
-					characterBuildingId: id,
+					characterBuildingId,
 					name,
 					buildingId: site.buildingId,
 					type: building.type,
 					size,
 					bricksUsed: site.bricksUsed,
 					bricksNeeded: site.bricksNeeded,
-					isDemolished: demolishedIds.has(id)
+					isDemolished: demolishedIds.has(characterBuildingId)
 				};
 			}
 
 			return {
-				characterBuildingId: id,
+				characterBuildingId,
 				name,
 				buildingId,
 				type: base.type,
 				size,
 				bricksUsed: null,
 				bricksNeeded: null,
-				isDemolished: demolishedIds.has(id)
+				isDemolished: demolishedIds.has(characterBuildingId)
 			};
 		});
 	
@@ -275,10 +226,8 @@ function loadPhaseData() {
 	const freeTiles = ownedTiles - usedTiles;
 	
 	turn.phase.data = {
-		buildings,
 		constructibleBuildings,
 		buildingSizes,
-		ownedReservedBuildings,
 		existingBuildings,
 		newBuildings,
 		freeTiles
@@ -305,11 +254,61 @@ function cachePhaseElements() {
 	};
 }
 //-----------------------------------------------------------------------------------------------//
-function createOffcanvasObjects() {
+function createModalObjects() {
 	const { elements } = turn.phase;
 	
-	turn.phase.demolishOffcanvas = bootstrap.Modal.getOrCreateInstance(elements.demolishWindow);
-	turn.phase.constructOffcanvas = bootstrap.Modal.getOrCreateInstance(elements.constructWindow);
+	turn.phase.demolishModal = bootstrap.Modal.getOrCreateInstance(elements.demolishWindow);
+	turn.phase.constructModal = bootstrap.Modal.getOrCreateInstance(elements.constructWindow);
+}
+//-----------------------------------------------------------------------------------------------//
+function addEventListeners() {
+	const { elements } = turn.phase;
+	
+	elements.confirmDemolish.addEventListener('click', handleConfirmDemolish);
+	elements.constructForm.addEventListener('submit', handleConfirmConstruct);
+	elements.buildingName.addEventListener('input', handleBuildingNameInput);
+}
+//-----------------------------------------------------------------------------------------------//
+function initializeControls() {
+	const { data, elements } = turn.phase;
+	
+	turn.phase.populateSelect({
+		select: elements.buildingType, 
+		optionName: 'gebouw', 
+		items: data.constructibleBuildings, 
+		textField: 'type'
+	});
+	turn.phase.populateSelect({
+		select: elements.buildingSize, 
+		optionName: 'grootte', 
+		items: data.buildingSizes
+	});
+}
+//-----------------------------------------------------------------------------------------------//
+function savePhaseData() {
+	const { data } = turn.phase;
+	const manageBuildings = {
+		demolishActions: [],
+		constructActions: []
+	};
+	
+	data.existingBuildings.forEach((eb) => {
+		if (eb.isDemolished) {
+			manageBuildings.demolishActions.push({
+				characterBuildingId: eb.characterBuildingId
+			});
+		}
+	});
+	
+	data.newBuildings.forEach((nb) => {
+		manageBuildings.constructActions.push({
+			characterBuildingId: nb.characterBuildingId,
+			buildingId: nb.buildingId,
+			size: nb.size
+		});
+	});
+	
+	turn.storage.save('characterPhases.manageBuildings', manageBuildings);
 }
 //===============================================================================================//
 function handleConfirmDemolish() {
@@ -330,7 +329,7 @@ function handleConfirmDemolish() {
 	
 	turn.phase.updateUI();
 	
-	turn.phase.demolishOffcanvas.hide();
+	turn.phase.demolishModal.hide();
 }
 //-----------------------------------------------------------------------------------------------//
 async function handleConfirmConstruct(event) {
@@ -340,30 +339,26 @@ async function handleConfirmConstruct(event) {
 	
 	if (!elements.constructForm.reportValidity()) return;
 	
-	const reserved  = await reserveBuildingName(elements.buildingName.value);
+	const reserved = await reserveBuildingName(elements.buildingName.value);
 	if (!reserved) return;
 	
 	const buildingId = Number(elements.buildingType.value);
 	const size = Number(elements.buildingSize.value);
 	
-	const building = data.buildings.find((b) => b.id === buildingId);
+	const building = data.constructibleBuildings.find((b) => b.id === buildingId);
 	
 	data.newBuildings.push({
-		characterBuildingId: reserved.id,
+		characterBuildingId: reserved.characterBuildingId,
 		name: reserved.name,
 		buildingId,
 		type: building.type,
 		size
 	});
 
-	data.ownedReservedBuildings.push(reserved);
-	
 	data.freeTiles -= size;
-	
-	turn.storage.save('characterState.ownedReservedBuildings', data.ownedReservedBuildings);
 
 	turn.phase.updateUI();
-	turn.phase.constructOffcanvas.hide();
+	turn.phase.constructModal.hide();
 }
 //-----------------------------------------------------------------------------------------------//
 function handleBuildingNameInput() {
@@ -483,7 +478,7 @@ function renderConstructList() {
 			
 			turn.phase.updateUI();
 			
-			await cancelBuildingNames([nb.characterBuildingId]);
+			await cancelBuildingName(nb.characterBuildingId);
 		});
 		
 		li.appendChild(button);
@@ -528,52 +523,55 @@ async function reserveBuildingName(characterBuildingName) {
 
 		const json = await res.json();
 		
-		if (!json.success) {
+		if (json.redirect) {
+			location.replace(json.redirect);
+			return;
+		}
+		
+		if (json.error) {
 			elements.buildingNameError.textContent = json.error.message;
 			return null;
 		}
 		
-		return {
-			id: json.data.characterBuildingId,
+		const reserved = {
+			characterBuildingId: json.data.characterBuildingId,
 			name: json.data.characterBuildingName
 		};
+		
+		const ownedReservedBuildings = turn.storage.load('characterState.ownedReservedBuildings');
+		ownedReservedBuildings.push(reserved);
+		turn.storage.save('characterState.ownedReservedBuildings', ownedReservedBuildings);
+		
+		return reserved;
 	} catch (err) {
-		console.error(err);
+		alert('De server is momenteel niet bereikbaar.');
 		return null;
 	}
 }
 //-----------------------------------------------------------------------------------------------//
-function getReservedBuildingIds() {
-	const { data } = turn.phase;
-
-	return data.newBuildings.map(
-		(nb) => nb.characterBuildingId
-	) ?? [];
-}
-//-----------------------------------------------------------------------------------------------//
-async function cancelBuildingNames(characterBuildingIds) {
-	if (!characterBuildingIds.length) return;
-
+async function cancelBuildingName(characterBuildingId) {
 	try {
-		await fetch('/game/turn/cancel-building-names', {
+		const res = await fetch('/game/turn/cancel-building-name', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ characterBuildingIds })
+			body: JSON.stringify({ characterBuildingId })
 		});
+		
+		const json = await res.json();
+		
+		if (json.redirect) {
+			location.replace(json.redirect);
+			return;
+		}
+		
+		let ownedReservedBuildings = turn.storage.load('characterState.ownedReservedBuildings');
+		ownedReservedBuildings = ownedReservedBuildings.filter(
+                (orb) => orb.characterBuildingId !== characterBuildingId
+            );
+		turn.storage.save('characterState.ownedReservedBuildings', ownedReservedBuildings);
 	} catch (err) {
-		console.error(err);
+		alert('De server is momenteel niet bereikbaar.');
 	}
-}
-//-----------------------------------------------------------------------------------------------//
-function cancelBuildingNamesBeacon(characterBuildingIds) {
-	if (!characterBuildingIds.length) return;
-
-	const blob = new Blob(
-		[JSON.stringify({ characterBuildingIds })],
-		{ type: 'application/json' }
-	);
-
-	navigator.sendBeacon('/game/turn/cancel-building-names', blob);
 }
 //-----------------------------------------------------------------------------------------------//
 function createBuildingLabel({ name, 

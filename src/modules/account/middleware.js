@@ -6,14 +6,14 @@ export const limitLoginRate = rateLimit({
 	windowMs: 60 * 1000,
 	max: 5,
 	standardHeaders: true,
-	legacyHeaders: false,
+	legacyHeaders: false
 });
 //-----------------------------------------------------------------------------------------------//
 export const limitRegisterRate = rateLimit({
 	windowMs: 60 * 60 * 1000,
 	max: 5,
 	standardHeaders: true,
-	legacyHeaders: false,
+	legacyHeaders: false
 });
 //-----------------------------------------------------------------------------------------------//
 export const limitChangeUsernameRate = rateLimit({
@@ -21,7 +21,7 @@ export const limitChangeUsernameRate = rateLimit({
 	max: 5,
 	standardHeaders: true,
 	legacyHeaders: false,
-	keyGenerator: req => req.session.userId,
+	keyGenerator: req => req.session.userId
 });
 
 //-----------------------------------------------------------------------------------------------//
@@ -30,5 +30,5 @@ export const limitChangePasswordRate = rateLimit({
 	max: 3,
 	standardHeaders: true,
 	legacyHeaders: false,
-	keyGenerator: req => req.session.userId,
+	keyGenerator: req => req.session.userId
 });

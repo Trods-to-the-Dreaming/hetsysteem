@@ -6,7 +6,7 @@
 
 <form id="enter-world-form" class="mt-md stack" 
 	  method="POST" action="/game/enter-world">			
-	{{#each options}}
+	{{#each worlds}}
 		<button class="btn btn--primary btn--world-{{this.slug}}" 
 				name="worldId" value="{{this.id}}" type="submit">
 			<span class="btn-front">{{this.name}}</span>
