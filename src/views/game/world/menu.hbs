@@ -1,0 +1,32 @@
+{{#block "title"}}Spelmenu{{/block}}
+
+<!------------------------------------------------------------------------------------------------>
+
+<h1>Spelmenu</h1>
+
+<div class="mt-md stack">
+	{{#if isCharacterCreated}}
+		<a class="btn btn--primary" href="/game/world/turn/start">
+			<span class="btn-front">Beurt starten</span>
+		</a>
+		<a class="btn btn--primary" href="/game/world/character">
+			<span class="btn-front">Personage</span>
+		</a>
+	{{else}}
+		<a class="btn btn--primary {{#unless canCreateCharacter}}btn--disabled{{/unless}}" 
+		   {{#if canCreateCharacter}}href="/game/world/turn/create-character"{{/if}}>
+			<span class="btn-front" {{#if canCreateCharacter}}disabled{{/if}}>
+				Personage aanmaken
+			</span>
+		</a>
+	{{/if}}
+	<a class="btn btn--primary" href="/game/world/statistics">
+		<span class="btn-front">Statistieken</span>
+	</a>
+</div>
+
+<hr>
+
+<a class="btn btn--navigation" href="/game/enter-world">
+	<span class="btn-front">↑ Andere wereld</span>
+</a>

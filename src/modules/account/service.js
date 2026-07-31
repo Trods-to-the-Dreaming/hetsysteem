@@ -1,17 +1,11 @@
 import bcrypt from 'bcrypt';
 //-----------------------------------------------------------------------------------------------//
 import knex from '#utils/db.js';
-import { 
-	ok, 
-	fail 
-} from '#utils/result.js';
 //-----------------------------------------------------------------------------------------------//
 import { 
+	ACCOUNT_ERROR,
 	AccountError 
-} from './errors.js';
-import { 
-	ACCOUNT 
-} from './reasons.js';
+} from './error.js';
 import {
 	findUserById,
 	findUserByName,
@@ -28,85 +22,58 @@ import {
 export async function login({ username, 
 							  password }) {
 	const user = await findUserByName({ username });
-	if (!user) { 
-		return fail({ 
-			status: 401,
-			reason: ACCOUNT.REASON.INVALID_CREDENTIALS 
-		});
-	}
+	if (!user)
+		throw new AccountError(ACCOUNT_ERROR.INVALID_CREDENTIALS);
 
 	const passwordOK = await bcrypt.compare(password, user.hashedPassword);
-	if (!passwordOK ) {
-		return fail({ 
-			status: 401,
-			reason: ACCOUNT.REASON.INVALID_CREDENTIALS 
-		});
-	}
+	if (!passwordOK )
+		throw new AccountError(ACCOUNT_ERROR.INVALID_CREDENTIALS);
 
-	return ok(user);
+	return user;
 }
 //-----------------------------------------------------------------------------------------------//
 export async function register({ username, 
 							     password,
 								 invitationToken }) {
-	try {
-		return await knex.transaction(async (trx) => {
-			const invitation = await lockInvitation({ 
-				invitationToken,
-				trx
-			});
-			if (!invitation || invitation.status !== 'unused') {
-				throw new AccountError({ 
-					status: 401,
-					code: ACCOUNT.REASON.INVALID_INVITATION_TOKEN 
-				});
-			}			
-			
-			const hashedPassword = await bcrypt.hash(password, 8);
-			
-			let userId;
-			try {
-				[userId] = await insertUser({ 
-					username, 
-					hashedPassword,
-					invitationId: invitation.id,
-					trx
-				});
-			} catch (err) {
-				if (err.code === 'ER_DUP_ENTRY') {
-					throw new AccountError({ 
-						status: 409,
-						code: ACCOUNT.REASON.USERNAME_TAKEN 
-					});
-				}
-				
-				throw err;
-			}
-			
-			await updateInvitation({
-				invitationId: invitation.id,
-				status: 'used',
-				usedAt: trx.fn.now(),
-				trx
-			});
-			
-			const user = await findUserById({ 
-				userId,
-				trx
-			});
-			
-			return ok(user);
+	return knex.transaction(async (trx) => {
+		const invitation = await lockInvitation({ 
+			invitationToken,
+			trx
 		});
-	} catch (err) {
-		if (err instanceof AccountError) {
-            return fail({ 
-				status: err.status,
-				reason: err.code 
+		if (!invitation || invitation.status !== 'unused')
+			throw new AccountError(ACCOUNT_ERROR.INVALID_INVITATION_TOKEN);	
+		
+		const hashedPassword = await bcrypt.hash(password, 8);
+		
+		let userId;
+		try {
+			[userId] = await insertUser({ 
+				username, 
+				hashedPassword,
+				invitationId: invitation.id,
+				trx
 			});
+		} catch (err) {
+			if (err.code === 'ER_DUP_ENTRY')
+				throw new AccountError(ACCOUNT_ERROR.USERNAME_TAKEN);	
+			
+			throw err;
 		}
-        
-        throw err;
-	}
+		
+		await updateInvitation({
+			invitationId: invitation.id,
+			status: 'used',
+			usedAt: trx.fn.now(),
+			trx
+		});
+		
+		const user = await findUserById({ 
+			userId,
+			trx
+		});
+		
+		return user;
+	});
 }
 //-----------------------------------------------------------------------------------------------//
 export async function deregister(userId) {
@@ -127,8 +94,6 @@ export async function deregister(userId) {
             releasedAt: trx.fn.now(),
 			trx
 		});
-		
-		return ok();
 	});
 }
 //-----------------------------------------------------------------------------------------------//
@@ -138,12 +103,8 @@ export async function changeUsername({ userId,
 	const user = await findUserById({ userId });
 	
 	const passwordOK = await bcrypt.compare(password, user.hashedPassword);
-	if (!passwordOK) {
-		return fail({ 
-			status: 401,
-			reason: ACCOUNT.REASON.PASSWORD_WRONG 
-		});
-	}
+	if (!passwordOK)
+		throw new AccountError(ACCOUNT_ERROR.PASSWORD_WRONG);
 
 	try {
 		await updateUsername({ 
@@ -151,17 +112,11 @@ export async function changeUsername({ userId,
 			newUsername 
 		});
 	} catch (err) {
-		if (err.code === 'ER_DUP_ENTRY') {
-			return fail({ 
-				status: 409,
-				reason: ACCOUNT.REASON.USERNAME_TAKEN 
-			});
-		}
+		if (err.code === 'ER_DUP_ENTRY')
+			throw new AccountError(ACCOUNT_ERROR.USERNAME_TAKEN);
 		
 		throw err;
 	}
-
-	return ok();
 }
 //-----------------------------------------------------------------------------------------------//
 export async function changePassword({ userId, 
@@ -170,18 +125,12 @@ export async function changePassword({ userId,
 	const user = await findUserById({ userId });
 	
 	const passwordOK = await bcrypt.compare(password, user.hashedPassword);
-	if (!passwordOK) {
-		return fail({ 
-			status: 401,
-			reason: ACCOUNT.REASON.PASSWORD_WRONG 
-		});
-	}
+	if (!passwordOK)
+		throw new AccountError(ACCOUNT_ERROR.PASSWORD_WRONG);
 	
 	const hashedNewPassword = await bcrypt.hash(newPassword, 8);
 	await updatePassword({ 
 		userId, 
 		hashedNewPassword 
 	});
-
-	return ok();
 }

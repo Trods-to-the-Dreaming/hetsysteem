@@ -24,7 +24,4 @@ router.get('/game-mechanics',
 
 //===============================================================================================//
 
-export default {
-	path: '/',
-	router
-};
+export default router;

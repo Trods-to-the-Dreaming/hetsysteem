@@ -1,11 +1,36 @@
 import rateLimit from 'express-rate-limit';
 //-----------------------------------------------------------------------------------------------//
 import { 
+	canCreateCharacter,
 	isCharacterCreated
 } from './service.js';
 
 //===============================================================================================//
 
+export const limitStartTurnRate = rateLimit({
+	windowMs: 60 * 1000,
+	max: 30,
+	standardHeaders: true,
+	legacyHeaders: false,
+	keyGenerator: (req) => String(req.session.user.id)
+});
+//-----------------------------------------------------------------------------------------------//
+export const limitFinishTurnRate = rateLimit({
+	windowMs: 60 * 1000,
+	max: 30,
+	standardHeaders: true,
+	legacyHeaders: false,
+	keyGenerator: (req) => String(req.session.user.id)
+});
+//-----------------------------------------------------------------------------------------------//
+export const limitReserveCharacterNameRate = rateLimit({
+	windowMs: 60 * 1000,
+	max: 30,
+	standardHeaders: true,
+	legacyHeaders: false,
+	keyGenerator: (req) => String(req.session.user.id)
+});
+//-----------------------------------------------------------------------------------------------//
 export const limitReserveBuildingNameRate = rateLimit({
 	windowMs: 60 * 1000,
 	max: 30,
@@ -14,29 +39,50 @@ export const limitReserveBuildingNameRate = rateLimit({
 	keyGenerator: (req) => String(req.session.user.id)
 });
 //-----------------------------------------------------------------------------------------------//
-export async function requireWorldEntered(req, res, next) {
-	if (req.session.world) {
-		res.locals.world = req.session.world;
+export function requireWorldEntered(req, res, next) {
+	const { world } = req.session;
+	
+	if (world) {
+		res.locals.world = world;
 		return next();
 	}
 	
 	return res.redirect('/game/enter-world');
 }
 //-----------------------------------------------------------------------------------------------//
-export function requireCharacterCreated(condition = true) {
-	return async function(req, res, next) {
-		const { user, world } = req.session;
-		
-		const exists = await isCharacterCreated({
-			userId: user.id,
-			worldId: world.id
-		});
-		
-		if (exists === condition) 
-			return next();
-		
-		return res.redirect('/game');
-	};
+export function requireCanPlayTurn(req, res, next) {
+	const { user, world } = req.session;
+	const [
+		hasCharacter, 
+		mayCreateCharacter
+	] = await Promise.all([
+		isCharacterCreated({ 
+			userId: user.id, 
+			worldId: world.id 
+		}),
+		canCreateCharacter({ 
+			userId: user.id, 
+			worldId: world.id 
+		})
+	]);
+	
+	if (hasCharacter || mayCreateCharacter) 
+		return next();
+	
+	return res.redirect('/game/world/menu');
+}
+//-----------------------------------------------------------------------------------------------//
+export async function requireCharacterCreated(req, res, next) {
+	const { user, world } = req.session;
+	const hasCharacter = await isCharacterCreated({ 
+		userId: user.id, 
+		worldId: world.id 
+	})
+	
+	if (hasCharacter) 
+		return next();
+	
+	return res.redirect('/game/world/menu');
 }
 //-----------------------------------------------------------------------------------------------//
 export function requireToken(req, res, next) {
@@ -47,4 +93,3 @@ export function requireToken(req, res, next) {
 
 	return res.sendStatus(401);
 }
-

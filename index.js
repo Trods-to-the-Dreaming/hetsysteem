@@ -11,11 +11,11 @@ import { pathToFileURL } from 'url';
 import knex from './src/utils/db.js';
 import { ConnectSessionKnexStore } from 'connect-session-knex';
 //-----------------------------------------------------------------------------------------------//
-import systemRoutes from '#modules/system/routes.js';
-import accountRoutes from '#modules/account/routes.js';
-import gameRoutes from '#modules/game/routes.js';
-//import cronRoutes from '#modules/cron/routes.js';
-import errorsRoutes from '#modules/errors/routes.js';
+import systemRouter  from '#modules/system/routes.js';
+import accountRouter from '#modules/account/routes.js';
+import gameRouter  	 from '#modules/game/routes.js';
+//import cronRouter from '#modules/cron/routes.js';
+import errorRouter 	 from '#modules/error/routes.js';
 
 //===============================================================================================//
 
@@ -61,11 +61,11 @@ app.use(expressSession({
 app.engine('hbs',
 	expressHandlebars.engine({
 		helpers: {
-			gt: (a, b) => a > b,
-			eq: (a, b) => a === b,
-			lt: (a, b) => a < b,
+			gt:  (a, b) => a > b,
+			eq:  (a, b) => a === b,
+			lt:  (a, b) => a < b,
 			and: (a, b) => a && b,
-			or: (a, b) => a || b,
+			or:  (a, b) => a || b,
 			not: (a) => !a,
 			block(name, options) {
 				if (!this._blocks) this._blocks = {};
@@ -79,7 +79,7 @@ app.engine('hbs',
 				}
 				return result;
 			},
-			json: (context) => JSON.stringify(context)
+			json: (context) => JSON.stringify(context ?? null)
 		},
 		extname:       'hbs',
 		defaultLayout: 'main',
@@ -99,11 +99,11 @@ app.use((req, res, next) => {
 
 //===============================================================================================//
 
-app.use(systemRoutes.path, systemRoutes.router);
-app.use(accountRoutes.path, accountRoutes.router);
-app.use(gameRoutes.path, gameRoutes.router);
-//app.use(cronRoutes.path, cronRoutes.router);
-app.use(errorsRoutes.path, errorsRoutes.router);
+app.use('/', 		systemRouter);
+app.use('/account', accountRouter);
+app.use('/game', 	gameRouter);
+//app.use('/cron', cronRouter);
+app.use('/error', 	errorRouter);
 
 //===============================================================================================//
 

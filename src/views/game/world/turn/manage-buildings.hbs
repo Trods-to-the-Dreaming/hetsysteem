@@ -1,0 +1,562 @@
+{{#block "title"}}Gebouwen beheren{{/block}}
+
+<!------------------------------------------------------------------------------------------------>
+
+{{#block "headScripts"}}
+<script type="module">
+import { turn } from '/js/turn-check-access.js';
+await turn.phase.checkAccess('manageBuildings');
+</script>
+{{/block}}
+
+<!------------------------------------------------------------------------------------------------>
+
+<div id="container-div" class="d-none">
+	<h1>Gebouwen beheren</h1>
+	
+	<h2>💥 Slopen</h2>
+	
+	<ul id="demolish-actions-ul" class="list-compact d-none"></ul>
+	
+	<div class="mt-md">
+		<button id="open-demolish-window-button" class="btn btn--secondary" type="button" 
+				data-bs-toggle="modal" data-bs-target="#demolish-window">
+			<span class="btn-front">Gebouwen slopen...</span>
+		</button>
+	</div>
+
+	<h2>🏗️ Bouwen</h2>
+
+	<p>Vrije landtegels: <span id="free-tiles-span"></span></p>
+
+	<ul id="construct-actions-ul" class="list-compact d-none"></ul>
+		
+	<div class="mt-md">
+		<button id="open-construct-window-button" class="btn btn--secondary" type="button" 
+				data-bs-toggle="modal" data-bs-target="#construct-window">
+			<span class="btn-front">Gebouw plaatsen...</span>
+		</button>
+	</div>
+</div>
+
+<!------------------------------------------------------------------------------------------------>
+
+<div id="demolish-window" class="modal fade" 
+	 tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h2 class="modal-title">Gebouwen slopen</h2>
+				
+				<button class="btn-close" type="button" 
+						data-bs-dismiss="modal" aria-label="Sluiten"></button>
+			</div>
+			
+			<div class="modal-body">
+				<div class="stack">
+					<label class="form-label">
+						Vink de gebouwen aan:
+					</label>
+					<div id="demolishable-buildings-div"></div>
+				</div>
+				
+				<div class="mt-lg">
+					<button id="confirm-demolish-button" class="btn btn--primary" type="button">
+						<span class="btn-front">Gebouwen slopen</span>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!------------------------------------------------------------------------------------------------>
+
+<div id="construct-window" class="modal fade" 
+	 tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h2 class="modal-title">Gebouw plaatsen</h2>
+				
+				<button class="btn-close" type="button" 
+						data-bs-dismiss="modal" aria-label="Sluiten"></button>
+			</div>
+			
+			<div class="modal-body">
+				<form id="construct-form">
+					<div class="stack">
+						<div>
+							<label for="building-type-select" class="form-label">
+								Gebouw:
+							</label>
+							<select id="building-type-select" class="form-select" required></select>
+						</div>
+						
+						<div>
+							<label for="building-name-input" class="form-label">
+								Naam:
+							</label>
+							<input id="building-name-input" class="form-control" type="text" required>
+						</div>
+					</div>
+					
+					<div id="building-name-error" class="mt-md error"></div>
+					
+					<div class="mt-lg">
+						<button id="confirm-construct-button" class="btn btn--primary" type="submit">
+							<span class="btn-front">Gebouw plaatsen</span>
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!------------------------------------------------------------------------------------------------>
+
+<script type="module">
+//-----------------------------------------------------------------------------------------------//
+import { turn } from '/js/turn-flow.js';
+import { validateName } from '/js/name.validation.js';
+//-----------------------------------------------------------------------------------------------//
+document.addEventListener('DOMContentLoaded', () => {
+	turn.phase.initialize();
+});
+//===============================================================================================//
+turn.phase.load = function() {
+	loadPhaseData();
+	cachePhaseElements();
+	createModalObjects();
+	addEventListeners();
+	initializeControls();
+}
+//-----------------------------------------------------------------------------------------------//
+turn.phase.save = function() {
+	savePhaseData();
+}
+//-----------------------------------------------------------------------------------------------//
+turn.phase.updateUI = function() {
+	renderDemolishList();
+	renderConstructList();
+	renderFreeTiles();
+}
+//===============================================================================================//
+function loadPhaseData() {
+	const manageBuildings = turn.storage.load('characterPhases.manageBuildings');
+	const buildings = turn.storage.load('constants.buildings');
+	const ownedTiles = turn.storage.load('characterState.ownedTiles');
+	const ownedBuildings = turn.storage.load('characterState.ownedBuildings');
+	const ownedReservedBuildings = turn.storage.load('characterState.ownedReservedBuildings');
+	const ownedConstructionSites = turn.storage.load('characterState.ownedConstructionSites');
+	
+	const constructibleBuildings = buildings.filter((b) => b.isConstructible);
+	
+	const buildingsById = Object.fromEntries(
+		buildings.map((b) => [b.id, b])
+	);
+	const ownedReservedBuildingsById = Object.fromEntries(
+		ownedReservedBuildings.map((orb) => [orb.characterBuildingId, orb])
+	);
+	const ownedConstructionSitesById = Object.fromEntries(
+		ownedConstructionSites.map((ocs) => [ocs.characterBuildingId, ocs])
+	);
+	const demolishedIds = new Set(
+		manageBuildings.demolishActions.map((a) => a.characterBuildingId)
+	);
+	
+	const existingBuildings = ownedBuildings.map(
+		({ characterBuildingId, name, buildingId }) => {
+			const base = buildingsById[buildingId];
+
+			if (base.slug === 'construction-site') {
+				const site = ownedConstructionSitesById[characterBuildingId];
+				const building = buildingsById[site.buildingId];
+
+				return {
+					characterBuildingId,
+					name,
+					buildingId: site.buildingId,
+					type: building.type,
+					bricksUsed: site.bricksUsed,
+					bricksNeeded: site.bricksNeeded,
+					isDemolished: demolishedIds.has(characterBuildingId)
+				};
+			}
+
+			return {
+				characterBuildingId,
+				name,
+				buildingId,
+				type: base.type,
+				bricksUsed: null,
+				bricksNeeded: null,
+				isDemolished: demolishedIds.has(characterBuildingId)
+			};
+		});
+	
+	const newBuildings = manageBuildings.constructActions.map(
+		({ characterBuildingId, buildingId }) => {
+			const reservedBuilding = ownedReservedBuildingsById[characterBuildingId];
+			const building = buildingsById[buildingId];
+			
+			return {
+				characterBuildingId,
+				name: reservedBuilding.name,
+				buildingId,
+				type: building.type
+			};
+		});
+	
+	const usedTiles = 
+		existingBuildings.filter((db) => !db.isDemolished).length +	newBuildings.length;
+	const freeTiles = ownedTiles - usedTiles;
+	
+	turn.phase.data = {
+		constructibleBuildings,
+		existingBuildings,
+		newBuildings,
+		freeTiles
+	};
+}
+//-----------------------------------------------------------------------------------------------//
+function cachePhaseElements() {
+	turn.phase.elements = {
+		demolishWindow: document.getElementById('demolish-window'),
+		constructWindow: document.getElementById('construct-window'),
+		openDemolishWindow: document.getElementById('open-demolish-window-button'),
+		openConstructWindow: document.getElementById('open-construct-window-button'),
+		confirmDemolish: document.getElementById('confirm-demolish-button'),
+		confirmConstruct: document.getElementById('confirm-construct-button'),
+		constructForm: document.getElementById('construct-form'),
+		demolishActions: document.getElementById('demolish-actions-ul'),
+		demolishableBuildings: document.getElementById('demolishable-buildings-div'),
+		constructActions: document.getElementById('construct-actions-ul'),
+		freeTiles: document.getElementById('free-tiles-span'),
+		buildingType: document.getElementById('building-type-select'),
+		buildingName: document.getElementById('building-name-input'),
+		buildingNameError: document.getElementById('building-name-error')
+	};
+}
+//-----------------------------------------------------------------------------------------------//
+function createModalObjects() {
+	const { elements } = turn.phase;
+	
+	turn.phase.demolishModal = bootstrap.Modal.getOrCreateInstance(elements.demolishWindow);
+	turn.phase.constructModal = bootstrap.Modal.getOrCreateInstance(elements.constructWindow);
+}
+//-----------------------------------------------------------------------------------------------//
+function addEventListeners() {
+	const { elements } = turn.phase;
+	
+	elements.confirmDemolish.addEventListener('click', handleConfirmDemolish);
+	elements.constructForm.addEventListener('submit', handleConfirmConstruct);
+	elements.buildingName.addEventListener('input', handleBuildingNameInput);
+}
+//-----------------------------------------------------------------------------------------------//
+function initializeControls() {
+	const { data, elements } = turn.phase;
+	
+	turn.phase.populateSelect({
+		select: elements.buildingType, 
+		optionName: 'gebouw', 
+		items: data.constructibleBuildings, 
+		textField: 'type'
+	});
+}
+//-----------------------------------------------------------------------------------------------//
+function savePhaseData() {
+	const { data } = turn.phase;
+	const manageBuildings = {
+		demolishActions: [],
+		constructActions: []
+	};
+	
+	data.existingBuildings.forEach((eb) => {
+		if (eb.isDemolished) {
+			manageBuildings.demolishActions.push({
+				characterBuildingId: eb.characterBuildingId
+			});
+		}
+	});
+	
+	data.newBuildings.forEach((nb) => {
+		manageBuildings.constructActions.push({
+			characterBuildingId: nb.characterBuildingId,
+			buildingId: nb.buildingId
+		});
+	});
+	
+	turn.storage.save('characterPhases.manageBuildings', manageBuildings);
+}
+//===============================================================================================//
+function handleConfirmDemolish() {
+	const { data, elements } = turn.phase;
+
+	const checkboxes = elements.demolishableBuildings
+		.querySelectorAll('input[type="checkbox"]:checked');
+
+	checkboxes.forEach((checkbox) => {
+		const characterBuildingId = Number(checkbox.dataset.characterBuildingId);
+		const building = data.existingBuildings.find(
+			(eb) => eb.characterBuildingId === characterBuildingId
+		);
+		
+		building.isDemolished = true;
+		data.freeTiles++;
+	});
+	
+	turn.phase.updateUI();
+	
+	turn.phase.demolishModal.hide();
+}
+//-----------------------------------------------------------------------------------------------//
+async function handleConfirmConstruct(event) {
+	event.preventDefault();
+	
+	const { data, elements } = turn.phase;
+	
+	if (!elements.constructForm.reportValidity()) return;
+	
+	const reserved = await reserveBuildingName(elements.buildingName.value);
+	if (!reserved) return;
+	
+	const buildingId = Number(elements.buildingType.value);
+	
+	const building = data.constructibleBuildings.find((b) => b.id === buildingId);
+	
+	data.newBuildings.push({
+		characterBuildingId: reserved.characterBuildingId,
+		name: reserved.name,
+		buildingId,
+		type: building.type
+	});
+
+	data.freeTiles--;
+
+	turn.phase.updateUI();
+	turn.phase.constructModal.hide();
+}
+//-----------------------------------------------------------------------------------------------//
+function handleBuildingNameInput() {
+	const { elements } = turn.phase;
+	
+	elements.buildingNameError.textContent = '';
+	
+	const args = {
+		nameInput: elements.buildingName,
+		minLength: 2,
+		maxLength: 32,
+		regex: /^[\p{L}\p{N}]+(?:[ '\-.:?!&][\p{L}\p{N}]+)*$/u
+	};
+	
+	validateName(args);
+}
+//===============================================================================================//
+function renderDemolishList() {
+	const { data, elements } = turn.phase;
+	
+	elements.demolishActions.innerHTML = '';
+	elements.demolishableBuildings.innerHTML = '';
+	
+	data.existingBuildings.forEach((eb) => {
+		if (eb.isDemolished) {
+			// Add to demolish actions list
+			const li = document.createElement('li');
+			li.className = 'list-item-justify';
+			li.dataset.characterBuildingId = eb.characterBuildingId;
+			
+			const span = document.createElement('span');
+			span.innerHTML = createBuildingLabel(eb);
+			li.appendChild(span);
+			
+			const button = document.createElement('button');
+			button.type = 'button';
+			button.classList.add('btn-close');
+			button.disabled = turn.phase.disabled || (data.freeTiles === 0);
+			button.addEventListener('click', () => {
+				if (button.disabled) return;
+				button.disabled = true;
+				
+				eb.isDemolished = false;
+				data.freeTiles--;
+				
+				turn.phase.updateUI();
+			});
+			
+			li.appendChild(button);
+			elements.demolishActions.appendChild(li);
+		} else {
+			// Add to demolishable buildings list
+			const div = document.createElement('div');
+			div.className = 'form-check';
+			
+			const input = document.createElement('input');
+			input.id = 'demolish_' + eb.characterBuildingId;
+			input.className = 'form-check-input';
+			input.type = 'checkbox';
+			input.dataset.characterBuildingId = eb.characterBuildingId;
+			div.appendChild(input);
+			
+			const label = document.createElement('label');
+			label.htmlFor = input.id;
+			label.className = 'form-check-label';
+			label.innerHTML = createBuildingLabel(eb);
+			div.appendChild(label);
+			
+			elements.demolishableBuildings.appendChild(div);
+		}
+	});
+	
+	// Show/hide demolish actions list
+	if (elements.demolishActions.children.length === 0) {
+		elements.demolishActions.classList.add('d-none');
+	} else {
+		elements.demolishActions.classList.remove('d-none');
+	}
+	
+	// Enable/disable demolish window
+	let areAllBuildingsDemolished = true;
+	for (const eb of data.existingBuildings) {
+		if (!eb.isDemolished) {
+			areAllBuildingsDemolished = false;
+			break;
+		}
+	}
+	elements.openDemolishWindow.disabled = areAllBuildingsDemolished || turn.phase.disabled;
+}
+//-----------------------------------------------------------------------------------------------//
+function renderConstructList() {
+	const { data, elements } = turn.phase;
+	
+	elements.constructActions.innerHTML = '';
+	
+	data.newBuildings.forEach((nb, index) => {
+		// Add to construct actions list
+		const li = document.createElement('li');
+		li.className = 'list-item-justify';
+		li.dataset.characterBuildingId = nb.characterBuildingId;
+		
+		const span = document.createElement('span');
+		span.innerHTML = createBuildingLabel(nb);
+		li.appendChild(span);
+		
+		const button = document.createElement('button');
+		button.type = 'button';
+		button.classList.add('btn-close');
+		button.disabled = turn.phase.disabled;
+		button.addEventListener('click', async () => {
+			if (button.disabled) return;
+			button.disabled = true;
+			
+			data.newBuildings.splice(index, 1);
+			data.freeTiles++;
+			
+			turn.phase.updateUI();
+			
+			await cancelBuildingName(nb.characterBuildingId);
+		});
+		
+		li.appendChild(button);
+		elements.constructActions.appendChild(li);
+	});
+	
+	elements.buildingType.value = '';
+	elements.buildingName.value = '';
+	
+	// Show/hide construct actions list
+	if (elements.constructActions.children.length === 0) {
+		elements.constructActions.classList.add('d-none');
+	} else {
+		elements.constructActions.classList.remove('d-none');
+	}
+	
+	// Enable/disable construct window
+	const areAllTilesOccupied = (data.freeTiles === 0);
+	elements.openConstructWindow.disabled = areAllTilesOccupied || turn.phase.disabled;
+}
+//-----------------------------------------------------------------------------------------------//
+function renderFreeTiles() {
+	const { data, elements } = turn.phase;
+	
+	elements.freeTiles.textContent = data.freeTiles;
+}
+//===============================================================================================//
+async function reserveBuildingName(characterBuildingName) {
+	const { elements } = turn.phase;
+	
+	try {
+		const res = await fetch('/game/turn/reserve-building-name', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ characterBuildingName })
+		});
+
+		const json = await res.json();
+		
+		if (json.redirect) {
+			location.replace(json.redirect);
+			return;
+		}
+		
+		if (json.error) {
+			elements.buildingNameError.textContent = json.error;
+			return null;
+		}
+		
+		const reserved = {
+			characterBuildingId: json.data.characterBuildingId,
+			name: json.data.characterBuildingName
+		};
+		
+		const ownedReservedBuildings = turn.storage.load('characterState.ownedReservedBuildings');
+		ownedReservedBuildings.push(reserved);
+		turn.storage.save('characterState.ownedReservedBuildings', ownedReservedBuildings);
+		
+		return reserved;
+	} catch (err) {
+		alert('De server is momenteel niet bereikbaar.');
+		return null;
+	}
+}
+//-----------------------------------------------------------------------------------------------//
+async function cancelBuildingName(characterBuildingId) {
+	try {
+		const res = await fetch('/game/turn/cancel-building-name', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ characterBuildingId })
+		});
+		
+		const json = await res.json();
+		
+		if (json.redirect) {
+			location.replace(json.redirect);
+			return;
+		}
+		
+		let ownedReservedBuildings = turn.storage.load('characterState.ownedReservedBuildings');
+		ownedReservedBuildings = ownedReservedBuildings.filter(
+                (orb) => orb.characterBuildingId !== characterBuildingId
+            );
+		turn.storage.save('characterState.ownedReservedBuildings', ownedReservedBuildings);
+	} catch (err) {
+		alert('De server is momenteel niet bereikbaar.');
+	}
+}
+//-----------------------------------------------------------------------------------------------//
+function createBuildingLabel({ name, 
+							   type, 
+							   bricksUsed, 
+							   bricksNeeded }) {
+  const parts = [ type ];
+
+  if (bricksUsed != null && bricksNeeded != null) {
+    parts.push(`${bricksUsed}/${bricksNeeded} voltooid`);
+  }
+
+  return `${name} <small>(${parts.join(', ')})</small>`;
+}
+//-----------------------------------------------------------------------------------------------//
+</script>

@@ -30,9 +30,9 @@
 			<input id="password-input" class="form-control" type="password"
 				   name="password" required>
 		</div>
-		
-		<div id="change-username-error" class="error">{{changeUsernameError}}</div>
 	</div>
+	
+	<div id="change-username-error" class="mt-md error">{{changeUsernameError}}</div>
 	
 	<div class="mt-lg">
 		<button class="btn btn--primary" type="submit">
@@ -58,6 +58,17 @@ let passwordInput;
 let changeUsernameErrorElement;
 let changeUsernameForm;
 //-----------------------------------------------------------------------------------------------//
+document.addEventListener('DOMContentLoaded', () => {
+	newUsernameInput = document.getElementById('new-username-input');
+	passwordInput = document.getElementById('password-input');
+	changeUsernameErrorElement = document.getElementById('change-username-error');
+	changeUsernameForm = document.getElementById('change-username-form');
+	
+	newUsernameInput.addEventListener('input', handleNewUsernameInput);
+	passwordInput.addEventListener('input', clearError);
+	changeUsernameForm.addEventListener('submit', handleChangeUsernameFormSubmit);
+});
+//===============================================================================================//
 function clearError() {
 	changeUsernameErrorElement.textContent = '';
 }
@@ -78,16 +89,5 @@ function handleChangeUsernameFormSubmit(event) {
 		changeUsernameForm.reportValidity();
 	}
 }
-//-----------------------------------------------------------------------------------------------//
-document.addEventListener('DOMContentLoaded', () => {
-	newUsernameInput = document.getElementById('new-username-input');
-	passwordInput = document.getElementById('password-input');
-	changeUsernameErrorElement = document.getElementById('change-username-error');
-	changeUsernameForm = document.getElementById('change-username-form');
-	
-	newUsernameInput.addEventListener('input', handleNewUsernameInput);
-	passwordInput.addEventListener('input', clearError);
-	changeUsernameForm.addEventListener('submit', handleChangeUsernameFormSubmit);
-});
 //-----------------------------------------------------------------------------------------------//
 </script>

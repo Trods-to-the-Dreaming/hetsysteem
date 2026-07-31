@@ -54,8 +54,6 @@ h2 + h3 {
 }
 
 a {
-  --link-color-hover: color-mix(in oklch, var(--link-color) 80%, white);
-  --link-color-active: color-mix(in oklch, var(--link-color) 70%, black);
   color: var(--link-color);
   text-decoration: none;
 }
@@ -107,6 +105,8 @@ thead th {
 /*************************************************************************************************/
 .app {
   --link-color: #0d6efd;
+  --link-color-hover: color-mix(in oklch, var(--link-color) 80%, white);
+  --link-color-active: color-mix(in oklch, var(--link-color) 90%, black);
   --btn-color: #7f7668;
   display: block flex;
   flex-direction: column;
@@ -136,6 +136,8 @@ thead th {
 
 nav {
   --link-color: #ebca63;
+  --link-color-hover: color-mix(in oklch, var(--link-color) 80%, white);
+  --link-color-active: color-mix(in oklch, var(--link-color) 90%, black);
   display: block flex;
   align-items: center;
   justify-content: space-between;
@@ -162,13 +164,7 @@ main {
     box-shadow: 0 5px 20px 5px rgba(0, 0, 0, 0.2);
   }
   nav {
-    --link-color: #ebca63;
-    display: block flex;
-    align-items: center;
-    justify-content: space-between;
     border-radius: 12px 12px 0 0;
-    padding: 0;
-    background-color: #212529;
   }
 }
 /*************************************************************************************************/
@@ -285,10 +281,16 @@ main {
   transform: translateY(0px);
 }
 
-.btn:disabled .btn-front {
+.btn:disabled .btn-front,
+.btn--disabled .btn-front {
   opacity: 0.65;
   transform: translateY(0px);
   text-decoration: none;
+}
+
+.btn--disabled {
+  pointer-events: none;
+  cursor: default;
 }
 
 .btn--primary {
@@ -333,14 +335,14 @@ main {
   --btn-text-color: color-mix(in oklch, var(--btn-color) 65%, black);
   --btn-edge-color: color-mix(in oklch, var(--btn-color) 60%, black);
   --btn-edge-dark-color: color-mix(in oklch, var(--btn-color) 40%, black);
-  --btn-border-color-hover: color-mix(in oklch, var(--btn-border-color) 85%, white);
-  --btn-background-color-hover: color-mix(in oklch, var(--btn-background-color) 85%, white);
-  --btn-text-color-hover: color-mix(in oklch, var(--btn-text-color) 85%, white);
-  --btn-edge-color-hover: color-mix(in oklch, var(--btn-edge-color) 85%, white);
-  --btn-edge-dark-color-hover: color-mix(in oklch, var(--btn-edge-dark-color) 85%, white);
+  --btn-border-color-hover: color-mix(in oklch, var(--btn-border-color) 80%, white);
+  --btn-background-color-hover: color-mix(in oklch, var(--btn-background-color) 80%, white);
+  --btn-text-color-hover: var(--btn-text-color);
+  --btn-edge-color-hover: color-mix(in oklch, var(--btn-edge-color) 80%, white);
+  --btn-edge-dark-color-hover: color-mix(in oklch, var(--btn-edge-dark-color) 80%, white);
   --btn-border-color-active: color-mix(in oklch, var(--btn-border-color) 90%, black);
   --btn-background-color-active: color-mix(in oklch, var(--btn-background-color) 90%, black);
-  --btn-text-color-active: color-mix(in oklch, var(--btn-border-color) 90%, black);
+  --btn-text-color-active: var(--btn-text-color);
   --btn-edge-color-active: color-mix(in oklch, var(--btn-edge-color) 90%, black);
   --btn-edge-dark-color-active: color-mix(in oklch, var(--btn-edge-dark-color) 90%, black);
 }
@@ -360,14 +362,14 @@ main {
   --btn-text-color: color-mix(in oklch, #727780 65%, black);
   --btn-edge-color: color-mix(in oklch, #727780 60%, black);
   --btn-edge-dark-color: color-mix(in oklch, #727780 40%, black);
-  --btn-border-color-hover: color-mix(in oklch, var(--btn-border-color) 85%, white);
-  --btn-background-color-hover: color-mix(in oklch, var(--btn-background-color) 85%, white);
-  --btn-text-color-hover: color-mix(in oklch, var(--btn-text-color) 85%, white);
-  --btn-edge-color-hover: color-mix(in oklch, var(--btn-edge-color) 85%, white);
-  --btn-edge-dark-color-hover: color-mix(in oklch, var(--btn-edge-dark-color) 85%, white);
+  --btn-border-color-hover: color-mix(in oklch, var(--btn-border-color) 80%, white);
+  --btn-background-color-hover: color-mix(in oklch, var(--btn-background-color) 80%, white);
+  --btn-text-color-hover: var(--btn-text-color);
+  --btn-edge-color-hover: color-mix(in oklch, var(--btn-edge-color) 80%, white);
+  --btn-edge-dark-color-hover: color-mix(in oklch, var(--btn-edge-dark-color) 80%, white);
   --btn-border-color-active: color-mix(in oklch, var(--btn-border-color) 90%, black);
   --btn-background-color-active: color-mix(in oklch, var(--btn-background-color) 90%, black);
-  --btn-text-color-active: color-mix(in oklch, var(--btn-border-color) 90%, black);
+  --btn-text-color-active: var(--btn-text-color);
   --btn-edge-color-active: color-mix(in oklch, var(--btn-edge-color) 90%, black);
   --btn-edge-dark-color-active: color-mix(in oklch, var(--btn-edge-dark-color) 90%, black);
 }
@@ -441,14 +443,14 @@ main {
   --btn-text-color: color-mix(in oklch, #727780 65%, black);
   --btn-edge-color: color-mix(in oklch, #727780 60%, black);
   --btn-edge-dark-color: color-mix(in oklch, #727780 40%, black);
-  --btn-border-color-hover: color-mix(in oklch, var(--btn-border-color) 85%, white);
-  --btn-background-color-hover: color-mix(in oklch, var(--btn-background-color) 85%, white);
-  --btn-text-color-hover: color-mix(in oklch, var(--btn-text-color) 85%, white);
-  --btn-edge-color-hover: color-mix(in oklch, var(--btn-edge-color) 85%, white);
-  --btn-edge-dark-color-hover: color-mix(in oklch, var(--btn-edge-dark-color) 85%, white);
+  --btn-border-color-hover: color-mix(in oklch, var(--btn-border-color) 80%, white);
+  --btn-background-color-hover: color-mix(in oklch, var(--btn-background-color) 80%, white);
+  --btn-text-color-hover: var(--btn-text-color);
+  --btn-edge-color-hover: color-mix(in oklch, var(--btn-edge-color) 80%, white);
+  --btn-edge-dark-color-hover: color-mix(in oklch, var(--btn-edge-dark-color) 80%, white);
   --btn-border-color-active: color-mix(in oklch, var(--btn-border-color) 90%, black);
   --btn-background-color-active: color-mix(in oklch, var(--btn-background-color) 90%, black);
-  --btn-text-color-active: color-mix(in oklch, var(--btn-border-color) 90%, black);
+  --btn-text-color-active: var(--btn-text-color);
   --btn-edge-color-active: color-mix(in oklch, var(--btn-edge-color) 90%, black);
   --btn-edge-dark-color-active: color-mix(in oklch, var(--btn-edge-dark-color) 90%, black);
 }
@@ -547,35 +549,33 @@ main {
 }
 
 /*************************************************************************************************/
-/*.btn-edit {
-	--btn-background-color: color-mix(in oklch, #727780 22%, white);
-	--btn-background-color-hover: color-mix(in oklch, var(--btn-background-color) 85%, white);
-	--btn-background-color-active: color-mix(in oklch, var(--btn-background-color) 90%, black);
-
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 2.5rem;
-
-	border: 1px solid $charcoal;
-	border-left: 0;
-	border-radius: 0 0.375rem 0.375rem 0;
-	background-color: var(--btn-background-color);
-
-	text-decoration: none;
-
-	cursor: pointer;
-	transition: background-color 80ms ease;
+.btn-edit {
+  --btn-background-color: color-mix(in oklch, #727780 22%, white);
+  --btn-background-color-hover: color-mix(in oklch, var(--btn-background-color) 80%, white);
+  --btn-background-color-active: color-mix(in oklch, var(--btn-background-color) 90%, black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  border: 1px solid #212529;
+  border-left: 0;
+  border-radius: 0 0.375rem 0.375rem 0;
+  background-color: var(--btn-background-color);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 80ms ease;
 }
+
 .btn-edit:hover {
-	background-color: var(--btn-background-color-hover);
-	text-decoration: none;
+  background-color: var(--btn-background-color-hover);
+  text-decoration: none;
 }
 
 .btn-edit:active {
-	background-color: var(--btn-background-color-active);
-	text-decoration: none;
-}*/
+  background-color: var(--btn-background-color-active);
+  text-decoration: none;
+}
+
 /*************************************************************************************************/
 .btn-close {
   border: 0;
@@ -604,7 +604,6 @@ main {
   pointer-events: none;
 }
 
-/*************************************************************************************************/
 /*************************************************************************************************/
 .d-none {
   display: none !important;
@@ -756,7 +755,6 @@ body.modal-open {
 .dropdown {
   --dropdown-background-color: rgb(52.4432432432, 58.8, 65.1567567568);
   --dropdown-background-color-hover: rgb(71.8864864865, 80.6, 89.3135135135);
-  --dropdown-background-color-active: rgb(91.3297297297, 102.4, 113.4702702703);
   position: relative;
 }
 
@@ -808,7 +806,6 @@ body.modal-open {
 
 .dropdown-menu a:active,
 .dropdown-menu button:active {
-  background-color: var(--dropdown-background-color-active);
   color: var(--link-color-active);
 }
 
@@ -995,20 +992,16 @@ body.modal-open {
   border: 1px solid;
   border-radius: 0.375rem;
   padding: 0.375rem 0.75rem;
-  font-size: 1rem;
-  font-weight: normal;
   line-height: 1.5;
-  text-align: center;
-  text-decoration: none;
   vertical-align: middle;
 }
 .error:not(:empty) {
-  display: inline flow-root;
+  display: block flow;
 }
 .error {
-  border-color: #f1aeb5;
-  background-color: #f8d7da;
-  color: #58151c;
+  border-color: color-mix(in oklch, #842029 25%, white);
+  background-color: color-mix(in oklch, #842029 12%, white);
+  color: #842029;
 }
 
 .success {
@@ -1016,20 +1009,33 @@ body.modal-open {
   border: 1px solid;
   border-radius: 0.375rem;
   padding: 0.375rem 0.75rem;
-  font-size: 1rem;
-  font-weight: normal;
   line-height: 1.5;
-  text-align: center;
-  text-decoration: none;
   vertical-align: middle;
 }
 .success:not(:empty) {
-  display: inline flow-root;
+  display: block flow;
 }
 .success {
-  border-color: #a3cfbb;
-  background-color: #d1e7dd;
-  color: #0a3622;
+  border-color: color-mix(in oklch, #146c43 25%, white);
+  background-color: color-mix(in oklch, #146c43 12%, white);
+  color: #146c43;
+}
+
+.info {
+  display: none;
+  border: 1px solid;
+  border-radius: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  line-height: 1.5;
+  vertical-align: middle;
+}
+.info:not(:empty) {
+  display: block flow;
+}
+.info {
+  border-color: color-mix(in oklch, #084298 25%, white);
+  background-color: color-mix(in oklch, #084298 12%, white);
+  color: #084298;
 }
 
 /*************************************************************************************************/

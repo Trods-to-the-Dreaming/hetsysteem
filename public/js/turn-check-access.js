@@ -90,8 +90,8 @@ turn.phase = {
 		this.index = turn.phases.findIndex((p) => p.key === phaseKey);
 
 		if (this.index === -1) {
-			// This should never happen
-			location.replace('/game');
+			// The user tries to play a phase that is not part of the turn
+			location.replace(turn.phases[turn.currentPhaseIndex].url);
 			return;
 		}
 

@@ -61,37 +61,69 @@ CHANGE COLUMN `has_confirmed_hours` `has_confirmed_spend_time` TINYINT(1) NOT NU
 //		aankoop invoeren in character_products en character_buildings (behalve education in character_education, en concert, video-game en fashion-show in character_recreation)
 
 
+// opslagcapaciteit
+// * 
+
+
+Wil je een array willekeurig schudden, gebruik dan de Fisher–Yates shuffle:
+for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+}
+
+
+Verwerken:
+1) Arbeidscontracten beheren
+* met matching algoritme
+2) Huurcontracten beheren
+* met matching algoritme (slechts één?)
+3) Produceren
+* array maken van de gebouwen
+* gebouwen willekeurig schudden
+* per gebouw produceren wat mogelijk is volgens grondstoffen, uren en geld
+* gebouw verwijderen uit array als de grondstoffen of uren op zijn
+* array telkens opnieuw overlopen, totdat er niets meer wordt geproduceerd
+4) Verhandelen
+* met matching algoritme een array maken van transacties
+* transacties willekeurig schudden
 
 
 
-DROP TABLE action_rent_out;
-DROP TABLE action_rent;
-DROP TABLE action_recruit;
-DROP TABLE action_dismiss;
-DROP TABLE action_apply;
-DROP TABLE action_resign;
-DROP TABLE action_construct;
-DROP TABLE action_demolish;
-DROP TABLE action_customize;
+DROP TABLE transfer_actions;
+DROP TABLE join_actions;
+DROP TABLE leave_actions;
+DROP TABLE enjoy_actions;
+DROP TABLE work_actions;
+DROP TABLE seek_medical_care_actions;
+DROP TABLE eat_actions;
+DROP TABLE request_building_actions;
+DROP TABLE give_building_actions;
+DROP TABLE request_product_actions;
+DROP TABLE give_product_actions;
+DROP TABLE buy_building_actions;
+DROP TABLE sell_building_actions;
+DROP TABLE buy_product_actions;
+DROP TABLE sell_product_actions;
+DROP TABLE boost_actions;
+DROP TABLE rent_out_actions;
+DROP TABLE evict_actions;
+DROP TABLE rent_actions;
+DROP TABLE vacate_actions;
+DROP TABLE start_actions;
+DROP TABLE close_actions;
+DROP TABLE recruit_actions;
+DROP TABLE dismiss_actions;
+DROP TABLE apply_actions;
+DROP TABLE resign_actions;
+DROP TABLE construct_actions;
+DROP TABLE demolish_actions;
+DROP TABLE create_character_actions;
+DROP TABLE cooperative_members;
+DROP TABLE cooperatives;
 DROP TABLE rental_agreements;
+DROP TABLE self_employment_contracts;
 DROP TABLE employment_contracts;
-DROP TABLE character_experience;
 DROP TABLE residences;
-DROP TABLE character_buildings;
-DROP TABLE character_products;
-DROP TABLE characters;
-DROP TABLE world_resources;
-DROP TABLE world_state;
-DROP TABLE buildings;
-DROP TABLE recreations;
-DROP TABLE products;
-DROP TABLE worlds;
-
-
-
-DROP TABLE actions_construct;
-DROP TABLE actions_demolish;
-DROP TABLE actions_create_character;
 DROP TABLE character_construction_sites;
 DROP TABLE character_building_states;
 DROP TABLE character_buildings;
@@ -104,12 +136,15 @@ DROP TABLE recreations;
 DROP TABLE products;
 DROP TABLE worlds;
 
+
+
+
 CREATE TABLE invitations (
 	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	token CHAR(16) NOT NULL UNIQUE,
 	status ENUM('unused', 'used', 'released') NOT NULL DEFAULT 'unused',
-	used_at DATETIME DEFAULT NULL,
-	released_at DATETIME DEFAULT NULL
+	used_at DATETIME,
+	released_at DATETIME
 );
 
 CREATE TABLE users (
@@ -126,7 +161,7 @@ CREATE TABLE worlds (
 	id TINYINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	slug VARCHAR(32) NOT NULL UNIQUE,
 	name VARCHAR(32) NOT NULL UNIQUE,
-	n_characters INT UNSIGNED NOT NULL,
+	max_characters INT UNSIGNED NOT NULL,
 	n_tiles INT UNSIGNED NOT NULL,
 	current_turn SMALLINT UNSIGNED NOT NULL DEFAULT 1
 );
@@ -180,6 +215,8 @@ CREATE TABLE characters (
 	world_id TINYINT UNSIGNED NOT NULL,
 	first_name VARCHAR(32) NOT NULL,
 	last_name VARCHAR(32) NOT NULL,
+	turn_version SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+	turn_saved BOOLEAN NOT NULL DEFAULT FALSE,
 	UNIQUE (user_id, world_id),
 	FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE,
 	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -194,12 +231,11 @@ ON characters (
 
 CREATE TABLE character_states (
 	character_id INT UNSIGNED PRIMARY KEY,
-	turn_edit_version SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-	turn_saved BOOLEAN NOT NULL DEFAULT FALSE,
 	job_preference_1_id TINYINT UNSIGNED NOT NULL,
 	job_preference_2_id TINYINT UNSIGNED NOT NULL,
 	job_preference_3_id TINYINT UNSIGNED NOT NULL,
 	recreation_preference_id TINYINT UNSIGNED NOT NULL,
+	team_id INT UNSIGNED,
 	birth_turn SMALLINT UNSIGNED NOT NULL DEFAULT 1,
 	health TINYINT UNSIGNED NOT NULL DEFAULT 100,
 	life_expectancy TINYINT UNSIGNED NOT NULL DEFAULT 0,
@@ -244,7 +280,6 @@ ON character_buildings (
 CREATE TABLE character_building_states (
 	character_building_id INT UNSIGNED PRIMARY KEY,
 	building_id TINYINT UNSIGNED NOT NULL,
-	size TINYINT UNSIGNED NOT NULL,
 	boosted_working_hours SMALLINT UNSIGNED NOT NULL DEFAULT 0,
 	FOREIGN KEY (character_building_id) REFERENCES character_buildings(id) ON DELETE CASCADE,
 	FOREIGN KEY (building_id) REFERENCES buildings(id)
@@ -252,14 +287,62 @@ CREATE TABLE character_building_states (
 
 CREATE TABLE character_construction_sites (
 	character_building_id INT UNSIGNED PRIMARY KEY,
-	building_id TINYINT UNSIGNED NOT NULL,
+	target_building_id TINYINT UNSIGNED NOT NULL,
 	bricks_needed TINYINT UNSIGNED NOT NULL,
 	bricks_used TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	FOREIGN KEY (character_building_id) REFERENCES character_buildings(id) ON DELETE CASCADE,
-	FOREIGN KEY (building_id) REFERENCES buildings(id)
+	FOREIGN KEY (target_building_id) REFERENCES buildings(id)
 );
 
-CREATE TABLE actions_create_character (
+CREATE TABLE residences (
+    character_building_id INT UNSIGNED PRIMARY KEY,
+    FOREIGN KEY (character_building_id) REFERENCES character_buildings(id) ON DELETE CASCADE
+);
+
+CREATE TABLE employment_contracts (
+	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	employee_id INT UNSIGNED NOT NULL,
+	workplace_id INT UNSIGNED NOT NULL,
+	working_hours TINYINT UNSIGNED NOT NULL,
+	hourly_wage INT UNSIGNED NOT NULL,
+	UNIQUE(employee_id, workplace_id),
+	FOREIGN KEY (employee_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (workplace_id) REFERENCES character_buildings(id) ON DELETE CASCADE
+);
+
+CREATE TABLE self_employment_contracts (
+	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	workplace_id INT UNSIGNED NOT NULL,
+	working_hours TINYINT UNSIGNED NOT NULL,
+	FOREIGN KEY (workplace_id) REFERENCES character_buildings(id) ON DELETE CASCADE
+);
+
+CREATE TABLE rental_agreements (
+	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	tenant_id INT UNSIGNED NOT NULL,
+	residence_id INT UNSIGNED NOT NULL,
+	daily_rent INT UNSIGNED NOT NULL,
+	FOREIGN KEY (tenant_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (residence_id) REFERENCES residences(character_building_id)
+);
+
+CREATE TABLE cooperatives (
+	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	name VARCHAR(32) NOT NULL,
+	leader_id INT UNSIGNED NOT NULL UNIQUE,
+	FOREIGN KEY (leader_id) REFERENCES characters(id)
+);
+
+CREATE TABLE cooperative_members (
+	character_id INT UNSIGNED PRIMARY KEY,
+	cooperative_id INT UNSIGNED NOT NULL,
+    FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
+    FOREIGN KEY (cooperative_id) REFERENCES cooperatives(id) ON DELETE CASCADE
+);
+
+
+
+CREATE TABLE create_character_actions (
 	character_id INT UNSIGNED PRIMARY KEY,
 	job_preference_1_id TINYINT UNSIGNED NOT NULL,
 	job_preference_2_id TINYINT UNSIGNED NOT NULL,
@@ -272,89 +355,205 @@ CREATE TABLE actions_create_character (
 	FOREIGN KEY (recreation_preference_id) REFERENCES recreations(product_id)
 );
 
-CREATE TABLE actions_demolish (
+CREATE TABLE demolish_actions (
     character_building_id INT UNSIGNED PRIMARY KEY,
 	FOREIGN KEY (character_building_id) REFERENCES character_buildings(id) ON DELETE CASCADE
 );
 
-CREATE TABLE actions_construct (
+CREATE TABLE construct_actions (
 	character_building_id INT UNSIGNED PRIMARY KEY,
 	building_id TINYINT UNSIGNED NOT NULL,
-	size TINYINT UNSIGNED NOT NULL,
 	FOREIGN KEY (character_building_id) REFERENCES character_buildings(id) ON DELETE CASCADE,
 	FOREIGN KEY (building_id) REFERENCES buildings(id)
 );
 
-
-
-
-CREATE TABLE employment_contracts (
-	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	employee_id INT UNSIGNED NOT NULL,
-	workplace_id INT UNSIGNED NOT NULL,
-	working_hours TINYINT UNSIGNED NOT NULL,
-	hourly_wage INT UNSIGNED NOT NULL,
-	FOREIGN KEY (employee_id) REFERENCES characters(id) ON DELETE CASCADE,
-	FOREIGN KEY (workplace_id) REFERENCES character_buildings(id) ON DELETE CASCADE
-);
-
-CREATE TABLE self_employment_contracts (
-	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	workplace_id INT UNSIGNED NOT NULL,
-	working_hours TINYINT UNSIGNED NOT NULL,
-	FOREIGN KEY (workplace_id) REFERENCES character_buildings(id) ON DELETE CASCADE
-);
-
-CREATE TABLE action_dismiss (
-	employment_contract_id INT UNSIGNED NOT NULL,
+CREATE TABLE resign_actions (
+	employment_contract_id INT UNSIGNED PRIMARY KEY,
 	FOREIGN KEY (employment_contract_id) REFERENCES employment_contracts(id)
 );
 
-CREATE TABLE action_recruit (
-    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	company_id INT UNSIGNED NOT NULL,
+CREATE TABLE apply_actions (
+	applicant_id INT UNSIGNED NOT NULL,
+	job_id TINYINT UNSIGNED NOT NULL,
+	working_hours TINYINT UNSIGNED NOT NULL,
+	min_hourly_wage INT UNSIGNED NOT NULL,
+    PRIMARY KEY (applicant_id, job_id),
+	FOREIGN KEY (applicant_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (job_id) REFERENCES buildings(id)
+);
+
+CREATE TABLE dismiss_actions (
+	employment_contract_id INT UNSIGNED PRIMARY KEY,
+	FOREIGN KEY (employment_contract_id) REFERENCES employment_contracts(id)
+);
+
+CREATE TABLE recruit_actions (
+	company_id INT UNSIGNED PRIMARY KEY,
 	working_hours TINYINT UNSIGNED NOT NULL,
 	max_hourly_wage INT UNSIGNED NOT NULL,
 	FOREIGN KEY (company_id) REFERENCES character_buildings(id) ON DELETE CASCADE
 );
 
-CREATE TABLE action_resign (
-	employment_contract_id INT UNSIGNED NOT NULL,
-	FOREIGN KEY (employment_contract_id) REFERENCES employment_contracts(id)
-);
-
-CREATE TABLE action_apply (
-    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	applicant_id INT UNSIGNED NOT NULL,
-	job_id TINYINT UNSIGNED NOT NULL,
-	working_hours TINYINT UNSIGNED NOT NULL,
-	min_hourly_wage INT UNSIGNED NOT NULL,
-	FOREIGN KEY (applicant_id) REFERENCES characters(id) ON DELETE CASCADE,
-	FOREIGN KEY (job_id) REFERENCES buildings(id)
-);
-
-CREATE TABLE action_close (
-	self_employment_contract_id INT UNSIGNED NOT NULL,
+CREATE TABLE close_actions (
+	self_employment_contract_id INT UNSIGNED PRIMARY KEY,
 	FOREIGN KEY (self_employment_contract_id) REFERENCES self_employment_contracts(id)
 );
 
-CREATE TABLE action_start (
-    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	company_id INT UNSIGNED NOT NULL,
+CREATE TABLE start_actions (
+	company_id INT UNSIGNED PRIMARY KEY,
 	working_hours TINYINT UNSIGNED NOT NULL,
 	FOREIGN KEY (company_id) REFERENCES character_buildings(id) ON DELETE CASCADE
 );
 
+CREATE TABLE vacate_actions (
+	rental_agreement_id INT UNSIGNED PRIMARY KEY,
+	FOREIGN KEY (rental_agreement_id) REFERENCES rental_agreements(id)
+);
 
+CREATE TABLE rent_actions (
+	applicant_id INT UNSIGNED PRIMARY KEY,
+	capacity TINYINT UNSIGNED NOT NULL,
+	max_daily_rent INT UNSIGNED NOT NULL,
+	FOREIGN KEY (applicant_id) REFERENCES characters(id) ON DELETE CASCADE
+);
 
+CREATE TABLE evict_actions (
+	rental_agreement_id INT UNSIGNED PRIMARY KEY,
+	FOREIGN KEY (rental_agreement_id) REFERENCES rental_agreements(id)
+);
 
+CREATE TABLE rent_out_actions (
+	residence_id INT UNSIGNED PRIMARY KEY,
+	capacity TINYINT UNSIGNED NOT NULL,
+	min_daily_rent INT UNSIGNED NOT NULL,
+	FOREIGN KEY (residence_id) REFERENCES residences(character_building_id)
+);
 
+CREATE TABLE boost_actions (
+	company_id INT UNSIGNED PRIMARY KEY,
+	quantity INT UNSIGNED NOT NULL,
+	FOREIGN KEY (company_id) REFERENCES character_buildings(id) ON DELETE CASCADE
+);
 
+CREATE TABLE sell_product_actions (
+	seller_id INT UNSIGNED NOT NULL,
+	product_id TINYINT UNSIGNED NOT NULL,
+	quantity INT UNSIGNED NOT NULL,
+	min_unit_price INT UNSIGNED NOT NULL,
+	PRIMARY KEY (seller_id, product_id),
+	FOREIGN KEY (seller_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (product_id) REFERENCES products(id)
+);
 
+CREATE TABLE buy_product_actions (
+	buyer_id INT UNSIGNED NOT NULL,
+	product_id TINYINT UNSIGNED NOT NULL,
+	quantity INT UNSIGNED NOT NULL,
+	max_unit_price INT UNSIGNED NOT NULL,
+	PRIMARY KEY (buyer_id, product_id),
+	FOREIGN KEY (buyer_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (product_id) REFERENCES products(id)
+);
 
-CREATE TABLE residences (
-    character_building_id INT UNSIGNED PRIMARY KEY,
-    FOREIGN KEY (character_building_id) REFERENCES character_buildings(id) ON DELETE CASCADE
+CREATE TABLE sell_building_actions (
+	character_building_id INT UNSIGNED PRIMARY KEY,
+	min_price INT UNSIGNED NOT NULL,
+	FOREIGN KEY (character_building_id) REFERENCES character_buildings(id) ON DELETE CASCADE
+);
+
+CREATE TABLE buy_building_actions (
+	buyer_id INT UNSIGNED NOT NULL,
+	building_id TINYINT UNSIGNED NOT NULL,
+	quantity INT UNSIGNED NOT NULL,
+	max_unit_price INT UNSIGNED NOT NULL,
+	PRIMARY KEY (buyer_id, building_id),
+	FOREIGN KEY (buyer_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (building_id) REFERENCES buildings(id)
+);
+
+CREATE TABLE give_product_actions (
+	giver_id INT UNSIGNED NOT NULL,
+	receiver_id INT UNSIGNED NOT NULL,
+	product_id TINYINT UNSIGNED NOT NULL,
+	quantity INT UNSIGNED NOT NULL,
+	PRIMARY KEY (giver_id, receiver_id, product_id),
+	FOREIGN KEY (giver_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (receiver_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+CREATE TABLE request_product_actions (
+	requester_id INT UNSIGNED NOT NULL,
+	provider_id INT UNSIGNED NOT NULL,
+	product_id TINYINT UNSIGNED NOT NULL,
+	quantity INT UNSIGNED NOT NULL,
+	PRIMARY KEY (requester_id, provider_id, product_id),
+	FOREIGN KEY (requester_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (provider_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+CREATE TABLE give_building_actions (
+	character_building_id INT UNSIGNED PRIMARY KEY,
+	receiver_id INT UNSIGNED NOT NULL,
+	FOREIGN KEY (character_building_id) REFERENCES character_buildings(id) ON DELETE CASCADE,
+	FOREIGN KEY (receiver_id) REFERENCES characters(id) ON DELETE CASCADE
+);
+
+CREATE TABLE request_building_actions (
+	requester_id INT UNSIGNED NOT NULL,
+	character_building_id INT UNSIGNED PRIMARY KEY,
+	FOREIGN KEY (requester_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (character_building_id) REFERENCES character_buildings(id) ON DELETE CASCADE
+);
+
+CREATE TABLE eat_actions (
+	consumer_id INT UNSIGNED PRIMARY KEY,
+	quantity INT UNSIGNED NOT NULL,
+	FOREIGN KEY (consumer_id) REFERENCES characters(id) ON DELETE CASCADE
+);
+
+CREATE TABLE seek_medical_care_actions (
+	patient_id INT UNSIGNED PRIMARY KEY,
+	quantity INT UNSIGNED NOT NULL,
+	FOREIGN KEY (patient_id) REFERENCES characters(id) ON DELETE CASCADE
+);
+
+CREATE TABLE work_actions (
+	worker_id INT UNSIGNED NOT NULL, 
+	company_id INT UNSIGNED NOT NULL, 
+	max_hours TINYINT UNSIGNED NOT NULL, 
+	PRIMARY KEY (worker_id, company_id), 
+	FOREIGN KEY (worker_id) REFERENCES characters(id) ON DELETE CASCADE, 
+	FOREIGN KEY (company_id) REFERENCES character_buildings(id) ON DELETE CASCADE 
+);
+
+CREATE TABLE enjoy_actions (
+	enthusiast_id INT UNSIGNED NOT NULL, 
+	recreation_id TINYINT UNSIGNED NOT NULL, 
+	max_hours INT UNSIGNED NOT NULL, 
+	PRIMARY KEY (enthusiast_id, recreation_id), 
+	FOREIGN KEY (enthusiast_id) REFERENCES characters(id) ON DELETE CASCADE, 
+	FOREIGN KEY (recreation_id) REFERENCES recreations(product_id) ON DELETE CASCADE 
+);
+
+CREATE TABLE leave_actions (
+	member_id INT UNSIGNED PRIMARY KEY,
+	FOREIGN KEY (member_id) REFERENCES characters(id)
+);
+
+CREATE TABLE join_actions (
+    member_id INT UNSIGNED PRIMARY KEY,
+	cooperative_id INT UNSIGNED,
+	FOREIGN KEY (member_id) REFERENCES characters(id),
+	FOREIGN KEY (cooperative_id) REFERENCES cooperatives(id)
+);
+
+CREATE TABLE transfer_actions (
+	leader_id INT UNSIGNED PRIMARY KEY,
+	successor_id INT UNSIGNED NOT NULL,
+	FOREIGN KEY (leader_id) REFERENCES characters(id),
+	FOREIGN KEY (successor_id) REFERENCES characters(id)
 );
 
 CREATE TABLE character_experience (
@@ -368,14 +567,7 @@ CREATE TABLE character_experience (
 
 
 
-CREATE TABLE rental_agreements (
-	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	tenant_id INT UNSIGNED NOT NULL,
-	residence_id INT UNSIGNED NOT NULL,
-	daily_rent INT UNSIGNED NOT NULL,
-	FOREIGN KEY (tenant_id) REFERENCES characters(id) ON DELETE CASCADE,
-	FOREIGN KEY (residence_id) REFERENCES residences(character_building_id)
-);
+
 
 -- temporary
 /*CREATE TABLE action_customize (
@@ -416,36 +608,16 @@ CREATE TABLE action_construct (
 
 
 
-CREATE TABLE action_acquire_projects (
-    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	company_id INT UNSIGNED NOT NULL,
-	working_hours TINYINT UNSIGNED NOT NULL,
-	FOREIGN KEY (company_id) REFERENCES character_buildings(id) ON DELETE CASCADE
-);
 
-CREATE TABLE action_rent (
-    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	applicant_id INT UNSIGNED NOT NULL,
-	capacity TINYINT UNSIGNED NOT NULL,
-	max_daily_rent INT UNSIGNED NOT NULL,
-	FOREIGN KEY (applicant_id) REFERENCES characters(id) ON DELETE CASCADE
-);
 
-CREATE TABLE action_rent_out (
-    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-	residence_id INT UNSIGNED NOT NULL,
-	capacity TINYINT UNSIGNED NOT NULL,
-	min_daily_rent INT UNSIGNED NOT NULL,
-	FOREIGN KEY (residence_id) REFERENCES residences(character_building_id)
-);
 
 
 CREATE TABLE cron_process_actions (
 	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	started_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	finished_at DATETIME DEFAULT NULL,
+	finished_at DATETIME,
 	status ENUM('running', 'success', 'failed') NOT NULL DEFAULT 'running',
-	error_message VARCHAR(255) DEFAULT NULL,
+	error_message VARCHAR(255),
 	INDEX idx_status (status),
 	INDEX idx_started_at (started_at)
 );
@@ -454,7 +626,8 @@ CREATE TABLE cron_process_actions (
 
 INSERT INTO invitations
 (token			   ) VALUES
-('ABCD1234EFGH5678');
+('ABCD1234EFGH5678'),
+('IJKL1234MNOP5678');
 
 INSERT INTO character_buildings
 (character_id, world_id, name                ) VALUES
@@ -486,10 +659,10 @@ INSERT INTO character_buildings
 
 
 INSERT INTO worlds
-(name,                   slug,   n_characters, n_tiles) VALUES
-('Belofte maakt schuld', 'debt', 3,            10),
-('Zo zuiver als goud',   'gold', 3,            10),
-('De tijd brengt raad',  'time', 3,            10);
+(name,                   slug,   max_characters, n_tiles) VALUES
+('Belofte maakt schuld', 'debt', 3,              10),
+('Zo zuiver als goud',   'gold', 3,              10),
+('De tijd brengt raad',  'time', 3,              10);
 
 INSERT INTO products 
 (slug,               type,                 is_tradeable, volume) VALUES

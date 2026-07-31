@@ -4,9 +4,9 @@
 
 <h1>Mijn account</h1>
 
-<div class="mt-md stack">
-	<div id="change-account-success" class="success">{{changeAccountSuccess}}</div>
+<div id="change-account-success" class="mt-md success">{{changeAccountSuccess}}</div>
 
+<div class="mt-md stack">
 	<div>
 		<label for="username" class="form-label">
 			Gebruikersnaam:
@@ -29,13 +29,13 @@
 		</div>
 	</div>
 </div>
-		
-<form id="deregister-form" class="mt-lg"
-	  method="POST" action="/account/deregister">
-	<button class="btn btn--danger" type="submit">
+
+<div class="mt-lg">
+	<button id="open-deregister-window-button" class="btn btn--danger" type="button" 
+			data-bs-toggle="modal" data-bs-target="#deregister-window">
 		<span class="btn-front">Uitschrijven</span>
 	</button>
-</form>
+</div>
 
 <hr>
 
@@ -43,20 +43,39 @@
 	<span class="btn-front">Spelen</span>
 </a>
 
-<script type="module">
-//-----------------------------------------------------------------------------------------------//
-let deregisterForm;
-//-----------------------------------------------------------------------------------------------//
-function handleDeregisterFormSubmit(event) {	
-	if (!confirm('Uw account zal onherroepelijk worden verwijderd. Bent u zeker?')) {
-        event.preventDefault();
-	}
-}
-//-----------------------------------------------------------------------------------------------//
-document.addEventListener('DOMContentLoaded', () => {
-	deregisterForm = document.getElementById('deregister-form');
-	
-	deregisterForm.addEventListener('submit', handleDeregisterFormSubmit);
-});
-//-----------------------------------------------------------------------------------------------//
-</script>
+<!------------------------------------------------------------------------------------------------>
+
+<div id="deregister-window" class="modal fade" 
+	 tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h2 class="modal-title">Waarschuwing</h2>
+				
+				<button class="btn-close" type="button" 
+						data-bs-dismiss="modal" aria-label="Sluiten"></button>
+			</div>
+			
+			<div class="modal-body modal-body--warning">
+				<div class="modal-icon">⚠️</div>
+				
+				<p class="modal-message">
+					Uw account zal onherroepelijk worden verwijderd.
+				</p>
+			</div>
+			
+			<div class="modal-footer">
+				<form id="deregister-form" 
+					  method="POST" action="/account/deregister">
+					<button class="btn btn--modal-ok" type="submit">
+						<span class="btn-front">Uitschrijven</span>
+					</button>
+				</form>
+				
+				<button class="btn btn--modal-cancel" type="button" data-bs-dismiss="modal">
+					<span class="btn-front">Annuleren</span>
+				</button>
+			</div>
+		</div>
+	</div>
+</div>

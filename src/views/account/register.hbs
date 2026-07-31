@@ -38,9 +38,9 @@
 			<input id="invitation-token-input" class="form-control" type="text" 
 				   name="invitationToken" required>
 		</div>
-		
-		<div id="register-error" class="error">{{registerError}}</div>
 	</div>
+	
+	<div id="register-error" class="mt-md error">{{registerError}}</div>
 	
 	<div class="mt-lg">
 		<button class="btn btn--primary" type="submit">
@@ -69,6 +69,21 @@ let invitationTokenInput;
 let registerErrorElement;
 let registerForm;
 //-----------------------------------------------------------------------------------------------//
+document.addEventListener('DOMContentLoaded', () => {
+	usernameInput = document.getElementById('username-input');
+	passwordInput = document.getElementById('password-input');
+	confirmedPasswordInput = document.getElementById('confirmed-password-input');
+	invitationTokenInput = document.getElementById('invitation-token-input');
+	registerErrorElement = document.getElementById('register-error');
+	registerForm = document.getElementById('register-form');
+	
+	usernameInput.addEventListener('input', handleUsernameInput);
+	passwordInput.addEventListener('input', handlePasswordInput);
+	confirmedPasswordInput.addEventListener('input', handleConfirmedPasswordInput);
+	invitationTokenInput.addEventListener('input', handleInvitationTokenInput);
+	registerForm.addEventListener('submit', handleRegisterFormSubmit);
+});
+//===============================================================================================//
 function clearError() {
 	registerErrorElement.textContent = '';
 }
@@ -133,20 +148,5 @@ function handleRegisterFormSubmit(event) {
 		registerForm.reportValidity();
 	}
 }
-//-----------------------------------------------------------------------------------------------//
-document.addEventListener('DOMContentLoaded', () => {
-	usernameInput = document.getElementById('username-input');
-	passwordInput = document.getElementById('password-input');
-	confirmedPasswordInput = document.getElementById('confirmed-password-input');
-	invitationTokenInput = document.getElementById('invitation-token-input');
-	registerErrorElement = document.getElementById('register-error');
-	registerForm = document.getElementById('register-form');
-	
-	usernameInput.addEventListener('input', handleUsernameInput);
-	passwordInput.addEventListener('input', handlePasswordInput);
-	confirmedPasswordInput.addEventListener('input', handleConfirmedPasswordInput);
-	invitationTokenInput.addEventListener('input', handleInvitationTokenInput);
-	registerForm.addEventListener('submit', handleRegisterFormSubmit);
-});
 //-----------------------------------------------------------------------------------------------//
 </script>

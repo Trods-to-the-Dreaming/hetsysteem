@@ -1,0 +1,477 @@
+{{#block "title"}}Personage aanmaken{{/block}}
+
+<!------------------------------------------------------------------------------------------------>
+
+{{#block "headScripts"}}
+<script type="module">
+import { turn } from '/js/turn-check-access.js';
+await turn.phase.checkAccess('createCharacter');
+</script>
+{{/block}}
+
+<!------------------------------------------------------------------------------------------------>
+
+<div id="container-div" class="d-none">
+	<h1>Personage aanmaken</h1>
+
+	<div class="mt-md stack">
+		<div>
+			<label for="first-name-input" class="form-label">
+				Voornaam:
+			</label>
+			<input id="first-name-input" class="form-control" type="text"
+				   name="firstName" value="{{firstName}}" required>
+		</div>
+		
+		<div>
+			<label for="last-name-input" class="form-label">
+				Achternaam:
+			</label>
+			<input id="last-name-input" class="form-control" type="text" 
+				   name="lastName" value="{{lastName}}" required>
+		</div>
+		
+		<div>
+			<label for="job-preference-1-select" class="form-label">
+				Jobvoorkeur (★★★):
+			</label>
+			<select id="job-preference-1-select" class="form-select" 
+					name="jobPreferences[0].buildingId" required>
+				<option value="" 
+						{{#unless jobPreferences.[0].buildingId}}selected{{/unless}}
+						hidden disabled>
+					— kies een job —
+				</option>
+				{{#each jobs}}
+					<option value="{{id}}" 
+							{{#if (eq id ../jobPreferences.[0].buildingId)}}selected{{/if}}>
+						{{type}}
+					</option>
+				{{/each}}
+			</select>
+		</div>
+		
+		<div>
+			<label for="job-preference-2-select" class="form-label">
+				Jobvoorkeur (★★):
+			</label>
+			<select id="job-preference-2-select" class="form-select" 
+					name="jobPreferences[1].buildingId" required>
+				<option value="" 
+						{{#unless jobPreferences.[1].buildingId}}selected{{/unless}} 
+						hidden disabled>
+					— kies een job —
+				</option>
+				{{#each jobs}}
+					<option value="{{id}}" 
+							{{#if (eq id ../jobPreferences.[1].buildingId)}}selected{{/if}}>
+						{{type}}
+					</option>
+				{{/each}}
+			</select>
+		</div>
+		
+		<div>
+			<label for="job-preference-3-select" class="form-label">
+				Jobvoorkeur (★):
+			</label>
+			<select id="job-preference-3-select" class="form-select" 
+					name="jobPreferences[2].buildingId" required>
+				<option value="" 
+						{{#unless jobPreferences.[2].buildingId}}selected{{/unless}} 
+						hidden disabled>
+					— kies een job —
+				</option>
+				{{#each jobs}}
+					<option value="{{id}}" 
+							{{#if (eq id ../jobPreferences.[2].buildingId)}}selected{{/if}}>
+						{{type}}
+					</option>
+				{{/each}}
+			</select>
+		</div>
+		
+		<div>
+			<label for="recreation-preference-select" class="form-label">
+				Ontspanningsvoorkeur (★★★):
+			</label>
+			<select id="recreation-preference-select" class="form-select" 
+					name="recreationPreference.productId" required>
+				<option value="" 
+						{{#unless recreationPreference.productId}}selected{{/unless}} 
+						hidden disabled>
+					— kies een activiteit —
+				</option>
+				{{#each recreations}}
+					<option value="{{id}}" 
+							{{#if (eq id ../recreationPreference.productId)}}selected{{/if}}>
+						{{type}}
+					</option>
+				{{/each}}
+			</select>
+		</div>
+	</div>
+	
+	<div id="character-name-error" class="mt-md error"></div>
+</div>
+
+<!------------------------------------------------------------------------------------------------>
+
+<script type="module">
+//-----------------------------------------------------------------------------------------------//
+import { turn } from '/js/turn-flow.js';
+import { validateName } from '/js/name.validation.js';
+//-----------------------------------------------------------------------------------------------//
+document.addEventListener('DOMContentLoaded', () => {
+	turn.phase.initialize();
+});
+//===============================================================================================//
+turn.phase.load = function() {
+	loadPhaseData();
+	cachePhaseElements();
+	addEventListeners();
+	initializeControls();
+}
+//-----------------------------------------------------------------------------------------------//
+turn.phase.save = function() {
+	savePhaseData();
+}
+//-----------------------------------------------------------------------------------------------//
+turn.phase.updateUI = function() {
+	renderDemolishList();
+	renderConstructList();
+	renderFreeTiles();
+}
+//===============================================================================================//
+function loadPhaseData() {
+	const createCharacter = turn.storage.load('characterPhases.createCharacter');
+	const jobs = turn.storage.load('constants.jobs');
+	const recreations = turn.storage.load('constants.recreations');
+	const ownedTiles = turn.storage.load('characterState.ownedTiles');
+	const ownedBuildings = turn.storage.load('characterState.ownedBuildings');
+	const ownedReservedBuildings = turn.storage.load('characterState.ownedReservedBuildings');
+	const ownedConstructionSites = turn.storage.load('characterState.ownedConstructionSites');
+	
+	const constructibleBuildings = buildings.filter((b) => b.isConstructible);
+	
+	const buildingsById = Object.fromEntries(
+		buildings.map((b) => [b.id, b])
+	);
+	const ownedReservedBuildingsById = Object.fromEntries(
+		ownedReservedBuildings.map((orb) => [orb.characterBuildingId, orb])
+	);
+	const ownedConstructionSitesById = Object.fromEntries(
+		ownedConstructionSites.map((ocs) => [ocs.characterBuildingId, ocs])
+	);
+	const demolishedIds = new Set(
+		manageBuildings.demolishActions.map((a) => a.characterBuildingId)
+	);
+	
+	const existingBuildings = ownedBuildings.map(
+		({ characterBuildingId, name, buildingId }) => {
+			const base = buildingsById[buildingId];
+
+			if (base.slug === 'construction-site') {
+				const site = ownedConstructionSitesById[characterBuildingId];
+				const building = buildingsById[site.buildingId];
+
+				return {
+					characterBuildingId,
+					name,
+					buildingId: site.buildingId,
+					type: building.type,
+					bricksUsed: site.bricksUsed,
+					bricksNeeded: site.bricksNeeded,
+					isDemolished: demolishedIds.has(characterBuildingId)
+				};
+			}
+
+			return {
+				characterBuildingId,
+				name,
+				buildingId,
+				type: base.type,
+				bricksUsed: null,
+				bricksNeeded: null,
+				isDemolished: demolishedIds.has(characterBuildingId)
+			};
+		});
+	
+	const newBuildings = manageBuildings.constructActions.map(
+		({ characterBuildingId, buildingId }) => {
+			const reservedBuilding = ownedReservedBuildingsById[characterBuildingId];
+			const building = buildingsById[buildingId];
+			
+			return {
+				characterBuildingId,
+				name: reservedBuilding.name,
+				buildingId,
+				type: building.type
+			};
+		});
+	
+	const usedTiles = 
+		existingBuildings.filter((db) => !db.isDemolished).length +	newBuildings.length;
+	const freeTiles = ownedTiles - usedTiles;
+	
+	turn.phase.data = {
+		jobs,
+		recreations,
+		jobPreferences,
+		recreationPreference
+	};
+}
+//-----------------------------------------------------------------------------------------------//
+function cachePhaseElements() {
+	turn.phase.elements = {
+		firstName: document.getElementById('first-name-input'),
+		lastName: document.getElementById('last-name-input'),
+		jobPreference1: document.getElementById('job-preference-1-select'),
+		jobPreference2: document.getElementById('job-preference-2-select'),
+		jobPreference3: document.getElementById('job-preference-3-select'),
+		recreationPreference: document.getElementById('recreation-preference-select'),
+		characterNameError: document.getElementById('character-name-error')
+	};
+	
+	
+	
+	elements.jobPreferences = [
+		document.getElementById('job-preference-1-select'),
+		document.getElementById('job-preference-2-select'),
+		document.getElementById('job-preference-3-select')
+	];
+
+
+}
+//-----------------------------------------------------------------------------------------------//
+function addEventListeners() {
+	const { elements } = turn.phase;
+	
+	elements.firstName.addEventListener('input', handleFirstNameInput);
+	elements.lastName.addEventListener('input', handleLastNameInput);
+	elements.jobPreference1.addEventListener('change', handleJobPreferenceChange);
+	elements.jobPreference2.addEventListener('change', handleJobPreferenceChange);
+	elements.jobPreference3.addEventListener('change', handleJobPreferenceChange);
+}
+//-----------------------------------------------------------------------------------------------//
+function initializeControls() {
+	const { data, elements } = turn.phase;
+	
+	const jobSelects = [elements.jobPreference1, 
+						elements.jobPreference2, 
+						elements.jobPreference3];
+	
+	turn.phase.populateSelect({
+		select: elements.jobPreference1, 
+		optionName: 'job', 
+		items: data.jobs, 
+		textField: 'type'
+	});
+	
+	turn.phase.populateSelect({
+		select: elements.jobPreference1, 
+		optionName: 'job', 
+		items: data.jobs, 
+		textField: 'type'
+	});
+	
+	turn.phase.populateSelect({
+		select: elements.jobPreference1, 
+		optionName: 'job', 
+		items: data.jobs, 
+		textField: 'type'
+	});
+}
+//-----------------------------------------------------------------------------------------------//
+function savePhaseData() {
+	const { data } = turn.phase;
+	const createCharacter = {
+		jobPreferences: [],
+		recreationPreference: {}
+	};
+	
+	data.existingBuildings.forEach((eb) => {
+		if (eb.isDemolished) {
+			manageBuildings.demolishActions.push({
+				characterBuildingId: eb.characterBuildingId
+			});
+		}
+	});
+	
+	data.newBuildings.forEach((nb) => {
+		manageBuildings.constructActions.push({
+			characterBuildingId: nb.characterBuildingId,
+			buildingId: nb.buildingId
+		});
+	});
+	
+	turn.storage.save('characterPhases.createCharacter', createCharacter);
+}
+//===============================================================================================//
+function handleJobPreferenceChange() {
+	const { elements } = turn.phase;
+	
+	const jobSelects = [elements.jobPreference1, 
+						elements.jobPreference2, 
+						elements.jobPreference3];
+	const selectedValues = jobSelects.map(select => select.value);
+	
+	jobSelects.forEach((select, index) => {
+		const otherSelectedValues = selectedValues.filter((_, i) => i !== index);
+		
+		Array.from(select.options).forEach(option => {
+			option.disabled = otherSelectedValues.includes(option.value);
+		});
+	});
+}
+//-----------------------------------------------------------------------------------------------//
+function handleFirstNameInput() {
+	const { elements } = turn.phase;
+	
+	elements.characterNameError.textContent = '';
+	
+	const args = {
+		nameInput: elements.firstName,
+		minLength: 3,
+		maxLength: 20,
+		regex: /^\p{L}+(?:[ '-]\p{L}+)*$/u
+	};
+	
+	validateName(args);
+}
+//-----------------------------------------------------------------------------------------------//
+function handleLastNameInput() {
+	const { elements } = turn.phase;
+	
+	elements.characterNameError.textContent = '';
+	
+	const args = {
+		nameInput: elements.lastName,
+		minLength: 3,
+		maxLength: 20,
+		regex: /^\p{L}+(?:[ '-]\p{L}+)*$/u
+	};
+	
+	validateName(args);
+}
+//===============================================================================================//
+
+
+
+
+let firstNameInput;
+let lastNameInput;
+let jobPreference1Select;
+let jobPreference2Select;
+let jobPreference3Select;
+let recreationPreferenceSelect;
+let createCharacterErrorElement;
+let createCharacterForm;
+//-----------------------------------------------------------------------------------------------//
+document.addEventListener('DOMContentLoaded', () => {
+	firstNameInput = document.getElementById('first-name-input');
+	lastNameInput = document.getElementById('last-name-input');
+	jobPreference1Select = document.getElementById('job-preference-1-select');
+	jobPreference2Select = document.getElementById('job-preference-2-select');
+	jobPreference3Select = document.getElementById('job-preference-3-select');
+	recreationPreferenceSelect = document.getElementById('recreation-preference-select');
+	createCharacterErrorElement = document.getElementById('create-character-error');
+	
+	firstNameInput.addEventListener('input', handleFirstNameInput);
+	lastNameInput.addEventListener('input', handleLastNameInput);
+	jobPreference1Select.addEventListener('change', handleJobPreferenceSelect);
+	jobPreference2Select.addEventListener('change', handleJobPreferenceSelect);
+	jobPreference3Select.addEventListener('change', handleJobPreferenceSelect);
+	recreationPreferenceSelect.addEventListener('change', handleRecreationPreferenceSelect);
+	
+	handleJobPreferenceSelect();	
+});
+//===============================================================================================//
+
+
+
+turn.phase.confirm = async function () {
+    if (!validateCreateCharacter())
+        return false;
+
+    disableConfirmButton();
+
+    try {
+        await reserveCharacterName();
+        return true;
+    } finally {
+        enableConfirmButton();
+    }
+};
+
+
+
+
+
+function clearError() {
+	createCharacterErrorElement.textContent = '';
+}
+//-----------------------------------------------------------------------------------------------//
+function handleFirstNameInput() {
+	clearError();
+	
+	const args = {
+		nameInput: firstNameInput,
+		minLength: 3,
+		maxLength: 20,
+		regex: /^\p{L}+(?:[ '-]\p{L}+)*$/u
+	};
+	
+	validateName(args);
+}
+//-----------------------------------------------------------------------------------------------//
+function handleLastNameInput() {
+	clearError();
+	
+	const args = {
+		nameInput: lastNameInput,
+		minLength: 3,
+		maxLength: 20,
+		regex: /^\p{L}+(?:[ '-]\p{L}+)*$/u
+	};
+	
+	validateName(args);
+}
+//-----------------------------------------------------------------------------------------------//
+function handleJobPreferenceSelect() {
+	clearError();
+	
+	const selects = [jobPreference1Select, 
+					 jobPreference2Select, 
+					 jobPreference3Select];
+	const selectedValues = selects.map(select => select.value);
+	
+	selects.forEach((select, index) => {
+		const otherSelectedValues = selectedValues.filter((_, i) => i !== index);
+		
+		Array.from(select.options).forEach(option => {
+			option.disabled = otherSelectedValues.includes(option.value);
+		});
+	});
+}
+//-----------------------------------------------------------------------------------------------//
+function handleRecreationPreferenceSelect() {
+	clearError();
+}
+//-----------------------------------------------------------------------------------------------//
+function handleCreateCharacterFormSubmit(event) {
+	if (!createCharacterForm.checkValidity()) {
+		event.preventDefault();
+		createCharacterForm.reportValidity();
+		return;
+	}
+	
+	// KNOP DISABLEN VOOR DUBBELKLIK (zie ChatGPT):
+	if (event.submitter) {
+        event.submitter.disabled = true;
+    }
+}
+
+
+//-----------------------------------------------------------------------------------------------//
+</script>

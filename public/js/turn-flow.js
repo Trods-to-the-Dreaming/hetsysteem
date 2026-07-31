@@ -99,7 +99,7 @@ turn.phase = {
 		
 		// Edit warning modal
 		const editWarningDiv = document.createElement('div');
-		editWarningDiv.id = 'edit-warning-div';
+		editWarningDiv.id = 'edit-warning-window';
 		editWarningDiv.classList.add('modal', 'fade');
 		editWarningDiv.tabIndex = -1;
 		editWarningDiv.setAttribute('role', 'dialog');
@@ -107,7 +107,6 @@ turn.phase = {
 
 		const dialogDiv = document.createElement('div');
 		dialogDiv.classList.add('modal-dialog');
-		dialogDiv.setAttribute('role', 'document');
 
 		const contentDiv = document.createElement('div');
 		contentDiv.classList.add('modal-content');
@@ -153,7 +152,7 @@ turn.phase = {
 
 		headerDiv.append(title, closeButton);
 		bodyDiv.append(iconDiv, message);
-		footerDiv.append(cancelEditButton, confirmEditButton);
+		footerDiv.append(confirmEditButton, cancelEditButton);
 		contentDiv.append(headerDiv, bodyDiv, footerDiv);
 		dialogDiv.appendChild(contentDiv);
 		editWarningDiv.appendChild(dialogDiv);
@@ -251,6 +250,13 @@ turn.phase = {
 } // turn.phase
 //-----------------------------------------------------------------------------------------------//
 turn.handleConfirm = function() {
+	if (turn.phase.confirm) {
+        const ok = await turn.phase.confirm();
+
+        if (!ok)
+            return;
+    }
+	
 	turn.phase.save();
 	turn.storage.save('currentPhaseIndex', turn.phase.index + 1);
 	
@@ -275,7 +281,7 @@ turn.handleFinish = function() {
 turn.handleCancel = async function() {	
 	turn.storage.removeAll();
 	
-	location.assign('/game');
+	location.assign('/game/menu');
 }
 
 //===============================================================================================//

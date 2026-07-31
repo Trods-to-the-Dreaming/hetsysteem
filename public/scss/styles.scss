@@ -1,17 +1,22 @@
 @use "sass:color";
 
+$charcoal:   #212529;
+$slate:      #727780;
+$taupe:      #7f7668;
 $gray-cloud: #dee2e6;
 $gray-mist:  #f8f9fa;
-$charcoal:   #212529;
+
 $crimson:    #c03947;
-$royal-blue: #0d6efd;
 $sand-gold:  #ebca63;
-$sky-blue:   #86b6fe;
-$taupe:      #7f7668;
-$slate:      #727780;
-$amethyst:   #9963b3;
 $ochre:      #94760b;
 $emerald:    #0f8a61;
+$royal-blue: #0d6efd;
+$sky-blue:   #86b6fe;
+$amethyst:   #9963b3;
+
+$error:      #842029;
+$success:    #146c43;
+$info:       #084298;
 
 $blacker: 	  rgba(black, 0.05);
 $evenblacker: rgba(black, 0.20);
@@ -87,15 +92,15 @@ $space-xl: 1.25rem;
 	--btn-edge-color: color-mix(in oklch, #{$color} 60%, black);
 	--btn-edge-dark-color: color-mix(in oklch, #{$color} 40%, black);
 	
-	--btn-border-color-hover: color-mix(in oklch, var(--btn-border-color) 85%, white);
-	--btn-background-color-hover: color-mix(in oklch, var(--btn-background-color) 85%, white);
-	--btn-text-color-hover: color-mix(in oklch, var(--btn-text-color) 85%, white);
-	--btn-edge-color-hover: color-mix(in oklch, var(--btn-edge-color) 85%, white);
-	--btn-edge-dark-color-hover: color-mix(in oklch, var(--btn-edge-dark-color) 85%, white);
+	--btn-border-color-hover: color-mix(in oklch, var(--btn-border-color) 80%, white);
+	--btn-background-color-hover: color-mix(in oklch, var(--btn-background-color) 80%, white);
+	--btn-text-color-hover: var(--btn-text-color);
+	--btn-edge-color-hover: color-mix(in oklch, var(--btn-edge-color) 80%, white);
+	--btn-edge-dark-color-hover: color-mix(in oklch, var(--btn-edge-dark-color) 80%, white);
 	
 	--btn-border-color-active: color-mix(in oklch, var(--btn-border-color) 90%, black);
 	--btn-background-color-active: color-mix(in oklch, var(--btn-background-color) 90%, black);
-	--btn-text-color-active: color-mix(in oklch, var(--btn-border-color) 90%, black);
+	--btn-text-color-active: var(--btn-text-color);
 	--btn-edge-color-active: color-mix(in oklch, var(--btn-edge-color) 90%, black);
 	--btn-edge-dark-color-active: color-mix(in oklch, var(--btn-edge-dark-color) 90%, black);
 }
@@ -158,10 +163,7 @@ h2 + h3 {
 	margin-top: $space-sm;
 }
 
-a {
-	--link-color-hover: color-mix(in oklch, var(--link-color) 80%, white);
-	--link-color-active: color-mix(in oklch, var(--link-color) 70%, black);
-	
+a {	
 	color: var(--link-color);
 	text-decoration: none;
 }
@@ -215,6 +217,9 @@ thead th {
 
 .app {
 	--link-color: #{$royal-blue};
+	--link-color-hover: color-mix(in oklch, var(--link-color) 80%, white);
+	--link-color-active: color-mix(in oklch, var(--link-color) 90%, black);
+	
 	--btn-color: #{$taupe};
 	
 	display: block flex;
@@ -239,6 +244,8 @@ thead th {
 
 nav {
 	--link-color: #{$sand-gold};
+	--link-color-hover: color-mix(in oklch, var(--link-color) 80%, white);
+	--link-color-active: color-mix(in oklch, var(--link-color) 90%, black);
 	
 	display: block flex;
 	align-items: center;
@@ -271,15 +278,7 @@ main {
 	}
 	
 	nav {
-		--link-color: #{$sand-gold};
-		
-		display: block flex;
-		align-items: center;
-		justify-content: space-between;
-		
 		border-radius: 12px 12px 0 0;
-		padding: 0;
-		background-color: $charcoal;
 	}
 }
 
@@ -431,10 +430,16 @@ main {
 	
 	transform: translateY(0px);
 }
-.btn:disabled .btn-front {
+.btn:disabled .btn-front,
+.btn--disabled .btn-front {
 	opacity: 0.65;
 	transform: translateY(0px);
 	text-decoration: none;
+}
+
+.btn--disabled {
+	pointer-events: none;
+	cursor: default;
 }
 
 .btn--primary {
@@ -487,9 +492,9 @@ main {
 
 /*************************************************************************************************/
 
-/*.btn-edit {
+.btn-edit {
 	--btn-background-color: color-mix(in oklch, #{$slate} 22%, white);
-	--btn-background-color-hover: color-mix(in oklch, var(--btn-background-color) 85%, white);
+	--btn-background-color-hover: color-mix(in oklch, var(--btn-background-color) 80%, white);
 	--btn-background-color-active: color-mix(in oklch, var(--btn-background-color) 90%, black);
 	
 	display: flex;
@@ -515,7 +520,7 @@ main {
 .btn-edit:active {
 	background-color: var(--btn-background-color-active);
 	text-decoration: none;
-}*/
+}
 
 /*************************************************************************************************/
 
@@ -547,13 +552,6 @@ main {
 
 /*************************************************************************************************/
 
-
-
-
-
-
-/*************************************************************************************************/
-
 .d-none {
   display: none !important;
 }
@@ -569,9 +567,6 @@ main {
 }
 
 /*************************************************************************************************/
-
-
-
 
 .stack {
 	display: block flex;
@@ -721,7 +716,6 @@ body.modal-open {
 .dropdown {
 	--dropdown-background-color: #{color.scale($charcoal, $lightness: 10%)};
 	--dropdown-background-color-hover: #{color.scale($charcoal, $lightness: 20%)};
-	--dropdown-background-color-active: #{color.scale($charcoal, $lightness: 30%)};
 	position: relative;
 }
 
@@ -769,7 +763,6 @@ body.modal-open {
 }
 .dropdown-menu a:active,
 .dropdown-menu button:active {
-	background-color: var(--dropdown-background-color-active);
 	color: var(--link-color-active);
 }
 
@@ -942,30 +935,33 @@ body.modal-open {
 	border: 1px solid;
 	border-radius: 0.375rem;
 	padding: $space-xs $space-md;
-	font-size: 1rem;
-	font-weight: normal;
 	line-height: 1.5;
-	text-align: center;
-	text-decoration: none;
 	vertical-align: middle;
 	
 	&:not(:empty) {
-		display: inline flow-root;
+		display: block flow;
 	}
 }
 
 .error {
 	@include message;
-	border-color: #f1aeb5;
-	background-color: #f8d7da;
-	color: #58151c;
+	border-color: color-mix(in oklch, $error 25%, white);
+	background-color: color-mix(in oklch, $error 12%, white);
+	color: $error;
 }
 
 .success {
 	@include message;
-	border-color: #a3cfbb;
-	background-color: #d1e7dd;
-	color: #0a3622;
+	border-color: color-mix(in oklch, $success 25%, white);
+	background-color: color-mix(in oklch, $success 12%, white);
+	color: $success;
+}
+
+.info {
+	@include message;
+	border-color: color-mix(in oklch, $info 25%, white);
+	background-color: color-mix(in oklch, $info 12%, white);
+	color: $info;
 }
 
 /*************************************************************************************************/

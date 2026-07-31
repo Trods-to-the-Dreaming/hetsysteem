@@ -4,9 +4,7 @@ import {
 	requireGuest,
 	requireLogin
 } from '#middleware/auth.js';
-import { 
-	requireValidation
-} from '#middleware/validate.js';
+import { requireValidation } from '#middleware/validate.js';
 //-----------------------------------------------------------------------------------------------//
 import { 
 	limitLoginRate,
@@ -103,7 +101,4 @@ router.post('/change-password',
 
 //===============================================================================================//
 
-export default {
-    path: '/account',
-    router
-};
+export default router;

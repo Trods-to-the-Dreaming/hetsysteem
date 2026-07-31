@@ -1,14 +1,13 @@
-import { 
-	GameError 
-} from '#modules/game/errors.js';
-import { 
-	GAME
-} from '#modules/game/reasons.js';
+import { BadRequestError } from '#utils/errors.js';
 //-----------------------------------------------------------------------------------------------//
 import {
 	listWorlds,
 	findWorld
 } from './repository.js';
+
+//===============================================================================================//
+
+const MSG_INVALID_WORLD = 'Deze wereld bestaat niet.';
 
 //===============================================================================================//
 
@@ -23,12 +22,8 @@ export async function enterWorld({ userId,
 	const { worldId } = formState;
 	
 	const world = await findWorld({ worldId });
-	if (!world) {
-		throw new GameError({ 
-			status: 404,
-			code: GAME.REASON.INVALID_WORLD
-		});
-	}
+	if (!world) 
+		throw new BadRequestError(MSG_INVALID_WORLD);
 
 	return world;
 }

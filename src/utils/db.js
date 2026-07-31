@@ -4,8 +4,10 @@ import Knex from 'knex';
 
 //===============================================================================================//
 
-dotenv.config({ path: path.join(process.cwd(), '.env')});
-
+dotenv.config({ 
+	path: path.join(process.cwd(), '.env') 
+});
+//-----------------------------------------------------------------------------------------------//
 const knex = Knex({
 	client: 'mysql2',
 	connection: {

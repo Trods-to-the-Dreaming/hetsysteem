@@ -22,9 +22,9 @@
 			<input id="password-input" class="form-control" type="password" 
 				   name="password" required>
 		</div>
-		
-		<div id="login-error" class="error">{{loginError}}</div>
 	</div>
+	
+	<div id="login-error" class="mt-md error">{{loginError}}</div>
 	
 	<div class="mt-lg">
 		<button class="btn btn--primary" type="submit">
@@ -45,10 +45,6 @@ let usernameInput;
 let passwordInput;
 let loginErrorElement;
 //-----------------------------------------------------------------------------------------------//
-function clearError() {
-	loginErrorElement.textContent = '';
-}
-//-----------------------------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
 	usernameInput = document.getElementById('username-input');
 	passwordInput = document.getElementById('password-input');
@@ -57,5 +53,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	usernameInput.addEventListener('input', clearError);
 	passwordInput.addEventListener('input', clearError);
 });
+//===============================================================================================//
+function clearError() {
+	loginErrorElement.textContent = '';
+}
 //-----------------------------------------------------------------------------------------------//
 </script>

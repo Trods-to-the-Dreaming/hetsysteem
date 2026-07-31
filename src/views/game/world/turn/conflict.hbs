@@ -1,0 +1,28 @@
+{{#block "title"}}Conflict{{/block}}
+
+<!------------------------------------------------------------------------------------------------>
+
+HET BERICHT MOET AANPASBAAR ZIJN
+
+<h1>De beurt wordt al bewerkt</h1>
+
+<div id="turn-edit-error" class="error mt-md stack">
+De beurt wordt al in een andere browser of op een ander apparaat bewerkt.
+
+</div>
+
+<p>Om conflicten te voorkomen, kun je hier niet verdergaan. Ga verder in de andere browser of 
+op het andere apparaat, of ga terug naar het spelmenu en start de beurt hier opnieuw.</p>
+
+<hr>
+
+<a class="btn btn--navigation" href="/game/menu">
+	<span class="btn-front">↑ Spelmenu</span>
+</a>
+
+
+
+<script type="module">
+import { turn } from '/js/turn-check-access.js';
+await turn.phase.checkAccess('manageBuildings');
+</script>

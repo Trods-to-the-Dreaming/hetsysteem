@@ -4,9 +4,7 @@ import {
 	destroySession
 } from '#utils/session.js';
 //-----------------------------------------------------------------------------------------------//
-import { 
-	ACCOUNT 
-} from './reasons.js';
+import { AccountError } from './error.js';
 import { 
 	login,
 	register,
@@ -36,26 +34,27 @@ export async function handleLogin(req, res) {
 	const { username, password } = req.validatedData;
 	
 	try {
-		const result = await login({ 
+		const user = await login({ 
 			username, 
 			password
 		});
-		if (!result.ok) {
-			return res.status(result.status).render('account/login', {
-				username,
-				loginError: ACCOUNT.MESSAGE[result.reason]
-			});
-		}
 		
 		await regenerateSession(req);
 		req.session.user = {
-			id: result.value.id,
-			name: result.value.name
+			id: user.id,
+			name: user.name
 		};
 		await saveSession(req);
 		
 		return res.redirect('/game/enter-world');
 	} catch (err) {
+		if (err instanceof AccountError) {
+			return res.status(err.status).render('account/login', {
+				username,
+				loginError: err.message
+			});
+		}
+		
 		await destroySession(req);
 		throw err;
 	}
@@ -82,27 +81,28 @@ export async function handleRegister(req, res) {
 	const { username, password, invitationToken } = req.validatedData;
 	
 	try { 
-		const result = await register({ 
+		const user = await register({ 
 			username, 
 			password,
 			invitationToken
 		});
-		if (!result.ok) {
-			return res.status(result.status).render('account/register', {
-				username,
-				registerError: ACCOUNT.MESSAGE[result.reason]
-			});
-		}
 
 		await regenerateSession(req);
 		req.session.user = {
-			id: result.value.id,
-			name: result.value.name
+			id: user.id,
+			name: user.name
 		};
 		await saveSession(req);
 		
 		return res.redirect('/game/enter-world');
 	} catch (err) {
+		if (err instanceof AccountError) {
+			return res.status(err.status).render('account/register', {
+				username,
+				registerError: err.message
+			});
+		}
+		
 		await destroySession(req);
 		throw err;
 	}
@@ -143,18 +143,11 @@ export async function handleChangeUsername(req, res) {
 	const { newUsername, password } = req.validatedData;
 	
 	try {
-		const result = await changeUsername({ 
+		await changeUsername({ 
 			userId: user.id, 
 			newUsername, 
 			password 
 		});
-		if (!result.ok) {
-			return res.status(result.status).render('account/change-username', {
-				username: user.name,
-				newUsername,
-				changeUsernameError: ACCOUNT.MESSAGE[result.reason]
-			});
-		}
 		
 		req.session.user.name = newUsername;
 		req.session.changeAccountSuccess = MSG_USERNAME_CHANGED;
@@ -162,6 +155,14 @@ export async function handleChangeUsername(req, res) {
 		
 		return res.redirect('/account');
 	} catch (err) {
+		if (err instanceof AccountError) {
+			return res.status(err.status).render('account/change-username', {
+				username: user.name,
+				newUsername,
+				changeUsernameError: err.message
+			});
+		}
+		
 		await destroySession(req);
 		throw err;
 	}
@@ -176,22 +177,23 @@ export async function handleChangePassword(req, res) {
 	const { newPassword, password } = req.validatedData;
 	
 	try {
-		const result = await changePassword({ 
+		await changePassword({ 
 			userId: user.id, 
 			newPassword, 
 			password
 		});
-		if (!result.ok) {
-			return res.status(result.status).render('account/change-password', {
-				changePasswordError: ACCOUNT.MESSAGE[result.reason]
-			});
-		}
 
 		req.session.changeAccountSuccess = MSG_PASSWORD_CHANGED;
 		await saveSession(req);
 		
 		return res.redirect('/account');
 	} catch (err) {
+		if (err instanceof AccountError) {
+			return res.status(err.status).render('account/change-password', {
+				changePasswordError: err.message
+			});
+		}
+		
 		await destroySession(req);
 		throw err;
 	}
