@@ -41,21 +41,28 @@
 
 <script type="module">
 //-----------------------------------------------------------------------------------------------//
-let usernameInput;
-let passwordInput;
-let loginErrorElement;
+let elements;
 //-----------------------------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
-	usernameInput = document.getElementById('username-input');
-	passwordInput = document.getElementById('password-input');
-	loginErrorElement = document.getElementById('login-error');
-	
-	usernameInput.addEventListener('input', clearError);
-	passwordInput.addEventListener('input', clearError);
+	cacheElements();
+	addEventListeners();
 });
 //===============================================================================================//
+function cacheElements() {
+	elements = {
+		username: document.getElementById('username-input'),
+		password: document.getElementById('password-input'),
+		loginError: document.getElementById('login-error')
+	};
+}
+//-----------------------------------------------------------------------------------------------//
+function addEventListeners() {
+	elements.username.addEventListener('input', clearError);
+	elements.password.addEventListener('input', clearError);
+}
+//===============================================================================================//
 function clearError() {
-	loginErrorElement.textContent = '';
+	elements.loginError.textContent = '';
 }
 //-----------------------------------------------------------------------------------------------//
 </script>

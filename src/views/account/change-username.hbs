@@ -53,40 +53,48 @@
 //-----------------------------------------------------------------------------------------------//
 import { validateUsername } from '/js/username.validation.js';
 //-----------------------------------------------------------------------------------------------//
-let newUsernameInput;
-let passwordInput;
-let changeUsernameErrorElement;
-let changeUsernameForm;
+let elements;
 //-----------------------------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
-	newUsernameInput = document.getElementById('new-username-input');
-	passwordInput = document.getElementById('password-input');
-	changeUsernameErrorElement = document.getElementById('change-username-error');
-	changeUsernameForm = document.getElementById('change-username-form');
-	
-	newUsernameInput.addEventListener('input', handleNewUsernameInput);
-	passwordInput.addEventListener('input', clearError);
-	changeUsernameForm.addEventListener('submit', handleChangeUsernameFormSubmit);
+	cacheElements();
+	addEventListeners();
 });
 //===============================================================================================//
-function clearError() {
-	changeUsernameErrorElement.textContent = '';
+function cacheElements() {
+	elements = {
+		username: document.getElementById('username-input'),
+		newUsername: document.getElementById('new-username-input'),
+		password: document.getElementById('password-input'),
+		changeUsernameError: document.getElementById('change-username-error'),
+		changeUsernameForm: document.getElementById('change-username-form')
+	};
 }
 //-----------------------------------------------------------------------------------------------//
+function addEventListeners() {
+	elements.newUsername.addEventListener('input', handleNewUsernameInput);
+	elements.password.addEventListener('input', clearError);
+	elements.changeUsernameForm.addEventListener('submit', handleChangeUsernameFormSubmit);
+}
+//===============================================================================================//
 function handleNewUsernameInput() {
 	clearError();
 	
-	if (newUsernameInput.value === usernameInput.value) {
-		newUsernameInput.setCustomValidity('De nieuwe gebruikersnaam moet anders zijn.');
+	if (elements.newUsername.value === elements.username.value) {
+		elements.newUsername.setCustomValidity('De nieuwe gebruikersnaam moet anders zijn.');
 	} else {
-		validateUsername(newUsernameInput);
+		validateUsername(elements.newUsername);
 	}
 }
 //-----------------------------------------------------------------------------------------------//
+function clearError() {
+	elements.changeUsernameError.textContent = '';
+}
+//-----------------------------------------------------------------------------------------------//
+
 function handleChangeUsernameFormSubmit(event) {	
-	if (!changeUsernameForm.checkValidity()) {
+	if (!elements.changeUsernameForm.checkValidity()) {
 		event.preventDefault();
-		changeUsernameForm.reportValidity();
+		elements.changeUsernameForm.reportValidity();
 	}
 }
 //-----------------------------------------------------------------------------------------------//

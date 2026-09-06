@@ -12,6 +12,7 @@ import {
 } from '#modules/game/middleware.js';
 //-----------------------------------------------------------------------------------------------//
 import {
+	startTurnSchema,
 	finishTurnSchema,
 	checkTurnVersionSchema
 } from './validation.js';
@@ -20,8 +21,6 @@ import {
 	handleStartTurn,
 	showFinishTurn,
 	handleFinishTurn,
-	handleCheckTurnVersion,
-	showConflict,
 	triggerProcessActions
 } from './controller.js';
 //-----------------------------------------------------------------------------------------------//
@@ -34,7 +33,7 @@ import tradeRouter 					   from './trade/routes.js';
 import shareRouter 					   from './share/routes.js';
 import manageTimeRouter 			   from './manage-time/routes.js';
 import consumeRouter 				   from './consume/routes.js';
-import manageCooperativesRouter 	   from './manage-cooperatives/routes.js';
+import manageCooperativeRouter 	   	   from './manage-cooperative/routes.js';
 
 //===============================================================================================//
 
@@ -52,6 +51,7 @@ router.post('/start',
 	requireLogin,
 	requireWorldEntered,
 	requireCanPlayTurn,
+	requireValidation(startTurnSchema),
 	handleStartTurn
 );
 //-----------------------------------------------------------------------------------------------//
@@ -71,21 +71,6 @@ router.post('/finish',
 	handleFinishTurn
 );
 //-----------------------------------------------------------------------------------------------//
-router.post('/check-version',
-    requireLogin,
-    requireWorldEntered,
-	requireCanPlayTurn,
-    requireValidation(checkTurnVersionSchema),
-    handleCheckTurnVersion
-);
-//-----------------------------------------------------------------------------------------------//
-router.get('/expired',
-    requireLogin,
-    requireWorldEntered,
-	requireCanPlayTurn,
-    showTurnExpired
-);
-//-----------------------------------------------------------------------------------------------//
 router.get('/process-actions',
 	//requireToken,
 	triggerProcessActions
@@ -100,7 +85,7 @@ router.use('/trade', 					   tradeRouter);
 router.use('/share', 					   shareRouter);
 router.use('/manage-time', 			   	   manageTimeRouter);
 router.use('/consume', 					   consumeRouter);
-router.use('/manage-cooperatives', 		   manageCooperativesRouter);
+router.use('/manage-cooperative', 		   manageCooperativeRouter);
 
 //===============================================================================================//
 

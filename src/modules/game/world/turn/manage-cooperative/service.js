@@ -2,20 +2,20 @@ import knex from '#utils/db.js';
 
 //===============================================================================================//
 
-export async function loadManageGroup({ characterId,
-										trx = knex }) {
+export async function loadManageCooperative({ characterId,
+											  trx = knex }) {
 	
 }
 //-----------------------------------------------------------------------------------------------//
-export async function saveManageGroup({ characterId,
-										manageGroup,
-										trx = knex }) {
-	if (!manageGroup)
+export async function saveManageCooperative({ characterId,
+											  manageCooperative,
+											  trx = knex }) {
+	if (!manageCooperative)
 		return;
 	
 	
 }
 //-----------------------------------------------------------------------------------------------//
-export async function processManageGroup(trx) {
+export async function processManageCooperative(trx) {
 	
 }

@@ -495,10 +495,10 @@ async function reserveBuildingName(characterBuildingName) {
 
 		const json = await res.json();
 		
-		if (json.redirect) {
+		/*if (json.redirect) {
 			location.replace(json.redirect);
 			return;
-		}
+		}*/
 		
 		if (json.error) {
 			elements.buildingNameError.textContent = json.error;

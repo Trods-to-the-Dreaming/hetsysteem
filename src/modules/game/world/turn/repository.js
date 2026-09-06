@@ -41,18 +41,46 @@ export function listJobs(trx = knex) {
 		.orderBy('id');
 }
 //-----------------------------------------------------------------------------------------------//
-export function findEditableCharacter({ userId, 
-									    worldId, 
-									    turnVersion, 
-									    trx = knex }) {
-	return trx('characters')
-		.select(1)
+export function lockTurn({ userId, 
+						   worldId, 
+						   trx = knex }) {
+	return trx('turns')
+		.select({ 
+			editVersion: 'edit_version',
+			saveVersion: 'save_version'
+		})
 		.where({ 
 			user_id: userId,
-			world_id: worldId,
-			turn_version: turnVersion
+			world_id: worldId
+		})
+		.forUpdate()
+		.first();
+};
+//-----------------------------------------------------------------------------------------------//
+export function findTurn({ userId, 
+						   worldId, 
+						   trx = knex }) {
+	return trx('turns')
+		.select({ 
+			editVersion: 'edit_version',
+			saveVersion: 'save_version'
+		})
+		.where({ 
+			user_id: userId,
+			world_id: worldId
 		})
 		.first();
+};
+//-----------------------------------------------------------------------------------------------//
+export function incrementTurnEditVersion({ userId, 
+										   worldId, 
+										   trx = knex }) {
+	return trx('turns')
+		.where({ 
+			user_id: userId,
+			world_id: worldId
+		})
+		.increment('edit_version', 1);
 }
 //-----------------------------------------------------------------------------------------------//
 export function findCharacter({ userId, 
@@ -71,25 +99,9 @@ export function findCharacterState({ characterId,
 									 trx = knex }) {
 	return trx('character_states')
 		.select({
-			turnSaved: 'turn_saved',
 			hoursAvailable: 'hours_available',
 			ownedTiles: 'owned_tiles'
 		})
-		.where({ 'character_id': characterId })
-		.first();
-}
-//-----------------------------------------------------------------------------------------------//
-export function incrementTurnEditVersion({ characterId,
-										   trx = knex }) {
-	return trx('character_states')
-		.where({ 'character_id': characterId })
-		.increment('turn_edit_version', 1);
-}
-//-----------------------------------------------------------------------------------------------//
-export function findTurnEditVersion({ characterId,
-									  trx = knex }) {
-	return trx('character_states')
-		.select({ turnEditVersion: 'turn_edit_version' })
 		.where({ 'character_id': characterId })
 		.first();
 }
@@ -255,15 +267,28 @@ export function deleteUnusedCharacterBuilding({ characterBuildingId,
 		})
 		.whereNotIn('id', function () {
 			this.select('character_building_id')
-				.from('actions_construct');
+				.from('construct_actions');
+		})
+		.del();
+}
+//-----------------------------------------------------------------------------------------------//
+export function deleteUnusedCharacter({ userId,
+										trx = knex }) {
+	return trx('characters')
+		.where({ user_id: userId })
+		.whereNotIn('id', function () {
+			this.select('character_id')
+				.from('character_states');
+		})
+		.whereNotIn('id', function () {
+			this.select('character_id')
+				.from('create_character_actions');
 		})
 		.del();
 }
 //-----------------------------------------------------------------------------------------------//
 export function deleteAllUnusedCharacterBuildings({ characterId,
 													trx = knex }) {
-    console.log('deleting all unused buildings of character ' + characterId);
-	
 	return trx('character_buildings')
 		.where({ character_id: characterId })
 		.whereNotIn('id', function () {
@@ -272,7 +297,22 @@ export function deleteAllUnusedCharacterBuildings({ characterId,
 		})
 		.whereNotIn('id', function () {
 			this.select('character_building_id')
-				.from('actions_construct');
+				.from('construct_actions');
+		})
+		.del();
+}
+//-----------------------------------------------------------------------------------------------//
+export function deleteUnusedCooperative({ characterId,
+										  trx = knex }) {
+	return trx('cooperatives')
+		.where({ leader_id: characterId })
+		.whereNotIn('id', function () {
+			this.select('cooperative_id')
+				.from('cooperative_members');
+		})
+		.whereNotIn('id', function () {
+			this.select('cooperative_id')
+				.from('found_actions');
 		})
 		.del();
 }

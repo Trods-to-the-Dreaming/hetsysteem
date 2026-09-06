@@ -27,7 +27,7 @@ export const limitChangeUsernameRate = rateLimit({
 //-----------------------------------------------------------------------------------------------//
 export const limitChangePasswordRate = rateLimit({
 	windowMs: 10 * 60 * 1000,
-	max: 3,
+	max: 5,
 	standardHeaders: true,
 	legacyHeaders: false,
 	keyGenerator: req => req.session.userId

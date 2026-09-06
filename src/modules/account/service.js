@@ -12,6 +12,7 @@ import {
 	lockInvitation,
 	insertUser,
 	deleteUser,
+	insertTurns,
 	updateUsername,
 	updatePassword,
 	updateInvitation
@@ -32,9 +33,9 @@ export async function login({ username,
 	return user;
 }
 //-----------------------------------------------------------------------------------------------//
-export async function register({ username, 
-							     password,
-								 invitationToken }) {
+export function register({ username, 
+						   password,
+						   invitationToken }) {
 	return knex.transaction(async (trx) => {
 		const invitation = await lockInvitation({ 
 			invitationToken,
@@ -60,6 +61,11 @@ export async function register({ username,
 			throw err;
 		}
 		
+		await insertTurns({
+			userId,
+			trx
+		});
+		
 		await updateInvitation({
 			invitationId: invitation.id,
 			status: 'used',
@@ -76,7 +82,7 @@ export async function register({ username,
 	});
 }
 //-----------------------------------------------------------------------------------------------//
-export async function deregister(userId) {
+export function deregister(userId) {
 	return knex.transaction(async (trx) => {
 		const user = await findUserById({
             userId,

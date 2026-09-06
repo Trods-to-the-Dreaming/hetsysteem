@@ -59,6 +59,20 @@ export function deleteUser({ userId,
 		.del();
 }
 //-----------------------------------------------------------------------------------------------//
+export function insertTurns({ userId, 
+							  trx = knex }) {
+	return trx('worlds')
+		.select('id')
+		.then((worlds) => {
+			return trx('turns').insert(
+				worlds.map((world) => ({
+					user_id: userId,
+					world_id: world.id
+				}))
+			);
+		});
+}
+//-----------------------------------------------------------------------------------------------//
 export function updateUsername({ userId, 
 								 newUsername,
 								 trx = knex }) {

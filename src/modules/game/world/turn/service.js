@@ -1,6 +1,11 @@
 import knex from '#utils/db.js';
 //-----------------------------------------------------------------------------------------------//
 import { 
+	GAME_ERROR,
+	GameError 
+} from '#modules/game/error.js';
+//-----------------------------------------------------------------------------------------------//
+import { 
 	loadCreateCharacter,
 	saveCreateCharacter,
 	processCreateCharacter 
@@ -50,11 +55,12 @@ import {
 	listRecreations,
 	listBuildings,
 	listJobs,
-	findEditableCharacter,
+	lockTurn,
+	findTurn,
+	incrementTurnEditVersion,
 	findCharacter,
 	findCharacterState,
-	incrementTurnEditVersion,
-	findTurnEditVersion,
+	/*findTurnEditVersion,*/
 	findOwnedProducts,
 	findOwnedBuildings,
 	findOwnedReservedBuildings,
@@ -66,7 +72,9 @@ import {
 	findLandlordAgreements,
 	insertCharacterBuilding,
 	deleteUnusedCharacterBuilding,
+	deleteUnusedCharacter,
 	deleteAllUnusedCharacterBuildings,
+	deleteUnusedCooperative,
 	startProcessActions,
 	finishProcessActions
 } from './repository.js';
@@ -75,17 +83,26 @@ import {
 
 async function cleanUp({ characterId,
 						 trx = knex }) {
+	await deleteUnusedCharacter({
+		characterId,
+		trx
+	});
+	
 	await deleteAllUnusedCharacterBuildings({
 		characterId,
 		trx
 	});
 	
-	OOK UNUSED CHARACTER NAMES, COOPERATIVE NAMES, ...
+	await deleteUnusedCooperative({
+		characterId,
+		trx
+	});
 }
 //-----------------------------------------------------------------------------------------------//
 async function loadRegularTurn({ characterId,
 								 characterState,
-								 turnSaved }) {
+								 turnVersions,
+								 trx }) {
 	const [
 		products,
 		buildings,
@@ -109,23 +126,23 @@ async function loadRegularTurn({ characterId,
 	] = await Promise.all([
 		listProducts(),
 		listBuildings(),
-		findOwnedProducts({ characterId }),
-		findOwnedBuildings({ characterId }),
-		findOwnedReservedBuildings({ characterId }),
-		findOwnedConstructionSites({ characterId }),
-		findEmployeeContracts({ characterId }),
-		findEmployerContracts({ characterId }),
-		findSelfEmploymentContracts({ characterId }),
-		findTenantAgreements({ characterId }),
-		findLandlordAgreements({ characterId }),
-		loadManageBuildings({ characterId }),
-		loadManageEmploymentContracts({ characterId }),
-		loadManageRentalAgreements({ characterId }),
-		loadProduce({ characterId }),
-		loadTrade({ characterId }),
-		loadShare({ characterId }),
-		loadConsume({ characterId }),
-		loadManageCooperative({ characterId })
+		findOwnedProducts({ characterId, trx }),
+		findOwnedBuildings({ characterId, trx }),
+		findOwnedReservedBuildings({ characterId, trx }),
+		findOwnedConstructionSites({ characterId, trx }),
+		findEmployeeContracts({ characterId, trx }),
+		findEmployerContracts({ characterId, trx }),
+		findSelfEmploymentContracts({ characterId, trx }),
+		findTenantAgreements({ characterId, trx }),
+		findLandlordAgreements({ characterId, trx }),
+		loadManageBuildings({ characterId, trx }),
+		loadManageEmploymentContracts({ characterId, trx }),
+		loadManageRentalAgreements({ characterId, trx }),
+		loadProduce({ characterId, trx }),
+		loadTrade({ characterId, trx }),
+		loadShare({ characterId, trx }),
+		loadConsume({ characterId, trx }),
+		loadManageCooperative({ characterId, trx })
 	]);
 	
 	return {
@@ -194,12 +211,13 @@ async function loadRegularTurn({ characterId,
 				url: '/game/world/turn/manage-cooperative'
 			}
 		],
-		turnSaved
+		turnVersions
 	};
 }
 //-----------------------------------------------------------------------------------------------//
 async function loadBirthTurn({ characterId,
-							   turnSaved }) {
+							   turnVersions,
+							   trx }) {
 	const [
 		jobs,
 		recreations,
@@ -208,8 +226,8 @@ async function loadBirthTurn({ characterId,
 	] = await Promise.all([
 		listJobs(),
 		listRecreations(),
-		loadCreateCharacter({ characterId }),
-		loadManageCooperative({ characterId })
+		loadCreateCharacter({ characterId, trx }),
+		loadManageCooperative({ characterId, trx })
 	]);
 	
 	return {
@@ -230,89 +248,119 @@ async function loadBirthTurn({ characterId,
 				key: 'manageCooperative',
 				url: '/game/world/turn/manage-cooperative'
 			}
-		 ],
-		turnSaved
+		],
+		turnVersions
 	};
 }
 
 //===============================================================================================//
 
-export async function loadTurn({ userId,
-								 worldId }) {
-	const character = await findCharacter({
-		userId,
-		worldId
-	});
-	
-	if (!character) {
-		return loadCreateCharacterTurn({ 
-			characterId: null,
-			turnSaved: false
-		});
-	}
-	
-	const characterState = await findCharacterState({ 
-		characterId: character.id 
-	});
-	
-	if (!characterState) {
-		return loadBirthTurn({ 
-			characterId: character.id,
-			turnSaved: character.turnSaved
-		});
-	}
-	
-	return loadRegularTurn({ 
-		characterId: character.id,
-		characterState,
-		turnSaved: character.turnSaved
-	});
-}
-//-----------------------------------------------------------------------------------------------//
-export async function startTurn({ userId, 
-								  worldId }) {
-	
-	return await knex.transaction(async (trx) => {
-		const { id: characterId } = await findCharacter({
+export function loadTurn({ userId,
+						   worldId }) {
+	return knex.transaction(async (trx) => {
+		const turnVersions = await findTurn({
 			userId,
 			worldId,
 			trx
 		});
 		
-		await cleanUp({
+		const character = await findCharacter({
+			userId,
+			worldId,
+			trx
+		});
+		
+		if (!character) {
+			return loadBirthTurn({ 
+				characterId: null,
+				turnVersions,
+				trx
+			});
+		}
+		
+		const characterId = character.id;
+		
+		const characterState = await findCharacterState({ 
 			characterId,
 			trx
 		});
 		
-		await incrementTurnEditVersion({ 
-			characterId, 
-			trx 
-		});
-
-		const { turnEditVersion } = await findTurnEditVersion({
+		if (!characterState) {
+			return loadBirthTurn({ 
+				characterId,
+				turnVersions,
+				trx
+			});
+		}
+		
+		return loadRegularTurn({ 
 			characterId,
+			characterState,
+			turnVersions,
 			trx
 		});
-		
-		return { turnEditVersion };
 	});
 }
 //-----------------------------------------------------------------------------------------------//
-export async function saveTurn({ userId, 
-								 worldId, 
-								 characterPhases }) {
-	const {
-		manageBuildings,
-		manageEmploymentContracts,
-		manageRentalAgreements,
-		produce,
-		trade,
-		share,
-		consume,
-		manageCooperative
-	} = characterPhases;
+export function startTurn({ userId, 
+							worldId,
+							overrule }) {
+	return knex.transaction(async (trx) => {
+		const turnVersion = await lockTurn({
+			userId,
+			worldId,
+			trx
+		});
+		
+		console.log('editVersion: ' + turnVersion.editVersion);
+		console.log('saveVersion: ' + turnVersion.saveVersion);
+		
+		if ((turnVersion.editVersion !== turnVersion.saveVersion) && !overrule)
+			throw new GameError(GAME_ERROR.TURN_ALREADY_EDITED);
+		
+		await incrementTurnEditVersion({ 
+			userId,
+			worldId,
+			trx 
+		});
+		
+		turnVersion.editVersion++;
+		
+		const character = await findCharacter({
+			userId,
+			worldId,
+			trx
+		});
+		
+		if (character) {
+			await cleanUp({
+				characterId: character.id,
+				trx
+			});
+		}
+		
+		console.log('editVersion: ' + turnVersion.editVersion);
+		console.log('saveVersion: ' + turnVersion.saveVersion);
+		
+		return turnVersion;
+	});
+}
+//-----------------------------------------------------------------------------------------------//
+export function saveTurn({ userId, 
+						   worldId, 
+						   characterPhases }) {
+	return knex.transaction(async (trx) => {
+		const {
+			manageBuildings,
+			manageEmploymentContracts,
+			manageRentalAgreements,
+			produce,
+			trade,
+			share,
+			consume,
+			manageCooperative
+		} = characterPhases;
 	
-	await knex.transaction(async (trx) => {
 		const { id: characterId } = await findCharacter({
 			userId,
 			worldId,

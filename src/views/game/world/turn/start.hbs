@@ -10,27 +10,153 @@ turn.phase.checkAccess('start');
 {{/block}}
 
 <!------------------------------------------------------------------------------------------------>
+
+<div id="version-conflict-window" class="modal fade" 
+	 tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h2 class="modal-title">Waarschuwing</h2>
+				
+				<button class="btn-close" type="button" 
+						data-bs-dismiss="modal" aria-label="Sluiten"></button>
+			</div>
+			
+			<div class="modal-body modal-body--warning">
+				<div class="modal-icon">⚠️</div>
+				
+				<p class="modal-message">
+					De beurt wordt al bewerkt in een andere browser. 
+					Wilt u de bewerking overnemen in deze browser?
+				</p>
+			</div>
+			
+			<div class="modal-footer">
+				<button id="resolve-version-conflict-button" 
+						class="btn btn--modal-ok" type="button">
+					<span class="btn-front">Overnemen</span>
+				</button>
+				
+				<button class="btn btn--modal-cancel" type="button" data-bs-dismiss="modal">
+					<span class="btn-front">Annuleren</span>
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!------------------------------------------------------------------------------------------------>
 <script type="module">
 //-----------------------------------------------------------------------------------------------//
 import { turn } from '/js/turn.js';
 //-----------------------------------------------------------------------------------------------//
-const constants = {{{json constants}}};
-const characterState = {{{json characterState}}};
-const characterPhases = {{{json characterPhases}}};
-
-const phases = {{{json phases}}};
-const saved = {{{json saved}}};
-
-const currentPhaseIndex = saved ? 0 : phases.length; // KLOPT DIT?
-
-turn.storage.saveNamespace('constants', constants);
-turn.storage.saveNamespace('characterState', characterState);
-turn.storage.saveNamespace('characterPhases', characterPhases);
-
-turn.storage.save('phases', phases);
-turn.storage.save('currentPhaseIndex', currentPhaseIndex);
-turn.storage.save('saved', saved);
-
-location.replace(phases[0].url);
+let elements;
+let modals;
+let resolvePromise;
 //-----------------------------------------------------------------------------------------------//
+document.addEventListener('DOMContentLoaded', async() => {
+	cacheElements();
+	createModals();
+	addEventListeners();
+	
+	let turnVersion = await startTurn(false);
+
+	if (!turnVersion) {
+		const overrule = await showVersionConflictWindow();
+
+		if (!overrule) {
+			location.replace('/game/world/menu');
+			return;
+		}
+			
+		turnVersion = await startTurn(true);
+		
+		if (!turnVersion) {
+			location.replace('/game/world/menu');
+			return;
+		}
+	}
+	
+	const constants = {{{json constants}}};
+	const characterState = {{{json characterState}}};
+	const characterPhases = {{{json characterPhases}}};
+	const phases = {{{json phases}}};
+	
+	const currentPhaseIndex = (turnVersion.saveVersion === 0) ? 0 : phases.length;
+
+	turn.storage.saveNamespace({ namespace: 'constants', object: constants });
+	turn.storage.saveNamespace({ namespace: 'characterState', object: characterState });
+	turn.storage.saveNamespace({ namespace: 'characterPhases', object: characterPhases });
+	turn.storage.save({ key: 'phases', value: phases });
+	turn.storage.save({ key: 'editVersion', value: turnVersion.editVersion });
+	turn.storage.save({ key: 'saveVersion', value: turnVersion.saveVersion });
+	turn.storage.save({ key: 'currentPhaseIndex', value: currentPhaseIndex });
+	turn.storage.save({ key: 'isBeingEdited', value: true });
+
+	location.replace(phases[0].url);
+});
+//===============================================================================================//
+function cacheElements() {
+	elements = {
+		versionConflict: document.getElementById('version-conflict-window'),
+		resolveVersionConflict: document.getElementById('resolve-version-conflict-button')
+	};
+}
+//-----------------------------------------------------------------------------------------------//
+function createModals() {
+	modals = {
+		versionConflict: bootstrap.Modal.getOrCreateInstance(elements.versionConflict)
+	};
+}
+//-----------------------------------------------------------------------------------------------//
+function addEventListeners() {
+	elements.resolveVersionConflict.addEventListener('click', handleResolveVersionConflict);
+	elements.versionConflict.addEventListener('hidden.bs.modal', handleHideVersionConflict);
+}
+//-----------------------------------------------------------------------------------------------//
+async function startTurn(overrule) {
+	try {
+		const res = await fetch('/game/world/turn/start', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ overrule })
+		});
+		
+		const json = await res.json();
+		
+		if (json.error)
+			return null;
+		
+		const turnVersion = {
+			editVersion: json.data.editVersion,
+			saveVersion: json.data.saveVersion
+		};
+		
+		return turnVersion;
+	} catch (err) {
+		alert('De server is momenteel niet bereikbaar.');
+		return null;
+	}
+}
+//-----------------------------------------------------------------------------------------------//
+function showVersionConflictWindow() {
+	return new Promise(resolve => {
+		resolvePromise = resolve;
+		modals.versionConflict.show();
+	});
+}
+//===============================================================================================//
+function handleResolveVersionConflict() {
+	resolvePromise(true);
+	resolvePromise = null;
+	modals.versionConflict.hide();
+}
+//-----------------------------------------------------------------------------------------------//
+function handleHideVersionConflict() {
+	if (!resolvePromise)
+		return;
+
+	resolvePromise(false);
+	resolvePromise = null;
+}
 </script>

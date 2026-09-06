@@ -50,7 +50,7 @@ export function requireWorldEntered(req, res, next) {
 	return res.redirect('/game/enter-world');
 }
 //-----------------------------------------------------------------------------------------------//
-export function requireCanPlayTurn(req, res, next) {
+export async function requireCanPlayTurn(req, res, next) {
 	const { user, world } = req.session;
 	const [
 		hasCharacter, 

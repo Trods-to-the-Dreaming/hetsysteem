@@ -1,11 +1,11 @@
 export const turn = {
 	storage: {
-		load(key, defaultValue = null) {
+		load({ key, defaultValue = null }) {
 			const value = localStorage.getItem(`turn.${key}`);
 			return value !== null ? JSON.parse(value) : defaultValue;
 		},
 
-		save(key, value) {
+		save({ key, value }) {
 			localStorage.setItem(`turn.${key}`, JSON.stringify(value));
 		},
 
@@ -20,15 +20,15 @@ export const turn = {
 				const key = localStorage.key(i);
 				if (key.startsWith(prefix)) {
 					const prop = key.slice(prefix.length);
-					object[prop] = this.load(`${namespace}.${prop}`);
+					object[prop] = this.load({ key: `${namespace}.${prop}` });
 				}
 			}
 			return object;
 		},
 		
-		saveNamespace(namespace, obj) {
-			Object.entries(obj).forEach(([prop, value]) => {
-				this.save(`${namespace}.${prop}`, value);
+		saveNamespace({ namespace, object }) {
+			Object.entries(object).forEach(([prop, value]) => {
+				this.save({ key: `${namespace}.${prop}`, value });
 			});
 		},
 		

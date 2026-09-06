@@ -28,11 +28,12 @@ const phasesSchema = z.strictObject({
 
 //===============================================================================================//
 
+export const startTurnSchema = z.strictObject({
+	overrule: z.coerce.boolean()
+});
+//-----------------------------------------------------------------------------------------------//
 export const finishTurnSchema = z.strictObject({
-	characterPhases: z.preprocess(
-		(val) => typeof val === 'string' ? JSON.parse(val) : val,
-		phasesSchema
-	)
+	characterPhases: phasesSchema
 });
 //-----------------------------------------------------------------------------------------------//
 export const checkTurnVersionSchema = z.strictObject({

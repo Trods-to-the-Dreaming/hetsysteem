@@ -1,7 +1,7 @@
 import { 
 	canCreateCharacter,
 	isCharacterCreated
-} from '#game/service.js';
+} from '#modules/game/service.js';
 
 //===============================================================================================//
 

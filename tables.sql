@@ -88,10 +88,11 @@ Verwerken:
 * transacties willekeurig schudden
 
 
-
 DROP TABLE transfer_actions;
+DROP TABLE invite_actions;
 DROP TABLE join_actions;
 DROP TABLE leave_actions;
+DROP TABLE found_actions;
 DROP TABLE enjoy_actions;
 DROP TABLE work_actions;
 DROP TABLE seek_medical_care_actions;
@@ -134,6 +135,7 @@ DROP TABLE world_resources;
 DROP TABLE buildings;
 DROP TABLE recreations;
 DROP TABLE products;
+DROP TABLE turns;
 DROP TABLE worlds;
 
 
@@ -164,6 +166,16 @@ CREATE TABLE worlds (
 	max_characters INT UNSIGNED NOT NULL,
 	n_tiles INT UNSIGNED NOT NULL,
 	current_turn SMALLINT UNSIGNED NOT NULL DEFAULT 1
+);
+
+CREATE TABLE turns (
+	user_id INT UNSIGNED NOT NULL,
+	world_id TINYINT UNSIGNED NOT NULL,
+	edit_version SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+	save_version SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+	PRIMARY KEY (user_id, world_id),
+	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+	FOREIGN KEY (world_id) REFERENCES worlds(id)
 );
 
 CREATE TABLE products (
@@ -205,7 +217,7 @@ CREATE TABLE world_resources (
 	product_id TINYINT UNSIGNED NOT NULL,
 	quantity INT UNSIGNED NOT NULL,
 	PRIMARY KEY (world_id, product_id),
-	FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE,
+	FOREIGN KEY (world_id) REFERENCES worlds(id),
 	FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
@@ -215,11 +227,9 @@ CREATE TABLE characters (
 	world_id TINYINT UNSIGNED NOT NULL,
 	first_name VARCHAR(32) NOT NULL,
 	last_name VARCHAR(32) NOT NULL,
-	turn_version SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-	turn_saved BOOLEAN NOT NULL DEFAULT FALSE,
 	UNIQUE (user_id, world_id),
-	FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE,
-	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+	FOREIGN KEY (world_id) REFERENCES worlds(id)
 );
 
 CREATE UNIQUE INDEX unique_character
@@ -268,7 +278,7 @@ CREATE TABLE character_buildings (
 	world_id TINYINT UNSIGNED NOT NULL,
 	name VARCHAR(32) NOT NULL,
 	FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
-	FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE
+	FOREIGN KEY (world_id) REFERENCES worlds(id)
 );
 
 CREATE UNIQUE INDEX unique_character_building
@@ -323,14 +333,14 @@ CREATE TABLE rental_agreements (
 	residence_id INT UNSIGNED NOT NULL,
 	daily_rent INT UNSIGNED NOT NULL,
 	FOREIGN KEY (tenant_id) REFERENCES characters(id) ON DELETE CASCADE,
-	FOREIGN KEY (residence_id) REFERENCES residences(character_building_id)
+	FOREIGN KEY (residence_id) REFERENCES residences(character_building_id) ON DELETE CASCADE
 );
 
 CREATE TABLE cooperatives (
 	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	name VARCHAR(32) NOT NULL,
-	leader_id INT UNSIGNED NOT NULL UNIQUE,
-	FOREIGN KEY (leader_id) REFERENCES characters(id)
+	leader_id INT UNSIGNED UNIQUE,
+	FOREIGN KEY (leader_id) REFERENCES characters(id) ON DELETE SET NULL
 );
 
 CREATE TABLE cooperative_members (
@@ -369,7 +379,7 @@ CREATE TABLE construct_actions (
 
 CREATE TABLE resign_actions (
 	employment_contract_id INT UNSIGNED PRIMARY KEY,
-	FOREIGN KEY (employment_contract_id) REFERENCES employment_contracts(id)
+	FOREIGN KEY (employment_contract_id) REFERENCES employment_contracts(id) ON DELETE CASCADE
 );
 
 CREATE TABLE apply_actions (
@@ -384,7 +394,7 @@ CREATE TABLE apply_actions (
 
 CREATE TABLE dismiss_actions (
 	employment_contract_id INT UNSIGNED PRIMARY KEY,
-	FOREIGN KEY (employment_contract_id) REFERENCES employment_contracts(id)
+	FOREIGN KEY (employment_contract_id) REFERENCES employment_contracts(id) ON DELETE CASCADE
 );
 
 CREATE TABLE recruit_actions (
@@ -396,7 +406,7 @@ CREATE TABLE recruit_actions (
 
 CREATE TABLE close_actions (
 	self_employment_contract_id INT UNSIGNED PRIMARY KEY,
-	FOREIGN KEY (self_employment_contract_id) REFERENCES self_employment_contracts(id)
+	FOREIGN KEY (self_employment_contract_id) REFERENCES self_employment_contracts(id) ON DELETE CASCADE
 );
 
 CREATE TABLE start_actions (
@@ -407,7 +417,7 @@ CREATE TABLE start_actions (
 
 CREATE TABLE vacate_actions (
 	rental_agreement_id INT UNSIGNED PRIMARY KEY,
-	FOREIGN KEY (rental_agreement_id) REFERENCES rental_agreements(id)
+	FOREIGN KEY (rental_agreement_id) REFERENCES rental_agreements(id) ON DELETE CASCADE
 );
 
 CREATE TABLE rent_actions (
@@ -419,14 +429,14 @@ CREATE TABLE rent_actions (
 
 CREATE TABLE evict_actions (
 	rental_agreement_id INT UNSIGNED PRIMARY KEY,
-	FOREIGN KEY (rental_agreement_id) REFERENCES rental_agreements(id)
+	FOREIGN KEY (rental_agreement_id) REFERENCES rental_agreements(id) ON DELETE CASCADE
 );
 
 CREATE TABLE rent_out_actions (
 	residence_id INT UNSIGNED PRIMARY KEY,
 	capacity TINYINT UNSIGNED NOT NULL,
 	min_daily_rent INT UNSIGNED NOT NULL,
-	FOREIGN KEY (residence_id) REFERENCES residences(character_building_id)
+	FOREIGN KEY (residence_id) REFERENCES residences(character_building_id) ON DELETE CASCADE
 );
 
 CREATE TABLE boost_actions (
@@ -534,27 +544,40 @@ CREATE TABLE enjoy_actions (
 	max_hours INT UNSIGNED NOT NULL, 
 	PRIMARY KEY (enthusiast_id, recreation_id), 
 	FOREIGN KEY (enthusiast_id) REFERENCES characters(id) ON DELETE CASCADE, 
-	FOREIGN KEY (recreation_id) REFERENCES recreations(product_id) ON DELETE CASCADE 
+	FOREIGN KEY (recreation_id) REFERENCES recreations(product_id)
+);
+
+CREATE TABLE found_actions (
+	cooperative_id INT UNSIGNED PRIMARY KEY,
+	FOREIGN KEY (cooperative_id) REFERENCES cooperatives(id) ON DELETE CASCADE
 );
 
 CREATE TABLE leave_actions (
 	member_id INT UNSIGNED PRIMARY KEY,
-	FOREIGN KEY (member_id) REFERENCES characters(id)
+	FOREIGN KEY (member_id) REFERENCES characters(id) ON DELETE CASCADE
 );
 
 CREATE TABLE join_actions (
     member_id INT UNSIGNED PRIMARY KEY,
 	cooperative_id INT UNSIGNED,
-	FOREIGN KEY (member_id) REFERENCES characters(id),
-	FOREIGN KEY (cooperative_id) REFERENCES cooperatives(id)
+	FOREIGN KEY (member_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (cooperative_id) REFERENCES cooperatives(id) ON DELETE CASCADE
+);
+
+CREATE TABLE invite_actions (
+    member_id INT UNSIGNED PRIMARY KEY,
+	cooperative_id INT UNSIGNED,
+	FOREIGN KEY (member_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (cooperative_id) REFERENCES cooperatives(id) ON DELETE CASCADE
 );
 
 CREATE TABLE transfer_actions (
 	leader_id INT UNSIGNED PRIMARY KEY,
 	successor_id INT UNSIGNED NOT NULL,
-	FOREIGN KEY (leader_id) REFERENCES characters(id),
-	FOREIGN KEY (successor_id) REFERENCES characters(id)
+	FOREIGN KEY (leader_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (successor_id) REFERENCES characters(id) ON DELETE CASCADE
 );
+
 
 CREATE TABLE character_experience (
 	character_id INT UNSIGNED NOT NULL,

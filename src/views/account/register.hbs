@@ -59,33 +59,82 @@
 //-----------------------------------------------------------------------------------------------//
 import { validateUsername } from '/js/username.validation.js';
 import { validatePassword } from '/js/password.validation.js';
-import { validatePasswordConfirmation } from '/js/password-confirmation.validation.js';
 import { validateInvitationToken } from '/js/invitation-token.validation.js';
 //-----------------------------------------------------------------------------------------------//
-let usernameInput;
-let passwordInput;
-let confirmedPasswordInput;
-let invitationTokenInput;
-let registerErrorElement;
-let registerForm;
+let elements;
 //-----------------------------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
-	usernameInput = document.getElementById('username-input');
-	passwordInput = document.getElementById('password-input');
-	confirmedPasswordInput = document.getElementById('confirmed-password-input');
-	invitationTokenInput = document.getElementById('invitation-token-input');
-	registerErrorElement = document.getElementById('register-error');
-	registerForm = document.getElementById('register-form');
-	
-	usernameInput.addEventListener('input', handleUsernameInput);
-	passwordInput.addEventListener('input', handlePasswordInput);
-	confirmedPasswordInput.addEventListener('input', handleConfirmedPasswordInput);
-	invitationTokenInput.addEventListener('input', handleInvitationTokenInput);
-	registerForm.addEventListener('submit', handleRegisterFormSubmit);
+	cacheElements();
+	addEventListeners();
 });
 //===============================================================================================//
+function cacheElements() {
+	elements = {
+		username: document.getElementById('username-input'),
+		password: document.getElementById('password-input'),
+		confirmedPassword: document.getElementById('confirmed-password-input'),
+		invitationToken: document.getElementById('invitation-token-input'),
+		registerError: document.getElementById('register-error'),
+		registerForm: document.getElementById('register-form')
+	};
+}
+//-----------------------------------------------------------------------------------------------//
+function addEventListeners() {
+	elements.username.addEventListener('input', handleUsernameInput);
+	elements.password.addEventListener('input', handlePasswordInput);
+	elements.confirmedPassword.addEventListener('input', handleConfirmedPasswordInput);
+	elements.invitationToken.addEventListener('input', handleInvitationTokenInput);
+	elements.registerForm.addEventListener('submit', handleRegisterSubmit);
+}
+//===============================================================================================//
+function handleUsernameInput() {
+	clearError();
+	
+	validateUsername(elements.username);
+}
+//-----------------------------------------------------------------------------------------------//
+function handlePasswordInput() {
+	clearError();
+	
+	validatePassword(elements.password);
+}
+//-----------------------------------------------------------------------------------------------//
+function handleConfirmedPasswordInput() {
+	clearError();
+	
+	if (elements.password.value !== elements.confirmedPassword.value) {
+		elements.confirmedPassword.setCustomValidity('De wachtwoorden komen niet overeen.');
+	} else {
+		elements.confirmedPassword.setCustomValidity('');
+	}
+}
+//-----------------------------------------------------------------------------------------------//
+function handleInvitationTokenInput() {
+	clearError();
+
+	const rawCursorPos = getRawCursorPosition();
+	elements.invitationToken.value = formatInvitationToken(elements.invitationToken.value);
+	restoreCursorPosition(rawCursorPos);
+	
+	validateInvitationToken(elements.invitationToken);
+}
+//-----------------------------------------------------------------------------------------------//
+function handleRegisterSubmit(event) {
+	if (!elements.registerForm.checkValidity()) {
+		event.preventDefault();
+		elements.registerForm.reportValidity();
+	}
+}
+//===============================================================================================//
 function clearError() {
-	registerErrorElement.textContent = '';
+	elements.registerError.textContent = '';
+}
+//-----------------------------------------------------------------------------------------------//
+function getRawCursorPosition() {
+	return elements.invitationToken.value
+		.slice(0, elements.invitationToken.selectionStart)
+		.replace(/[^A-Z0-9]/gi, '')
+		.length;
 }
 //-----------------------------------------------------------------------------------------------//
 function formatInvitationToken(token) {
@@ -97,38 +146,11 @@ function formatInvitationToken(token) {
 	return raw.match(/.{1,4}/g)?.join('-') ?? '';
 }
 //-----------------------------------------------------------------------------------------------//
-function handleUsernameInput() {
-	clearError();
-	
-	validateUsername(usernameInput);
-}
-//-----------------------------------------------------------------------------------------------//
-function handlePasswordInput() {
-	clearError();
-	
-	validatePassword(passwordInput);
-}
-//-----------------------------------------------------------------------------------------------//
-function handleConfirmedPasswordInput() {
-	clearError();
-	
-	validatePasswordConfirmation(passwordInput, confirmedPasswordInput);
-}
-//-----------------------------------------------------------------------------------------------//
-function handleInvitationTokenInput() {
-	clearError();
-
-	const rawCursorPos = invitationTokenInput.value
-		.slice(0, invitationTokenInput.selectionStart)
-		.replace(/[^A-Z0-9]/gi, '')
-		.length;
-	
-	invitationTokenInput.value = formatInvitationToken(invitationTokenInput.value);
-
+function restoreCursorPosition(rawCursorPos) {
 	let count = 0;
-	let cursor = invitationTokenInput.value.length;
-	for (let i = 0; i < invitationTokenInput.value.length; i++) {
-		if (/[A-Z0-9]/.test(invitationTokenInput.value[i])) {
+	let cursor = elements.invitationToken.value.length;
+	for (let i = 0; i < elements.invitationToken.value.length; i++) {
+		if (/[A-Z0-9]/.test(elements.invitationToken.value[i])) {
 			count++;
 		}
 		if (count === rawCursorPos) {
@@ -137,16 +159,7 @@ function handleInvitationTokenInput() {
 		}
 	}
 
-	invitationTokenInput.setSelectionRange(cursor, cursor);
-	
-	validateInvitationToken(invitationTokenInput);
-}
-//-----------------------------------------------------------------------------------------------//
-function handleRegisterFormSubmit(event) {
-	if (!registerForm.checkValidity()) {
-		event.preventDefault();
-		registerForm.reportValidity();
-	}
+	elements.invitationToken.setSelectionRange(cursor, cursor);
 }
 //-----------------------------------------------------------------------------------------------//
 </script>

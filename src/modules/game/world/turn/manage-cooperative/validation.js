@@ -4,5 +4,5 @@ import { uniqueArray } from '#utils/validation.js'
 
 //===============================================================================================//
 
-export const manageGroupSchema = z.strictObject({
+export const manageCooperativeSchema = z.strictObject({
 });
