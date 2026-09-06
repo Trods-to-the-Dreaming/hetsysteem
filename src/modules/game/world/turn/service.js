@@ -312,9 +312,6 @@ export function startTurn({ userId,
 			trx
 		});
 		
-		console.log('editVersion: ' + turnVersion.editVersion);
-		console.log('saveVersion: ' + turnVersion.saveVersion);
-		
 		if ((turnVersion.editVersion !== turnVersion.saveVersion) && !overrule)
 			throw new GameError(GAME_ERROR.TURN_ALREADY_EDITED);
 		

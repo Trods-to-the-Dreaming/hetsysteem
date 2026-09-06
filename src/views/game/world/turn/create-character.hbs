@@ -122,19 +122,22 @@ await turn.phase.checkAccess('createCharacter');
 import { turn } from '/js/turn-flow.js';
 import { validateName } from '/js/name.validation.js';
 //-----------------------------------------------------------------------------------------------//
+let elements;
+let data;
+//-----------------------------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
 	turn.phase.initialize();
 });
 //===============================================================================================//
 turn.phase.load = function() {
-	loadPhaseData();
-	cachePhaseElements();
+	loadData();
+	cacheElements();
 	addEventListeners();
 	initializeControls();
 }
 //-----------------------------------------------------------------------------------------------//
 turn.phase.save = function() {
-	savePhaseData();
+	saveData();
 }
 //-----------------------------------------------------------------------------------------------//
 turn.phase.updateUI = function() {
@@ -142,8 +145,28 @@ turn.phase.updateUI = function() {
 	renderConstructList();
 	renderFreeTiles();
 }
+//-----------------------------------------------------------------------------------------------//
+turn.phase.confirm = async function () {
+    
+	
+	
+	if (!validateCreateCharacter())
+        return false;
+
+    disableConfirmButton();
+
+    try {
+        await reserveCharacterName();
+        return true;
+    } finally {
+        enableConfirmButton();
+    }
+	
+	
+	
+};
 //===============================================================================================//
-function loadPhaseData() {
+function loadData() {
 	const createCharacter = turn.storage.load('characterPhases.createCharacter');
 	const jobs = turn.storage.load('constants.jobs');
 	const recreations = turn.storage.load('constants.recreations');
@@ -214,7 +237,7 @@ function loadPhaseData() {
 		existingBuildings.filter((db) => !db.isDemolished).length +	newBuildings.length;
 	const freeTiles = ownedTiles - usedTiles;
 	
-	turn.phase.data = {
+	data = {
 		jobs,
 		recreations,
 		jobPreferences,
@@ -222,69 +245,42 @@ function loadPhaseData() {
 	};
 }
 //-----------------------------------------------------------------------------------------------//
-function cachePhaseElements() {
-	turn.phase.elements = {
+function cacheElements() {
+	elements = {
 		firstName: document.getElementById('first-name-input'),
 		lastName: document.getElementById('last-name-input'),
-		jobPreference1: document.getElementById('job-preference-1-select'),
-		jobPreference2: document.getElementById('job-preference-2-select'),
-		jobPreference3: document.getElementById('job-preference-3-select'),
+		jobPreferences = [
+			document.getElementById('job-preference-1-select'),
+			document.getElementById('job-preference-2-select'),
+			document.getElementById('job-preference-3-select')
+		],
 		recreationPreference: document.getElementById('recreation-preference-select'),
 		characterNameError: document.getElementById('character-name-error')
 	};
-	
-	
-	
-	elements.jobPreferences = [
-		document.getElementById('job-preference-1-select'),
-		document.getElementById('job-preference-2-select'),
-		document.getElementById('job-preference-3-select')
-	];
-
-
 }
 //-----------------------------------------------------------------------------------------------//
 function addEventListeners() {
-	const { elements } = turn.phase;
-	
 	elements.firstName.addEventListener('input', handleFirstNameInput);
 	elements.lastName.addEventListener('input', handleLastNameInput);
-	elements.jobPreference1.addEventListener('change', handleJobPreferenceChange);
-	elements.jobPreference2.addEventListener('change', handleJobPreferenceChange);
-	elements.jobPreference3.addEventListener('change', handleJobPreferenceChange);
+	elements.jobPreferences.forEach((jobPreference) => {
+		jobPreference.addEventListener('change', handleJobPreferenceChange);
+	});
 }
 //-----------------------------------------------------------------------------------------------//
 function initializeControls() {
-	const { data, elements } = turn.phase;
-	
-	const jobSelects = [elements.jobPreference1, 
-						elements.jobPreference2, 
-						elements.jobPreference3];
-	
-	turn.phase.populateSelect({
-		select: elements.jobPreference1, 
-		optionName: 'job', 
-		items: data.jobs, 
-		textField: 'type'
+	elements.jobPreferences.forEach((jobPreference) => {
+		turn.phase.populateSelect({
+			select: jobPreference,
+			optionName: 'job',
+			items: data.jobs,
+			textField: 'type'
+		});
 	});
 	
-	turn.phase.populateSelect({
-		select: elements.jobPreference1, 
-		optionName: 'job', 
-		items: data.jobs, 
-		textField: 'type'
-	});
-	
-	turn.phase.populateSelect({
-		select: elements.jobPreference1, 
-		optionName: 'job', 
-		items: data.jobs, 
-		textField: 'type'
-	});
+	handleJobPreferenceChange();
 }
 //-----------------------------------------------------------------------------------------------//
-function savePhaseData() {
-	const { data } = turn.phase;
+function saveData() {
 	const createCharacter = {
 		jobPreferences: [],
 		recreationPreference: {}
@@ -309,14 +305,9 @@ function savePhaseData() {
 }
 //===============================================================================================//
 function handleJobPreferenceChange() {
-	const { elements } = turn.phase;
+	const selectedValues = elements.jobPreferences.map(select => select.value);
 	
-	const jobSelects = [elements.jobPreference1, 
-						elements.jobPreference2, 
-						elements.jobPreference3];
-	const selectedValues = jobSelects.map(select => select.value);
-	
-	jobSelects.forEach((select, index) => {
+	elements.jobPreferences.forEach((select, index) => {
 		const otherSelectedValues = selectedValues.filter((_, i) => i !== index);
 		
 		Array.from(select.options).forEach(option => {
@@ -326,8 +317,6 @@ function handleJobPreferenceChange() {
 }
 //-----------------------------------------------------------------------------------------------//
 function handleFirstNameInput() {
-	const { elements } = turn.phase;
-	
 	elements.characterNameError.textContent = '';
 	
 	const args = {
@@ -341,8 +330,6 @@ function handleFirstNameInput() {
 }
 //-----------------------------------------------------------------------------------------------//
 function handleLastNameInput() {
-	const { elements } = turn.phase;
-	
 	elements.characterNameError.textContent = '';
 	
 	const args = {
@@ -358,7 +345,7 @@ function handleLastNameInput() {
 
 
 
-
+/*
 let firstNameInput;
 let lastNameInput;
 let jobPreference1Select;
@@ -471,7 +458,7 @@ function handleCreateCharacterFormSubmit(event) {
         event.submitter.disabled = true;
     }
 }
-
+*/
 
 //-----------------------------------------------------------------------------------------------//
 </script>

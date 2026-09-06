@@ -2,15 +2,6 @@
 
 <!------------------------------------------------------------------------------------------------>
 
-{{#block "headScripts"}}
-<script type="module">
-import { turn } from '/js/turn-check-access.js';
-turn.phase.checkAccess('start');
-</script>
-{{/block}}
-
-<!------------------------------------------------------------------------------------------------>
-
 <div id="version-conflict-window" class="modal fade" 
 	 tabindex="-1" role="dialog" aria-hidden="true">
 	<div class="modal-dialog">
@@ -55,6 +46,16 @@ let modals;
 let resolvePromise;
 //-----------------------------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', async() => {
+	turn.started = turn.storage.load('started');
+		
+	if (turn.started) {
+		// The user tries to restart the turn before cancelling it
+		turn.phases = turn.storage.load('phases');
+		turn.currentPhaseIndex = turn.storage.load('currentPhaseIndex');
+		location.replace(turn.phases[turn.currentPhaseIndex].url);
+		return;
+	}
+	
 	cacheElements();
 	createModals();
 	addEventListeners();
@@ -91,9 +92,9 @@ document.addEventListener('DOMContentLoaded', async() => {
 	turn.storage.save({ key: 'editVersion', value: turnVersion.editVersion });
 	turn.storage.save({ key: 'saveVersion', value: turnVersion.saveVersion });
 	turn.storage.save({ key: 'currentPhaseIndex', value: currentPhaseIndex });
-	turn.storage.save({ key: 'isBeingEdited', value: true });
+	turn.storage.save({ key: 'started', value: true });
 
-	location.replace(phases[0].url);
+	location.replace(phases[currentPhaseIndex].url);
 });
 //===============================================================================================//
 function cacheElements() {
