@@ -5,10 +5,10 @@ import { requireValidation } from '#middleware/validate.js';
 //-----------------------------------------------------------------------------------------------//
 import { 
 	requireWorldEntered,
-	requireCharacterCreated
+	requireCanPlayTurn
 } from '#modules/game/middleware.js';
 //-----------------------------------------------------------------------------------------------//
-import { showManageGroup } from './controller.js';
+import { showManageCooperative } from './controller.js';
 
 //===============================================================================================//
 
@@ -17,8 +17,8 @@ const router = express.Router();
 router.get('/',
 	requireLogin,
 	requireWorldEntered,
-	requireCharacterCreated,
-	showManageGroup
+	requireCanPlayTurn,
+	showManageCooperative
 );
 
 //===============================================================================================//

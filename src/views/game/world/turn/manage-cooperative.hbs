@@ -1,0 +1,258 @@
+{{#block "title"}}Coöperatie beheren{{/block}}
+
+<!------------------------------------------------------------------------------------------------>
+
+{{#block "headScripts"}}
+<script type="module">
+import { turn } from '/js/turn-check-access.js';
+await turn.phase.checkAccess('manageCooperative');
+</script>
+{{/block}}
+
+<!------------------------------------------------------------------------------------------------>
+
+<div id="container-div" class="d-none">
+	<h1>Coöperatie beheren</h1>
+
+	<h2>🚪 Verlaten</h2>
+	
+	<div class="mt-md form-check">
+		<input id="leave-input" class="form-check-input" type="checkbox">
+		<label for="leave-input" class="form-check-label">
+			<span id="cooperative-name-span"></span> verlaten
+		</label>
+	</div>
+	
+	<h2>🤝 Toetreden</h2>
+	
+	<ul id="join-actions-ul" class="list-compact d-none"></ul>
+	
+	<div class="mt-md">
+		<button id="open-join-window-button" class="btn btn--secondary" type="button" 
+				data-bs-toggle="modal" data-bs-target="#join-window">
+			<span class="btn-front">Toetreden tot coöperatie...</span>
+		</button>
+	</div>
+	
+	<h2>🌱 Oprichten</h2>
+	
+	<ul id="found-actions-ul" class="list-compact d-none"></ul>
+	
+	<div class="mt-md">
+		<button id="open-found-window-button" class="btn btn--secondary" type="button" 
+				data-bs-toggle="modal" data-bs-target="#found-window">
+			<span class="btn-front">Coöperatie oprichten...</span>
+		</button>
+	</div>
+	
+	<h2>✉️ Uitnodigen</h2>
+	
+	<ul id="invite-actions-ul" class="list-compact d-none"></ul>
+	
+	<div class="mt-md">
+		<button id="open-invite-window-button" class="btn btn--secondary" type="button" 
+				data-bs-toggle="modal" data-bs-target="#invite-window">
+			<span class="btn-front">Speler uitnodigen...</span>
+		</button>
+	</div>
+</div>
+
+<!------------------------------------------------------------------------------------------------>
+
+<div id="join-window" class="modal fade" 
+	 tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h2 class="modal-title">Toetreden tot coöperatie</h2>
+				
+				<button class="btn-close" type="button" 
+						data-bs-dismiss="modal" aria-label="Sluiten"></button>
+			</div>
+			
+			<div class="modal-body">
+				<div class="stack">
+					<div>
+						<label for="join-select" class="form-label">
+							Procedure:
+						</label>
+						<select id="join-select" class="form-select" required>
+							<option value="available" selected>
+								Waar er plaats is
+							</option>
+							<option value="choose">
+								Zelf kiezen
+							</option>
+						</select>
+					</div>
+					
+					<div id="join-name-div">
+						<label for="join-name-input" class="form-label">
+							Coöperatie:
+						</label>
+						<input id="join-name-input" class="form-control" type="text" required>
+					</div>
+				</div>
+				
+				<div id="join-name-error" class="mt-md error"></div>
+				
+				<div class="mt-lg">
+					<button id="join-button" class="btn btn--primary" type="button">
+						<span class="btn-front">Toetreden tot coöperatie</span>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!------------------------------------------------------------------------------------------------>
+
+<div id="found-window" class="modal fade" 
+	 tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h2 class="modal-title">Coöperatie oprichten</h2>
+				
+				<button class="btn-close" type="button" 
+						data-bs-dismiss="modal" aria-label="Sluiten"></button>
+			</div>
+			
+			<div class="modal-body">
+				<div class="stack">
+					<div>
+						<label for="found-name-input" class="form-label">
+							Naam:
+						</label>
+						<input id="found-name-input" class="form-control" type="text" required>
+					</div>
+					
+					<div>
+						<label for="join-policy-select" class="form-label">
+							Toetreding:
+						</label>
+						<select id="join-policy-select" class="form-select" required>
+							<option value="invite-only" selected>
+								Alleen op uitnodiging
+							</option>
+							<option value="open" selected>
+								Open voor iedereen
+							</option>
+						</select>
+					</div>
+					
+					<div id="max-members-div">
+						<label for="max-members-input" class="form-label">
+							Maximum aantal leden:
+						</label>
+						<input id="max-members-input" class="form-control" type="number" 
+							   min="2" max="100" required>
+					</div>
+				</div>
+				
+				<div id="found-name-error" class="mt-md error"></div>
+				
+				<div class="mt-lg">
+					<button id="found-button" class="btn btn--primary" type="button">
+						<span class="btn-front">Coöperatie oprichten</span>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!------------------------------------------------------------------------------------------------>
+
+<div id="invite-window" class="modal fade" 
+	 tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h2 class="modal-title">Speler uitnodigen</h2>
+				
+				<button class="btn-close" type="button" 
+						data-bs-dismiss="modal" aria-label="Sluiten"></button>
+			</div>
+			
+			<div class="modal-body">
+				<div id="invite-name-div">
+					<label for="invite-name-input" class="form-label">
+						Spelersnaam:
+					</label>
+					<input id="invite-name-input" class="form-control" type="text" required>
+				</div>
+				
+				<div id="invite-name-error" class="mt-md error"></div>
+				
+				<div class="mt-lg">
+					<button id="invite-button" class="btn btn--primary" type="button">
+						<span class="btn-front">Speler uitnodigen</span>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!------------------------------------------------------------------------------------------------>
+
+<script type="module">
+//-----------------------------------------------------------------------------------------------//
+import { turn } from '/js/turn-flow.js';
+//-----------------------------------------------------------------------------------------------//
+let elements;
+let data;
+//-----------------------------------------------------------------------------------------------//
+document.addEventListener('DOMContentLoaded', () => {
+	turn.phase.initialize();
+});
+//===============================================================================================//
+turn.phase.load = function() {
+	/*loadData();
+	cacheElements();
+	initializeControls();
+	addEventListeners();*/
+}
+//-----------------------------------------------------------------------------------------------//
+turn.phase.save = function() {
+	/*const createCharacter = {
+		firstName: elements.firstName.value,
+		lastName: elements.lastName.value,
+		jobPreferences: elements.jobPreferences.map(
+			jobPreference => jobPreference.value
+		),
+		recreationPreference: elements.recreationPreference.value
+	};
+	
+	turn.storage.save('characterPhases.createCharacter', createCharacter);*/
+}
+//-----------------------------------------------------------------------------------------------//
+turn.phase.updateUI = function() {
+	/*elements.firstName.value = data.firstName;
+	elements.lastName.value = data.lastName;
+	elements.jobPreferences.forEach((jobPreference, index) => {
+		jobPreference.value = data.jobPreferences[index];
+	});
+	elements.recreationPreference.value = data.recreationPreference;
+	
+	handleJobPreferenceChange();*/
+}
+//-----------------------------------------------------------------------------------------------//
+turn.phase.confirm = async function () {
+	/*if (!validateCharacter())
+        return false;
+	
+    const reserved = await reserveCharacterName();
+	
+	if(!reserved)
+		return false;
+	
+	elements.firstName.value = reserved.firstName;
+	elements.lastName.value = reserved.lastName;
+	
+    return true;*/
+};
+//-----------------------------------------------------------------------------------------------//
+</script>

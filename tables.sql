@@ -171,8 +171,7 @@ CREATE TABLE worlds (
 CREATE TABLE turns (
 	user_id INT UNSIGNED NOT NULL,
 	world_id TINYINT UNSIGNED NOT NULL,
-	edit_version SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-	save_version SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+	is_saved BOOLEAN NOT NULL DEFAULT FALSE,
 	PRIMARY KEY (user_id, world_id),
 	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
 	FOREIGN KEY (world_id) REFERENCES worlds(id)
@@ -547,11 +546,6 @@ CREATE TABLE enjoy_actions (
 	FOREIGN KEY (recreation_id) REFERENCES recreations(product_id)
 );
 
-CREATE TABLE found_actions (
-	cooperative_id INT UNSIGNED PRIMARY KEY,
-	FOREIGN KEY (cooperative_id) REFERENCES cooperatives(id) ON DELETE CASCADE
-);
-
 CREATE TABLE leave_actions (
 	member_id INT UNSIGNED PRIMARY KEY,
 	FOREIGN KEY (member_id) REFERENCES characters(id) ON DELETE CASCADE
@@ -561,6 +555,11 @@ CREATE TABLE join_actions (
     member_id INT UNSIGNED PRIMARY KEY,
 	cooperative_id INT UNSIGNED,
 	FOREIGN KEY (member_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (cooperative_id) REFERENCES cooperatives(id) ON DELETE CASCADE
+);
+
+CREATE TABLE found_actions (
+	cooperative_id INT UNSIGNED PRIMARY KEY,
 	FOREIGN KEY (cooperative_id) REFERENCES cooperatives(id) ON DELETE CASCADE
 );
 

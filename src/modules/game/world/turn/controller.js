@@ -2,37 +2,23 @@ import { GameError } from '#modules/game/error.js';
 //-----------------------------------------------------------------------------------------------//
 import { 
 	loadTurn,
-	startTurn,
 	saveTurn,
-	processActions 
+	processTurn 
 } from './service.js';
 
 //===============================================================================================//
 
-export async function showStartTurn(req, res) {
+export async function handleLoadTurn(req, res) {
 	const { user, world } = req.session;
-
-	const turn = await loadTurn({ 
-		userId: user.id, 
-		worldId: world.id
-	});
-	
-	return res.render('game/world/turn/start', turn);
-};
-//-----------------------------------------------------------------------------------------------//
-export async function handleStartTurn(req, res) {
-	const { user, world } = req.session;
-	const { overrule } = req.validatedData;
 
 	try {
-		const turnVersion = await startTurn({ 
+		const turn = await loadTurn({ 
 			userId: user.id, 
-			worldId: world.id,
-			overrule
+			worldId: world.id
 		});
 		
 		return res.json({
-			data: turnVersion
+			data: turn
 		});
 	} catch (err) {
 		if (err instanceof GameError) {
@@ -45,25 +31,31 @@ export async function handleStartTurn(req, res) {
 	}
 };
 //-----------------------------------------------------------------------------------------------//
-export function showFinishTurn(req, res) {
-	return res.render('game/world/turn/finish');
-};
-//-----------------------------------------------------------------------------------------------//
-export async function handleFinishTurn(req, res) {
+export async function handleSaveTurn(req, res) {
 	const { user, world } = req.session;
-	const { characterPhases } = req.validatedData; //+ turnEditVersion?
+	const { actions } = req.validatedData;
 	
-	await saveTurn({ 
-		userId: user.id, 
-		worldId: world.id, 
-		characterPhases 
-	});
-	
-	return res.redirect('/game/world/menu');
+	try {
+		await saveTurn({ 
+			userId: user.id, 
+			worldId: world.id,
+			actions
+		});
+		
+		return res.sendStatus(204);
+	} catch (err) {
+		if (err instanceof GameError) {
+			return res.status(err.status).json({
+				error: err.message
+			});
+		}
+
+		throw err;
+	}
 };
 //-----------------------------------------------------------------------------------------------//
-export async function triggerProcessActions(req, res) {
-	await processActions();
+export async function triggerProcessTurn(req, res) {
+	await processTurn();
 	
 	return res.sendStatus(204);
 };

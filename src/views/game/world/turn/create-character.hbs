@@ -19,24 +19,21 @@ await turn.phase.checkAccess('createCharacter');
 			<label for="first-name-input" class="form-label">
 				Voornaam:
 			</label>
-			<input id="first-name-input" class="form-control" type="text"
-				   name="firstName" value="{{firstName}}" required>
+			<input id="first-name-input" class="form-control" type="text" required>
 		</div>
 		
 		<div>
 			<label for="last-name-input" class="form-label">
 				Achternaam:
 			</label>
-			<input id="last-name-input" class="form-control" type="text" 
-				   name="lastName" value="{{lastName}}" required>
+			<input id="last-name-input" class="form-control" type="text" required>
 		</div>
 		
 		<div>
 			<label for="job-preference-1-select" class="form-label">
 				Jobvoorkeur (★★★):
 			</label>
-			<select id="job-preference-1-select" class="form-select" 
-					name="jobPreferences[0].buildingId" required>
+			<select id="job-preference-1-select" class="form-select" required>
 				<option value="" 
 						{{#unless jobPreferences.[0].buildingId}}selected{{/unless}}
 						hidden disabled>
@@ -55,8 +52,7 @@ await turn.phase.checkAccess('createCharacter');
 			<label for="job-preference-2-select" class="form-label">
 				Jobvoorkeur (★★):
 			</label>
-			<select id="job-preference-2-select" class="form-select" 
-					name="jobPreferences[1].buildingId" required>
+			<select id="job-preference-2-select" class="form-select" required>
 				<option value="" 
 						{{#unless jobPreferences.[1].buildingId}}selected{{/unless}} 
 						hidden disabled>
@@ -75,8 +71,7 @@ await turn.phase.checkAccess('createCharacter');
 			<label for="job-preference-3-select" class="form-label">
 				Jobvoorkeur (★):
 			</label>
-			<select id="job-preference-3-select" class="form-select" 
-					name="jobPreferences[2].buildingId" required>
+			<select id="job-preference-3-select" class="form-select" required>
 				<option value="" 
 						{{#unless jobPreferences.[2].buildingId}}selected{{/unless}} 
 						hidden disabled>
@@ -95,8 +90,7 @@ await turn.phase.checkAccess('createCharacter');
 			<label for="recreation-preference-select" class="form-label">
 				Ontspanningsvoorkeur (★★★):
 			</label>
-			<select id="recreation-preference-select" class="form-select" 
-					name="recreationPreference.productId" required>
+			<select id="recreation-preference-select" class="form-select" required>
 				<option value="" 
 						{{#unless recreationPreference.productId}}selected{{/unless}} 
 						hidden disabled>
@@ -132,116 +126,61 @@ document.addEventListener('DOMContentLoaded', () => {
 turn.phase.load = function() {
 	loadData();
 	cacheElements();
-	addEventListeners();
 	initializeControls();
+	addEventListeners();
 }
 //-----------------------------------------------------------------------------------------------//
 turn.phase.save = function() {
-	saveData();
+	const createCharacter = {
+		firstName: elements.firstName.value,
+		lastName: elements.lastName.value,
+		jobPreferences: elements.jobPreferences.map(
+			jobPreference => jobPreference.value
+		),
+		recreationPreference: elements.recreationPreference.value
+	};
+	
+	turn.storage.save('characterPhases.createCharacter', createCharacter);
 }
 //-----------------------------------------------------------------------------------------------//
 turn.phase.updateUI = function() {
-	renderDemolishList();
-	renderConstructList();
-	renderFreeTiles();
+	elements.firstName.value = data.firstName;
+	elements.lastName.value = data.lastName;
+	elements.jobPreferences.forEach((jobPreference, index) => {
+		jobPreference.value = data.jobPreferences[index];
+	});
+	elements.recreationPreference.value = data.recreationPreference;
+	
+	handleJobPreferenceChange();
 }
 //-----------------------------------------------------------------------------------------------//
 turn.phase.confirm = async function () {
-    
-	
-	
-	if (!validateCreateCharacter())
+	if (!validateCharacter())
         return false;
-
-    disableConfirmButton();
-
-    try {
-        await reserveCharacterName();
-        return true;
-    } finally {
-        enableConfirmButton();
-    }
 	
+    const reserved = await reserveCharacterName();
 	
+	if(!reserved)
+		return false;
 	
+	elements.firstName.value = reserved.firstName;
+	elements.lastName.value = reserved.lastName;
+	
+    return true;
 };
 //===============================================================================================//
 function loadData() {
-	const createCharacter = turn.storage.load('characterPhases.createCharacter');
+	const createCharacter = turn.storage.load('characterPhases.createCharacter') ?? {};
 	const jobs = turn.storage.load('constants.jobs');
 	const recreations = turn.storage.load('constants.recreations');
-	const ownedTiles = turn.storage.load('characterState.ownedTiles');
-	const ownedBuildings = turn.storage.load('characterState.ownedBuildings');
-	const ownedReservedBuildings = turn.storage.load('characterState.ownedReservedBuildings');
-	const ownedConstructionSites = turn.storage.load('characterState.ownedConstructionSites');
-	
-	const constructibleBuildings = buildings.filter((b) => b.isConstructible);
-	
-	const buildingsById = Object.fromEntries(
-		buildings.map((b) => [b.id, b])
-	);
-	const ownedReservedBuildingsById = Object.fromEntries(
-		ownedReservedBuildings.map((orb) => [orb.characterBuildingId, orb])
-	);
-	const ownedConstructionSitesById = Object.fromEntries(
-		ownedConstructionSites.map((ocs) => [ocs.characterBuildingId, ocs])
-	);
-	const demolishedIds = new Set(
-		manageBuildings.demolishActions.map((a) => a.characterBuildingId)
-	);
-	
-	const existingBuildings = ownedBuildings.map(
-		({ characterBuildingId, name, buildingId }) => {
-			const base = buildingsById[buildingId];
-
-			if (base.slug === 'construction-site') {
-				const site = ownedConstructionSitesById[characterBuildingId];
-				const building = buildingsById[site.buildingId];
-
-				return {
-					characterBuildingId,
-					name,
-					buildingId: site.buildingId,
-					type: building.type,
-					bricksUsed: site.bricksUsed,
-					bricksNeeded: site.bricksNeeded,
-					isDemolished: demolishedIds.has(characterBuildingId)
-				};
-			}
-
-			return {
-				characterBuildingId,
-				name,
-				buildingId,
-				type: base.type,
-				bricksUsed: null,
-				bricksNeeded: null,
-				isDemolished: demolishedIds.has(characterBuildingId)
-			};
-		});
-	
-	const newBuildings = manageBuildings.constructActions.map(
-		({ characterBuildingId, buildingId }) => {
-			const reservedBuilding = ownedReservedBuildingsById[characterBuildingId];
-			const building = buildingsById[buildingId];
-			
-			return {
-				characterBuildingId,
-				name: reservedBuilding.name,
-				buildingId,
-				type: building.type
-			};
-		});
-	
-	const usedTiles = 
-		existingBuildings.filter((db) => !db.isDemolished).length +	newBuildings.length;
-	const freeTiles = ownedTiles - usedTiles;
 	
 	data = {
+		firstName: createCharacter.firstName ?? '',
+		lastName: createCharacter.lastName ?? '',
+		jobPreferences: createCharacter.jobPreferences ?? ['', '', ''],
+		recreationPreference: createCharacter.recreationPreference ?? '',
 		jobs,
-		recreations,
-		jobPreferences,
-		recreationPreference
+		recreations
 	};
 }
 //-----------------------------------------------------------------------------------------------//
@@ -249,7 +188,7 @@ function cacheElements() {
 	elements = {
 		firstName: document.getElementById('first-name-input'),
 		lastName: document.getElementById('last-name-input'),
-		jobPreferences = [
+		jobPreferences: [
 			document.getElementById('job-preference-1-select'),
 			document.getElementById('job-preference-2-select'),
 			document.getElementById('job-preference-3-select')
@@ -257,14 +196,6 @@ function cacheElements() {
 		recreationPreference: document.getElementById('recreation-preference-select'),
 		characterNameError: document.getElementById('character-name-error')
 	};
-}
-//-----------------------------------------------------------------------------------------------//
-function addEventListeners() {
-	elements.firstName.addEventListener('input', handleFirstNameInput);
-	elements.lastName.addEventListener('input', handleLastNameInput);
-	elements.jobPreferences.forEach((jobPreference) => {
-		jobPreference.addEventListener('change', handleJobPreferenceChange);
-	});
 }
 //-----------------------------------------------------------------------------------------------//
 function initializeControls() {
@@ -277,45 +208,68 @@ function initializeControls() {
 		});
 	});
 	
-	handleJobPreferenceChange();
+	turn.phase.populateSelect({
+		select: elements.recreationPreference,
+		optionName: 'ontspanning',
+		items: data.recreations,
+		textField: 'type'
+	});
 }
 //-----------------------------------------------------------------------------------------------//
-function saveData() {
-	const createCharacter = {
-		jobPreferences: [],
-		recreationPreference: {}
-	};
-	
-	data.existingBuildings.forEach((eb) => {
-		if (eb.isDemolished) {
-			manageBuildings.demolishActions.push({
-				characterBuildingId: eb.characterBuildingId
-			});
-		}
+function addEventListeners() {
+	elements.firstName.addEventListener('input', handleFirstNameInput);
+	elements.lastName.addEventListener('input', handleLastNameInput);
+	elements.jobPreferences.forEach((jobPreference) => {
+		jobPreference.addEventListener('change', handleJobPreferenceChange);
 	});
-	
-	data.newBuildings.forEach((nb) => {
-		manageBuildings.constructActions.push({
-			characterBuildingId: nb.characterBuildingId,
-			buildingId: nb.buildingId
+}
+//-----------------------------------------------------------------------------------------------//
+function validateCharacter() {
+	const fields = [
+		elements.firstName,
+		elements.lastName,
+		...elements.jobPreferences,
+		elements.recreationPreference
+	];
+
+	for (const field of fields) {
+		if (!field.reportValidity())
+			return false;
+	}
+
+	return true;
+}
+//-----------------------------------------------------------------------------------------------//
+async function reserveCharacterName() {
+	try {
+		const res = await fetch('/game/world/turn/create-character/reserve-character-name', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ 
+				firstName: elements.firstName.value, 
+				lastName: elements.lastName.value
+			})
 		});
-	});
-	
-	turn.storage.save('characterPhases.createCharacter', createCharacter);
+		
+		const json = await res.json();
+		
+		if (json.error) {
+			elements.characterNameError.textContent = json.error;
+			return null;
+		}
+		
+		const reserved = {
+			firstName: json.data.firstName,
+			lastName: json.data.lastName
+		};
+		
+		return reserved;
+	} catch (err) {
+		alert('De server is momenteel niet bereikbaar.');
+		return null;
+	}
 }
 //===============================================================================================//
-function handleJobPreferenceChange() {
-	const selectedValues = elements.jobPreferences.map(select => select.value);
-	
-	elements.jobPreferences.forEach((select, index) => {
-		const otherSelectedValues = selectedValues.filter((_, i) => i !== index);
-		
-		Array.from(select.options).forEach(option => {
-			option.disabled = otherSelectedValues.includes(option.value);
-		});
-	});
-}
-//-----------------------------------------------------------------------------------------------//
 function handleFirstNameInput() {
 	elements.characterNameError.textContent = '';
 	
@@ -341,99 +295,11 @@ function handleLastNameInput() {
 	
 	validateName(args);
 }
-//===============================================================================================//
-
-
-
-/*
-let firstNameInput;
-let lastNameInput;
-let jobPreference1Select;
-let jobPreference2Select;
-let jobPreference3Select;
-let recreationPreferenceSelect;
-let createCharacterErrorElement;
-let createCharacterForm;
 //-----------------------------------------------------------------------------------------------//
-document.addEventListener('DOMContentLoaded', () => {
-	firstNameInput = document.getElementById('first-name-input');
-	lastNameInput = document.getElementById('last-name-input');
-	jobPreference1Select = document.getElementById('job-preference-1-select');
-	jobPreference2Select = document.getElementById('job-preference-2-select');
-	jobPreference3Select = document.getElementById('job-preference-3-select');
-	recreationPreferenceSelect = document.getElementById('recreation-preference-select');
-	createCharacterErrorElement = document.getElementById('create-character-error');
+function handleJobPreferenceChange() {
+	const selectedValues = elements.jobPreferences.map(select => select.value);
 	
-	firstNameInput.addEventListener('input', handleFirstNameInput);
-	lastNameInput.addEventListener('input', handleLastNameInput);
-	jobPreference1Select.addEventListener('change', handleJobPreferenceSelect);
-	jobPreference2Select.addEventListener('change', handleJobPreferenceSelect);
-	jobPreference3Select.addEventListener('change', handleJobPreferenceSelect);
-	recreationPreferenceSelect.addEventListener('change', handleRecreationPreferenceSelect);
-	
-	handleJobPreferenceSelect();	
-});
-//===============================================================================================//
-
-
-
-turn.phase.confirm = async function () {
-    if (!validateCreateCharacter())
-        return false;
-
-    disableConfirmButton();
-
-    try {
-        await reserveCharacterName();
-        return true;
-    } finally {
-        enableConfirmButton();
-    }
-};
-
-
-
-
-
-function clearError() {
-	createCharacterErrorElement.textContent = '';
-}
-//-----------------------------------------------------------------------------------------------//
-function handleFirstNameInput() {
-	clearError();
-	
-	const args = {
-		nameInput: firstNameInput,
-		minLength: 3,
-		maxLength: 20,
-		regex: /^\p{L}+(?:[ '-]\p{L}+)*$/u
-	};
-	
-	validateName(args);
-}
-//-----------------------------------------------------------------------------------------------//
-function handleLastNameInput() {
-	clearError();
-	
-	const args = {
-		nameInput: lastNameInput,
-		minLength: 3,
-		maxLength: 20,
-		regex: /^\p{L}+(?:[ '-]\p{L}+)*$/u
-	};
-	
-	validateName(args);
-}
-//-----------------------------------------------------------------------------------------------//
-function handleJobPreferenceSelect() {
-	clearError();
-	
-	const selects = [jobPreference1Select, 
-					 jobPreference2Select, 
-					 jobPreference3Select];
-	const selectedValues = selects.map(select => select.value);
-	
-	selects.forEach((select, index) => {
+	elements.jobPreferences.forEach((select, index) => {
 		const otherSelectedValues = selectedValues.filter((_, i) => i !== index);
 		
 		Array.from(select.options).forEach(option => {
@@ -441,24 +307,5 @@ function handleJobPreferenceSelect() {
 		});
 	});
 }
-//-----------------------------------------------------------------------------------------------//
-function handleRecreationPreferenceSelect() {
-	clearError();
-}
-//-----------------------------------------------------------------------------------------------//
-function handleCreateCharacterFormSubmit(event) {
-	if (!createCharacterForm.checkValidity()) {
-		event.preventDefault();
-		createCharacterForm.reportValidity();
-		return;
-	}
-	
-	// KNOP DISABLEN VOOR DUBBELKLIK (zie ChatGPT):
-	if (event.submitter) {
-        event.submitter.disabled = true;
-    }
-}
-*/
-
 //-----------------------------------------------------------------------------------------------//
 </script>

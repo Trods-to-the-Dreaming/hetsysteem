@@ -14,9 +14,11 @@ await turn.phase.checkAccess('manageBuildings');
 <div id="container-div" class="d-none">
 	<h1>Gebouwen beheren</h1>
 	
+	<p>Vrije landtegels: <span id="free-tiles-span"></span></p>
+	
 	<h2>💥 Slopen</h2>
 	
-	<ul id="demolish-actions-ul" class="list-compact d-none"></ul>
+	<ul id="demolish-actions-ul" class="list-compact"></ul>
 	
 	<div class="mt-md">
 		<button id="open-demolish-window-button" class="btn btn--secondary" type="button" 
@@ -24,12 +26,10 @@ await turn.phase.checkAccess('manageBuildings');
 			<span class="btn-front">Gebouwen slopen...</span>
 		</button>
 	</div>
-
+	
 	<h2>🏗️ Bouwen</h2>
 
-	<p>Vrije landtegels: <span id="free-tiles-span"></span></p>
-
-	<ul id="construct-actions-ul" class="list-compact d-none"></ul>
+	<ul id="construct-actions-ul" class="list-compact"></ul>
 		
 	<div class="mt-md">
 		<button id="open-construct-window-button" class="btn btn--secondary" type="button" 

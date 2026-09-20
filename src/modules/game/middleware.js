@@ -7,7 +7,7 @@ import {
 
 //===============================================================================================//
 
-export const limitStartTurnRate = rateLimit({
+export const limitLoadTurnRate = rateLimit({
 	windowMs: 60 * 1000,
 	max: 30,
 	standardHeaders: true,
@@ -15,7 +15,7 @@ export const limitStartTurnRate = rateLimit({
 	keyGenerator: (req) => String(req.session.user.id)
 });
 //-----------------------------------------------------------------------------------------------//
-export const limitFinishTurnRate = rateLimit({
+export const limitSaveTurnRate = rateLimit({
 	windowMs: 60 * 1000,
 	max: 30,
 	standardHeaders: true,

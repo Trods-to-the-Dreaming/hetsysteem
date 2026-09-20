@@ -41,30 +41,11 @@ export function listJobs(trx = knex) {
 		.orderBy('id');
 }
 //-----------------------------------------------------------------------------------------------//
-export function lockTurn({ userId, 
-						   worldId, 
-						   trx = knex }) {
-	return trx('turns')
-		.select({ 
-			editVersion: 'edit_version',
-			saveVersion: 'save_version'
-		})
-		.where({ 
-			user_id: userId,
-			world_id: worldId
-		})
-		.forUpdate()
-		.first();
-};
-//-----------------------------------------------------------------------------------------------//
 export function findTurn({ userId, 
 						   worldId, 
 						   trx = knex }) {
 	return trx('turns')
-		.select({ 
-			editVersion: 'edit_version',
-			saveVersion: 'save_version'
-		})
+		.select({ isSaved: 'is_saved' })
 		.where({ 
 			user_id: userId,
 			world_id: worldId
@@ -72,16 +53,16 @@ export function findTurn({ userId,
 		.first();
 };
 //-----------------------------------------------------------------------------------------------//
-export function incrementTurnEditVersion({ userId, 
-										   worldId, 
-										   trx = knex }) {
+export function updateTurn({ userId, 
+						     worldId, 
+						     trx = knex }) {
 	return trx('turns')
-		.where({ 
+		.where({
 			user_id: userId,
 			world_id: worldId
 		})
-		.increment('edit_version', 1);
-}
+		.update({ is_saved: true });
+};
 //-----------------------------------------------------------------------------------------------//
 export function findCharacter({ userId, 
 								worldId, 
@@ -234,13 +215,6 @@ export function findLandlordAgreements({ characterId,
 		.where({ 'cb.character_id': characterId })
 }
 //-----------------------------------------------------------------------------------------------//
-export function updateCharacterState({ characterId,
-									   trx = knex }) {
-	return trx('character_states')
-		.where({ 'character_id': characterId })
-		.update({ has_finished_turn: true });
-}
-//-----------------------------------------------------------------------------------------------//
 export function insertCharacterBuilding({ characterId, 
 										  worldId, 
 										  characterBuildingName, 
@@ -268,21 +242,6 @@ export function deleteUnusedCharacterBuilding({ characterBuildingId,
 		.whereNotIn('id', function () {
 			this.select('character_building_id')
 				.from('construct_actions');
-		})
-		.del();
-}
-//-----------------------------------------------------------------------------------------------//
-export function deleteUnusedCharacter({ userId,
-										trx = knex }) {
-	return trx('characters')
-		.where({ user_id: userId })
-		.whereNotIn('id', function () {
-			this.select('character_id')
-				.from('character_states');
-		})
-		.whereNotIn('id', function () {
-			this.select('character_id')
-				.from('create_character_actions');
 		})
 		.del();
 }

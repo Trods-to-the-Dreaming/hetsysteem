@@ -4,24 +4,20 @@ import { requireLogin } from '#middleware/auth.js';
 import { requireValidation } from '#middleware/validate.js';
 //-----------------------------------------------------------------------------------------------//
 import { 
-	limitStartTurnRate,
-	limitFinishTurnRate,
+	limitLoadTurnRate,
+	limitSaveTurnRate,
 	requireWorldEntered,
 	requireCanPlayTurn,
 	requireToken
 } from '#modules/game/middleware.js';
 //-----------------------------------------------------------------------------------------------//
 import {
-	startTurnSchema,
-	finishTurnSchema,
-	checkTurnVersionSchema
+	saveTurnSchema
 } from './validation.js';
 import {
-	showStartTurn,
-	handleStartTurn,
-	showFinishTurn,
-	handleFinishTurn,
-	triggerProcessActions
+	handleLoadTurn,
+	handleSaveTurn,
+	triggerProcessTurn
 } from './controller.js';
 //-----------------------------------------------------------------------------------------------//
 import createCharacterRouter 		   from './create-character/routes.js';
@@ -39,41 +35,26 @@ import manageCooperativeRouter 	   	   from './manage-cooperative/routes.js';
 
 const router = express.Router();
 //-----------------------------------------------------------------------------------------------//
-router.get('/start',
+router.post('/load',
+	limitLoadTurnRate,
 	requireLogin,
 	requireWorldEntered,
 	requireCanPlayTurn,
-	showStartTurn
+	handleLoadTurn
 );
 //-----------------------------------------------------------------------------------------------//
-router.post('/start',
-	limitStartTurnRate,
+router.post('/save',
+	limitSaveTurnRate,
 	requireLogin,
 	requireWorldEntered,
 	requireCanPlayTurn,
-	requireValidation(startTurnSchema),
-	handleStartTurn
+	requireValidation(saveTurnSchema),
+	handleSaveTurn
 );
 //-----------------------------------------------------------------------------------------------//
-router.get('/finish',
-	requireLogin,
-	requireWorldEntered,
-	requireCanPlayTurn,
-	showFinishTurn
-);
-//-----------------------------------------------------------------------------------------------//
-router.post('/finish',
-	limitFinishTurnRate,
-	requireLogin,
-	requireWorldEntered,
-	requireCanPlayTurn,
-	requireValidation(finishTurnSchema),
-	handleFinishTurn
-);
-//-----------------------------------------------------------------------------------------------//
-router.get('/process-actions',
+router.get('/process',
 	//requireToken,
-	triggerProcessActions
+	triggerProcessTurn
 );
 //-----------------------------------------------------------------------------------------------//
 router.use('/create-character', 		   createCharacterRouter);

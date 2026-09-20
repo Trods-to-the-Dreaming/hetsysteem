@@ -17,7 +17,7 @@
 				<div class="modal-icon">⚠️</div>
 				
 				<p class="modal-message">
-					De beurt wordt al bewerkt in een andere browser. 
+					De beurt wordt al bewerkt.
 					Wilt u de bewerking overnemen in deze browser?
 				</p>
 			</div>
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', async() => {
 	const constants = {{{json constants}}};
 	const characterState = {{{json characterState}}};
 	const characterPhases = {{{json characterPhases}}};
-	const phases = {{{json phases}}};
+	const phases = {{{json turnPhases}}};
 	
 	const currentPhaseIndex = (turnVersion.saveVersion === 0) ? 0 : phases.length;
 

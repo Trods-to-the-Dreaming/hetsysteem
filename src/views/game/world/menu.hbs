@@ -6,19 +6,17 @@
 
 <div class="mt-md stack">
 	{{#if isCharacterCreated}}
-		<a class="btn btn--primary" href="/game/world/turn/start">
-			<span class="btn-front">Beurt starten</span>
-		</a>
+		<button id="load-normal-turn-button" class="btn btn--primary" type="button">
+			<span class="btn-front">Beurt spelen</span>
+		</button>
 		<a class="btn btn--primary" href="/game/world/character">
 			<span class="btn-front">Personage</span>
 		</a>
 	{{else}}
-		<a class="btn btn--primary {{#unless canCreateCharacter}}btn--disabled{{/unless}}" 
-		   {{#if canCreateCharacter}}href="/game/world/turn/start"{{/if}}>
-			<span class="btn-front" {{#if canCreateCharacter}}disabled{{/if}}>
-				Personage aanmaken
-			</span>
-		</a>
+		<button id="load-birth-turn-button" class="btn btn--primary" type="button"
+				{{#unless canCreateCharacter}}disabled{{/unless}}>
+			<span class="btn-front">Personage aanmaken</span>
+		</button>
 	{{/if}}
 	<a class="btn btn--primary" href="/game/world/statistics">
 		<span class="btn-front">Statistieken</span>
@@ -30,3 +28,30 @@
 <a class="btn btn--navigation" href="/game/enter-world">
 	<span class="btn-front">↑ Andere wereld</span>
 </a>
+
+<!------------------------------------------------------------------------------------------------>
+
+<script type="module">
+//-----------------------------------------------------------------------------------------------//
+import { turn } from '/js/turn-flow.js';
+//-----------------------------------------------------------------------------------------------//
+let elements;
+//-----------------------------------------------------------------------------------------------//
+document.addEventListener('DOMContentLoaded', () => {
+	cacheElements();
+	addEventListeners();
+});
+//===============================================================================================//
+function cacheElements() {
+	elements = {
+		loadNormalTurn: document.getElementById('load-normal-turn-button'),
+		loadBirthTurn: document.getElementById('load-birth-turn-button')
+	};
+}
+//-----------------------------------------------------------------------------------------------//
+function addEventListeners() {
+	elements.loadNormalTurn?.addEventListener('click', () => turn.handleLoad());
+	elements.loadBirthTurn?.addEventListener('click', () => turn.handleLoad());
+}
+//-----------------------------------------------------------------------------------------------//
+</script>

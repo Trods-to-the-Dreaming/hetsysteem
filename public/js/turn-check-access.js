@@ -6,44 +6,33 @@ turn.phase = {
 //-----------------------------------------------------------------------------------------------//
 	...turn.phase,
 //-----------------------------------------------------------------------------------------------//
-	async checkAccess(phaseKey) {	
-		turn.started = turn.storage.load('started');
+	checkAccess(phaseKey) {	
+		turn.isActive = turn.storage.load('isActive');
 		
-		if (!turn.started) {
-			// The user tries to play a phase or finish the turn before starting it
-			location.replace('/game/world/turn/start');
+		if (!turn.isActive) {
+			// The user has not loaded the turn yet
+			location.replace('/game/world/menu');
 			return;
 		}
 
 		turn.phases = turn.storage.load('phases');
-		turn.currentPhaseIndex = turn.storage.load('currentPhaseIndex');
-		
-		if (phaseKey === 'finish') {
-			if (turn.currentPhaseIndex === turn.phases.length) {
-				// The user wants to finish the turn
-				return;
-			}
-			
-			// The user tries to finish the turn without playing all the phases
-			location.replace(turn.phases[turn.currentPhaseIndex].url);
-			return;
-		}
+		turn.currentPhaseIndex = turn.storage.load('currentPhaseIndex');		
 		
 		this.index = turn.phases.findIndex((p) => p.key === phaseKey);
 
-		if (this.index === -1) {
-			// The user tries to play a phase that is not part of the turn
-			location.replace(turn.phases[turn.currentPhaseIndex].url);
-			return;
+		if (this.index === -1 ||
+			this.index > turn.currentPhaseIndex) {
+			// The user tries to edit a phase that does not exist or has not been reached yet
+			if (turn.currentPhaseIndex < turn.phases.length) {
+				// Redirect to the current phase
+				location.replace(turn.phases[turn.currentPhaseIndex].url);
+				return;
+			} else {
+				// Redirect to the first phase, because all phases have been confirmed
+				location.replace(turn.phases[0].url);
+				return;
+			}
 		}
-
-		if (this.index <= turn.currentPhaseIndex) {
-			// The user tries to play the current phase or view a previous phase
-			return;
-		}
-		
-		// The user tries to play a phase without playing the previous ones
-		location.replace(turn.phases[turn.currentPhaseIndex].url);
 	}
 //-----------------------------------------------------------------------------------------------//
 } // turn.phase

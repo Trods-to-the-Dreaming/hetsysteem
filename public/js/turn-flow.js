@@ -9,215 +9,125 @@ turn.phase = {
 	disabled: true,
 //-----------------------------------------------------------------------------------------------//
 	initialize() {
-		this.addTurnFlowControls();
+		this.addElements();
 		this.load();
 		this.show();
 	},
 //-----------------------------------------------------------------------------------------------//
-	addTurnFlowControls() {
-		function createButton({ btnId, 
-								btnClass, 
-								btnText, 
-								onClick }) {
-			const btn = document.createElement('button');
-			btn.id = btnId;
-			btn.classList.add('btn', btnClass);
-			btn.type = 'button';
-			if (onClick) btn.addEventListener('click', onClick);
-			const span = document.createElement('span');
-			span.classList.add('btn-front');
-			span.textContent = btnText;
-			btn.append(span);
-			return btn;
-		}
-		
-		// Game buttons
+	addElements() {
+		// Edit turn controls
 		const confirmButton = createButton({ 
-			btnId: 'confirm-button', 
 			btnClass: 'btn--primary', 
 			btnText: 'Bevestigen', 
-			onClick: turn.handleConfirm
+			onClick: () => this.handleConfirm()
 		});
 		
-		const finishButton = createButton({ 
-			btnId: 'finish-button', 
+		const saveButton = createButton({ 
 			btnClass: 'btn--primary', 
 			btnText: 'Opslaan', 
-			onClick: turn.handleFinish
+			onClick: () => turn.handleSave()
 		});
 		
 		const editButton = createButton({ 
-			btnId: 'edit-button', 
 			btnClass: 'btn--primary', 
 			btnText: 'Bewerken', 
-			onClick: this.handleEdit.bind(this)
+			onClick: () => this.handleEdit()
 		});
-		
+
+		// Navigate turn controls
 		const nextButton = createButton({ 
-			btnId: 'next-button', 
 			btnClass: 'btn--navigation', 
 			btnText: 'Volgende →', 
-			onClick: turn.handleNext
+			onClick: () => turn.handleNext()
 		});
 		
-		const backButton = createButton({ 
-			btnId: 'back-button', 
+		const previousButton = createButton({ 
 			btnClass: 'btn--navigation', 
 			btnText: '← Vorige', 
-			onClick: turn.handleBack
+			onClick: () => turn.handlePrevious()
 		});
 		
 		const cancelButton = createButton({ 
-			btnId: 'cancel-button', 
 			btnClass: 'btn--navigation', 
 			btnText: '↑ Annuleren', 
-			onClick: turn.handleCancel
+			onClick: () => turn.handleCancel()
 		});
 		
-		const actionDiv = document.createElement('div');
-		actionDiv.classList.add('mt-lg');
-		actionDiv.append(
-			confirmButton, 
-			finishButton, 
-			editButton
-		);
-		
-		const navigationDiv = document.createElement('div');
-		navigationDiv.classList.add('stack');
-		navigationDiv.append(
-			nextButton,
-			backButton,
-			cancelButton
-		);
-		
-		const containerDiv = document.getElementById('container-div');
-		containerDiv.append(
-			actionDiv,
-			document.createElement('hr'),
-			navigationDiv
-		);
-		
-		// Edit warning modal
-		const editWarningDiv = document.createElement('div');
-		editWarningDiv.id = 'edit-warning-window';
-		editWarningDiv.classList.add('modal', 'fade');
-		editWarningDiv.tabIndex = -1;
-		editWarningDiv.setAttribute('role', 'dialog');
-		editWarningDiv.setAttribute('aria-hidden', 'true');
-
-		const dialogDiv = document.createElement('div');
-		dialogDiv.classList.add('modal-dialog');
-
-		const contentDiv = document.createElement('div');
-		contentDiv.classList.add('modal-content');
-
-		const headerDiv = document.createElement('div');
-		headerDiv.classList.add('modal-header');
-		
-		const title = document.createElement('h2');
-		title.classList.add('modal-title');
-		title.textContent = 'Waarschuwing';
-		
-		const closeButton = createButton({ btnClass: 'btn-close' });
-		closeButton.setAttribute('data-bs-dismiss', 'modal');
-		closeButton.setAttribute('aria-label', 'Sluiten');
-
-		const bodyDiv = document.createElement('div');
-		bodyDiv.classList.add('modal-body', 'modal-body--warning');
-		
-		const iconDiv = document.createElement('div');
-		iconDiv.classList.add('modal-icon');
-		iconDiv.textContent = '⚠️';
-		
-		const message = document.createElement('p');
-		message.classList.add('modal-message');
-		message.textContent = 'Alle volgende acties worden gewist, als u deze actie bewerkt.';
-
-		const footerDiv = document.createElement('div');
-		footerDiv.classList.add('modal-footer');
-		
+		// Edit warning
 		const cancelEditButton = createButton({ 
 			btnClass: 'btn--modal-cancel', 
 			btnText: 'Annuleren'
 		});
 		cancelEditButton.setAttribute('data-bs-dismiss', 'modal');
 
-		const confirmEditButton = createButton({
-			btnId: 'confirm-edit-button',
+		const proceedEditButton = createButton({
 			btnClass: 'btn--modal-ok',
 			btnText: 'Bewerken',
-			type: 'button',
-			onClick: this.handleConfirmEdit.bind(this)
+			onClick: () => this.handleProceedEdit()
 		});
-
-		headerDiv.append(title, closeButton);
-		bodyDiv.append(iconDiv, message);
-		footerDiv.append(confirmEditButton, cancelEditButton);
-		contentDiv.append(headerDiv, bodyDiv, footerDiv);
-		dialogDiv.appendChild(contentDiv);
-		editWarningDiv.appendChild(dialogDiv);
 		
-		containerDiv.after(editWarningDiv);
+		const editWarningDiv = createModalDiv({ 
+			titleText: 'Waarschuwing',
+			icon: '⚠️',
+			messageText: 'Alle volgende acties worden gewist, als u deze actie bewerkt.',
+			footerButtons: [ cancelEditButton, proceedEditButton ]
+		});
 		
-		this.controls = {
-			confirmButton,
-			finishButton,
-			editButton,
-			confirmEditButton,
+		// Network error
+		const closeNetworkErrorButton = createButton({
+			btnClass: 'btn--modal-ok',
+			btnText: 'OK',
+			onClick: () => turn.handleCloseNetworkError()
+		});
+		
+		const networkErrorDiv = createModalDiv({ 
+			titleText: 'Foutmelding',
+			icon: '❌',
+			messageText: 'De aanvraag kon niet worden verwerkt.',
+			footerButtons: [ closeNetworkErrorButton ]
+		});
+		
+		// Layout
+		const editDiv = document.createElement('div');
+		editDiv.classList.add('mt-lg');
+		editDiv.append(
+			confirmButton, 
+			saveButton, 
+			editButton
+		);
+		
+		const navigateDiv = document.createElement('div');
+		navigateDiv.classList.add('stack');
+		navigateDiv.append(
 			nextButton,
-			backButton,
+			previousButton,
+			cancelButton
+		);
+		
+		const containerDiv = document.getElementById('container-div');
+		containerDiv.append(
+			editDiv,
+			document.createElement('hr'),
+			navigateDiv
+		);
+		
+		containerDiv.after(
+			editWarningDiv,
+			networkErrorDiv
+		);
+		
+		// Cache
+		this.elements = {
+			confirmButton,
+			saveButton,
+			editButton,
+			nextButton,
+			previousButton,
 			cancelButton,
 			containerDiv,
-			editWarningDiv
+			editWarningDiv,
+			networkErrorDiv
 		};
-	},
-//-----------------------------------------------------------------------------------------------//
-	show() {
-		const c = this.controls;
-		
-		const isFirstPhase = (this.index === 0);
-		const isLastPhase = (this.index === turn.phases.length - 1);
-		const isCurrentPhase = (this.index === turn.currentPhaseIndex);
-		
-		c.confirmButton.classList.toggle('d-none', !isCurrentPhase);
-		c.finishButton.classList.toggle('d-none', !isLastPhase);
-		c.editButton.classList.toggle('d-none', isCurrentPhase);
-		c.nextButton.classList.toggle('d-none', isCurrentPhase);
-		c.backButton.classList.toggle('d-none', isFirstPhase);
-		
-		this.disabled = !isCurrentPhase;
-		
-		this.updateUI();
-		c.containerDiv.classList.remove('d-none');
-	},
-//-----------------------------------------------------------------------------------------------//
-	handleEdit() {
-		const c = this.controls;
-		
-		const modal = new bootstrap.Modal(c.editWarningDiv);
-		modal.show();
-	},
-//-----------------------------------------------------------------------------------------------//
-	handleConfirmEdit() {
-		const c = this.controls;
-		
-		const modal = bootstrap.Modal.getInstance(c.editWarningDiv);
-		modal.hide();
-		
-		c.confirmButton.classList.remove('d-none');
-		c.editButton.classList.add('d-none');
-		c.nextButton.classList.add('d-none');
-		
-		for (let i = this.index + 1; i < turn.phases.length; i++) {
-			const key = turn.phases[i].key;
-			turn.storage.remove(`phases.${key}`);
-		}
-		
-		turn.storage.save('currentPhaseIndex', this.index);
-		turn.currentPhaseIndex = this.index;
-		
-		this.disabled = false;
-		this.updateUI();
 	},
 //-----------------------------------------------------------------------------------------------//
 	populateSelect({ select,
@@ -245,43 +155,250 @@ turn.phase = {
 			}
 			select.appendChild(option);
 		});
+	},
+//-----------------------------------------------------------------------------------------------//
+	show() {
+		const isFirstPhase = (this.index === 0);
+		const isLastPhase = (this.index === turn.phases.length - 1);
+		const isCurrentPhase = (this.index === turn.currentPhaseIndex);
+		
+		this.elements.confirmButton.classList.toggle('d-none', !isCurrentPhase || isLastPhase);
+		this.elements.editButton.classList.toggle('d-none', isCurrentPhase);
+		this.elements.saveButton.classList.toggle('d-none', !isLastPhase);
+		this.elements.nextButton.classList.toggle('d-none', isCurrentPhase);
+		this.elements.previousButton.classList.toggle('d-none', isFirstPhase);
+		
+		this.disabled = !isCurrentPhase;
+		
+		this.updateUI();
+		this.elements.containerDiv.classList.remove('d-none');
+	},
+//-----------------------------------------------------------------------------------------------//
+	handleEdit() {
+		const modal = bootstrap.Modal.getOrCreateInstance(this.elements.editWarningDiv);
+		modal.show();
+	},
+//-----------------------------------------------------------------------------------------------//
+	handleProceedEdit() {
+		const modal = bootstrap.Modal.getInstance(this.elements.editWarningDiv);
+		modal.hide();
+		
+		this.elements.confirmButton.classList.remove('d-none');
+		this.elements.editButton.classList.add('d-none');
+		this.elements.nextButton.classList.add('d-none');
+		
+		for (let i = this.index + 1; i < turn.phases.length; i++) {
+			const key = turn.phases[i].key;
+			turn.storage.remove(`phases.${key}`);
+		}
+		
+		turn.storage.save('currentPhaseIndex', this.index);
+		turn.currentPhaseIndex = this.index;
+		
+		this.disabled = false;
+		this.updateUI();
+	},
+//-----------------------------------------------------------------------------------------------//
+	async handleConfirm() {
+		if (this.confirm) {
+			const ok = await this.confirm();
+
+			if (!ok)
+				return;
+		}
+		
+		this.save();
+		turn.storage.save({ key: 'currentPhaseIndex', value: this.index + 1 });
+		
+		turn.handleNext();
 	}
 //-----------------------------------------------------------------------------------------------//
+
 } // turn.phase
 //-----------------------------------------------------------------------------------------------//
-turn.handleConfirm = function() {
-	if (turn.phase.confirm) {
-        const ok = await turn.phase.confirm();
+turn.handleLoad = async function() {
+	this.isActive = this.storage.load('isActive');
+		
+	if (this.isActive) {
+		// The user is already editing the turn in this browser
+		this.phases = this.storage.load('phases');
+		this.currentPhaseIndex = this.storage.load('currentPhaseIndex');
+		
+		if (turn.currentPhaseIndex < turn.phases.length) {
+			// Redirect to the current phase
+			location.replace(turn.phases[turn.currentPhaseIndex].url);
+			return;
+		} else {
+			// Redirect to the first phase, because all phases have been confirmed
+			location.replace(turn.phases[0].url);
+			return;
+		}
+	}
+	
+	let json;
+	
+	try {
+		const res = await fetch('/game/world/turn/load', {
+			method: 'POST'
+		});
+		
+		if (!res.ok)
+			throw new Error(`HTTP ${res.status}`);
+		
+		json = await res.json();
+	} catch (err) {
+		this.showNetworkError();
+		return;
+	}
+	
+	const constants = json.data.constants;
+	const state = json.data.state;
+	const actions = json.data.actions;
+	const phases = json.data.phases;
+	const isSaved = json.data.isSaved;
+	
+	const currentPhaseIndex = isSaved ? phases.length : 0;
 
-        if (!ok)
-            return;
-    }
-	
-	turn.phase.save();
-	turn.storage.save('currentPhaseIndex', turn.phase.index + 1);
-	
-	turn.handleNext();
+	this.storage.saveNamespace({ namespace: 'constants', object: constants });
+	this.storage.saveNamespace({ namespace: 'state', object: state });
+	this.storage.saveNamespace({ namespace: 'actions', object: actions });
+	this.storage.save({ key: 'phases', value: phases });
+	this.storage.save({ key: 'currentPhaseIndex', value: currentPhaseIndex });
+	this.storage.save({ key: 'isActive', value: true });
+
+	location.replace(phases[0].url);
 }
 //-----------------------------------------------------------------------------------------------//
-turn.handleNext = function() {
-	location.assign(turn.phases[turn.phase.index + 1].url);
-}
-//-----------------------------------------------------------------------------------------------//
-turn.handleBack = async function() {
-	location.assign(turn.phases[turn.phase.index - 1].url);
-}
-//-----------------------------------------------------------------------------------------------//
-turn.handleFinish = function() {
-	turn.phase.save();
-	turn.storage.save('currentPhaseIndex', turn.phases.length);
+turn.handleSave = async function() {
+	if (this.phase.confirm) {
+		const ok = await this.phase.confirm();
+
+		if (!ok)
+			return;
+	}
 	
-	location.assign('/game/turn/finish');
+	this.phase.save();
+	this.storage.save({ key: 'currentPhaseIndex', value: this.phase.index + 1 });
+	
+	const actions = this.storage.loadNamespace('actions');
+	
+	try {
+		const res = await fetch('/game/world/turn/save', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ actions })
+		});
+		
+		if (!res.ok)
+			throw new Error(`HTTP ${res.status}`);
+	} catch (err) {
+		this.showNetworkError();
+		return;
+	}
+	
+	this.storage.removeAll();
+	
+	location.assign('/game/world/menu');
 }
 //-----------------------------------------------------------------------------------------------//
 turn.handleCancel = async function() {	
-	turn.storage.removeAll();
+	this.storage.removeAll();
 	
-	location.assign('/game/menu');
+	location.assign('/game/world/menu');
+}
+//-----------------------------------------------------------------------------------------------//
+turn.handleNext = function() {
+	location.assign(this.phases[this.phase.index + 1].url);
+}
+//-----------------------------------------------------------------------------------------------//
+turn.handlePrevious = function() {
+	location.assign(this.phases[this.phase.index - 1].url);
+}
+//-----------------------------------------------------------------------------------------------//
+turn.showNetworkError = function() {	
+	const modal = bootstrap.Modal.getOrCreateInstance(this.phase.elements.networkErrorDiv);
+	modal.show();
+}
+//-----------------------------------------------------------------------------------------------//
+turn.handleCloseNetworkError = function() {
+	const modal = bootstrap.Modal.getInstance(this.phase.elements.networkErrorDiv);
+	modal.hide();
+}
+
+//===============================================================================================//
+
+function createButton({ btnClass, 
+						btnText = null, 
+						onClick = null }) {
+	const btn = document.createElement('button');
+	
+	btn.classList.add('btn', btnClass);
+	btn.type = 'button';
+	
+	if (btnText) {
+		const span = document.createElement('span');
+		span.classList.add('btn-front');
+		span.textContent = btnText;
+		btn.append(span);
+	}
+	
+	if (onClick) 
+		btn.addEventListener('click', onClick);
+	
+	return btn;
+}
+//-----------------------------------------------------------------------------------------------//
+function createModalDiv({ titleText,
+					      icon,
+					      messageText,
+					      footerButtons }) {
+	const modalDiv = document.createElement('div');
+	modalDiv.classList.add('modal', 'fade');
+	modalDiv.tabIndex = -1;
+	modalDiv.setAttribute('role', 'dialog');
+	modalDiv.setAttribute('aria-hidden', 'true');
+
+	const dialogDiv = document.createElement('div');
+	dialogDiv.classList.add('modal-dialog');
+
+	const contentDiv = document.createElement('div');
+	contentDiv.classList.add('modal-content');
+
+	const headerDiv = document.createElement('div');
+	headerDiv.classList.add('modal-header');
+
+	const title = document.createElement('h2');
+	title.classList.add('modal-title');
+	title.textContent = titleText;
+
+	const closeButton = createButton({
+		btnClass: 'btn-close'
+	});
+	closeButton.setAttribute('data-bs-dismiss', 'modal');
+	closeButton.setAttribute('aria-label', 'Sluiten');
+
+	const bodyDiv = document.createElement('div');
+	bodyDiv.classList.add('modal-body', 'modal-body--alert');
+
+	const iconDiv = document.createElement('div');
+	iconDiv.classList.add('modal-icon');
+	iconDiv.textContent = icon;
+
+	const message = document.createElement('p');
+	message.classList.add('modal-message');
+	message.textContent = messageText;
+
+	const footerDiv = document.createElement('div');
+	footerDiv.classList.add('modal-footer');
+	footerDiv.append(...footerButtons);
+
+	headerDiv.append(title, closeButton);
+	bodyDiv.append(iconDiv, message);
+	contentDiv.append(headerDiv, bodyDiv, footerDiv);
+	dialogDiv.appendChild(contentDiv);
+	modalDiv.appendChild(dialogDiv);
+
+	return modalDiv;
 }
 
 //===============================================================================================//

@@ -1,5 +1,7 @@
 import { z } from 'zod';
 //-----------------------------------------------------------------------------------------------//
+import { BadRequestError } from '#utils/errors.js';
+//-----------------------------------------------------------------------------------------------//
 import { createCharacterSchema }		   from './create-character/validation.js'
 import { manageBuildingsSchema }		   from './manage-buildings/validation.js'
 import { manageEmploymentContractsSchema } from './manage-employment-contracts/validation.js'
@@ -13,29 +15,37 @@ import { manageCooperativeSchema }         from './manage-cooperative/validation
 
 //===============================================================================================//
 
-const phasesSchema = z.strictObject({
-	createCharacter: 		   createCharacterSchema.optional().default(undefined),
-	manageBuildings: 		   manageBuildingsSchema.optional().default(undefined),
-	manageEmploymentContracts: manageEmploymentContractsSchema.optional().default(undefined),
-	manageRentalAgreements:    manageRentalAgreementsSchema.optional().default(undefined),
-	produce: 				   produceSchema.optional().default(undefined),
-	trade: 					   tradeSchema.optional().default(undefined),
-	share: 					   shareSchema.optional().default(undefined),
-	manageTime: 			   manageTimeSchema.optional().default(undefined),
-	consume: 				   consumeSchema.optional().default(undefined),
-	manageCooperative: 		   manageCooperativeSchema.optional().default(undefined)
+export const birthTurnSchema = z.strictObject({
+	createCharacter:   createCharacterSchema,
+	manageCooperative: manageCooperativeSchema
+});
+//-----------------------------------------------------------------------------------------------//
+export const normalTurnSchema = z.strictObject({
+	manageBuildings: 		   manageBuildingsSchema,
+	manageEmploymentContracts: manageEmploymentContractsSchema,
+	manageRentalAgreements:    manageRentalAgreementsSchema,
+	produce: 				   produceSchema,
+	trade:					   tradeSchema,
+	share:					   shareSchema,
+	manageTime: 			   manageTimeSchema,
+	consume: 				   consumeSchema,
+	manageCooperative: 		   manageCooperativeSchema
 });
 
 //===============================================================================================//
 
-export const startTurnSchema = z.strictObject({
-	overrule: z.coerce.boolean()
-});
-//-----------------------------------------------------------------------------------------------//
-export const finishTurnSchema = z.strictObject({
-	characterPhases: phasesSchema
-});
-//-----------------------------------------------------------------------------------------------//
-export const checkTurnVersionSchema = z.strictObject({
-	turnVersion: z.coerce.number().int().positive()
+export function validateActions({ turnSchema,
+								  actions }) {
+	const result = turnSchema.safeParse(actions);
+			
+	if (!result.success) 
+		throw new BadRequestError(z.prettifyError(result.error));
+	
+	return result.data;
+}
+
+//===============================================================================================//
+
+export const saveTurnSchema = z.strictObject({
+	actions: z.record(z.unknown())
 });
