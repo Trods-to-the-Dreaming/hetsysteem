@@ -846,7 +846,7 @@ body.modal-open {
 
 .form-control:disabled,
 .form-control:read-only {
-  background: none;
+  background: #dee2e6;
   opacity: 0.65;
 }
 .form-control:disabled:focus,
@@ -883,6 +883,7 @@ body.modal-open {
 
 .form-select:disabled {
   background-color: #dee2e6;
+  opacity: 0.65;
 }
 
 .form-check {

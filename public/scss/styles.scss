@@ -802,7 +802,7 @@ body.modal-open {
 }
 .form-control:disabled,
 .form-control:read-only {
-	background: none;
+	background: $gray-cloud;
 	opacity: 0.65;
 	
 	&:focus {
@@ -837,6 +837,7 @@ body.modal-open {
 }
 .form-select:disabled {
 	background-color: $gray-cloud;
+	opacity: 0.65;
 }
 
 .form-check {

@@ -33,76 +33,28 @@ await turn.phase.checkAccess('createCharacter');
 			<label for="job-preference-1-select" class="form-label">
 				Jobvoorkeur (★★★):
 			</label>
-			<select id="job-preference-1-select" class="form-select" required>
-				<option value="" 
-						{{#unless jobPreferences.[0].buildingId}}selected{{/unless}}
-						hidden disabled>
-					— kies een job —
-				</option>
-				{{#each jobs}}
-					<option value="{{id}}" 
-							{{#if (eq id ../jobPreferences.[0].buildingId)}}selected{{/if}}>
-						{{type}}
-					</option>
-				{{/each}}
-			</select>
+			<select id="job-preference-1-select" class="form-select" required></select>
 		</div>
 		
 		<div>
 			<label for="job-preference-2-select" class="form-label">
 				Jobvoorkeur (★★):
 			</label>
-			<select id="job-preference-2-select" class="form-select" required>
-				<option value="" 
-						{{#unless jobPreferences.[1].buildingId}}selected{{/unless}} 
-						hidden disabled>
-					— kies een job —
-				</option>
-				{{#each jobs}}
-					<option value="{{id}}" 
-							{{#if (eq id ../jobPreferences.[1].buildingId)}}selected{{/if}}>
-						{{type}}
-					</option>
-				{{/each}}
-			</select>
+			<select id="job-preference-2-select" class="form-select" required></select>
 		</div>
 		
 		<div>
 			<label for="job-preference-3-select" class="form-label">
 				Jobvoorkeur (★):
 			</label>
-			<select id="job-preference-3-select" class="form-select" required>
-				<option value="" 
-						{{#unless jobPreferences.[2].buildingId}}selected{{/unless}} 
-						hidden disabled>
-					— kies een job —
-				</option>
-				{{#each jobs}}
-					<option value="{{id}}" 
-							{{#if (eq id ../jobPreferences.[2].buildingId)}}selected{{/if}}>
-						{{type}}
-					</option>
-				{{/each}}
-			</select>
+			<select id="job-preference-3-select" class="form-select" required></select>
 		</div>
 		
 		<div>
 			<label for="recreation-preference-select" class="form-label">
 				Ontspanningsvoorkeur (★★★):
 			</label>
-			<select id="recreation-preference-select" class="form-select" required>
-				<option value="" 
-						{{#unless recreationPreference.productId}}selected{{/unless}} 
-						hidden disabled>
-					— kies een activiteit —
-				</option>
-				{{#each recreations}}
-					<option value="{{id}}" 
-							{{#if (eq id ../recreationPreference.productId)}}selected{{/if}}>
-						{{type}}
-					</option>
-				{{/each}}
-			</select>
+			<select id="recreation-preference-select" class="form-select" required></select>
 		</div>
 	</div>
 	
@@ -135,23 +87,30 @@ turn.phase.save = function() {
 		firstName: elements.firstName.value,
 		lastName: elements.lastName.value,
 		jobPreferences: elements.jobPreferences.map(
-			jobPreference => jobPreference.value
+			jobPreference => ({ buildingId: jobPreference.value })
 		),
-		recreationPreference: elements.recreationPreference.value
+		recreationPreference: { productId: elements.recreationPreference.value }
 	};
-	
-	turn.storage.save('characterPhases.createCharacter', createCharacter);
+
+	turn.storage.save({ key: 'actions.createCharacter', value: createCharacter });
 }
 //-----------------------------------------------------------------------------------------------//
 turn.phase.updateUI = function() {
 	elements.firstName.value = data.firstName;
 	elements.lastName.value = data.lastName;
 	elements.jobPreferences.forEach((jobPreference, index) => {
-		jobPreference.value = data.jobPreferences[index];
+		jobPreference.value = data.jobPreferences[index].buildingId;
 	});
-	elements.recreationPreference.value = data.recreationPreference;
+	elements.recreationPreference.value = data.recreationPreference.productId;
 	
 	handleJobPreferenceChange();
+	
+	elements.firstName.disabled = this.disabled;
+	elements.lastName.disabled = this.disabled;
+	elements.jobPreferences.forEach((jobPreference, index) => {
+		jobPreference.disabled = this.disabled;
+	});
+	elements.recreationPreference.disabled = this.disabled;
 }
 //-----------------------------------------------------------------------------------------------//
 turn.phase.confirm = async function () {
@@ -170,7 +129,7 @@ turn.phase.confirm = async function () {
 };
 //===============================================================================================//
 function loadData() {
-	const createCharacter = turn.storage.load('characterPhases.createCharacter') ?? {};
+	const createCharacter = turn.storage.load('actions.createCharacter') ?? {};
 	const jobs = turn.storage.load('constants.jobs');
 	const recreations = turn.storage.load('constants.recreations');
 	
