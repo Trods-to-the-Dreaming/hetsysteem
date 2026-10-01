@@ -23,15 +23,7 @@ export const limitSaveTurnRate = rateLimit({
 	keyGenerator: (req) => String(req.session.user.id)
 });
 //-----------------------------------------------------------------------------------------------//
-export const limitReserveCharacterNameRate = rateLimit({
-	windowMs: 60 * 1000,
-	max: 30,
-	standardHeaders: true,
-	legacyHeaders: false,
-	keyGenerator: (req) => String(req.session.user.id)
-});
-//-----------------------------------------------------------------------------------------------//
-export const limitReserveBuildingNameRate = rateLimit({
+export const limitReserveNameRate = rateLimit({
 	windowMs: 60 * 1000,
 	max: 30,
 	standardHeaders: true,

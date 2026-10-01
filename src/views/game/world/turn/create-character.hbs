@@ -69,14 +69,12 @@ import { turn } from '/js/turn-flow.js';
 import { validateName } from '/js/name.validation.js';
 //-----------------------------------------------------------------------------------------------//
 let elements;
-let data;
 //-----------------------------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
 	turn.phase.initialize();
 });
 //===============================================================================================//
 turn.phase.load = function() {
-	loadData();
 	cacheElements();
 	initializeControls();
 	addEventListeners();
@@ -96,13 +94,6 @@ turn.phase.save = function() {
 }
 //-----------------------------------------------------------------------------------------------//
 turn.phase.updateUI = function() {
-	elements.firstName.value = data.firstName;
-	elements.lastName.value = data.lastName;
-	elements.jobPreferences.forEach((jobPreference, index) => {
-		jobPreference.value = data.jobPreferences[index].buildingId;
-	});
-	elements.recreationPreference.value = data.recreationPreference.productId;
-	
 	handleJobPreferenceChange();
 	
 	elements.firstName.disabled = this.disabled;
@@ -128,21 +119,6 @@ turn.phase.confirm = async function () {
     return true;
 };
 //===============================================================================================//
-function loadData() {
-	const createCharacter = turn.storage.load('actions.createCharacter') ?? {};
-	const jobs = turn.storage.load('constants.jobs');
-	const recreations = turn.storage.load('constants.recreations');
-	
-	data = {
-		firstName: createCharacter.firstName ?? '',
-		lastName: createCharacter.lastName ?? '',
-		jobPreferences: createCharacter.jobPreferences ?? ['', '', ''],
-		recreationPreference: createCharacter.recreationPreference ?? '',
-		jobs,
-		recreations
-	};
-}
-//-----------------------------------------------------------------------------------------------//
 function cacheElements() {
 	elements = {
 		firstName: document.getElementById('first-name-input'),
@@ -158,21 +134,34 @@ function cacheElements() {
 }
 //-----------------------------------------------------------------------------------------------//
 function initializeControls() {
+	const jobs = turn.storage.load('constants.jobs');
+	
 	elements.jobPreferences.forEach((jobPreference) => {
 		turn.phase.populateSelect({
 			select: jobPreference,
 			optionName: 'job',
-			items: data.jobs,
+			items: jobs,
 			textField: 'type'
 		});
 	});
 	
+	const recreations = turn.storage.load('constants.recreations');
+	
 	turn.phase.populateSelect({
 		select: elements.recreationPreference,
 		optionName: 'ontspanning',
-		items: data.recreations,
+		items: recreations,
 		textField: 'type'
 	});
+	
+	const createCharacter = turn.storage.load('actions.createCharacter');
+	
+	elements.firstName.value = createCharacter.firstName;
+	elements.lastName.value = createCharacter.lastName;
+	elements.jobPreferences.forEach((jobPreference, index) => {
+		jobPreference.value = createCharacter.jobPreferences[index].buildingId;
+	});
+	elements.recreationPreference.value = createCharacter.recreationPreference.productId;
 }
 //-----------------------------------------------------------------------------------------------//
 function addEventListeners() {

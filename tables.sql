@@ -337,9 +337,22 @@ CREATE TABLE rental_agreements (
 
 CREATE TABLE cooperatives (
 	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	world_id TINYINT UNSIGNED NOT NULL,
 	name VARCHAR(32) NOT NULL,
-	leader_id INT UNSIGNED UNIQUE,
-	FOREIGN KEY (leader_id) REFERENCES characters(id) ON DELETE SET NULL
+	FOREIGN KEY (world_id) REFERENCES worlds(id)
+);
+
+CREATE UNIQUE INDEX unique_cooperative
+ON cooperatives (
+	world_id,
+	(LOWER(name))
+);
+
+CREATE TABLE cooperative_states (
+	cooperative_id INT UNSIGNED PRIMARY KEY,
+	is_open BOOLEAN NOT NULL,
+    max_members SMALLINT UNSIGNED NOT NULL
+	FOREIGN KEY (cooperative_id) REFERENCES cooperatives(id) ON DELETE CASCADE
 );
 
 CREATE TABLE cooperative_members (
@@ -560,21 +573,16 @@ CREATE TABLE join_actions (
 
 CREATE TABLE found_actions (
 	cooperative_id INT UNSIGNED PRIMARY KEY,
+	is_open BOOLEAN NOT NULL,
+    max_members SMALLINT UNSIGNED NOT NULL
 	FOREIGN KEY (cooperative_id) REFERENCES cooperatives(id) ON DELETE CASCADE
 );
 
 CREATE TABLE invite_actions (
     member_id INT UNSIGNED PRIMARY KEY,
-	cooperative_id INT UNSIGNED,
+	cooperative_id INT UNSIGNED NOT NULL,
 	FOREIGN KEY (member_id) REFERENCES characters(id) ON DELETE CASCADE,
 	FOREIGN KEY (cooperative_id) REFERENCES cooperatives(id) ON DELETE CASCADE
-);
-
-CREATE TABLE transfer_actions (
-	leader_id INT UNSIGNED PRIMARY KEY,
-	successor_id INT UNSIGNED NOT NULL,
-	FOREIGN KEY (leader_id) REFERENCES characters(id) ON DELETE CASCADE,
-	FOREIGN KEY (successor_id) REFERENCES characters(id) ON DELETE CASCADE
 );
 
 

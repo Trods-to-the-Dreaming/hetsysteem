@@ -49,5 +49,5 @@ export const createCharacterSchema = z.strictObject({
 //-----------------------------------------------------------------------------------------------//
 export const reserveCharacterNameSchema = z.strictObject({
 	firstName: firstNameSchema,
-	lastName: lastNameSchema,
+	lastName: lastNameSchema
 });

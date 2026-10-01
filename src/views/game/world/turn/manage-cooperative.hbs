@@ -73,10 +73,10 @@ await turn.phase.checkAccess('manageCooperative');
 			<div class="modal-body">
 				<div class="stack">
 					<div>
-						<label for="join-select" class="form-label">
+						<label for="join-procedure-select" class="form-label">
 							Procedure:
 						</label>
-						<select id="join-select" class="form-select" required>
+						<select id="join-procedure-select" class="form-select" required>
 							<option value="available" selected>
 								Waar er plaats is
 							</option>
@@ -129,14 +129,14 @@ await turn.phase.checkAccess('manageCooperative');
 					</div>
 					
 					<div>
-						<label for="join-policy-select" class="form-label">
+						<label for="found-policy-select" class="form-label">
 							Toetreding:
 						</label>
-						<select id="join-policy-select" class="form-select" required>
+						<select id="found-policy-select" class="form-select" required>
 							<option value="invite-only" selected>
 								Alleen op uitnodiging
 							</option>
-							<option value="open" selected>
+							<option value="open">
 								Open voor iedereen
 							</option>
 						</select>
@@ -210,23 +210,25 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 //===============================================================================================//
 turn.phase.load = function() {
-	/*loadData();
+	loadData();
 	cacheElements();
 	initializeControls();
-	addEventListeners();*/
+	addEventListeners();
 }
 //-----------------------------------------------------------------------------------------------//
 turn.phase.save = function() {
-	/*const createCharacter = {
-		firstName: elements.firstName.value,
-		lastName: elements.lastName.value,
-		jobPreferences: elements.jobPreferences.map(
-			jobPreference => jobPreference.value
-		),
-		recreationPreference: elements.recreationPreference.value
+	const manageCooperative = {
+		leaveAction: elements.leave.checked,
+		joinAction: elements.join.value === 'available'
+			? { cooperativeId: null }
+			: { cooperativeId: elements.joinName },
+		foundAction: null,
+		inviteActions: null
 	};
 	
-	turn.storage.save('characterPhases.createCharacter', createCharacter);*/
+	...?
+	
+	turn.storage.save({ key: 'actions.manageCooperative', value: manageCooperative });
 }
 //-----------------------------------------------------------------------------------------------//
 turn.phase.updateUI = function() {
@@ -254,5 +256,131 @@ turn.phase.confirm = async function () {
 	
     return true;*/
 };
+//===============================================================================================//
+function loadData() {
+	const manageCooperative = turn.storage.load('actions.manageCooperative');
+	const jobs = turn.storage.load('constants.jobs');
+	const recreations = turn.storage.load('constants.recreations');
+	
+	data = {
+		cooperativeName: manageCooperative.cooperativeName,
+		lastName: createCharacter.lastName,
+		jobPreferences: createCharacter.jobPreferences,
+		recreationPreference: createCharacter.recreationPreference,
+		jobs,
+		recreations
+	};
+}
+//-----------------------------------------------------------------------------------------------//
+function cacheElements() {
+	elements = {
+		leave: document.getElementById('leave-input'),
+		joinProcedure: document.getElementById('join-procedure-select'),
+		joinName: document.getElementById('join-name-input'),
+		joinNameError: document.getElementById('join-name-error'),
+		join: document.getElementById('join-button'),
+		
+		
+		
+		
+		cooperativeName: document.getElementById('first-name-input'),
+		lastName: document.getElementById('last-name-input'),
+		jobPreferences: [
+			document.getElementById('job-preference-1-select'),
+			document.getElementById('job-preference-2-select'),
+			document.getElementById('job-preference-3-select')
+		],
+		recreationPreference: document.getElementById('recreation-preference-select'),
+		characterNameError: document.getElementById('character-name-error')
+	};
+
+					
+					
+}
+//-----------------------------------------------------------------------------------------------//
+function initializeControls() {
+	elements.jobPreferences.forEach((jobPreference) => {
+		turn.phase.populateSelect({
+			select: jobPreference,
+			optionName: 'job',
+			items: data.jobs,
+			textField: 'type'
+		});
+	});
+	
+	turn.phase.populateSelect({
+		select: elements.recreationPreference,
+		optionName: 'ontspanning',
+		items: data.recreations,
+		textField: 'type'
+	});
+}
+//-----------------------------------------------------------------------------------------------//
+function addEventListeners() {
+	elements.firstName.addEventListener('input', handleFirstNameInput);
+	elements.lastName.addEventListener('input', handleLastNameInput);
+	elements.jobPreferences.forEach((jobPreference) => {
+		jobPreference.addEventListener('change', handleJobPreferenceChange);
+	});
+}
+//-----------------------------------------------------------------------------------------------//
+function validateCharacter() {
+	const fields = [
+		elements.firstName,
+		elements.lastName,
+		...elements.jobPreferences,
+		elements.recreationPreference
+	];
+
+	for (const field of fields) {
+		if (!field.reportValidity())
+			return false;
+	}
+
+	return true;
+}
+//-----------------------------------------------------------------------------------------------//
+async function reserveCharacterName() {
+	try {
+		const res = await fetch('/game/world/turn/create-character/reserve-character-name', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ 
+				firstName: elements.firstName.value, 
+				lastName: elements.lastName.value
+			})
+		});
+		
+		const json = await res.json();
+		
+		if (json.error) {
+			elements.characterNameError.textContent = json.error;
+			return null;
+		}
+		
+		const reserved = {
+			firstName: json.data.firstName,
+			lastName: json.data.lastName
+		};
+		
+		return reserved;
+	} catch (err) {
+		alert('De server is momenteel niet bereikbaar.');
+		return null;
+	}
+}
+//===============================================================================================//
+function handleFirstNameInput() {
+	elements.characterNameError.textContent = '';
+	
+	const args = {
+		nameInput: elements.firstName,
+		minLength: 3,
+		maxLength: 20,
+		regex: /^\p{L}+(?:[ '-]\p{L}+)*$/u
+	};
+	
+	validateName(args);
+}
 //-----------------------------------------------------------------------------------------------//
 </script>

@@ -7,8 +7,6 @@ import {
 } from '#modules/game/error.js';
 //-----------------------------------------------------------------------------------------------//
 import {
-	/*listJobs,
-	listRecreations,*/
 	lockWorld,
 	lockCharacter,
 	findCharacter,
@@ -28,16 +26,6 @@ const MSG_INVALID_PREFERENCE = 'Ongeldige job- of recreatievoorkeur.'
 
 //===============================================================================================//
 
-/*export async function prepareCreateCharacterOptions() {
-	const jobs = await listJobs();
-	const recreations = await listRecreations();
-	
-	return {
-		jobs,
-		recreations
-	}
-}*/
-//-----------------------------------------------------------------------------------------------//
 export async function loadCreateCharacter({ characterId,
 											trx = knex }) {
 	if (!characterId) {

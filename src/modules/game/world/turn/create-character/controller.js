@@ -3,9 +3,7 @@ import {
 	GameError 
 } from '#modules/game/error.js';
 //-----------------------------------------------------------------------------------------------//
-import { 
-	reserveCharacterName
-} from './service.js';
+import { reserveCharacterName } from './service.js';
 
 //===============================================================================================//
 
@@ -47,4 +45,4 @@ export async function handleReserveCharacterName(req, res) {
 //-----------------------------------------------------------------------------------------------//
 export function showNoNewCharacters(req, res) {
 	return res.render('game/world/turn/create-character/no-new-characters');
-};
+}

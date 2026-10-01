@@ -1,4 +1,9 @@
 import knex from '#utils/db.js';
+//-----------------------------------------------------------------------------------------------//
+import { 
+	GAME_ERROR,
+	GameError 
+} from '#modules/game/error.js';
 
 //===============================================================================================//
 
@@ -18,4 +23,41 @@ export async function saveManageCooperative({ characterId,
 //-----------------------------------------------------------------------------------------------//
 export async function processManageCooperative(trx) {
 	
+}
+//-----------------------------------------------------------------------------------------------//
+export async function reserveCooperativeName({ userId, 
+											   worldId, 
+											   cooperativeName }) {
+	return knex.transaction(async (trx) => {
+		const cooperative = await lockCooperative({ 
+			userId, 
+			worldId,
+			trx 
+		});
+		
+		try {
+			if (cooperative) {
+				await updateCooperative({ 
+					cooperativeId: cooperative.id, 
+					cooperativeName, 
+					trx 
+				});
+				return { cooperativeName };
+			}
+			
+			await insertCooperative({
+				userId,
+				worldId,
+				cooperativeName,
+				trx
+			});
+			
+			return { cooperativeName };
+		} catch (err) {
+			if (err.code === 'ER_DUP_ENTRY')
+				throw new GameError(GAME_ERROR.COOPERATIVE_NAME_TAKEN);
+			
+			throw err;
+		}
+	});
 }

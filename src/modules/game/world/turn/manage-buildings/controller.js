@@ -9,7 +9,7 @@ import {
 
 export function showManageBuildings(req, res) {
 	return res.render('game/world/turn/manage-buildings');
-};
+}
 //-----------------------------------------------------------------------------------------------//
 export async function handleReserveBuildingName(req, res) {
 	const { user, world } = req.session;

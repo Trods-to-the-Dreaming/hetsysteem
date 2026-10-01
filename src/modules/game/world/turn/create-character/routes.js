@@ -4,7 +4,7 @@ import { requireLogin } from '#middleware/auth.js';
 import { requireValidation } from '#middleware/validate.js';
 //-----------------------------------------------------------------------------------------------//
 import { 
-	limitReserveCharacterNameRate,
+	limitReserveNameRate,
 	requireWorldEntered,
 	requireCanPlayTurn
 } from '#modules/game/middleware.js';
@@ -28,7 +28,7 @@ router.get('/',
 );
 //-----------------------------------------------------------------------------------------------//
 router.post('/reserve-character-name',
-	limitReserveCharacterNameRate,
+	limitReserveNameRate,
 	requireLogin,
 	requireWorldEntered,
 	requireCanPlayTurn,

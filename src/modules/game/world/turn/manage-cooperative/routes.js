@@ -4,11 +4,16 @@ import { requireLogin } from '#middleware/auth.js';
 import { requireValidation } from '#middleware/validate.js';
 //-----------------------------------------------------------------------------------------------//
 import { 
+	limitReserveNameRate,
 	requireWorldEntered,
 	requireCanPlayTurn
 } from '#modules/game/middleware.js';
 //-----------------------------------------------------------------------------------------------//
-import { showManageCooperative } from './controller.js';
+import { reserveCooperativeNameSchema } from './validation.js';
+import { 
+	showManageCooperative,
+	handleReserveCooperativeName
+} from './controller.js';
 
 //===============================================================================================//
 
@@ -19,6 +24,15 @@ router.get('/',
 	requireWorldEntered,
 	requireCanPlayTurn,
 	showManageCooperative
+);
+//-----------------------------------------------------------------------------------------------//
+router.post('/reserve-cooperative-name',
+	limitReserveNameRate,
+	requireLogin,
+	requireWorldEntered,
+	requireCanPlayTurn,
+	requireValidation(reserveCooperativeNameSchema),
+	handleReserveCooperativeName
 );
 
 //===============================================================================================//

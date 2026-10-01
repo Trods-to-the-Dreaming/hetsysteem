@@ -4,7 +4,7 @@ import { requireLogin } from '#middleware/auth.js';
 import { requireValidation } from '#middleware/validate.js';
 //-----------------------------------------------------------------------------------------------//
 import { 
-	limitReserveBuildingNameRate,
+	limitReserveNameRate,
 	requireWorldEntered,
 	requireCanPlayTurn
 } from '#modules/game/middleware.js';
@@ -31,7 +31,7 @@ router.get('/',
 );
 //-----------------------------------------------------------------------------------------------//
 router.post('/reserve-building-name',
-	limitReserveBuildingNameRate,
+	limitReserveNameRate,
 	requireLogin,
 	requireWorldEntered,
 	requireCanPlayTurn,
