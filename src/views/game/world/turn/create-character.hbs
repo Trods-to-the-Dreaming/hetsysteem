@@ -69,19 +69,27 @@ import { turn } from '/js/turn-flow.js';
 import { validateName } from '/js/name.validation.js';
 //-----------------------------------------------------------------------------------------------//
 let elements;
+let constants;
+let createCharacter;
 //-----------------------------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
 	turn.phase.initialize();
 });
 //===============================================================================================//
 turn.phase.load = function() {
+	constants = {
+		jobs: turn.storage.load('constants.jobs'),
+		recreations: turn.storage.load('constants.recreations')
+	}
+	createCharacter = turn.storage.load('actions.createCharacter');
+	
 	cacheElements();
-	initializeControls();
 	addEventListeners();
+	initializeControls();
 }
 //-----------------------------------------------------------------------------------------------//
 turn.phase.save = function() {
-	const createCharacter = {
+	createCharacter = {
 		firstName: elements.firstName.value,
 		lastName: elements.lastName.value,
 		jobPreferences: elements.jobPreferences.map(
@@ -133,28 +141,30 @@ function cacheElements() {
 	};
 }
 //-----------------------------------------------------------------------------------------------//
+function addEventListeners() {
+	elements.firstName.addEventListener('input', handleFirstNameInput);
+	elements.lastName.addEventListener('input', handleLastNameInput);
+	elements.jobPreferences.forEach((jobPreference) => {
+		jobPreference.addEventListener('change', handleJobPreferenceChange);
+	});
+}
+//-----------------------------------------------------------------------------------------------//
 function initializeControls() {
-	const jobs = turn.storage.load('constants.jobs');
-	
 	elements.jobPreferences.forEach((jobPreference) => {
 		turn.phase.populateSelect({
 			select: jobPreference,
 			optionName: 'job',
-			items: jobs,
+			items: constants.jobs,
 			textField: 'type'
 		});
 	});
 	
-	const recreations = turn.storage.load('constants.recreations');
-	
 	turn.phase.populateSelect({
 		select: elements.recreationPreference,
 		optionName: 'ontspanning',
-		items: recreations,
+		items: constants.recreations,
 		textField: 'type'
 	});
-	
-	const createCharacter = turn.storage.load('actions.createCharacter');
 	
 	elements.firstName.value = createCharacter.firstName;
 	elements.lastName.value = createCharacter.lastName;
@@ -162,14 +172,6 @@ function initializeControls() {
 		jobPreference.value = createCharacter.jobPreferences[index].buildingId;
 	});
 	elements.recreationPreference.value = createCharacter.recreationPreference.productId;
-}
-//-----------------------------------------------------------------------------------------------//
-function addEventListeners() {
-	elements.firstName.addEventListener('input', handleFirstNameInput);
-	elements.lastName.addEventListener('input', handleLastNameInput);
-	elements.jobPreferences.forEach((jobPreference) => {
-		jobPreference.addEventListener('change', handleJobPreferenceChange);
-	});
 }
 //-----------------------------------------------------------------------------------------------//
 function validateCharacter() {
@@ -206,12 +208,10 @@ async function reserveCharacterName() {
 			return null;
 		}
 		
-		const reserved = {
+		return {
 			firstName: json.data.firstName,
 			lastName: json.data.lastName
 		};
-		
-		return reserved;
 	} catch (err) {
 		alert('De server is momenteel niet bereikbaar.');
 		return null;
@@ -221,27 +221,23 @@ async function reserveCharacterName() {
 function handleFirstNameInput() {
 	elements.characterNameError.textContent = '';
 	
-	const args = {
+	validateName({
 		nameInput: elements.firstName,
 		minLength: 3,
 		maxLength: 20,
 		regex: /^\p{L}+(?:[ '-]\p{L}+)*$/u
-	};
-	
-	validateName(args);
+	});
 }
 //-----------------------------------------------------------------------------------------------//
 function handleLastNameInput() {
 	elements.characterNameError.textContent = '';
-	
-	const args = {
+
+	validateName({
 		nameInput: elements.lastName,
 		minLength: 3,
 		maxLength: 20,
 		regex: /^\p{L}+(?:[ '-]\p{L}+)*$/u
-	};
-	
-	validateName(args);
+	});
 }
 //-----------------------------------------------------------------------------------------------//
 function handleJobPreferenceChange() {

@@ -17,30 +17,30 @@ await turn.phase.checkAccess('manageCooperative');
 	<h2>🚪 Verlaten</h2>
 	
 	<div class="mt-md form-check">
-		<input id="leave-input" class="form-check-input" type="checkbox">
-		<label for="leave-input" class="form-check-label">
+		<input id="leave-action-input" class="form-check-input" type="checkbox">
+		<label for="leave-action-input" class="form-check-label">
 			<span id="cooperative-name-span"></span> verlaten
 		</label>
 	</div>
 	
 	<h2>🤝 Toetreden</h2>
 	
-	<ul id="join-actions-ul" class="list-compact d-none"></ul>
+	<ul id="join-action-ul" class="list-compact d-none"></ul>
 	
 	<div class="mt-md">
-		<button id="open-join-window-button" class="btn btn--secondary" type="button" 
-				data-bs-toggle="modal" data-bs-target="#join-window">
+		<button id="open-join-modal-button" class="btn btn--secondary" type="button" 
+				data-bs-toggle="modal" data-bs-target="#join-modal">
 			<span class="btn-front">Toetreden tot coöperatie...</span>
 		</button>
 	</div>
 	
 	<h2>🌱 Oprichten</h2>
 	
-	<ul id="found-actions-ul" class="list-compact d-none"></ul>
+	<ul id="found-action-ul" class="list-compact d-none"></ul>
 	
 	<div class="mt-md">
-		<button id="open-found-window-button" class="btn btn--secondary" type="button" 
-				data-bs-toggle="modal" data-bs-target="#found-window">
+		<button id="open-found-modal-button" class="btn btn--secondary" type="button" 
+				data-bs-toggle="modal" data-bs-target="#found-modal">
 			<span class="btn-front">Coöperatie oprichten...</span>
 		</button>
 	</div>
@@ -50,8 +50,8 @@ await turn.phase.checkAccess('manageCooperative');
 	<ul id="invite-actions-ul" class="list-compact d-none"></ul>
 	
 	<div class="mt-md">
-		<button id="open-invite-window-button" class="btn btn--secondary" type="button" 
-				data-bs-toggle="modal" data-bs-target="#invite-window">
+		<button id="open-invite-modal-button" class="btn btn--secondary" type="button" 
+				data-bs-toggle="modal" data-bs-target="#invite-modal">
 			<span class="btn-front">Speler uitnodigen...</span>
 		</button>
 	</div>
@@ -59,7 +59,7 @@ await turn.phase.checkAccess('manageCooperative');
 
 <!------------------------------------------------------------------------------------------------>
 
-<div id="join-window" class="modal fade" 
+<div id="join-modal" class="modal fade" 
 	 tabindex="-1" role="dialog" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -73,15 +73,15 @@ await turn.phase.checkAccess('manageCooperative');
 			<div class="modal-body">
 				<div class="stack">
 					<div>
-						<label for="join-procedure-select" class="form-label">
-							Procedure:
+						<label for="join-method-select" class="form-label">
+							Manier:
 						</label>
-						<select id="join-procedure-select" class="form-select" required>
-							<option value="available" selected>
-								Waar er plaats is
-							</option>
-							<option value="choose">
+						<select id="join-method-select" class="form-select" required>
+							<option value="choose" selected>
 								Zelf kiezen
+							</option>
+							<option value="random">
+								Willekeurig
 							</option>
 						</select>
 					</div>
@@ -108,7 +108,7 @@ await turn.phase.checkAccess('manageCooperative');
 
 <!------------------------------------------------------------------------------------------------>
 
-<div id="found-window" class="modal fade" 
+<div id="found-modal" class="modal fade" 
 	 tabindex="-1" role="dialog" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -129,11 +129,11 @@ await turn.phase.checkAccess('manageCooperative');
 					</div>
 					
 					<div>
-						<label for="found-policy-select" class="form-label">
+						<label for="found-access-select" class="form-label">
 							Toetreding:
 						</label>
-						<select id="found-policy-select" class="form-select" required>
-							<option value="invite-only" selected>
+						<select id="found-access-select" class="form-select" required>
+							<option value="private" selected>
 								Alleen op uitnodiging
 							</option>
 							<option value="open">
@@ -142,11 +142,11 @@ await turn.phase.checkAccess('manageCooperative');
 						</select>
 					</div>
 					
-					<div id="max-members-div">
-						<label for="max-members-input" class="form-label">
+					<div>
+						<label for="found-max-members-input" class="form-label">
 							Maximum aantal leden:
 						</label>
-						<input id="max-members-input" class="form-control" type="number" 
+						<input id="found-max-members-input" class="form-control" type="number" 
 							   min="2" max="100" required>
 					</div>
 				</div>
@@ -165,7 +165,7 @@ await turn.phase.checkAccess('manageCooperative');
 
 <!------------------------------------------------------------------------------------------------>
 
-<div id="invite-window" class="modal fade" 
+<div id="invite-modal" class="modal fade" 
 	 tabindex="-1" role="dialog" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -203,30 +203,47 @@ await turn.phase.checkAccess('manageCooperative');
 import { turn } from '/js/turn-flow.js';
 //-----------------------------------------------------------------------------------------------//
 let elements;
-let data;
+let modals;
+let state;
+let manageCooperative;
 //-----------------------------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
 	turn.phase.initialize();
 });
 //===============================================================================================//
 turn.phase.load = function() {
-	loadData();
+	state = {
+		?: turn.storage.load('state.?')
+	}
+	manageCooperative = turn.storage.load('actions.manageCooperative');
+	
 	cacheElements();
-	initializeControls();
+	createModals();
 	addEventListeners();
+	initializeControls();
 }
 //-----------------------------------------------------------------------------------------------//
 turn.phase.save = function() {
 	const manageCooperative = {
-		leaveAction: elements.leave.checked,
-		joinAction: elements.join.value === 'available'
-			? { cooperativeId: null }
-			: { cooperativeId: elements.joinName },
-		foundAction: null,
-		inviteActions: null
+		leaveAction: data.leave,
+		joinAction: data.join ? data.joinAction : null,
+		foundAction: data.found ? data.foundAction : null,
+		inviteActions: data.leave ? data.leaveAction : null
 	};
 	
-	...?
+	
+	
+
+	const manageCooperative = {
+		leaveAction: elements.leaveAction.checked,
+		joinAction: elements.joinAction.children.length !=== 0 ?
+			,
+			
+			// hoe? de info zit in de <li>
+		foundAction: ...,// hoe? de info zit in de <li>
+		inviteActions: ...// hoe? de info zit in de <li>s
+	};
+	
 	
 	turn.storage.save({ key: 'actions.manageCooperative', value: manageCooperative });
 }
@@ -240,6 +257,11 @@ turn.phase.updateUI = function() {
 	elements.recreationPreference.value = data.recreationPreference;
 	
 	handleJobPreferenceChange();*/
+	
+	elements.joinMethod.value === 'available'
+			? { cooperativeId: null }
+			: { cooperativeId: elements.joinName }
+			
 }
 //-----------------------------------------------------------------------------------------------//
 turn.phase.confirm = async function () {
@@ -257,45 +279,51 @@ turn.phase.confirm = async function () {
     return true;*/
 };
 //===============================================================================================//
-function loadData() {
-	const manageCooperative = turn.storage.load('actions.manageCooperative');
-	const jobs = turn.storage.load('constants.jobs');
-	const recreations = turn.storage.load('constants.recreations');
-	
-	data = {
-		cooperativeName: manageCooperative.cooperativeName,
-		lastName: createCharacter.lastName,
-		jobPreferences: createCharacter.jobPreferences,
-		recreationPreference: createCharacter.recreationPreference,
-		jobs,
-		recreations
-	};
-}
-//-----------------------------------------------------------------------------------------------//
 function cacheElements() {
 	elements = {
-		leave: document.getElementById('leave-input'),
-		joinProcedure: document.getElementById('join-procedure-select'),
+		leaveAction: document.getElementById('leave-action-input'),
+		openJoinWindow: document.getElementById('open-join-modal-button'),
+		joinMethod: document.getElementById('join-method-select'),
+		joinNameField: document.getElementById('join-name-div'),
 		joinName: document.getElementById('join-name-input'),
 		joinNameError: document.getElementById('join-name-error'),
 		join: document.getElementById('join-button'),
-		
-		
-		
-		
-		cooperativeName: document.getElementById('first-name-input'),
-		lastName: document.getElementById('last-name-input'),
-		jobPreferences: [
-			document.getElementById('job-preference-1-select'),
-			document.getElementById('job-preference-2-select'),
-			document.getElementById('job-preference-3-select')
-		],
-		recreationPreference: document.getElementById('recreation-preference-select'),
-		characterNameError: document.getElementById('character-name-error')
+		joinAction: document.getElementById('join-action-ul'),
+		openFoundWindow: document.getElementById('open-found-modal-button'),
+		foundAccess: document.getElementById('found-access-select'),
+		foundMaxMembers: document.getElementById('found-max-members-input'),
+		foundName: document.getElementById('found-name-input'),
+		foundNameError: document.getElementById('found-name-error'),
+		found: document.getElementById('found-button'),
+		foundAction: document.getElementById('found-action-ul'),
+		openInviteWindow: document.getElementById('open-invite-modal-button'),
+		inviteName: document.getElementById('invite-name-input'),
+		inviteNameError: document.getElementById('invite-name-error'),
+		invite: document.getElementById('invite-button'),
+		inviteAction: document.getElementById('invite-actions-ul')
 	};
-
-					
-					
+}
+//-----------------------------------------------------------------------------------------------//
+function createModals() {
+	modals = {
+		join: bootstrap.Modal.getOrCreateInstance(
+			document.getElementById('join-modal')
+		);
+		found: bootstrap.Modal.getOrCreateInstance(
+			document.getElementById('found-modal')
+		);
+		invite: bootstrap.Modal.getOrCreateInstance(
+			document.getElementById('invite-modal')
+		);
+	}
+}
+//-----------------------------------------------------------------------------------------------//
+function addEventListeners() {
+	elements.join.addEventListener('click', handleJoin);
+	elements.found.addEventListener('click', handleFound);
+	elements.invite.addEventListener('click', handleInvite);
+	
+	elements.joinMethod.addEventListener('change', handleJoinMethodChange);
 }
 //-----------------------------------------------------------------------------------------------//
 function initializeControls() {
@@ -316,14 +344,6 @@ function initializeControls() {
 	});
 }
 //-----------------------------------------------------------------------------------------------//
-function addEventListeners() {
-	elements.firstName.addEventListener('input', handleFirstNameInput);
-	elements.lastName.addEventListener('input', handleLastNameInput);
-	elements.jobPreferences.forEach((jobPreference) => {
-		jobPreference.addEventListener('change', handleJobPreferenceChange);
-	});
-}
-//-----------------------------------------------------------------------------------------------//
 function validateCharacter() {
 	const fields = [
 		elements.firstName,
@@ -340,47 +360,227 @@ function validateCharacter() {
 	return true;
 }
 //-----------------------------------------------------------------------------------------------//
-async function reserveCharacterName() {
+async function findCooperative() {
+	if (elements.joinMethod.value === 'random') {
+		return {
+			id: null,
+			name: '(willekeurig)'
+		}
+	}
+	
 	try {
-		const res = await fetch('/game/world/turn/create-character/reserve-character-name', {
+		const res = await fetch('/game/world/turn/manage-cooperative/find-cooperative', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ 
-				firstName: elements.firstName.value, 
-				lastName: elements.lastName.value
-			})
+			body: JSON.stringify({ cooperativeName: elements.joinName.value })
 		});
 		
 		const json = await res.json();
 		
 		if (json.error) {
-			elements.characterNameError.textContent = json.error;
+			elements.joinNameError.textContent = json.error;
 			return null;
 		}
 		
-		const reserved = {
-			firstName: json.data.firstName,
-			lastName: json.data.lastName
-		};
+		return {
+			id: json.data.cooperativeId,
+			name: json.data.cooperativeName
+		}
+	} catch (err) {
+		alert('De server is momenteel niet bereikbaar.');
+		return null;
+	}
+}
+//-----------------------------------------------------------------------------------------------//
+async function reserveCooperativeName() {	
+	try {
+		const res = await fetch('/game/world/turn/manage-cooperative/reserve-cooperative-name', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ cooperativeName: elements.foundName.value })
+		});
 		
-		return reserved;
+		const json = await res.json();
+		
+		if (json.error) {
+			elements.cooperativeNameError.textContent = json.error;
+			return null;
+		}
+		
+		return {
+			id: json.data.cooperativeId,
+			name: json.data.cooperativeName
+		};
 	} catch (err) {
 		alert('De server is momenteel niet bereikbaar.');
 		return null;
 	}
 }
 //===============================================================================================//
-function handleFirstNameInput() {
-	elements.characterNameError.textContent = '';
+function handleJoin() {
+	const cooperative = await findCooperative();
 	
-	const args = {
-		nameInput: elements.firstName,
+	if (!cooperative)
+		return;
+	
+	manageCooperative.joinAction = { 
+		cooperativeId: cooperative.id,
+		cooperativeName: cooperative.name 
+	};
+	
+	turn.phase.updateUI();
+	
+	modals.join.hide();	
+}
+//-----------------------------------------------------------------------------------------------//
+function handleFound() {
+	const cooperative = await reserveCooperativeName();
+	
+	if (!cooperative)
+		return;
+	
+	manageCooperative.foundAction = { 
+		cooperativeId: cooperative.id,
+		cooperativeName: cooperative.name,
+		isOpen: elements.foundAccess.value === 'open',
+		maxMembers: elements.foundMaxMembers.value
+	};
+	
+	turn.phase.updateUI();
+	
+	modals.found.hide();	
+}
+//-----------------------------------------------------------------------------------------------//
+function handleJoinNameInput() {
+	elements.joinNameError.textContent = '';
+
+	validateName({
+		nameInput: elements.joinName,
 		minLength: 3,
 		maxLength: 20,
 		regex: /^\p{L}+(?:[ '-]\p{L}+)*$/u
-	};
-	
-	validateName(args);
+	});
 }
 //-----------------------------------------------------------------------------------------------//
+function handleFoundNameInput() {
+	elements.foundNameError.textContent = '';
+
+	validateName({
+		nameInput: elements.foundName,
+		minLength: 3,
+		maxLength: 20,
+		regex: /^\p{L}+(?:[ '-]\p{L}+)*$/u
+	});
+}
+//-----------------------------------------------------------------------------------------------//
+/*function handleFoundMaxMembersInput() {
+	validateName({
+		nameInput: elements.foundName,
+		minLength: 3,
+		maxLength: 20,
+		regex: /^\p{L}+(?:[ '-]\p{L}+)*$/u
+	});
+}*/
+//-----------------------------------------------------------------------------------------------//
+
+function handleJoinMethodChange() {
+	elements.joinNameField.classList.toggle(
+        'd-none',
+        elements.joinMethod.value === 'random'
+    );
+}
+//-----------------------------------------------------------------------------------------------//
+function renderJoinAction() {
+	elements.joinAction.innerHTML = '';
+	
+	if (manageCooperative.joinAction) {
+		const li = document.createElement('li');
+		li.className = 'list-item-justify';
+		
+		if (manageCooperative.joinAction.cooperativeId !== null)
+			li.dataset.cooperativeId = manageCooperative.joinAction.cooperativeId;
+		
+		const span = document.createElement('span');
+		span.textContent = manageCooperative.joinAction.cooperativeName;
+		
+		const button = document.createElement('button');
+		button.type = 'button';
+		button.classList.add('btn-close');
+		button.disabled = turn.phase.disabled;
+		
+		button.addEventListener('click', () => {
+			if (button.disabled)
+				return;
+			
+			manageCooperative.joinAction = null;
+			turn.phase.updateUI();
+		});
+		
+		li.appendChild(span);
+		li.appendChild(button);
+		elements.joinAction.appendChild(li);
+	}
+	
+	elements.joinAction.classList.toggle(
+        'd-none',
+        !manageCooperative.joinAction
+    );
+	
+	elements.openJoinWindow.disabled = 
+		(state.hasCooperative && !manageCooperative.leaveAction) ||
+		manageCooperative.foundAction ||
+		turn.phase.disabled;
+	
+	elements.joinMethod.value = 'choose';
+	elements.joinName.textContent = '';
+	handleJoinMethodChange();
+}
+//-----------------------------------------------------------------------------------------------//
+function renderFoundAction() {
+	elements.foundAction.innerHTML = '';
+	
+	if (manageCooperative.foundAction) {
+		const li = document.createElement('li');
+		li.className = 'list-item-justify';
+		
+		li.dataset.cooperativeId = manageCooperative.foundAction.cooperativeId;
+		
+		const access = manageCooperative.foundAction.isOpen ? 'open' : 'privé';
+		const maxMembers = manageCooperative.foundAction.maxMembers;
+		const small = document.createElement('small');
+		small.textContent = `(${access}, max. ${maxMembers})`;
+		
+		const span = document.createElement('span');
+		span.textContent = `${manageCooperative.foundAction.cooperativeName} `;
+		
+		const button = document.createElement('button');
+		button.type = 'button';
+		button.classList.add('btn-close');
+		button.disabled = turn.phase.disabled;
+		
+		button.addEventListener('click', () => {
+			if (button.disabled)
+				return;
+			
+			manageCooperative.foundAction = null;
+			turn.phase.updateUI();
+		});
+		
+		span.appendChild(small);
+		li.appendChild(span);
+		li.appendChild(button);
+		elements.foundAction.appendChild(li);
+	}
+	
+	elements.foundAction.classList.toggle(
+        'd-none',
+        elements.foundAction.children.length === 0
+    );
+	
+	elements.openFoundWindow.disabled = 
+		(state.hasCooperative && !manageCooperative.leaveAction) ||
+		manageCooperative.joinAction ||
+		turn.phase.disabled;
+}
+
 </script>
