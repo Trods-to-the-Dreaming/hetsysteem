@@ -565,9 +565,9 @@ CREATE TABLE leave_actions (
 );
 
 CREATE TABLE join_actions (
-    member_id INT UNSIGNED PRIMARY KEY,
+    applicant_id INT UNSIGNED PRIMARY KEY,
 	cooperative_id INT UNSIGNED,
-	FOREIGN KEY (member_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (applicant_id) REFERENCES characters(id) ON DELETE CASCADE,
 	FOREIGN KEY (cooperative_id) REFERENCES cooperatives(id) ON DELETE CASCADE
 );
 
@@ -579,9 +579,9 @@ CREATE TABLE found_actions (
 );
 
 CREATE TABLE invite_actions (
-    member_id INT UNSIGNED PRIMARY KEY,
+    invitee_id INT UNSIGNED PRIMARY KEY,
 	cooperative_id INT UNSIGNED NOT NULL,
-	FOREIGN KEY (member_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (invitee_id) REFERENCES characters(id) ON DELETE CASCADE,
 	FOREIGN KEY (cooperative_id) REFERENCES cooperatives(id) ON DELETE CASCADE
 );
 

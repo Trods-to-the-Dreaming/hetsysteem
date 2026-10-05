@@ -11,7 +11,7 @@ await turn.phase.checkAccess('createCharacter');
 
 <!------------------------------------------------------------------------------------------------>
 
-<div id="container-div" class="d-none">
+<form id="phase-form" class="d-none">
 	<h1>Personage aanmaken</h1>
 
 	<div class="mt-md stack">
@@ -59,7 +59,7 @@ await turn.phase.checkAccess('createCharacter');
 	</div>
 	
 	<div id="character-name-error" class="mt-md error"></div>
-</div>
+</form>
 
 <!------------------------------------------------------------------------------------------------>
 
@@ -113,10 +113,7 @@ turn.phase.updateUI = function() {
 }
 //-----------------------------------------------------------------------------------------------//
 turn.phase.confirm = async function () {
-	if (!validateCharacter())
-        return false;
-	
-    const reserved = await reserveCharacterName();
+	const reserved = await reserveCharacterName();
 	
 	if(!reserved)
 		return false;
@@ -172,22 +169,6 @@ function initializeControls() {
 		jobPreference.value = createCharacter.jobPreferences[index].buildingId;
 	});
 	elements.recreationPreference.value = createCharacter.recreationPreference.productId;
-}
-//-----------------------------------------------------------------------------------------------//
-function validateCharacter() {
-	const fields = [
-		elements.firstName,
-		elements.lastName,
-		...elements.jobPreferences,
-		elements.recreationPreference
-	];
-
-	for (const field of fields) {
-		if (!field.reportValidity())
-			return false;
-	}
-
-	return true;
 }
 //-----------------------------------------------------------------------------------------------//
 async function reserveCharacterName() {

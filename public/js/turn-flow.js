@@ -19,13 +19,13 @@ turn.phase = {
 		const confirmButton = createButton({ 
 			btnClass: 'btn--primary', 
 			btnText: 'Bevestigen', 
-			onClick: () => this.handleConfirm()
+			type: 'submit'
 		});
 		
 		const saveButton = createButton({ 
 			btnClass: 'btn--primary', 
 			btnText: 'Opslaan', 
-			onClick: () => turn.handleSave()
+			type: 'submit'
 		});
 		
 		const editButton = createButton({ 
@@ -104,17 +104,24 @@ turn.phase = {
 			cancelButton
 		);
 		
-		const containerDiv = document.getElementById('container-div');
-		containerDiv.append(
+		const phaseForm = document.getElementById('phase-form');
+		phaseForm.append(
 			editDiv,
 			document.createElement('hr'),
 			navigateDiv
 		);
-		
-		containerDiv.after(
+		phaseForm.after(
 			editWarningDiv,
 			networkErrorDiv
 		);
+		phaseForm.addEventListener('submit', (event) => {
+			event.preventDefault();
+
+			if (event.submitter === confirmButton)
+				this.handleConfirm();
+			else if (event.submitter === saveButton)
+				turn.handleSave();
+		});
 		
 		// Cache
 		this.elements = {
@@ -124,7 +131,7 @@ turn.phase = {
 			nextButton,
 			previousButton,
 			cancelButton,
-			containerDiv,
+			phaseForm,
 			editWarningDiv,
 			networkErrorDiv
 		};
@@ -171,7 +178,7 @@ turn.phase = {
 		this.disabled = !isCurrentPhase;
 		
 		this.updateUI();
-		this.elements.containerDiv.classList.remove('d-none');
+		this.elements.phaseForm.classList.remove('d-none');
 	},
 //-----------------------------------------------------------------------------------------------//
 	handleEdit() {
@@ -327,13 +334,14 @@ turn.handleCloseNetworkError = function() {
 
 //===============================================================================================//
 
-function createButton({ btnClass, 
-						btnText = null, 
+function createButton({ btnClass,
+						btnText = null,
+						type = 'button',
 						onClick = null }) {
 	const btn = document.createElement('button');
 	
 	btn.classList.add('btn', btnClass);
-	btn.type = 'button';
+	btn.type = type;
 	
 	if (btnText) {
 		const span = document.createElement('span');
