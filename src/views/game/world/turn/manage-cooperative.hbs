@@ -479,6 +479,14 @@ function handleJoinMethodChange() {
     );
 }
 //-----------------------------------------------------------------------------------------------//
+function renderLeaveAction() {
+	elements.leaveAction.disabled = 
+		!state.hasCooperative ||
+		manageCooperative.joinAction ||
+		manageCooperative.foundAction ||
+		turn.phase.disabled;
+}
+//-----------------------------------------------------------------------------------------------//
 function renderJoinAction() {
 	elements.joinAction.innerHTML = '';
 	
@@ -575,7 +583,7 @@ function renderFoundAction() {
 	elements.maxMembers.textContent = '';
 }
 //-----------------------------------------------------------------------------------------------//
-function renderInviteAction() {
+function renderInviteActions() {
 	elements.inviteActions.innerHTML = '';
 	
 	if (manageCooperative.inviteActions) {
@@ -586,7 +594,7 @@ function renderInviteAction() {
 			li.dataset.inviteeId = ia.inviteeId;
 			
 			const small = document.createElement('small');
-			small.textContent = `(${ia.inviteeUserName})`;
+			small.textContent = `(${ia.inviteeUsername})`;
 			
 			const span = document.createElement('span');
 			span.textContent = `${ia.inviteeName} `;
@@ -600,24 +608,25 @@ function renderInviteAction() {
 				if (button.disabled)
 					return;
 				
-				manageCooperative.foundAction = null;
+				manageCooperative.inviteActions.splice(index, 1);
 				turn.phase.updateUI();
 			});
 			
 			span.appendChild(small);
 			li.appendChild(span);
 			li.appendChild(button);
-			elements.foundAction.appendChild(li);
+			elements.inviteActions.appendChild(li);
+		});
 	}
 	
-	elements.foundAction.classList.toggle(
+	elements.inviteActions.classList.toggle(
         'd-none',
-        elements.foundAction.children.length === 0
+        elements.inviteActions.children.length === 0
     );
 	
-	elements.openFoundWindow.disabled = 
-		(state.hasCooperative && !manageCooperative.leaveAction) ||
-		manageCooperative.joinAction ||
+	elements.openInviteWindow.disabled = 
+		((!state.hasCooperative || manageCooperative.leaveAction) &&
+		!manageCooperative.foundAction) ||
 		turn.phase.disabled;
 	
 	elements.foundAccess.value = '';
