@@ -4,12 +4,39 @@ import {
 	GAME_ERROR,
 	GameError 
 } from '#modules/game/error.js';
+//-----------------------------------------------------------------------------------------------//
+import {
+	lockCooperative,
+	updateCooperative,
+	insertCooperative,
+	findLeaveAction,
+	findJoinAction,
+	findFoundAction,
+	findInviteActions
+} from './repository.js';
 
 //===============================================================================================//
 
 export async function loadManageCooperative({ characterId,
 											  trx = knex }) {
-	
+	const [
+		leaveActionResult,
+		joinAction,
+		foundAction,
+		inviteActions
+	] = await Promise.all([
+		findLeaveAction({ characterId, trx }),
+		findJoinAction({ characterId, trx }),
+		findFoundAction({ characterId, trx }),
+		findInviteActions({ characterId, trx })
+	]);
+
+	return {
+		leaveAction: !!leaveActionResult,
+		joinAction,
+		foundAction,
+		inviteActions
+	};
 }
 //-----------------------------------------------------------------------------------------------//
 export async function saveManageCooperative({ characterId,

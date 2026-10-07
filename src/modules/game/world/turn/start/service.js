@@ -127,9 +127,9 @@ export async function loadTurn({ userId,
 		ownedConstructionSites,
 		employeeContracts,
 		employerContracts,
-		selfEmploymentContracts,/*
+		selfEmploymentContracts,
 		tenantAgreements,
-		landlordAgreements,*/
+		landlordAgreements,
 		manageBuildings,
 		manageEmploymentContracts,
 		manageRentalAgreements,
@@ -148,9 +148,9 @@ export async function loadTurn({ userId,
 		findOwnedConstructionSites({ characterId }),
 		findEmployeeContracts({ characterId }),
 		findEmployerContracts({ characterId }),
-		findSelfEmploymentContracts({ characterId }),/*
+		findSelfEmploymentContracts({ characterId }),
 		findTenantAgreements({ characterId }),
-		findLandlordAgreements({ characterId }),*/
+		findLandlordAgreements({ characterId }),
 		loadManageBuildings({ characterId }),
 		loadManageEmploymentContracts({ characterId }),
 		loadManageRentalAgreements({ characterId }),

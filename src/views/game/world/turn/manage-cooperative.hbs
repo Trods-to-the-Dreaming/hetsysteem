@@ -153,7 +153,7 @@ await turn.phase.checkAccess('manageCooperative');
 							Maximum aantal leden:
 						</label>
 						<input id="found-max-members-input" class="form-control" type="number" 
-							   min="2" max="100" required>
+							   min="2" max="100" step="1" required>
 					</div>
 				</div>
 				
@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
 //===============================================================================================//
 turn.phase.load = function() {
 	state = {
-		?: turn.storage.load('state.?')
+		cooperative: turn.storage.load('state.cooperative')
 	}
 	manageCooperative = turn.storage.load('actions.manageCooperative');
 	
@@ -230,60 +230,15 @@ turn.phase.load = function() {
 }
 //-----------------------------------------------------------------------------------------------//
 turn.phase.save = function() {
-	const manageCooperative = {
-		leaveAction: data.leave,
-		joinAction: data.join ? data.joinAction : null,
-		foundAction: data.found ? data.foundAction : null,
-		inviteActions: data.leave ? data.leaveAction : null
-	};
-	
-	
-	
-
-	const manageCooperative = {
-		leaveAction: elements.leaveAction.checked,
-		joinAction: elements.joinAction.children.length !=== 0 ?
-			,
-			
-			// hoe? de info zit in de <li>
-		foundAction: ...,// hoe? de info zit in de <li>
-		inviteActions: ...// hoe? de info zit in de <li>s
-	};
-	
-	
 	turn.storage.save({ key: 'actions.manageCooperative', value: manageCooperative });
 }
 //-----------------------------------------------------------------------------------------------//
 turn.phase.updateUI = function() {
-	/*elements.firstName.value = data.firstName;
-	elements.lastName.value = data.lastName;
-	elements.jobPreferences.forEach((jobPreference, index) => {
-		jobPreference.value = data.jobPreferences[index];
-	});
-	elements.recreationPreference.value = data.recreationPreference;
-	
-	handleJobPreferenceChange();*/
-	
-	elements.joinMethod.value === 'available'
-			? { cooperativeId: null }
-			: { cooperativeId: elements.joinName }
-			
+	renderLeaveAction();
+	renderJoinAction();
+	renderFoundAction();
+	renderInviteActions();
 }
-//-----------------------------------------------------------------------------------------------//
-turn.phase.confirm = async function () {
-	/*if (!validateCharacter())
-        return false;
-	
-    const reserved = await reserveCharacterName();
-	
-	if(!reserved)
-		return false;
-	
-	elements.firstName.value = reserved.firstName;
-	elements.lastName.value = reserved.lastName;
-	
-    return true;*/
-};
 //===============================================================================================//
 function cacheElements() {
 	elements = {
@@ -314,40 +269,26 @@ function createModals() {
 	modals = {
 		join: bootstrap.Modal.getOrCreateInstance(
 			document.getElementById('join-modal')
-		);
+		),
 		found: bootstrap.Modal.getOrCreateInstance(
 			document.getElementById('found-modal')
-		);
+		),
 		invite: bootstrap.Modal.getOrCreateInstance(
 			document.getElementById('invite-modal')
-		);
-	}
+		)
+	};
 }
 //-----------------------------------------------------------------------------------------------//
 function addEventListeners() {
+	elements.leaveAction.addEventListener('change', handleLeaveActionChange);
 	elements.join.addEventListener('click', handleJoin);
-	elements.found.addEventListener('click', handleFound);
-	elements.invite.addEventListener('click', handleInvite);
-	
 	elements.joinMethod.addEventListener('change', handleJoinMethodChange);
+	elements.found.addEventListener('click', handleFound);
+	//elements.invite.addEventListener('click', handleInvite);
 }
 //-----------------------------------------------------------------------------------------------//
 function initializeControls() {
-	elements.jobPreferences.forEach((jobPreference) => {
-		turn.phase.populateSelect({
-			select: jobPreference,
-			optionName: 'job',
-			items: data.jobs,
-			textField: 'type'
-		});
-	});
-	
-	turn.phase.populateSelect({
-		select: elements.recreationPreference,
-		optionName: 'ontspanning',
-		items: data.recreations,
-		textField: 'type'
-	});
+	elements.leaveAction.checked = manageCooperative.leaveAction;
 }
 //-----------------------------------------------------------------------------------------------//
 async function findCooperative() {
@@ -407,7 +348,13 @@ async function reserveCooperativeName() {
 	}
 }
 //===============================================================================================//
-function handleJoin() {
+function handleLeaveActionChange() {
+	manageCooperative.leaveAction = elements.leaveAction.checked;
+	
+	turn.phase.updateUI();
+}
+//-----------------------------------------------------------------------------------------------//
+async function handleJoin() {
 	const cooperative = await findCooperative();
 	
 	if (!cooperative)
@@ -423,7 +370,25 @@ function handleJoin() {
 	modals.join.hide();	
 }
 //-----------------------------------------------------------------------------------------------//
-function handleFound() {
+function handleJoinNameInput() {
+	elements.joinNameError.textContent = '';
+
+	validateName({
+		nameInput: elements.joinName,
+		minLength: 3,
+		maxLength: 20,
+		regex: /^\p{L}+(?:[ '-]\p{L}+)*$/u
+	});
+}
+//-----------------------------------------------------------------------------------------------//
+function handleJoinMethodChange() {
+	elements.joinNameField.classList.toggle(
+        'd-none',
+        elements.joinMethod.value === 'random'
+    );
+}
+//-----------------------------------------------------------------------------------------------//
+async function handleFound() {
 	const cooperative = await reserveCooperativeName();
 	
 	if (!cooperative)
@@ -441,17 +406,6 @@ function handleFound() {
 	modals.found.hide();	
 }
 //-----------------------------------------------------------------------------------------------//
-function handleJoinNameInput() {
-	elements.joinNameError.textContent = '';
-
-	validateName({
-		nameInput: elements.joinName,
-		minLength: 3,
-		maxLength: 20,
-		regex: /^\p{L}+(?:[ '-]\p{L}+)*$/u
-	});
-}
-//-----------------------------------------------------------------------------------------------//
 function handleFoundNameInput() {
 	elements.foundNameError.textContent = '';
 
@@ -461,22 +415,6 @@ function handleFoundNameInput() {
 		maxLength: 20,
 		regex: /^\p{L}+(?:[ '-]\p{L}+)*$/u
 	});
-}
-//-----------------------------------------------------------------------------------------------//
-/*function handleFoundMaxMembersInput() {
-	validateName({
-		nameInput: elements.foundName,
-		minLength: 3,
-		maxLength: 20,
-		regex: /^\p{L}+(?:[ '-]\p{L}+)*$/u
-	});
-}*/
-//-----------------------------------------------------------------------------------------------//
-function handleJoinMethodChange() {
-	elements.joinNameField.classList.toggle(
-        'd-none',
-        elements.joinMethod.value === 'random'
-    );
 }
 //-----------------------------------------------------------------------------------------------//
 function renderLeaveAction() {

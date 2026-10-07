@@ -15,6 +15,14 @@ export function lockCooperative({ userId,
 		.first();
 }
 //-----------------------------------------------------------------------------------------------//
+export function updateCooperative({ cooperativeId,
+								    cooperativeName,
+								    trx = knex }) {
+	return trx('cooperatives')
+		.where({ id: cooperativeId })
+		.update({ cooperative_name: cooperativeName });
+}
+//-----------------------------------------------------------------------------------------------//
 export function insertCooperative({ userId,
 								    worldId,
 								    cooperativeName,
@@ -26,10 +34,38 @@ export function insertCooperative({ userId,
 		});
 }
 //-----------------------------------------------------------------------------------------------//
-export function updateCooperative({ cooperativeId,
-								    cooperativeName,
-								    trx = knex }) {
-	return trx('cooperatives')
-		.where({ id: cooperativeId })
-		.update({ cooperative_name: cooperativeName });
+export function findLeaveAction({ characterId, 
+								  trx = knex }) {
+	return trx('leave_actions')
+		.select(1)
+		.where({ member_id: characterId })
+		.first();
+}
+//-----------------------------------------------------------------------------------------------//
+export function findjoinAction({ characterId, 
+								 trx = knex }) {
+	return trx('join_actions as ja')
+		.select({ 
+			cooperativeId: cooperativeId,
+			cooperativeName
+		})
+		.innerJoin()
+		.where({ member_id: characterId })
+		.first();
+}
+//-----------------------------------------------------------------------------------------------//
+export function findLeaveAction({ characterId, 
+								  trx = knex }) {
+	return trx('leave_actions')
+		.select(1)
+		.where({ member_id: characterId })
+		.first();
+}
+//-----------------------------------------------------------------------------------------------//
+export function findLeaveAction({ characterId, 
+								  trx = knex }) {
+	return trx('leave_actions')
+		.select(1)
+		.where({ member_id: characterId })
+		.first();
 }

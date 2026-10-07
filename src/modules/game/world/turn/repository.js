@@ -215,6 +215,18 @@ export function findLandlordAgreements({ characterId,
 		.where({ 'cb.character_id': characterId })
 }
 //-----------------------------------------------------------------------------------------------//
+export function findCooperative({ characterId, 
+								  trx = knex }) {
+	return trx('cooperative_members as cm')
+		.select({
+			cooperativeId: 'c.id',
+			cooperativeName: 'c.name'
+		})
+		.innerJoin('cooperatives as c', 'cm.cooperative_id', 'c.id')
+		.where({ 'cm.character_id': characterId })
+		.first();
+}
+//-----------------------------------------------------------------------------------------------//
 export function insertCharacterBuilding({ characterId, 
 										  worldId, 
 										  characterBuildingName, 
