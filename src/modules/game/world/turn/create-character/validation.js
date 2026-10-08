@@ -22,14 +22,14 @@ const recreationPreferenceSchema = z.strictObject({
 	productId: z.coerce.number().int().positive()
 });
 //-----------------------------------------------------------------------------------------------//
-const firstNameSchema = z
+export const firstNameSchema = z
 	.string()
 	.min(MIN_FIRST_NAME_LENGTH)
 	.max(MAX_FIRST_NAME_LENGTH)
 	.regex(FIRST_NAME_REGEX)
 	.refine((fn) => fn === fn.trim());
 //-----------------------------------------------------------------------------------------------//
-const lastNameSchema = z
+export const lastNameSchema = z
 	.string()
 	.min(MIN_LAST_NAME_LENGTH)
 	.max(MAX_LAST_NAME_LENGTH)

@@ -1,4 +1,9 @@
 import { z } from 'zod';
+//-----------------------------------------------------------------------------------------------//
+import { 
+	firstNameSchema,
+	lastNameSchema
+} from '#modules/game/world/turn/create-character/validation.js'
 
 //===============================================================================================//
 
@@ -20,6 +25,15 @@ const cooperativeNameSchema = z
 export const manageCooperativeSchema = z.strictObject({
 });
 //-----------------------------------------------------------------------------------------------//
+export const getCooperativeSchema = z.strictObject({
+	cooperativeName: cooperativeNameSchema
+});
+//-----------------------------------------------------------------------------------------------//
 export const reserveCooperativeNameSchema = z.strictObject({
 	cooperativeName: cooperativeNameSchema
+});
+//-----------------------------------------------------------------------------------------------//
+export const getCharacterSchema = z.strictObject({
+	firstName: firstNameSchema,
+	lastName: lastNameSchema
 });

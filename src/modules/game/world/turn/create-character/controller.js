@@ -23,9 +23,7 @@ export async function handleReserveCharacterName(req, res) {
 			lastName
 		});
 		
-		return res.json({ 
-			data: character
-		});
+		return res.json({ character });
 	} catch (err) {
 		if (err instanceof GameError) {
 			if (err.code === GAME_ERROR.NO_NEW_CHARACTERS.code) {

@@ -14,8 +14,6 @@ await turn.phase.checkAccess('manageBuildings');
 <div id="container-div" class="d-none">
 	<h1>Gebouwen beheren</h1>
 	
-	<p>Vrije landtegels: <span id="free-tiles-span"></span></p>
-	
 	<h2>💥 Slopen</h2>
 	
 	<ul id="demolish-actions-ul" class="list-compact"></ul>
@@ -28,6 +26,8 @@ await turn.phase.checkAccess('manageBuildings');
 	</div>
 	
 	<h2>🏗️ Bouwen</h2>
+	
+	<p>Vrije landtegels: <span id="free-tiles-span"></span></p>
 
 	<ul id="construct-actions-ul" class="list-compact"></ul>
 		
@@ -228,7 +228,7 @@ function cachePhaseElements() {
 		openDemolishWindow: document.getElementById('open-demolish-window-button'),
 		openConstructWindow: document.getElementById('open-construct-window-button'),
 		confirmDemolish: document.getElementById('confirm-demolish-button'),
-		confirmConstruct: document.getElementById('confirm-construct-button'),
+		//confirmConstruct: document.getElementById('confirm-construct-button'),
 		constructForm: document.getElementById('construct-form'),
 		demolishActions: document.getElementById('demolish-actions-ul'),
 		demolishableBuildings: document.getElementById('demolishable-buildings-div'),

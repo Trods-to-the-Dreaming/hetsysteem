@@ -113,13 +113,13 @@ turn.phase.updateUI = function() {
 }
 //-----------------------------------------------------------------------------------------------//
 turn.phase.confirm = async function () {
-	const reserved = await reserveCharacterName();
+	const character = await reserveCharacterName();
 	
-	if(!reserved)
+	if(!character)
 		return false;
 	
-	elements.firstName.value = reserved.firstName;
-	elements.lastName.value = reserved.lastName;
+	elements.firstName.value = character.firstName;
+	elements.lastName.value = character.lastName;
 	
     return true;
 };
@@ -189,10 +189,7 @@ async function reserveCharacterName() {
 			return null;
 		}
 		
-		return {
-			firstName: json.data.firstName,
-			lastName: json.data.lastName
-		};
+		return json.character;
 	} catch (err) {
 		alert('De server is momenteel niet bereikbaar.');
 		return null;

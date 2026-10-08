@@ -14,10 +14,15 @@ export const GAME_ERROR = Object.freeze({
 		status: 409,
 		message: 'Er bestaat reeds een gebouw met deze naam.'
 	},
-	TURN_ALREADY_EDITED: {
-		code: 'TURN_ALREADY_EDITED',
+	COOPERATIVE_NAME_TAKEN: {
+		code: 'COOPERATIVE_NAME_TAKEN',
 		status: 409,
-		message: 'De beurt wordt reeds bewerkt in een andere browser.'
+		message: 'Er bestaat reeds een coöperatie met deze naam.'
+	},
+	COOPERATIVE_NOT_FOUND: {
+		code: 'COOPERATIVE_NOT_FOUND',
+		status: 409,
+		message: 'Er bestaat geen coöperatie met deze naam.'
 	}
 });
 

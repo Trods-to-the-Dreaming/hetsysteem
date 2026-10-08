@@ -6,10 +6,9 @@ import {
 } from '#modules/game/error.js';
 //-----------------------------------------------------------------------------------------------//
 import {
-	lockCooperative,
-	updateCooperative,
+	findCooperative,
 	insertCooperative,
-	findLeaveAction,
+	hasLeaveAction,
 	findJoinAction,
 	findFoundAction,
 	findInviteActions
@@ -25,7 +24,7 @@ export async function loadManageCooperative({ characterId,
 		foundAction,
 		inviteActions
 	] = await Promise.all([
-		findLeaveAction({ characterId, trx }),
+		hasLeaveAction({ characterId, trx }),
 		findJoinAction({ characterId, trx }),
 		findFoundAction({ characterId, trx }),
 		findInviteActions({ characterId, trx })
@@ -52,39 +51,57 @@ export async function processManageCooperative(trx) {
 	
 }
 //-----------------------------------------------------------------------------------------------//
-export async function reserveCooperativeName({ userId, 
-											   worldId, 
+export async function getCooperative({ worldId, 
+									   cooperativeName }) {
+	const cooperative = await findCooperative({ 
+		worldId,
+		cooperativeName
+	});
+	
+	if (!cooperative)
+		throw new GameError(GAME_ERROR.COOPERATIVE_NOT_FOUND);
+	
+	return cooperative;
+}
+//-----------------------------------------------------------------------------------------------//
+export async function reserveCooperativeName({ userId,
+											   worldId,
 											   cooperativeName }) {
-	return knex.transaction(async (trx) => {
-		const cooperative = await lockCooperative({ 
-			userId, 
+	const character = await findCharacter({
+		userId,
+		worldId
+	});
+	
+	let cooperativeId;
+	try {
+		[cooperativeId] = await insertCooperative({
+			founderId: character.id,
 			worldId,
-			trx 
+			cooperativeName
 		});
+	} catch (err) {
+		if (err.code === 'ER_DUP_ENTRY')
+			throw new GameError(GAME_ERROR.COOPERATIVE_NAME_TAKEN);
 		
-		try {
-			if (cooperative) {
-				await updateCooperative({ 
-					cooperativeId: cooperative.id, 
-					cooperativeName, 
-					trx 
-				});
-				return { cooperativeName };
-			}
-			
-			await insertCooperative({
-				userId,
-				worldId,
-				cooperativeName,
-				trx
-			});
-			
-			return { cooperativeName };
-		} catch (err) {
-			if (err.code === 'ER_DUP_ENTRY')
-				throw new GameError(GAME_ERROR.COOPERATIVE_NAME_TAKEN);
-			
-			throw err;
-		}
+		throw err;
+	}
+	
+	return { 
+		cooperativeId, // of beter id noemen?
+		cooperativeName // of beter name noemen?
+	};
+}
+//-----------------------------------------------------------------------------------------------//
+export async function cancelCooperativeName({ userId,
+											  worldId,
+											  cooperativeId }) {
+	const character = await findCharacter({
+		userId,
+		worldId
+	});
+	
+	await deleteUnusedCooperative({
+		founderId: character.id,
+		cooperativeId
 	});
 }

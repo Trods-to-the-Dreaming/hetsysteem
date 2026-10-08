@@ -258,11 +258,11 @@ turn.handleLoad = async function() {
 		return;
 	}
 	
-	const constants = json.data.constants;
-	const state = json.data.state;
-	const actions = json.data.actions;
-	const phases = json.data.phases;
-	const isSaved = json.data.isSaved;
+	const constants = json.turn.constants;
+	const state = json.turn.state;
+	const actions = json.turn.actions;
+	const phases = json.turn.phases;
+	const isSaved = json.turn.isSaved;
 	
 	const currentPhaseIndex = isSaved ? phases.length : 0;
 

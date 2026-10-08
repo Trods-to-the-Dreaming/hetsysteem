@@ -367,7 +367,6 @@ async function loadBirthTurn({ characterId,
 			jobs,
 			recreations
 		},
-		state: null,
 		actions: {
 			createCharacter,
 			manageCooperative

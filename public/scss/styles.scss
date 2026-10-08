@@ -155,7 +155,8 @@ p, ul, ol, table {
 	margin-bottom: 0;
 }
 
-h1 + h2 {
+h1 + h2,
+h1 + div > h2 {
 	margin-top: $space-md;
 }
 
@@ -546,7 +547,9 @@ main {
 	color: color-mix(in oklch, $charcoal 70%, black);
 }
 .btn-close:disabled {
-	color: $gray-cloud;
+	opacity: 0.65;
+	/*color: $gray-cloud;*/
+	
 	pointer-events: none;
 }
 
@@ -802,7 +805,7 @@ body.modal-open {
 }
 .form-control:disabled,
 .form-control:read-only {
-	background: $gray-cloud;
+	/*background: $gray-cloud;*/
 	opacity: 0.65;
 	
 	&:focus {
@@ -836,7 +839,7 @@ body.modal-open {
 	box-shadow: 0 0 0 0.25rem $bluer;
 }
 .form-select:disabled {
-	background-color: $gray-cloud;
+	/*background-color: $gray-cloud;*/
 	opacity: 0.65;
 }
 
@@ -847,6 +850,9 @@ body.modal-open {
 }
 .form-check + .form-check {
 	margin-top: $space-sm;
+}
+.form-check:has(.form-check-input:disabled) .form-check-label {
+    opacity: 0.65;
 }
 
 .form-check-input {
@@ -883,6 +889,9 @@ body.modal-open {
 }
 .form-check-input:checked[type=radio] {
 	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23fff'/%3e%3c/svg%3e");
+}
+.form-check-input:disabled {
+	opacity: 0.65;
 }
 
 /*************************************************************************************************/

@@ -23,10 +23,12 @@ import {
 export async function login({ username, 
 							  password }) {
 	const user = await findUserByName({ username });
+	
 	if (!user)
 		throw new AccountError(ACCOUNT_ERROR.INVALID_CREDENTIALS);
 
 	const passwordOK = await bcrypt.compare(password, user.hashedPassword);
+	
 	if (!passwordOK )
 		throw new AccountError(ACCOUNT_ERROR.INVALID_CREDENTIALS);
 
@@ -41,6 +43,7 @@ export function register({ username,
 			invitationToken,
 			trx
 		});
+		
 		if (!invitation || invitation.status !== 'unused')
 			throw new AccountError(ACCOUNT_ERROR.INVALID_INVITATION_TOKEN);	
 		
@@ -109,6 +112,7 @@ export async function changeUsername({ userId,
 	const user = await findUserById({ userId });
 	
 	const passwordOK = await bcrypt.compare(password, user.hashedPassword);
+	
 	if (!passwordOK)
 		throw new AccountError(ACCOUNT_ERROR.PASSWORD_WRONG);
 
@@ -131,6 +135,7 @@ export async function changePassword({ userId,
 	const user = await findUserById({ userId });
 	
 	const passwordOK = await bcrypt.compare(password, user.hashedPassword);
+	
 	if (!passwordOK)
 		throw new AccountError(ACCOUNT_ERROR.PASSWORD_WRONG);
 	

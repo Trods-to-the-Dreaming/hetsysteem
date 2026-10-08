@@ -88,11 +88,10 @@ Verwerken:
 * transacties willekeurig schudden
 
 
-DROP TABLE transfer_actions;
 DROP TABLE invite_actions;
 DROP TABLE join_actions;
-DROP TABLE leave_actions;
 DROP TABLE found_actions;
+DROP TABLE leave_actions;
 DROP TABLE enjoy_actions;
 DROP TABLE work_actions;
 DROP TABLE seek_medical_care_actions;
@@ -120,6 +119,7 @@ DROP TABLE construct_actions;
 DROP TABLE demolish_actions;
 DROP TABLE create_character_actions;
 DROP TABLE cooperative_members;
+DROP TABLE cooperative_states;
 DROP TABLE cooperatives;
 DROP TABLE rental_agreements;
 DROP TABLE self_employment_contracts;
@@ -337,8 +337,10 @@ CREATE TABLE rental_agreements (
 
 CREATE TABLE cooperatives (
 	id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	founder_id INT UNSIGNED, -- becomes NULL when the founder dies
 	world_id TINYINT UNSIGNED NOT NULL,
 	name VARCHAR(32) NOT NULL,
+	FOREIGN KEY (founder_id) REFERENCES characters(id) ON DELETE SET NULL,
 	FOREIGN KEY (world_id) REFERENCES worlds(id)
 );
 
@@ -351,7 +353,7 @@ ON cooperatives (
 CREATE TABLE cooperative_states (
 	cooperative_id INT UNSIGNED PRIMARY KEY,
 	is_open BOOLEAN NOT NULL,
-    max_members SMALLINT UNSIGNED NOT NULL
+    max_members SMALLINT UNSIGNED NOT NULL,
 	FOREIGN KEY (cooperative_id) REFERENCES cooperatives(id) ON DELETE CASCADE
 );
 
@@ -572,17 +574,20 @@ CREATE TABLE join_actions (
 );
 
 CREATE TABLE found_actions (
-	cooperative_id INT UNSIGNED PRIMARY KEY,
+    founder_id INT UNSIGNED PRIMARY KEY,
+	cooperative_id INT UNSIGNED NOT NULL,
 	is_open BOOLEAN NOT NULL,
-    max_members SMALLINT UNSIGNED NOT NULL
+    max_members SMALLINT UNSIGNED NOT NULL,
+	FOREIGN KEY (founder_id) REFERENCES characters(id) ON DELETE CASCADE,
 	FOREIGN KEY (cooperative_id) REFERENCES cooperatives(id) ON DELETE CASCADE
 );
 
 CREATE TABLE invite_actions (
-    invitee_id INT UNSIGNED PRIMARY KEY,
-	cooperative_id INT UNSIGNED NOT NULL,
-	FOREIGN KEY (invitee_id) REFERENCES characters(id) ON DELETE CASCADE,
-	FOREIGN KEY (cooperative_id) REFERENCES cooperatives(id) ON DELETE CASCADE
+    inviter_id INT UNSIGNED NOT NULL,
+	invitee_id INT UNSIGNED NOT NULL,
+	PRIMARY KEY (inviter_id, invitee_id),
+	FOREIGN KEY (inviter_id) REFERENCES characters(id) ON DELETE CASCADE,
+	FOREIGN KEY (invitee_id) REFERENCES characters(id) ON DELETE CASCADE
 );
 
 

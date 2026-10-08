@@ -17,9 +17,7 @@ export async function handleLoadTurn(req, res) {
 			worldId: world.id
 		});
 		
-		return res.json({
-			data: turn
-		});
+		return res.json({ turn });
 	} catch (err) {
 		if (err instanceof GameError) {
 			return res.status(err.status).json({
