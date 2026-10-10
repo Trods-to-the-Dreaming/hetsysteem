@@ -121,7 +121,9 @@ export async function processCreateCharacter(trx) {
 		});
 	}
 }
-//-----------------------------------------------------------------------------------------------//
+
+//===============================================================================================//
+
 export async function reserveCharacterName({ userId, 
 											 worldId, 
 											 firstName,

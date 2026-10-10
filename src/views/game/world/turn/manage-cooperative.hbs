@@ -128,7 +128,7 @@ await turn.phase.checkAccess('manageCooperative');
 						data-bs-dismiss="modal" aria-label="Sluiten"></button>
 			</div>
 			
-			<div class="modal-body">
+			<form id="found-form" class="modal-body">
 				<div class="stack">
 					<div>
 						<label for="found-name-input" class="form-label">
@@ -166,11 +166,11 @@ await turn.phase.checkAccess('manageCooperative');
 				<div id="found-name-error" class="mt-md error"></div>
 				
 				<div class="mt-lg">
-					<button id="found-button" class="btn btn--primary" type="button">
+					<button id="found-button" class="btn btn--primary" type="submit">
 						<span class="btn-front">Coöperatie oprichten</span>
 					</button>
 				</div>
-			</div>
+			</form>
 		</div>
 	</div>
 </div>
@@ -188,7 +188,7 @@ await turn.phase.checkAccess('manageCooperative');
 						data-bs-dismiss="modal" aria-label="Sluiten"></button>
 			</div>
 			
-			<div class="modal-body">
+			<form id="invite-form" class="modal-body">
 				<div class="stack">
 					<div>
 						<label for="first-name-input" class="form-label">
@@ -210,11 +210,11 @@ await turn.phase.checkAccess('manageCooperative');
 				<div id="invite-name-error" class="mt-md error"></div>
 				
 				<div class="mt-lg">
-					<button id="invite-button" class="btn btn--primary" type="button">
+					<button id="invite-button" class="btn btn--primary" type="submit">
 						<span class="btn-front">Personage uitnodigen</span>
 					</button>
 				</div>
-			</div>
+			</form>
 		</div>
 	</div>
 </div>
@@ -317,82 +317,6 @@ function initializeControls() {
 	elements.leaveAction.checked = manageCooperative.leaveAction;
 	elements.freeSlots.value = state.cooperative?.freeSlots ?? '';
 }
-//-----------------------------------------------------------------------------------------------//
-async function findCooperative() {
-	if (elements.method.value === 'random') {
-		return {
-			id: null,
-			name: '(willekeurig)'
-		}
-	}
-	
-	try {
-		const res = await fetch('/game/world/turn/manage-cooperative/find-cooperative', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ cooperativeName: elements.joinName.value })
-		});
-		
-		const json = await res.json();
-		
-		if (json.error) {
-			elements.joinNameError.textContent = json.error;
-			return null;
-		}
-		
-		return json.cooperative;
-	} catch (err) {
-		alert('De server is momenteel niet bereikbaar.');
-		return null;
-	}
-}
-//-----------------------------------------------------------------------------------------------//
-async function reserveCooperativeName() {	
-	try {
-		const res = await fetch('/game/world/turn/manage-cooperative/reserve-cooperative-name', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ cooperativeName: elements.foundName.value })
-		});
-		
-		const json = await res.json();
-		
-		if (json.error) {
-			elements.cooperativeNameError.textContent = json.error;
-			return null;
-		}
-		
-		return json.cooperative;
-	} catch (err) {
-		alert('De server is momenteel niet bereikbaar.');
-		return null;
-	}
-}
-//-----------------------------------------------------------------------------------------------//
-async function findCharacter() {
-	try {
-		const res = await fetch('/game/world/turn/manage-cooperative/find-character', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ 
-				firstName: elements.firstName.value,
-				lastName: elements.lastName.value
-			})
-		});
-		
-		const json = await res.json();
-		
-		if (json.error) {
-			elements.inviteNameError.textContent = json.error;
-			return null;
-		}
-		
-		return json.character;
-	} catch (err) {
-		alert('De server is momenteel niet bereikbaar.');
-		return null;
-	}
-}
 //===============================================================================================//
 function handleLeaveActionChange() {
 	manageCooperative.leaveAction = elements.leaveAction.checked;
@@ -403,7 +327,7 @@ function handleLeaveActionChange() {
 async function handleJoin(event) {
 	event.preventDefault();
 	
-	const cooperative = await findCooperative();
+	const cooperative = await getCooperative();
 	
 	if (!cooperative)
 		return;
@@ -486,7 +410,7 @@ async function handleInvite(event) {
 	
 	modals.invite.hide();	
 }
-//-----------------------------------------------------------------------------------------------//
+//===============================================================================================//
 function renderLeaveAction() {
 	elements.leaveAction.disabled = 
 		manageCooperative.joinAction ||
@@ -571,8 +495,8 @@ function renderFoundAction() {
 			if (button.disabled)
 				return;
 			
-			manageCooperative.foundAction = null;
-			turn.phase.updateUI();
+			if (await cancelCooperativeName())
+				turn.phase.updateUI();
 		});
 		
 		span.appendChild(small);
@@ -644,6 +568,100 @@ function renderInviteActions() {
         'd-none',
         !state.cooperative
     );
+}
+//===============================================================================================//
+async function reserveCooperativeName() {
+	try {
+		const json = await turn.fetchJson({
+			url: '/game/world/turn/manage-cooperative/reserve-cooperative-name', 
+			body: { cooperativeName: elements.foundName.value }
+		});
+		
+		if (!json) 
+			return null;
+
+		if (json.error) {
+			elements.characterNameError.textContent = json.error;
+			return null;
+		}
+		
+		return json.cooperative;
+	} catch (err) {
+		turn.showNetworkError();
+		return null;
+	}
+}
+//-----------------------------------------------------------------------------------------------//
+async function cancelCooperativeName() {
+	try {
+		const json = await turn.fetchJson({
+			url: '/game/world/turn/manage-cooperative/cancel-cooperative-name', 
+			body: { cooperativeId: manageCooperative.foundAction.cooperativeId }
+		});
+		
+		if (!json) 
+			return false;
+		
+		manageCooperative.foundAction = undefined;
+		return true;
+	} catch (err) {
+		turn.showNetworkError();
+		return false;
+	}
+}
+//-----------------------------------------------------------------------------------------------//
+async function getCooperative() {
+	if (elements.method.value === 'random') {
+		return {
+			id: null,
+			name: '(willekeurig)'
+		}
+	}
+	
+	try {
+		const json = await turn.fetchJson({
+			url: '/game/world/turn/manage-cooperative/get-cooperative', 
+			body: { cooperativeName: cooperativeName: elements.joinName.value }
+		});
+		
+		if (!json) 
+			return null;
+		
+		if (json.error) {
+			elements.joinNameError.textContent = json.error;
+			return null;
+		}
+		
+		return json.cooperative;
+	} catch (err) {
+		turn.showNetworkError();
+		return null;
+	}
+}
+//-----------------------------------------------------------------------------------------------//
+async function getCharacter() {
+	try {
+		const json = await turn.fetchJson({
+			url: '/game/world/turn/manage-cooperative/get-character', 
+			body: { 
+				firstName: elements.firstName.value,
+				lastName: elements.lastName.value
+			}
+		});
+		
+		if (!json) 
+			return null;
+		
+		if (json.error) {
+			elements.inviteNameError.textContent = json.error;
+			return null;
+		}
+		
+		return json.character;
+	} catch (err) {
+		turn.showNetworkError();
+		return null;
+	}
 }
 //-----------------------------------------------------------------------------------------------//
 </script>

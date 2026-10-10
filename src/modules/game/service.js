@@ -2,7 +2,7 @@ import {
 	findWorld,
 	countCharacters,
 	findCharacter,
-	findCharacterState
+	hasCharacterState
 } from './repository.js';
 
 //===============================================================================================//
@@ -17,13 +17,14 @@ export async function canCreateCharacter({ userId,
 		userId,
 		worldId
 	});
+	
 	if (!character) {
 		return Number(nCharacters) < world.maxCharacters;
 	}
 	
-	const characterState = await findCharacterState({ characterId: character.id });
-	
-	return !characterState;
+	return !Boolean(
+		await hasCharacterState({ characterId: character.id })
+	);
 }
 //-----------------------------------------------------------------------------------------------//
 export async function isCharacterCreated({ userId, 
@@ -32,11 +33,12 @@ export async function isCharacterCreated({ userId,
 		userId,
 		worldId
 	});
+	
 	if (!character) {
 		return false;
 	}
 	
-	const characterState = await findCharacterState({ characterId: character.id });
-	
-	return Boolean(characterState);
+	return Boolean(
+		await hasCharacterState({ characterId: character.id })
+	);
 }

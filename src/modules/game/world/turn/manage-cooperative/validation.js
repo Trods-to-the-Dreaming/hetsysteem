@@ -25,11 +25,15 @@ const cooperativeNameSchema = z
 export const manageCooperativeSchema = z.strictObject({
 });
 //-----------------------------------------------------------------------------------------------//
-export const getCooperativeSchema = z.strictObject({
+export const reserveCooperativeNameSchema = z.strictObject({
 	cooperativeName: cooperativeNameSchema
 });
 //-----------------------------------------------------------------------------------------------//
-export const reserveCooperativeNameSchema = z.strictObject({
+export const cancelCooperativeNameSchema = z.strictObject({
+	cooperativeId: z.coerce.number().int().positive()
+});
+//-----------------------------------------------------------------------------------------------//
+export const getCooperativeSchema = z.strictObject({
 	cooperativeName: cooperativeNameSchema
 });
 //-----------------------------------------------------------------------------------------------//

@@ -170,31 +170,6 @@ function initializeControls() {
 	});
 	elements.recreationPreference.value = createCharacter.recreationPreference.productId;
 }
-//-----------------------------------------------------------------------------------------------//
-async function reserveCharacterName() {
-	try {
-		const res = await fetch('/game/world/turn/create-character/reserve-character-name', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ 
-				firstName: elements.firstName.value, 
-				lastName: elements.lastName.value
-			})
-		});
-		
-		const json = await res.json();
-		
-		if (json.error) {
-			elements.characterNameError.textContent = json.error;
-			return null;
-		}
-		
-		return json.character;
-	} catch (err) {
-		alert('De server is momenteel niet bereikbaar.');
-		return null;
-	}
-}
 //===============================================================================================//
 function handleFirstNameInput() {
 	elements.characterNameError.textContent = '';
@@ -228,6 +203,31 @@ function handleJobPreferenceChange() {
 			option.disabled = otherSelectedValues.includes(option.value);
 		});
 	});
+}
+//===============================================================================================//
+async function reserveCharacterName() {
+	try {
+		const json = await turn.fetchJson({
+			url: '/game/world/turn/create-character/reserve-character-name', 
+			body: { 
+				firstName: elements.firstName.value, 
+				lastName: elements.lastName.value
+			}
+		});
+		
+		if (!json) 
+			return null;
+
+		if (json.error) {
+			elements.characterNameError.textContent = json.error;
+			return null;
+		}
+		
+		return json.character;
+	} catch (err) {
+		turn.showNetworkError();
+		return null;
+	}
 }
 //-----------------------------------------------------------------------------------------------//
 </script>

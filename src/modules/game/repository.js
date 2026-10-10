@@ -30,8 +30,8 @@ export function findCharacter({ userId,
 		.first();
 }
 //-----------------------------------------------------------------------------------------------//
-export function findCharacterState({ characterId, 
-									 trx = knex }) {
+export function hasCharacterState({ characterId, 
+									trx = knex }) {
 	return trx('character_states')
 		.select(1)
 		.where({ character_id: characterId })

@@ -14,9 +14,29 @@ export function findCharacter({ userId,
 		.first();
 }
 //-----------------------------------------------------------------------------------------------//
-export function findCooperative({ worldId,
-								  cooperativeName,
-								  trx = knex }) {
+export function findCharacterByName({ worldId,
+									  firstName,
+									  lastName,
+									  trx = knex }) {
+	return trx('characters as c')
+		.select({ 
+			id: 'c.id',
+			firstName: 'c.first_name',
+			lastName: 'c.last_name',
+			username: 'u.name'
+		})
+		.innerJoin('users as u', 'c.user_id', 'u.id')
+		.where({
+			world_id: worldId,
+			first_name: firstName,
+			last_name: lastName
+		})
+		.first();
+}
+//-----------------------------------------------------------------------------------------------//
+export function findCooperativeByName({ worldId,
+										cooperativeName,
+										trx = knex }) {
 	return trx('cooperatives')
 		.select({ 
 			id: 'id',
@@ -38,8 +58,8 @@ export function insertCooperative({ founderId,
 		});
 }
 //-----------------------------------------------------------------------------------------------//
-export function deleteUnusedCooperative({ founderId,
-										  cooperativeId,
+export function deleteUnusedCooperative({ cooperativeId,
+										  founderId,
 										  trx = knex }) {
 	return trx('cooperatives')
 		.where({ 

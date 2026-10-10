@@ -296,8 +296,16 @@ turn.handleSave = async function() {
 			body: JSON.stringify({ actions })
 		});
 		
-		if (!res.ok)
+		if (!res.ok) {
+			const json = await res.json();
+
+			if (json.redirect) {
+				location.assign(json.redirect);
+				return;
+			}
+
 			throw new Error(`HTTP ${res.status}`);
+		}
 	} catch (err) {
 		this.showNetworkError();
 		return;
@@ -320,6 +328,34 @@ turn.handleNext = function() {
 //-----------------------------------------------------------------------------------------------//
 turn.handlePrevious = function() {
 	location.assign(this.phases[this.phase.index - 1].url);
+}
+//-----------------------------------------------------------------------------------------------//
+turn.fetchJson = async function({ url, 
+								  body = null) {
+    const res = await fetch(url, {
+		method: 'POST',
+		headers: {
+			Accept: 'application/json',
+			...(body !== null && {
+				'Content-Type': 'application/json'
+			})
+		},
+		...(body !== null && {
+			body: JSON.stringify(body)
+		})
+    });
+
+    const json = await res.json();
+
+    if (json.redirect) {
+        location.assign(json.redirect);
+        return null;
+    }
+	
+	if (!res.ok && !json.error)
+		throw new Error(`HTTP ${res.status}`);
+	
+    return json;
 }
 //-----------------------------------------------------------------------------------------------//
 turn.showNetworkError = function() {	

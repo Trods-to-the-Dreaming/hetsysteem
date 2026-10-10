@@ -7,16 +7,16 @@ import {
 
 export async function prepareMenu({ userId, 
 									worldId }) {
-	const [
-		hasCharacter, 
-		mayCreateCharacter
+	const [ 
+		canCreateCharacterResult,
+		isCharacterCreatedResult
 	] = await Promise.all([
-		isCharacterCreated({ userId, worldId }),
-		canCreateCharacter({ userId, worldId })
+		canCreateCharacter({ userId, worldId }),
+		isCharacterCreated({ userId, worldId })
 	]);
 
 	return {
-		isCharacterCreated: hasCharacter,
-		canCreateCharacter: mayCreateCharacter
+		canCreateCharacter: canCreateCharacterResult,
+		isCharacterCreated: isCharacterCreatedResult
 	};
 }

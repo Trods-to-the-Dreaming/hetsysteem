@@ -6,8 +6,11 @@ import {
 } from '#modules/game/error.js';
 //-----------------------------------------------------------------------------------------------//
 import {
-	findCooperative,
+	findCharacter,
+	findCharacterByName,
+	findCooperativeByName,
 	insertCooperative,
+	deleteUnusedCooperative,
 	hasLeaveAction,
 	findJoinAction,
 	findFoundAction,
@@ -19,7 +22,7 @@ import {
 export async function loadManageCooperative({ characterId,
 											  trx = knex }) {
 	const [
-		leaveActionResult,
+		leaveActionExists,
 		joinAction,
 		foundAction,
 		inviteActions
@@ -31,7 +34,7 @@ export async function loadManageCooperative({ characterId,
 	]);
 
 	return {
-		leaveAction: !!leaveActionResult,
+		leaveAction: Boolean(leaveActionExists),
 		joinAction,
 		foundAction,
 		inviteActions
@@ -50,20 +53,9 @@ export async function saveManageCooperative({ characterId,
 export async function processManageCooperative(trx) {
 	
 }
-//-----------------------------------------------------------------------------------------------//
-export async function getCooperative({ worldId, 
-									   cooperativeName }) {
-	const cooperative = await findCooperative({ 
-		worldId,
-		cooperativeName
-	});
-	
-	if (!cooperative)
-		throw new GameError(GAME_ERROR.COOPERATIVE_NOT_FOUND);
-	
-	return cooperative;
-}
-//-----------------------------------------------------------------------------------------------//
+
+//===============================================================================================//
+
 export async function reserveCooperativeName({ userId,
 											   worldId,
 											   cooperativeName }) {
@@ -87,8 +79,8 @@ export async function reserveCooperativeName({ userId,
 	}
 	
 	return { 
-		cooperativeId, // of beter id noemen?
-		cooperativeName // of beter name noemen?
+		id: cooperativeId,
+		name: cooperativeName
 	};
 }
 //-----------------------------------------------------------------------------------------------//
@@ -104,4 +96,32 @@ export async function cancelCooperativeName({ userId,
 		founderId: character.id,
 		cooperativeId
 	});
+}
+//-----------------------------------------------------------------------------------------------//
+export async function getCooperative({ worldId, 
+									   cooperativeName }) {
+	const cooperative = await findCooperativeByName({ 
+		worldId,
+		cooperativeName
+	});
+	
+	if (!cooperative)
+		throw new GameError(GAME_ERROR.COOPERATIVE_NOT_FOUND);
+	
+	return cooperative;
+}
+//-----------------------------------------------------------------------------------------------//
+export async function getCharacter({ worldId, 
+									 firstName,
+									 lastName }) {
+	const character = await findCharacterByName({ 
+		worldId,
+		firstName,
+		lastName
+	});
+	
+	if (!character)
+		throw new GameError(GAME_ERROR.CHARACTER_NOT_FOUND);
+	
+	return character;
 }

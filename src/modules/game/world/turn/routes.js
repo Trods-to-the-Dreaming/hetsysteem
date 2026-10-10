@@ -11,9 +11,7 @@ import {
 	requireToken
 } from '#modules/game/middleware.js';
 //-----------------------------------------------------------------------------------------------//
-import {
-	saveTurnSchema
-} from './validation.js';
+import { saveTurnSchema } from './validation.js';
 import {
 	handleLoadTurn,
 	handleSaveTurn,

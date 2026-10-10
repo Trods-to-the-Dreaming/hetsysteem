@@ -10,14 +10,16 @@ import {
 } from '#modules/game/middleware.js';
 //-----------------------------------------------------------------------------------------------//
 import { 
-	getCooperativeSchema,
 	reserveCooperativeNameSchema,
+	cancelCooperativeNameSchema,
+	getCooperativeSchema,
 	getCharacterSchema 
 } from './validation.js';
 import { 
 	showManageCooperative,
-	handleGetCooperative,
 	handleReserveCooperativeName,
+	handleCancelCooperativeName,
+	handleGetCooperative,
 	handleGetCharacter
 } from './controller.js';
 
@@ -32,14 +34,6 @@ router.get('/',
 	showManageCooperative
 );
 //-----------------------------------------------------------------------------------------------//
-router.post('/get-cooperative',
-	requireLogin,
-	requireWorldEntered,
-	requireCanPlayTurn,
-	requireValidation(getCooperativeSchema),
-	handleGetCooperative
-);
-//-----------------------------------------------------------------------------------------------//
 router.post('/reserve-cooperative-name',
 	limitReserveNameRate,
 	requireLogin,
@@ -47,6 +41,22 @@ router.post('/reserve-cooperative-name',
 	requireCanPlayTurn,
 	requireValidation(reserveCooperativeNameSchema),
 	handleReserveCooperativeName
+);
+//-----------------------------------------------------------------------------------------------//
+router.post('/cancel-cooperative-name',
+	requireLogin,
+	requireWorldEntered,
+	requireCanPlayTurn,
+	requireValidation(cancelCooperativeNameSchema),
+	handleCancelCooperativeName
+);
+//-----------------------------------------------------------------------------------------------//
+router.post('/get-cooperative',
+	requireLogin,
+	requireWorldEntered,
+	requireCanPlayTurn,
+	requireValidation(getCooperativeSchema),
+	handleGetCooperative
 );
 //-----------------------------------------------------------------------------------------------//
 router.post('/get-character',

@@ -9,6 +9,11 @@ export const GAME_ERROR = Object.freeze({
 		status: 409,
 		message: 'Er bestaat reeds een personage met deze naam.'
 	},
+	CHARACTER_NOT_FOUND: {
+		code: 'CHARACTER_NOT_FOUND',
+		status: 409,
+		message: 'Er bestaat geen personage met deze naam.'
+	},
 	BUILDING_NAME_TAKEN: {
 		code: 'BUILDING_NAME_TAKEN',
 		status: 409,
