@@ -413,13 +413,13 @@ async function handleInvite(event) {
 //===============================================================================================//
 function renderLeaveAction() {
 	elements.leaveAction.disabled = 
-		manageCooperative.joinAction ||
-		manageCooperative.foundAction ||
+		Boolean(manageCooperative.joinAction) ||
+		Boolean(manageCooperative.foundAction) ||
 		turn.phase.disabled;
 	
 	elements.leaveSection.classList.toggle(
         'd-none',
-        !state.cooperative
+        !Boolean(state.cooperative)
     );
 }
 //-----------------------------------------------------------------------------------------------//
@@ -456,12 +456,17 @@ function renderJoinAction() {
 	
 	elements.joinAction.classList.toggle(
         'd-none',
-        !manageCooperative.joinAction
+        !Boolean(manageCooperative.joinAction)
+    );
+	
+	elements.openJoinWindow.classList.toggle(
+        'd-none',
+        Boolean(manageCooperative.joinAction)
     );
 	
 	elements.openJoinWindow.disabled = 
-		(state.cooperative && !manageCooperative.leaveAction) ||
-		manageCooperative.foundAction ||
+		(Boolean(state.cooperative) && !Boolean(manageCooperative.leaveAction)) ||
+		Boolean(manageCooperative.foundAction) ||
 		turn.phase.disabled;
 	
 	elements.method.value = '';
@@ -491,7 +496,7 @@ function renderFoundAction() {
 		button.classList.add('btn-close');
 		button.disabled = turn.phase.disabled;
 		
-		button.addEventListener('click', () => {
+		button.addEventListener('click', async () => {
 			if (button.disabled)
 				return;
 			
@@ -507,12 +512,17 @@ function renderFoundAction() {
 	
 	elements.foundAction.classList.toggle(
         'd-none',
-        elements.foundAction.children.length === 0
+        !Boolean(manageCooperative.foundAction)
+    );
+	
+	elements.openFoundWindow.classList.toggle(
+        'd-none',
+        Boolean(manageCooperative.foundAction)
     );
 	
 	elements.openFoundWindow.disabled = 
-		(state.cooperative && !manageCooperative.leaveAction) ||
-		manageCooperative.joinAction ||
+		(Boolean(state.cooperative) && !Boolean(manageCooperative.leaveAction)) ||
+		Boolean(manageCooperative.joinAction) ||
 		turn.phase.disabled;
 	
 	elements.access.value = '';
@@ -557,16 +567,16 @@ function renderInviteActions() {
 	
 	elements.inviteActions.classList.toggle(
         'd-none',
-        elements.inviteActions.children.length === 0
+        !Boolean(manageCooperative.inviteActions)
     );
 	
 	elements.openInviteWindow.disabled = 
-		manageCooperative.leaveAction ||
+		Boolean(manageCooperative.leaveAction) ||
 		turn.phase.disabled;
 	
 	elements.inviteSection.classList.toggle(
         'd-none',
-        !state.cooperative
+        !Boolean(state.cooperative)
     );
 }
 //===============================================================================================//
@@ -614,14 +624,14 @@ async function getCooperative() {
 	if (elements.method.value === 'random') {
 		return {
 			id: null,
-			name: '(willekeurig)'
+			name: '(willekeurige coöperatie)'
 		}
 	}
 	
 	try {
 		const json = await turn.fetchJson({
 			url: '/game/world/turn/manage-cooperative/get-cooperative', 
-			body: { cooperativeName: cooperativeName: elements.joinName.value }
+			body: { cooperativeName: elements.joinName.value }
 		});
 		
 		if (!json) 

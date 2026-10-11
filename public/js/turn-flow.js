@@ -331,7 +331,7 @@ turn.handlePrevious = function() {
 }
 //-----------------------------------------------------------------------------------------------//
 turn.fetchJson = async function({ url, 
-								  body = null) {
+								  body = null }) {
     const res = await fetch(url, {
 		method: 'POST',
 		headers: {

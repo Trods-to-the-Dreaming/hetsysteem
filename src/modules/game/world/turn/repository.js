@@ -276,7 +276,7 @@ export function deleteAllUnusedCharacterBuildings({ characterId,
 export function deleteUnusedCooperative({ characterId,
 										  trx = knex }) {
 	return trx('cooperatives')
-		.where({ leader_id: characterId })
+		.where({ founder_id: characterId })
 		.whereNotIn('id', function () {
 			this.select('cooperative_id')
 				.from('cooperative_members');
