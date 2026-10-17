@@ -16,27 +16,27 @@ import { manageCooperativeSchema }         from './manage-cooperative/validation
 //===============================================================================================//
 
 export const birthTurnSchema = z.strictObject({
-	createCharacter:   createCharacterSchema,
-	manageCooperative: manageCooperativeSchema
+	createCharacterActions:   createCharacterSchema,
+	manageCooperativeActions: manageCooperativeSchema
 });
 //-----------------------------------------------------------------------------------------------//
 export const normalTurnSchema = z.strictObject({
-	manageBuildings: 		   manageBuildingsSchema,
-	manageEmploymentContracts: manageEmploymentContractsSchema,
-	manageRentalAgreements:    manageRentalAgreementsSchema,
-	produce: 				   produceSchema,
-	trade:					   tradeSchema,
-	share:					   shareSchema,
-	manageTime: 			   manageTimeSchema,
-	consume: 				   consumeSchema,
-	manageCooperative: 		   manageCooperativeSchema
+	manageBuildingsActions: 		  manageBuildingsSchema,
+	manageEmploymentContractsActions: manageEmploymentContractsSchema,
+	manageRentalAgreementsActions:    manageRentalAgreementsSchema,
+	produceActions: 				  produceSchema,
+	tradeActions:					  tradeSchema,
+	shareActions:					  shareSchema,
+	manageTimeActions: 			   	  manageTimeSchema,
+	consumeActions: 				  consumeSchema,
+	manageCooperativeActions: 		  manageCooperativeSchema
 });
 
 //===============================================================================================//
 
-export function validateActions({ turnSchema,
-								  actions }) {
-	const result = turnSchema.safeParse(actions);
+export function validatePhaseActions({ turnSchema,
+									   phaseActions }) {
+	const result = turnSchema.safeParse(phaseActions);
 			
 	if (!result.success) 
 		throw new BadRequestError(z.prettifyError(result.error));
@@ -47,5 +47,5 @@ export function validateActions({ turnSchema,
 //===============================================================================================//
 
 export const saveTurnSchema = z.strictObject({
-	actions: z.record(z.unknown())
+	phaseActions: z.record(z.string(), z.unknown())
 });

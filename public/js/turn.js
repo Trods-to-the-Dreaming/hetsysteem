@@ -23,7 +23,7 @@ export const turn = {
 				const key = localStorage.key(i);
 				if (key.startsWith(prefix)) {
 					const prop = key.slice(prefix.length);
-					object[prop] = this.load({ key: `${namespace}.${prop}` });
+					object[prop] = this.load(`${namespace}.${prop}`);
 				}
 			}
 			return object;

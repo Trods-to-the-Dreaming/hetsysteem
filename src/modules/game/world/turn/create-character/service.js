@@ -9,7 +9,7 @@ import {
 import {
 	lockWorld,
 	lockCharacter,
-	findCharacter,
+	//findCharacter,
 	countCharacters,
 	insertCharacter,
 	updateCharacter,
@@ -26,55 +26,33 @@ const MSG_INVALID_PREFERENCE = 'Ongeldige job- of recreatievoorkeur.'
 
 //===============================================================================================//
 
-export async function loadCreateCharacter({ characterId,
-											trx = knex }) {
-	if (!characterId) {
-		return {
-			firstName: '',
-			lastName: '',
-			jobPreferences: [
-				{ buildingId: '' },
-				{ buildingId: '' },
-				{ buildingId: '' }
-			],
-			recreationPreference: { productId: '' }
-		}
-	}
+export const url = {
+	key: 'createCharacter',
+	url: '/game/world/turn/create-character'
+}
+//-----------------------------------------------------------------------------------------------//
+export async function loadActions({ characterId,
+									trx = knex }) {
+	const action = (characterId === null)
+		? undefined
+		: await findCreateCharacterAction({ characterId, trx });
 	
-	const character = await findCharacter({ characterId });
-	
-	const action = await findCreateCharacterAction({ characterId });
-	if (!action) {
-		return {
-			firstName: character.firstName,
-			lastName: character.lastName,
-			jobPreferences: [
-				{ buildingId: '' },
-				{ buildingId: '' },
-				{ buildingId: '' }
-			],
-			recreationPreference: { productId: '' }
-		};
-	}
-
 	return {
-		firstName: character.firstName,
-		lastName: character.lastName,
 		jobPreferences: [
-			{ buildingId: action.jobPreference1Id },
-			{ buildingId: action.jobPreference2Id },
-			{ buildingId: action.jobPreference3Id }
+			{ buildingId: action?.jobPreference1Id ?? null },
+			{ buildingId: action?.jobPreference2Id ?? null },
+			{ buildingId: action?.jobPreference3Id ?? null }
 		],
-		recreationPreference: { productId: action.recreationPreferenceId }
+		recreationPreference: {	productId: action?.recreationPreferenceId ?? null }
 	};
 }
 //-----------------------------------------------------------------------------------------------//
-export async function saveCreateCharacter({ characterId, 
-											createCharacter }) {
+export async function saveActions({ characterId, 
+									actions }) {
 	const {
 		jobPreferences,
 		recreationPreference
-	} = createCharacter;
+	} = actions;
 
     try {
 		await knex.transaction(async (trx) => {
@@ -95,7 +73,7 @@ export async function saveCreateCharacter({ characterId,
 	}
 }
 //-----------------------------------------------------------------------------------------------//
-export async function processCreateCharacter(trx) {
+export async function processActions(trx) {
 	const actions = await listCreateCharacterActions(trx);
 	for (const action of actions) {
 		const {

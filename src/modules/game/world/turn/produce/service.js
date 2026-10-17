@@ -2,20 +2,25 @@ import knex from '#utils/db.js';
 
 //===============================================================================================//
 
-export async function loadProduce({ characterId,
+export const url = {
+	key: 'produce',
+	url: '/game/world/turn/produce'
+}
+//-----------------------------------------------------------------------------------------------//
+export async function loadActions({ characterId,
 									trx = knex }) {
 	
 }
 //-----------------------------------------------------------------------------------------------//
-export async function saveProduce({ characterId,
-									produce,
+export async function saveActions({ characterId,
+									actions,
 									trx = knex }) {
-	if (!produce)
+	if (!actions)
 		return;
 	
 	
 }
 //-----------------------------------------------------------------------------------------------//
-export async function processProduce(trx) {
+export async function processActions(trx) {
 	
 }

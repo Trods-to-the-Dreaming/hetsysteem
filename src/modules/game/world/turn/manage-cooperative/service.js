@@ -19,8 +19,22 @@ import {
 
 //===============================================================================================//
 
-export async function loadManageCooperative({ characterId,
-											  trx = knex }) {
+export const url = {
+	key: 'manageCooperative',
+	url: '/game/world/turn/manage-cooperative'
+}
+//-----------------------------------------------------------------------------------------------//
+export async function loadActions({ characterId,
+									trx = knex }) {
+	if (characterId === null) {
+		return {
+            leaveAction: false,
+            joinAction: null,
+            foundAction: null,
+            inviteActions: []
+        };
+	}
+	
 	const [
 		leaveActionExists,
 		joinAction,
@@ -35,22 +49,22 @@ export async function loadManageCooperative({ characterId,
 
 	return {
 		leaveAction: Boolean(leaveActionExists),
-		joinAction,
-		foundAction,
+		joinAction: joinAction ?? null,
+		foundAction: foundAction ?? null,
 		inviteActions
 	};
 }
 //-----------------------------------------------------------------------------------------------//
-export async function saveManageCooperative({ characterId,
-											  manageCooperative,
-											  trx = knex }) {
-	if (!manageCooperative)
+export async function saveActions({ characterId,
+									actions,
+									trx = knex }) {
+	if (!actions)
 		return;
 	
 	
 }
 //-----------------------------------------------------------------------------------------------//
-export async function processManageCooperative(trx) {
+export async function processActions(trx) {
 	
 }
 

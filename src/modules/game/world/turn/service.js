@@ -6,54 +6,63 @@ import knex from '#utils/db.js';
 } from '#modules/game/error.js';*/
 //-----------------------------------------------------------------------------------------------//
 import { 
-	loadCreateCharacter,
-	saveCreateCharacter,
-	processCreateCharacter 
+	url as createCharacterURL,
+	loadActions as loadCreateCharacterActions,
+	saveActions as saveCreateCharacterActions,
+	processActions as processCreateCharacterActions 
 } from './create-character/service.js';
 import { 
-	loadManageBuildings,
-	saveManageBuildings,
-	processManageBuildings
+	url as manageBuildingsURL,
+	loadActions as loadManageBuildingsActions,
+	saveActions as saveManageBuildingsActions,
+	processActions as processManageBuildingsActions
 } from './manage-buildings/service.js';
 import { 
-	loadManageEmploymentContracts,
-	saveManageEmploymentContracts,
-	processManageEmploymentContracts
+	url as manageEmploymentContractsURL,
+	loadActions as loadManageEmploymentContractsActions,
+	saveActions as saveManageEmploymentContractsActions,
+	processActions as processManageEmploymentContractsActions
 } from './manage-employment-contracts/service.js';
 import { 
-	loadManageRentalAgreements,
-	saveManageRentalAgreements,
-	processManageRentalAgreements
+	url as manageRentalAgreementsURL,
+	loadActions as loadManageRentalAgreementsActions,
+	saveActions as saveManageRentalAgreementsActions,
+	processActions as processManageRentalAgreementsActions
 } from './manage-rental-agreements/service.js';
 import { 
-	loadProduce,
-	saveProduce,
-	processProduce
+	url as produceURL,
+	loadActions as loadProduceActions,
+	saveActions as saveProduceActions,
+	processActions as processProduceActions
 } from './produce/service.js';
 import { 
-	loadTrade,
-	saveTrade,
-	processTrade
+	url as tradeURL,
+	loadActions as loadTradeActions,
+	saveActions as saveTradeActions,
+	processActions as processTradeActions
 } from './trade/service.js';
 import { 
-	loadShare,
-	saveShare,
-	processShare
+	url as shareURL,
+	loadActions as loadShareActions,
+	saveActions as saveShareActions,
+	processActions as processShareActions
 } from './share/service.js';
 import { 
-	loadConsume,
-	saveConsume,
-	processConsume
+	url as consumeURL,
+	loadActions as loadConsumeActions,
+	saveActions as saveConsumeActions,
+	processActions as processConsumeActions
 } from './consume/service.js';
 import { 
-	loadManageCooperative,
-	saveManageCooperative,
-	processManageCooperative
+	url as manageCooperativeURL,
+	loadActions as loadManageCooperativeActions,
+	saveActions as saveManageCooperativeActions,
+	processActions as processManageCooperativeActions
 } from './manage-cooperative/service.js';
 import {
 	birthTurnSchema,
 	normalTurnSchema,
-	validateActions
+	validatePhaseActions
 } from './validation.js';
 import {
 	listProducts,
@@ -100,7 +109,7 @@ export function loadTurn({ userId, worldId }) {
 
         if (!character) {
             const turn = await loadBirthTurn({
-                characterId: null,
+                character: null,
                 trx
             });
 
@@ -110,26 +119,24 @@ export function loadTurn({ userId, worldId }) {
             };
         }
 
-        const characterId = character.id;
-
         await cleanUp({
-            characterId,
+            characterId: character.id,
             trx
         });
 
         const characterState = await findCharacterState({
-            characterId,
+            characterId: character.id,
             trx
         });
 
         const turn = characterState
             ? await loadNormalTurn({
-                characterId,
+                character,
                 characterState,
                 trx
             })
             : await loadBirthTurn({
-                characterId,
+                character,
                 trx
             });
 
@@ -142,7 +149,7 @@ export function loadTurn({ userId, worldId }) {
 //-----------------------------------------------------------------------------------------------//
 export function saveTurn({ userId, 
 						   worldId,
-						   actions }) {
+						   phaseActions }) {
 	return knex.transaction(async (trx) => {
 		const character = await findCharacter({
 			userId,
@@ -160,13 +167,13 @@ export function saveTurn({ userId,
 		if (characterState) {
 			await saveNormalTurn({
 				characterId,
-				actions,
+				phaseActions,
 				trx
 			});
 		} else {
 			await saveBirthTurn({
 				characterId,
-				actions,
+				phaseActions,
 				trx
 			});
 		}
@@ -185,7 +192,7 @@ export function saveTurn({ userId,
 }
 //-----------------------------------------------------------------------------------------------//
 export async function processTurn() {
-	const [runId] = await startProcessActions();
+	/*const [runId] = await startProcessActions();
 	
 	try {
 		await knex.transaction(async (trx) => {
@@ -213,7 +220,7 @@ export async function processTurn() {
 		});
 		
 		throw err;
-	}
+	}*/
 }
 
 //===============================================================================================//
@@ -231,9 +238,11 @@ async function cleanUp({ characterId,
 	});
 }
 //-----------------------------------------------------------------------------------------------//
-async function loadNormalTurn({ characterId,
+async function loadNormalTurn({ character,
 								characterState,
 								trx }) {
+	const characterId = character.id;
+	
 	const [
 		products,
 		buildings,
@@ -247,14 +256,14 @@ async function loadNormalTurn({ characterId,
 		tenantAgreements,
 		landlordAgreements,
 		cooperative,
-		manageBuildings,
-		manageEmploymentContracts,
-		manageRentalAgreements,
-		produce,
-		trade,
-		share,
-		consume,
-		manageCooperative
+		manageBuildingsActions,
+		manageEmploymentContractsActions,
+		manageRentalAgreementsActions,
+		produceActions,
+		tradeActions,
+		shareActions,
+		consumeActions,
+		manageCooperativeActions
 	] = await Promise.all([
 		listProducts(),
 		listBuildings(),
@@ -268,14 +277,14 @@ async function loadNormalTurn({ characterId,
 		findTenantAgreements({ characterId, trx }),
 		findLandlordAgreements({ characterId, trx }),
 		findCooperative({ characterId, trx }),
-		loadManageBuildings({ characterId, trx }),
-		loadManageEmploymentContracts({ characterId, trx }),
-		loadManageRentalAgreements({ characterId, trx }),
-		loadProduce({ characterId, trx }),
-		loadTrade({ characterId, trx }),
-		loadShare({ characterId, trx }),
-		loadConsume({ characterId, trx }),
-		loadManageCooperative({ characterId, trx })
+		loadManageBuildingsActions({ characterId, trx }),
+		loadManageEmploymentContractsActions({ characterId, trx }),
+		loadManageRentalAgreementsActions({ characterId, trx }),
+		loadProduceActions({ characterId, trx }),
+		loadTradeActions({ characterId, trx }),
+		loadShareActions({ characterId, trx }),
+		loadConsumeActions({ characterId, trx }),
+		loadManageCooperativeActions({ characterId, trx })
 	]);
 	
 	return {
@@ -283,7 +292,9 @@ async function loadNormalTurn({ characterId,
 			products,
 			buildings
 		},
-		state: {
+		character: {
+			firstName: character.firstName,
+			lastName: character.lastName,
 			hoursAvailable: characterState.hoursAvailable,
 			ownedTiles: characterState.ownedTiles,
 			ownedProducts,
@@ -297,69 +308,44 @@ async function loadNormalTurn({ characterId,
 			landlordAgreements,
 			cooperative
 		},
-		actions: {
-			manageBuildings,
-			manageEmploymentContracts,
-			manageRentalAgreements,
-			produce,
-			trade,
-			share,
-			consume,
-			manageCooperative
+		phaseActions: {
+			manageBuildingsActions,
+			manageEmploymentContractsActions,
+			manageRentalAgreementsActions,
+			produceActions,
+			tradeActions,
+			shareActions,
+			consumeActions,
+			manageCooperativeActions
 		},
-		phases: [
-			{
-				key: 'manageBuildings',
-				url: '/game/world/turn/manage-buildings'
-			},
-			{
-				key: 'manageEmploymentContracts',
-				url: '/game/world/turn/manage-employment-contracts'
-			},
-			{
-				key: 'manageRentalAgreements',
-				url: '/game/world/turn/manage-rental-agreements'
-			},
-			{
-				key: 'produce',
-				url: '/game/world/turn/produce'
-			},
-			{
-				key: 'trade',
-				url: '/game/world/turn/trade'
-			},
-			{
-				key: 'share',
-				url: '/game/world/turn/share'
-			},
-			{
-				key: 'manageTime',
-				url: '/game/world/turn/manage-time'
-			},
-			{
-				key: 'consume',
-				url: '/game/world/turn/consume'
-			},
-			{
-				key: 'manageCooperative',
-				url: '/game/world/turn/manage-cooperative'
-			}
+		phaseURLs: [
+			manageBuildingsURL,
+			manageEmploymentContractsURL,
+			manageRentalAgreementsURL,
+			produceURL,
+			tradeURL,
+			shareURL,
+			manageTimeURL,
+			consumeURL,
+			manageCooperativeURL
 		]
 	};
 }
 //-----------------------------------------------------------------------------------------------//
-async function loadBirthTurn({ characterId,
+async function loadBirthTurn({ character,
 							   trx }) {
+	const characterId = character?.id ?? null;
+	
 	const [
 		jobs,
 		recreations,
-		createCharacter,
-		manageCooperative
+		createCharacterActions,
+		manageCooperativeActions
 	] = await Promise.all([
 		listJobs(),
 		listRecreations(),
-		loadCreateCharacter({ characterId, trx }),
-		loadManageCooperative({ characterId, trx })
+		loadCreateCharacterActions({ characterId, trx }),
+		loadManageCooperativeActions({ characterId, trx })
 	]);
 	
 	return {
@@ -367,105 +353,103 @@ async function loadBirthTurn({ characterId,
 			jobs,
 			recreations
 		},
-		actions: {
-			createCharacter,
-			manageCooperative
+		character: {
+			firstName: character?.firstName ?? null,
+			lastName: character?.lastName ?? null
 		},
-		phases: [
-			{
-				key: 'createCharacter',
-				url: '/game/world/turn/create-character'
-			},
-			{
-				key: 'manageCooperative',
-				url: '/game/world/turn/manage-cooperative'
-			}
+		phaseActions: {
+			createCharacterActions,
+			manageCooperativeActions
+		},
+		phaseURLs: [
+			createCharacterURL,
+			manageCooperativeURL
 		]
 	};
 }
 //-----------------------------------------------------------------------------------------------//
 async function saveNormalTurn({ characterId,
-								actions,
+								phaseActions,
 								trx }) {
-	const validatedActions = validateActions(
-		normalTurnSchema,
-		actions
-	);
+	const validatedPhaseActions = validatePhaseActions({
+		turnSchema: normalTurnSchema,
+		phaseActions
+	});
 	
 	const {
-		manageBuildings,
-		manageEmploymentContracts,
-		manageRentalAgreements,
-		produce,
-		trade,
-		share,
-		consume,
-		manageCooperative
-	} = validatedActions;
+		manageBuildingsActions,
+		manageEmploymentContractsActions,
+		manageRentalAgreementsActions,
+		produceActions,
+		tradeActions,
+		shareActions,
+		consumeActions,
+		manageCooperativeActions
+	} = validatedPhaseActions;
 	
-	await saveManageBuildings({ 
+	await saveManageBuildingsActions({ 
 		characterId,
-		manageBuildings,
+		actions: manageBuildingsActions,
 		trx
 	});
-	await saveManageEmploymentContracts({ 
+	await saveManageEmploymentContractsActions({ 
 		characterId,
-		manageEmploymentContracts,
+		actions: manageEmploymentContractsActions,
 		trx
 	});
-	await saveManageRentalAgreements({ 
+	await saveManageRentalAgreementsActions({ 
 		characterId,
-		manageRentalAgreements,
+		actions: manageRentalAgreementsActions,
 		trx
 	});
-	await saveProduce({ 
+	await saveProduceActions({ 
 		characterId,
-		produce,
+		actions: produceActions,
 		trx
 	});
-	await saveTrade({ 
+	await saveTradeActions({ 
 		characterId,
-		trade,
+		actions: tradeActions,
 		trx
 	});
-	await saveShare({ 
+	await saveShareActions({ 
 		characterId,
-		share,
+		actions: shareActions,
 		trx
 	});
-	await saveConsume({ 
+	await saveConsumeActions({ 
 		characterId,
-		consume,
+		actions: consumeActions,
 		trx
 	});
-	await saveManageCooperative({ 
+	await saveManageCooperativeActions({ 
 		characterId,
-		manageCooperative,
+		actions: manageCooperativeActions,
 		trx
 	});
 }
 //-----------------------------------------------------------------------------------------------//
 async function saveBirthTurn({ characterId,
-							   actions,
+							   phaseActions,
 							   trx }) {
-	const validatedActions = validateActions(
-		birthTurnSchema,
-		actions
-	);
+	const validatedPhaseActions = validatePhaseActions({
+		turnSchema: birthTurnSchema,
+		phaseActions
+	});
 	
 	const {
-		createCharacter,
-		manageCooperative
-	} = validatedActions;
+		createCharacterActions,
+		manageCooperativeActions
+	} = validatedPhaseActions;
 
-	await saveCreateCharacter({ 
+	await saveCreateCharacterActions({ 
 		characterId,
-		createCharacter,
+		actions: createCharacterActions,
 		trx
 	});
-	await saveManageCooperative({ 
+	await saveManageCooperativeActions({ 
 		characterId,
-		manageCooperative,
+		actions: manageCooperativeActions,
 		trx
 	});
 }

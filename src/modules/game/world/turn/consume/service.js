@@ -2,20 +2,25 @@ import knex from '#utils/db.js';
 
 //===============================================================================================//
 
-export async function loadConsume({ characterId,
+export const url = {
+	key: 'consume',
+	url: '/game/world/turn/consume'
+}
+//-----------------------------------------------------------------------------------------------//
+export async function loadActions({ characterId,
 									trx = knex }) {
 	
 }
 //-----------------------------------------------------------------------------------------------//
-export async function saveConsume({ characterId,
-									consume,
+export async function saveActions({ characterId,
+									actions,
 									trx = knex }) {
-	if (!consume)
+	if (!actions)
 		return;
 	
 	
 }
 //-----------------------------------------------------------------------------------------------//
-export async function processConsume(trx) {
+export async function processActions(trx) {
 	
 }

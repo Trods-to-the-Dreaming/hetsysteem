@@ -2,20 +2,25 @@ import knex from '#utils/db.js';
 
 //===============================================================================================//
 
-export async function loadTrade({ characterId,
-								  trx = knex }) {
+export const url = {
+	key: 'trade',
+	url: '/game/world/turn/trade'
+}
+//-----------------------------------------------------------------------------------------------//
+export async function loadActions({ characterId,
+									trx = knex }) {
 	
 }
 //-----------------------------------------------------------------------------------------------//
-export async function saveTrade({ characterId,
-								  trade,
-								  trx = knex }) {
-	if (!trade)
+export async function saveActions({ characterId,
+									actions,
+									trx = knex }) {
+	if (!actions)
 		return;
 	
 	
 }
 //-----------------------------------------------------------------------------------------------//
-export async function processTrade(trx) {
+export async function processActions(trx) {
 	
 }

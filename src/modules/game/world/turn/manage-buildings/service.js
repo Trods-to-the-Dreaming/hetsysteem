@@ -83,7 +83,12 @@ async function processConstructActions(trx) {
 
 //===============================================================================================//
 
-export async function loadManageBuildings({ characterId,
+export const url = {
+	key: 'manageBuildings',
+	url: '/game/world/turn/manage-buildings'
+}
+//-----------------------------------------------------------------------------------------------//
+export async function loadActions({ characterId,
 											trx = knex }) {
 	const demolishActions = await findDemolishActions({
 		characterId,
@@ -101,16 +106,16 @@ export async function loadManageBuildings({ characterId,
 	};
 }
 //-----------------------------------------------------------------------------------------------//
-export async function saveManageBuildings({ characterId,
-											manageBuildings,
-											trx = knex }) {
-	if (!manageBuildings)
+export async function saveActions({ characterId,
+									actions,
+									trx = knex }) {
+	if (!actions)
 		return;
 	
 	const { 
 		demolishActions,
 		constructActions 
-	} = manageBuildings;
+	} = actions;
 	
 	// Validate
 	if (demolishActions.length > 0) {
@@ -180,7 +185,7 @@ export async function saveManageBuildings({ characterId,
 	}
 }
 //-----------------------------------------------------------------------------------------------//
-export async function processManageBuildings(trx) {
+export async function processActions(trx) {
 	await processDemolishActions(trx);
 	await processConstructActions(trx);
 }

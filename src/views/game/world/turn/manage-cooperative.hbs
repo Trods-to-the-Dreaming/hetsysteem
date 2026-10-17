@@ -228,18 +228,16 @@ import { validateName } from '/js/name.validation.js';
 //-----------------------------------------------------------------------------------------------//
 let elements;
 let modals;
-let state;
-let manageCooperative;
+let cooperative;
+let actions;
 //-----------------------------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
 	turn.phase.initialize();
 });
 //===============================================================================================//
 turn.phase.load = function() {
-	state = {
-		cooperative: turn.storage.load('state.cooperative')
-	}
-	manageCooperative = turn.storage.load('actions.manageCooperative');
+	cooperative = turn.storage.load('character.cooperative');
+	actions = turn.storage.load('phaseActions.manageCooperativeActions');
 	
 	cacheElements();
 	createModals();
@@ -248,7 +246,7 @@ turn.phase.load = function() {
 }
 //-----------------------------------------------------------------------------------------------//
 turn.phase.save = function() {
-	turn.storage.save({ key: 'actions.manageCooperative', value: manageCooperative });
+	turn.storage.save({ key: 'phaseActions.manageCooperativeActions', value: actions });
 }
 //-----------------------------------------------------------------------------------------------//
 turn.phase.updateUI = function() {
@@ -314,12 +312,12 @@ function addEventListeners() {
 }
 //-----------------------------------------------------------------------------------------------//
 function initializeControls() {
-	elements.leaveAction.checked = manageCooperative.leaveAction;
-	elements.freeSlots.value = state.cooperative?.freeSlots ?? '';
+	elements.leaveAction.checked = actions.leaveAction;
+	elements.freeSlots.value = cooperative?.freeSlots ?? '';
 }
 //===============================================================================================//
 function handleLeaveActionChange() {
-	manageCooperative.leaveAction = elements.leaveAction.checked;
+	actions.leaveAction = elements.leaveAction.checked;
 	
 	turn.phase.updateUI();
 }
@@ -332,7 +330,7 @@ async function handleJoin(event) {
 	if (!cooperative)
 		return;
 	
-	manageCooperative.joinAction = { 
+	actions.joinAction = { 
 		cooperativeId: cooperative.id,
 		cooperativeName: cooperative.name 
 	};
@@ -368,7 +366,7 @@ async function handleFound(event) {
 	if (!cooperative)
 		return;
 	
-	manageCooperative.foundAction = { 
+	actions.foundAction = { 
 		cooperativeId: cooperative.id,
 		cooperativeName: cooperative.name,
 		isOpen: elements.access.value === 'open',
@@ -399,7 +397,7 @@ async function handleInvite(event) {
 	if (!character)
 		return;
 	
-	manageCooperative.inviteActions.push({ 
+	actions.inviteActions.push({ 
 		inviteeId: character.id,
 		inviteeFirstName: character.firstName,
 		inviteeLastName: character.lastName,
@@ -413,28 +411,28 @@ async function handleInvite(event) {
 //===============================================================================================//
 function renderLeaveAction() {
 	elements.leaveAction.disabled = 
-		Boolean(manageCooperative.joinAction) ||
-		Boolean(manageCooperative.foundAction) ||
+		Boolean(actions.joinAction) ||
+		Boolean(actions.foundAction) ||
 		turn.phase.disabled;
 	
 	elements.leaveSection.classList.toggle(
         'd-none',
-        !Boolean(state.cooperative)
+        !Boolean(cooperative)
     );
 }
 //-----------------------------------------------------------------------------------------------//
 function renderJoinAction() {
 	elements.joinAction.innerHTML = '';
 	
-	if (manageCooperative.joinAction) {
+	if (actions.joinAction) {
 		const li = document.createElement('li');
 		li.className = 'list-item-justify';
 		
-		if (manageCooperative.joinAction.cooperativeId !== null)
-			li.dataset.cooperativeId = manageCooperative.joinAction.cooperativeId;
+		if (actions.joinAction.cooperativeId !== null)
+			li.dataset.cooperativeId = actions.joinAction.cooperativeId;
 		
 		const span = document.createElement('span');
-		span.textContent = manageCooperative.joinAction.cooperativeName;
+		span.textContent = actions.joinAction.cooperativeName;
 		
 		const button = document.createElement('button');
 		button.type = 'button';
@@ -445,7 +443,7 @@ function renderJoinAction() {
 			if (button.disabled)
 				return;
 			
-			manageCooperative.joinAction = null;
+			actions.joinAction = undefined;
 			turn.phase.updateUI();
 		});
 		
@@ -456,17 +454,17 @@ function renderJoinAction() {
 	
 	elements.joinAction.classList.toggle(
         'd-none',
-        !Boolean(manageCooperative.joinAction)
+        !Boolean(actions.joinAction)
     );
 	
 	elements.openJoinWindow.classList.toggle(
         'd-none',
-        Boolean(manageCooperative.joinAction)
+        Boolean(actions.joinAction)
     );
 	
 	elements.openJoinWindow.disabled = 
-		(Boolean(state.cooperative) && !Boolean(manageCooperative.leaveAction)) ||
-		Boolean(manageCooperative.foundAction) ||
+		(Boolean(cooperative) && !Boolean(actions.leaveAction)) ||
+		Boolean(actions.foundAction) ||
 		turn.phase.disabled;
 	
 	elements.method.value = '';
@@ -477,19 +475,19 @@ function renderJoinAction() {
 function renderFoundAction() {
 	elements.foundAction.innerHTML = '';
 	
-	if (manageCooperative.foundAction) {
+	if (actions.foundAction) {
 		const li = document.createElement('li');
 		li.className = 'list-item-justify';
 		
-		li.dataset.cooperativeId = manageCooperative.foundAction.cooperativeId;
+		li.dataset.cooperativeId = actions.foundAction.cooperativeId;
 		
-		const access = manageCooperative.foundAction.isOpen ? 'open' : 'privé';
-		const maxMembers = manageCooperative.foundAction.maxMembers;
+		const access = actions.foundAction.isOpen ? 'open' : 'privé';
+		const maxMembers = actions.foundAction.maxMembers;
 		const small = document.createElement('small');
 		small.textContent = `(${access}, max. ${maxMembers})`;
 		
 		const span = document.createElement('span');
-		span.textContent = `${manageCooperative.foundAction.cooperativeName} `;
+		span.textContent = `${actions.foundAction.cooperativeName} `;
 		
 		const button = document.createElement('button');
 		button.type = 'button';
@@ -500,8 +498,10 @@ function renderFoundAction() {
 			if (button.disabled)
 				return;
 			
-			if (await cancelCooperativeName())
+			if (await cancelCooperativeName()) {
+				actions.foundAction = undefined;
 				turn.phase.updateUI();
+			}
 		});
 		
 		span.appendChild(small);
@@ -512,17 +512,17 @@ function renderFoundAction() {
 	
 	elements.foundAction.classList.toggle(
         'd-none',
-        !Boolean(manageCooperative.foundAction)
+        !Boolean(actions.foundAction)
     );
 	
 	elements.openFoundWindow.classList.toggle(
         'd-none',
-        Boolean(manageCooperative.foundAction)
+        Boolean(actions.foundAction)
     );
 	
 	elements.openFoundWindow.disabled = 
-		(Boolean(state.cooperative) && !Boolean(manageCooperative.leaveAction)) ||
-		Boolean(manageCooperative.joinAction) ||
+		(Boolean(cooperative) && !Boolean(actions.leaveAction)) ||
+		Boolean(actions.joinAction) ||
 		turn.phase.disabled;
 	
 	elements.access.value = '';
@@ -532,8 +532,8 @@ function renderFoundAction() {
 function renderInviteActions() {
 	elements.inviteActions.innerHTML = '';
 	
-	if (manageCooperative.inviteActions) {
-		manageCooperative.inviteActions.forEach((ia, index) => {
+	if (actions.inviteActions) {
+		actions.inviteActions.forEach((ia, index) => {
 			const li = document.createElement('li');
 			li.className = 'list-item-justify';
 			
@@ -554,7 +554,7 @@ function renderInviteActions() {
 				if (button.disabled)
 					return;
 				
-				manageCooperative.inviteActions.splice(index, 1);
+				actions.inviteActions.splice(index, 1);
 				turn.phase.updateUI();
 			});
 			
@@ -567,16 +567,16 @@ function renderInviteActions() {
 	
 	elements.inviteActions.classList.toggle(
         'd-none',
-        !Boolean(manageCooperative.inviteActions)
+        !Boolean(actions.inviteActions)
     );
 	
 	elements.openInviteWindow.disabled = 
-		Boolean(manageCooperative.leaveAction) ||
+		Boolean(actions.leaveAction) ||
 		turn.phase.disabled;
 	
 	elements.inviteSection.classList.toggle(
         'd-none',
-        !Boolean(state.cooperative)
+        !Boolean(cooperative)
     );
 }
 //===============================================================================================//
@@ -587,7 +587,7 @@ async function reserveCooperativeName() {
 			body: { cooperativeName: elements.foundName.value }
 		});
 		
-		if (!json) 
+		if (json === null) 
 			return null;
 
 		if (json.error) {
@@ -606,13 +606,12 @@ async function cancelCooperativeName() {
 	try {
 		const json = await turn.fetchJson({
 			url: '/game/world/turn/manage-cooperative/cancel-cooperative-name', 
-			body: { cooperativeId: manageCooperative.foundAction.cooperativeId }
+			body: { cooperativeId: actions.foundAction.cooperativeId }
 		});
 		
-		if (!json) 
+		if (json === null) 
 			return false;
-		
-		manageCooperative.foundAction = undefined;
+
 		return true;
 	} catch (err) {
 		turn.showNetworkError();

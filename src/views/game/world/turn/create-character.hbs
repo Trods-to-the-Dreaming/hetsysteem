@@ -70,18 +70,17 @@ import { validateName } from '/js/name.validation.js';
 //-----------------------------------------------------------------------------------------------//
 let elements;
 let constants;
-let createCharacter;
+let character;
+let actions;
 //-----------------------------------------------------------------------------------------------//
 document.addEventListener('DOMContentLoaded', () => {
 	turn.phase.initialize();
 });
 //===============================================================================================//
 turn.phase.load = function() {
-	constants = {
-		jobs: turn.storage.load('constants.jobs'),
-		recreations: turn.storage.load('constants.recreations')
-	}
-	createCharacter = turn.storage.load('actions.createCharacter');
+	constants = turn.storage.loadNamespace('constants');
+	character = turn.storage.loadNamespace('character');
+	actions = turn.storage.load('phaseActions.createCharacterActions');
 	
 	cacheElements();
 	addEventListeners();
@@ -89,16 +88,14 @@ turn.phase.load = function() {
 }
 //-----------------------------------------------------------------------------------------------//
 turn.phase.save = function() {
-	createCharacter = {
-		firstName: elements.firstName.value,
-		lastName: elements.lastName.value,
+	actions = {
 		jobPreferences: elements.jobPreferences.map(
 			jobPreference => ({ buildingId: jobPreference.value })
 		),
 		recreationPreference: { productId: elements.recreationPreference.value }
 	};
 
-	turn.storage.save({ key: 'actions.createCharacter', value: createCharacter });
+	turn.storage.save({ key: 'phaseActions.createCharacterActions', value: actions });
 }
 //-----------------------------------------------------------------------------------------------//
 turn.phase.updateUI = function() {
@@ -163,12 +160,12 @@ function initializeControls() {
 		textField: 'type'
 	});
 	
-	elements.firstName.value = createCharacter.firstName;
-	elements.lastName.value = createCharacter.lastName;
+	elements.firstName.value = character.firstName ?? '';
+	elements.lastName.value = character.lastName ?? '';	
 	elements.jobPreferences.forEach((jobPreference, index) => {
-		jobPreference.value = createCharacter.jobPreferences[index].buildingId;
+		jobPreference.value = actions.jobPreferences[index].buildingId ?? '';
 	});
-	elements.recreationPreference.value = createCharacter.recreationPreference.productId;
+	elements.recreationPreference.value = actions.recreationPreference.productId ?? '';
 }
 //===============================================================================================//
 function handleFirstNameInput() {
@@ -215,7 +212,7 @@ async function reserveCharacterName() {
 			}
 		});
 		
-		if (!json) 
+		if (json === null)
 			return null;
 
 		if (json.error) {

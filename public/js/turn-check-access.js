@@ -15,23 +15,18 @@ turn.phase = {
 			return;
 		}
 
-		turn.phases = turn.storage.load('phases');
+		turn.phaseURLs = turn.storage.load('phaseURLs');
 		turn.currentPhaseIndex = turn.storage.load('currentPhaseIndex');		
 		
-		this.index = turn.phases.findIndex((p) => p.key === phaseKey);
+		this.index = turn.phaseURLs.findIndex((p) => p.key === phaseKey);
 
 		if (this.index === -1 ||
 			this.index > turn.currentPhaseIndex) {
-			// The user tries to edit a phase that does not exist or has not been reached yet
-			if (turn.currentPhaseIndex < turn.phases.length) {
-				// Redirect to the current phase
-				location.replace(turn.phases[turn.currentPhaseIndex].url);
-				return;
-			} else {
-				// Redirect to the first phase, because all phases have been confirmed
-				location.replace(turn.phases[0].url);
-				return;
-			}
+			const targetIndex = turn.currentPhaseIndex < turn.phaseURLs.length
+                ? turn.currentPhaseIndex	// Not all phases have been confirmed yet
+                : 0; 						// All phases have been confirmed yet
+			
+			location.replace(turn.phaseURLs[targetIndex].url);
 		}
 	}
 //-----------------------------------------------------------------------------------------------//

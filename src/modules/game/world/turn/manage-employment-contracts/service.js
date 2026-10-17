@@ -2,20 +2,25 @@ import knex from '#utils/db.js';
 
 //===============================================================================================//
 
-export async function loadManageEmploymentContracts({ characterId,
-													  trx = knex }) {
+export const url = {
+	key: 'manageEmploymentContracts',
+	url: '/game/world/turn/manage-employment-contracts'
+}
+//-----------------------------------------------------------------------------------------------//
+export async function loadActions({ characterId,
+									trx = knex }) {
 	
 }
 //-----------------------------------------------------------------------------------------------//
-export async function saveManageEmploymentContracts({ characterId,
-													  manageEmploymentContracts,
-													  trx = knex }) {
-	if (!manageEmploymentContracts)
+export async function saveActions({ characterId,
+									actions,
+									trx = knex }) {
+	if (!actions)
 		return;
 	
 	
 }
 //-----------------------------------------------------------------------------------------------//
-export async function processManageEmploymentContracts(trx) {
+export async function processActions(trx) {
 	
 }

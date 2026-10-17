@@ -68,7 +68,11 @@ export function findCharacter({ userId,
 								worldId, 
 								trx = knex }) {
 	return trx('characters')
-		.select({ id: 'id' })
+		.select({ 
+			id: 'id',
+			firstName: 'first_name',
+			lastName: 'last_name'
+		})
 		.where({ 
 			user_id: userId,
 			world_id: worldId

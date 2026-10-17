@@ -2,20 +2,25 @@ import knex from '#utils/db.js';
 
 //===============================================================================================//
 
-export async function loadShare({ characterId,
-								  trx = knex }) {
+export const url = {
+	key: 'share',
+	url: '/game/world/turn/share'
+}
+//-----------------------------------------------------------------------------------------------//
+export async function loadActions({ characterId,
+									trx = knex }) {
 	
 }
 //-----------------------------------------------------------------------------------------------//
-export async function saveShare({ characterId,
-								  share,
-								  trx = knex }) {
-	if (!share)
+export async function saveActions({ characterId,
+									actions,
+									trx = knex }) {
+	if (!actions)
 		return;
 	
 	
 }
 //-----------------------------------------------------------------------------------------------//
-export async function processShare(trx) {
+export async function processActions(trx) {
 	
 }

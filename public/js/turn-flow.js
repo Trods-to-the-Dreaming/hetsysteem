@@ -89,7 +89,7 @@ turn.phase = {
 		
 		// Layout
 		const editDiv = document.createElement('div');
-		editDiv.classList.add('mt-lg');
+		editDiv.classList.add('mt-lg', 'stack');
 		editDiv.append(
 			confirmButton, 
 			saveButton, 
@@ -166,8 +166,8 @@ turn.phase = {
 //-----------------------------------------------------------------------------------------------//
 	show() {
 		const isFirstPhase = (this.index === 0);
-		const isLastPhase = (this.index === turn.phases.length - 1);
-		const isCurrentPhase = (this.index === turn.currentPhaseIndex);
+		const isLastPhase = (this.index === turn.phaseURLs.length - 1);
+		const isCurrentPhase = (this.index === turn.currentPhaseIndex);	
 		
 		this.elements.confirmButton.classList.toggle('d-none', !isCurrentPhase || isLastPhase);
 		this.elements.editButton.classList.toggle('d-none', isCurrentPhase);
@@ -190,20 +190,15 @@ turn.phase = {
 		const modal = bootstrap.Modal.getInstance(this.elements.editWarningDiv);
 		modal.hide();
 		
-		this.elements.confirmButton.classList.remove('d-none');
-		this.elements.editButton.classList.add('d-none');
-		this.elements.nextButton.classList.add('d-none');
-		
-		for (let i = this.index + 1; i < turn.phases.length; i++) {
-			const key = turn.phases[i].key;
-			turn.storage.remove(`phases.${key}`);
+		for (let i = this.index + 1; i < turn.phaseURLs.length; i++) {
+			const key = turn.phaseURLs[i].key;
+			turn.storage.remove(`phaseActions.${key}Actions`);
 		}
 		
 		turn.storage.save('currentPhaseIndex', this.index);
 		turn.currentPhaseIndex = this.index;
 		
-		this.disabled = false;
-		this.updateUI();
+		this.show();
 	},
 //-----------------------------------------------------------------------------------------------//
 	async handleConfirm() {
@@ -228,18 +223,15 @@ turn.handleLoad = async function() {
 		
 	if (this.isActive) {
 		// The user is already editing the turn in this browser
-		this.phases = this.storage.load('phases');
+		this.phaseURLs = this.storage.load('phaseURLs');
 		this.currentPhaseIndex = this.storage.load('currentPhaseIndex');
 		
-		if (turn.currentPhaseIndex < turn.phases.length) {
-			// Redirect to the current phase
-			location.replace(turn.phases[turn.currentPhaseIndex].url);
-			return;
-		} else {
-			// Redirect to the first phase, because all phases have been confirmed
-			location.replace(turn.phases[0].url);
-			return;
-		}
+		const targetIndex = turn.currentPhaseIndex < turn.phaseURLs.length
+			? turn.currentPhaseIndex	// Not all phases have been confirmed yet
+			: 0; 						// All phases have been confirmed yet
+		
+		location.replace(turn.phaseURLs[targetIndex].url);
+		return;
 	}
 	
 	let json;
@@ -259,21 +251,21 @@ turn.handleLoad = async function() {
 	}
 	
 	const constants = json.turn.constants;
-	const state = json.turn.state;
-	const actions = json.turn.actions;
-	const phases = json.turn.phases;
+	const character = json.turn.character;
+	const phaseActions = json.turn.phaseActions;
+	const phaseURLs = json.turn.phaseURLs;
 	const isSaved = json.turn.isSaved;
 	
-	const currentPhaseIndex = isSaved ? phases.length : 0;
+	const currentPhaseIndex = isSaved ? phaseURLs.length : 0;
 
 	this.storage.saveNamespace({ namespace: 'constants', object: constants });
-	this.storage.saveNamespace({ namespace: 'state', object: state });
-	this.storage.saveNamespace({ namespace: 'actions', object: actions });
-	this.storage.save({ key: 'phases', value: phases });
+	this.storage.saveNamespace({ namespace: 'character', object: character });
+	this.storage.saveNamespace({ namespace: 'phaseActions', object: phaseActions });
+	this.storage.save({ key: 'phaseURLs', value: phaseURLs });
 	this.storage.save({ key: 'currentPhaseIndex', value: currentPhaseIndex });
 	this.storage.save({ key: 'isActive', value: true });
 
-	location.replace(phases[0].url);
+	location.replace(phaseURLs[0].url);
 }
 //-----------------------------------------------------------------------------------------------//
 turn.handleSave = async function() {
@@ -289,25 +281,18 @@ turn.handleSave = async function() {
 	
 	const actions = this.storage.loadNamespace('actions');
 	
+	alert('actions: ' + JSON.stringify(actions));
+	
 	try {
-		const res = await fetch('/game/world/turn/save', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ actions })
+		const json = await turn.fetchJson({
+			url: '/game/world/turn/save', 
+			body: { actions }
 		});
 		
-		if (!res.ok) {
-			const json = await res.json();
-
-			if (json.redirect) {
-				location.assign(json.redirect);
-				return;
-			}
-
-			throw new Error(`HTTP ${res.status}`);
-		}
+		if (json === null)
+			return;
 	} catch (err) {
-		this.showNetworkError();
+		turn.showNetworkError();
 		return;
 	}
 	
@@ -323,11 +308,11 @@ turn.handleCancel = async function() {
 }
 //-----------------------------------------------------------------------------------------------//
 turn.handleNext = function() {
-	location.assign(this.phases[this.phase.index + 1].url);
+	location.assign(this.phaseURLs[this.phase.index + 1].url);
 }
 //-----------------------------------------------------------------------------------------------//
 turn.handlePrevious = function() {
-	location.assign(this.phases[this.phase.index - 1].url);
+	location.assign(this.phaseURLs[this.phase.index - 1].url);
 }
 //-----------------------------------------------------------------------------------------------//
 turn.fetchJson = async function({ url, 
@@ -345,15 +330,13 @@ turn.fetchJson = async function({ url,
 		})
     });
 
-    const json = await res.json();
+    const text = await res.text();
+    const json = text ? JSON.parse(text) : undefined;
 
-    if (json.redirect) {
+    if (json?.redirect) {
         location.assign(json.redirect);
         return null;
     }
-	
-	if (!res.ok && !json.error)
-		throw new Error(`HTTP ${res.status}`);
 	
     return json;
 }

@@ -24,7 +24,7 @@ export function lockCharacter({ userId,
 		.first();
 }
 //-----------------------------------------------------------------------------------------------//
-export function findCharacter({ characterId,
+/*export function findCharacter({ characterId,
 								trx = knex }) {
 	return trx('characters')
 		.select({ 
@@ -33,7 +33,7 @@ export function findCharacter({ characterId,
 		})
 		.where({ id: characterId })
 		.first();
-}
+}*/
 //-----------------------------------------------------------------------------------------------//
 export function countCharacters({ worldId,
 								  trx = knex }) {

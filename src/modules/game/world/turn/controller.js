@@ -31,13 +31,13 @@ export async function handleLoadTurn(req, res) {
 //-----------------------------------------------------------------------------------------------//
 export async function handleSaveTurn(req, res) {
 	const { user, world } = req.session;
-	const { actions } = req.validatedData;
+	const { phaseActions } = req.validatedData;
 	
 	try {
 		await saveTurn({ 
 			userId: user.id, 
 			worldId: world.id,
-			actions
+			phaseActions
 		});
 		
 		return res.sendStatus(204);
